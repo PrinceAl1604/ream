@@ -808,9 +808,16 @@ document.getElementById('roleTabs').addEventListener('click', (e) => {
   const t = e.target.closest('.role-tab');
   if (!t) return;
   selectRole(t.dataset.role);
+  try { history.replaceState(null, '', '#' + t.dataset.role); } catch (_) {}
 });
 
-selectRole('admin');
+const VALID_ROLES = ['admin', 'customer', 'sales_agent', 'sales_manager', 'finance_manager', 'follow_up_agent', 'follow_up_manager'];
+const initialRole = VALID_ROLES.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'admin';
+selectRole(initialRole);
+window.addEventListener('hashchange', () => {
+  const r = location.hash.slice(1);
+  if (VALID_ROLES.includes(r)) selectRole(r);
+});
 </script>
 
 </body>
