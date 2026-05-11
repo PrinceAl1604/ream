@@ -1,0 +1,428 @@
+/* ============================================================
+   REAM · Dashboards — shared styles
+   Used by every role-specific dashboard:
+     - dashboard-customer.html (loan holder)
+     - dashboard-sales-{agent,manager,admin}.html
+     - dashboard-finance-{agent,manager,admin}.html
+     - dashboard-followup-{agent,manager,admin}.html
+   Builds on top of ream.css (which provides the shell:
+   .browser, .app, .sidebar, .main, .topbar, etc.)
+   ============================================================ */
+
+/* ------- Page header (greeting + role pill) ------- */
+.dash-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 16px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.dash-head h1 {
+  font: 600 22px var(--font-sans);
+  color: var(--color-grey-900);
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
+}
+.dash-head .sub {
+  font-size: 13px;
+  color: var(--color-grey-600);
+}
+.role-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--color-brand-50); color: var(--color-brand-700);
+  padding: 4px 10px; border-radius: 999px;
+  font: 600 11.5px var(--font-sans);
+  white-space: nowrap;
+}
+.role-pill.success { background: var(--color-success-50); color: var(--color-success-700); }
+.role-pill.warn    { background: var(--color-warning-50); color: var(--color-warning-700); }
+.role-pill.info    { background: #dbeafe; color: #1e40af; }
+.role-pill.purple  { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+/* ------- KPI strip ------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi {
+  background: #fff;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.kpi .icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--color-brand-50); color: var(--color-brand-700);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.kpi .icon.success { background: var(--color-success-50); color: var(--color-success-700); }
+.kpi .icon.warn    { background: var(--color-warning-50); color: var(--color-warning-700); }
+.kpi .icon.danger  { background: var(--color-error-50);   color: var(--color-error-700); }
+.kpi .icon.info    { background: #dbeafe; color: #1e40af; }
+.kpi .icon.neutral { background: var(--color-grey-100); color: var(--color-grey-700); }
+.kpi .k {
+  font-size: 11.5px;
+  color: var(--color-grey-600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.kpi .v {
+  font-size: 26px; font-weight: 600;
+  color: var(--color-grey-900);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.kpi .delta {
+  font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-weight: 500;
+}
+.kpi .delta.up    { color: var(--color-success-700); }
+.kpi .delta.down  { color: var(--color-error-600); }
+.kpi .delta.flat  { color: var(--color-grey-500); }
+
+/* ------- Layout rows ------- */
+.row-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.row-1-1 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+.row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (max-width: 1100px) {
+  .row-2-1, .row-1-1, .row-3 { grid-template-columns: 1fr; }
+}
+
+/* ------- Panel ------- */
+.panel {
+  background: #fff;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.panel .h {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.panel .h h3 {
+  font: 600 14.5px var(--font-sans);
+  color: var(--color-grey-900);
+  margin: 0;
+}
+.panel .h .meta {
+  font-size: 11.5px;
+  color: var(--color-grey-500);
+}
+.panel .h a, .panel .h .lnk {
+  font-size: 12.5px;
+  color: var(--color-brand-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+.panel .h a:hover { text-decoration: underline; }
+
+/* ------- Quick action grid ------- */
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 700px) { .qa-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.qa {
+  background: #fff;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 14px;
+  text-decoration: none;
+  color: inherit;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.qa:hover {
+  border-color: var(--color-brand-400);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -4px rgba(82, 49, 200, 0.15);
+}
+.qa .ico {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--color-brand-50); color: var(--color-brand-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.qa .ico.success { background: var(--color-success-50); color: var(--color-success-700); }
+.qa .ico.warn    { background: var(--color-warning-50); color: var(--color-warning-700); }
+.qa .ico.danger  { background: var(--color-error-50);   color: var(--color-error-700); }
+.qa .ico.info    { background: #dbeafe; color: #1e40af; }
+.qa .t { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+.qa .d { font-size: 11.5px; color: var(--color-grey-600); }
+
+/* ------- Activity row ------- */
+.act-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.act-row:last-child { border-bottom: 0; }
+.act-row .dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--color-brand-50); color: var(--color-brand-700);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.act-row .dot.success { background: var(--color-success-50); color: var(--color-success-700); }
+.act-row .dot.warn    { background: var(--color-warning-50); color: var(--color-warning-700); }
+.act-row .dot.danger  { background: var(--color-error-50);   color: var(--color-error-700); }
+.act-row .dot.info    { background: #dbeafe; color: #1e40af; }
+.act-row .text { flex: 1; min-width: 0; }
+.act-row .text .t { font-size: 13px; color: var(--color-grey-900); line-height: 1.4; }
+.act-row .text .t b { font-weight: 600; }
+.act-row .meta { font-size: 11px; color: var(--color-grey-500); margin-top: 2px; }
+
+/* ------- Pipeline (5-stage) ------- */
+.pipe {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+@media (max-width: 800px) { .pipe { grid-template-columns: repeat(3, 1fr); } }
+.pipe .stage {
+  background: var(--color-grey-50);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.pipe .stage .label {
+  font-size: 10.5px; color: var(--color-grey-600);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.pipe .stage .count {
+  font: 600 22px var(--font-sans);
+  color: var(--color-grey-900);
+}
+.pipe .stage .delta { font-size: 11px; color: var(--color-grey-500); margin-top: 2px; }
+.pipe .stage.hot { background: var(--color-brand-50); border-color: var(--color-brand-200); }
+.pipe .stage.hot .count { color: var(--color-brand-700); }
+
+/* ------- Bar chart ------- */
+.bars {
+  display: flex; align-items: flex-end; gap: 6px;
+  height: 120px;
+  padding: 8px 0;
+}
+.bars .b {
+  flex: 1;
+  background: var(--color-brand-300);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  min-height: 4px;
+  transition: background .15s;
+}
+.bars .b.now { background: var(--color-brand-600); }
+.bars .b.success { background: var(--color-success-400); }
+.bars .b.success.now { background: var(--color-success-600); }
+.bars .b:hover { background: var(--color-brand-500); }
+.bar-labels {
+  display: flex; gap: 6px; margin-top: 4px;
+  font-size: 10.5px; color: var(--color-grey-500);
+}
+.bar-labels span { flex: 1; text-align: center; }
+
+/* ------- Inline row list (queues, leaderboards, etc) ------- */
+.list-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.list-row:last-child { border-bottom: 0; }
+.list-row .ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--color-brand-100); color: var(--color-brand-800);
+  display: flex; align-items: center; justify-content: center;
+  font: 600 12px var(--font-sans);
+  flex-shrink: 0;
+}
+.list-row .ava.success { background: var(--color-success-100); color: var(--color-success-800); }
+.list-row .ava.warn { background: var(--color-warning-100); color: var(--color-warning-800); }
+.list-row .ava.info { background: #dbeafe; color: #1e3a8a; }
+.list-row .body .t { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+.list-row .body .d { font-size: 11.5px; color: var(--color-grey-600); }
+.list-row .right { text-align: right; }
+.list-row .right .v { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+.list-row .right .vd { font-size: 11px; color: var(--color-grey-500); }
+
+/* ------- Mini progress ------- */
+.mini-bar {
+  height: 6px; border-radius: 3px;
+  background: var(--color-grey-100);
+  overflow: hidden;
+  width: 100%;
+}
+.mini-bar > span {
+  display: block; height: 100%;
+  background: var(--color-brand-500);
+  border-radius: 3px;
+}
+.mini-bar.success > span { background: var(--color-success-500); }
+.mini-bar.warn > span    { background: var(--color-warning-500); }
+.mini-bar.danger > span  { background: var(--color-error-500); }
+
+/* ------- Donut (CSS conic) ------- */
+.donut {
+  --p: 65;
+  --c1: var(--color-brand-600);
+  --c2: var(--color-grey-100);
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--c1) calc(var(--p) * 1%), var(--c2) 0);
+  position: relative;
+  margin: 12px auto;
+}
+.donut::after {
+  content: ""; position: absolute; inset: 18px;
+  background: #fff; border-radius: 50%;
+}
+.donut + .donut-cap {
+  text-align: center;
+  margin-top: -86px;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.donut + .donut-cap .v {
+  font: 600 22px var(--font-sans);
+  color: var(--color-grey-900);
+}
+.donut + .donut-cap .l {
+  font-size: 11.5px; color: var(--color-grey-600);
+}
+
+/* ------- Status chips ------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: 500 11px var(--font-sans);
+  background: var(--color-grey-100);
+  color: var(--color-grey-700);
+}
+.chip.success { background: var(--color-success-50); color: var(--color-success-700); }
+.chip.warn    { background: var(--color-warning-50); color: var(--color-warning-700); }
+.chip.danger  { background: var(--color-error-50);   color: var(--color-error-700); }
+.chip.info    { background: #dbeafe; color: #1e40af; }
+.chip.brand   { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+/* ------- Funnel (sales) ------- */
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.funnel .step {
+  display: grid;
+  grid-template-columns: 110px 1fr 80px;
+  align-items: center;
+  gap: 12px;
+}
+.funnel .step .lbl { font-size: 12px; color: var(--color-grey-700); }
+.funnel .step .bar {
+  height: 24px; border-radius: 4px;
+  background: var(--color-brand-100);
+  position: relative;
+}
+.funnel .step .bar > span {
+  display: block; height: 100%;
+  background: var(--color-brand-500);
+  border-radius: 4px;
+  transition: width .3s;
+}
+.funnel .step .num { font: 600 13px var(--font-sans); color: var(--color-grey-900); text-align: right; }
+.funnel .step .pct { font-size: 11px; color: var(--color-grey-500); text-align: right; }
+
+/* ------- Aging buckets (finance) ------- */
+.aging {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+@media (max-width: 800px) { .aging { grid-template-columns: repeat(2, 1fr); } }
+.aging .bucket {
+  background: var(--color-grey-50);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.aging .bucket .lbl {
+  font-size: 11px; color: var(--color-grey-600); text-transform: uppercase; letter-spacing: 0.04em;
+}
+.aging .bucket .v {
+  font: 600 18px var(--font-sans); color: var(--color-grey-900);
+  margin: 4px 0 2px;
+}
+.aging .bucket .ct { font-size: 11px; color: var(--color-grey-500); }
+.aging .bucket.cur { background: var(--color-success-50); border-color: #bbf7d0; }
+.aging .bucket.b30 { background: #fef9c3; border-color: #fde68a; }
+.aging .bucket.b60 { background: #ffedd5; border-color: #fed7aa; }
+.aging .bucket.b90 { background: #fee2e2; border-color: #fecaca; }
+.aging .bucket.b120{ background: #fecaca; border-color: #fca5a5; color: #7f1d1d; }
+.aging .bucket.b120 .lbl { color: #991b1b; }
+.aging .bucket.b120 .v { color: #7f1d1d; }
+
+/* ------- Empty / utility ------- */
+.empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--color-grey-500);
+  font-size: 13px;
+}
+.empty i { font-size: 28px; color: var(--color-grey-300); display: block; margin-bottom: 8px; }
+
+/* ------- Sparkline (svg-friendly inline placeholder) ------- */
+.spark {
+  display: block;
+  width: 100%; height: 36px;
+}
+
+/* ------- Table tweaks for dashboards ------- */
+.table-compact th, .table-compact td {
+  padding: 8px 10px !important;
+  font-size: 12.5px !important;
+}
+
+/* ------- Tip / banner ------- */
+.tip {
+  margin-top: 24px;
+  padding: 14px 18px;
+  background: var(--color-brand-50);
+  border: 1px solid var(--color-brand-100);
+  border-radius: 10px;
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px;
+  color: var(--color-brand-800);
+}
+.tip i { font-size: 18px; flex-shrink: 0; }
+.tip a { color: var(--color-brand-700); font-weight: 600; text-decoration: none; }
+.tip a:hover { text-decoration: underline; }
+.tip.success { background: var(--color-success-50); border-color: #bbf7d0; color: var(--color-success-800); }
+.tip.success a { color: var(--color-success-700); }
+.tip.warn { background: var(--color-warning-50); border-color: #fde68a; color: #92400e; }
+.tip.warn a { color: #92400e; }

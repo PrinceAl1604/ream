@@ -1,0 +1,1699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Prospects</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="dialog.css" />
+<link rel="stylesheet" href="settings-shared.css" />
+<style>
+  /* ----- Prospects list ----- */
+  .stage-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-default);
+    overflow-x: auto;
+  }
+  .stage-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg3);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+  }
+  .stage-tab .cnt {
+    font-size: 11px;
+    background: var(--color-grey-100);
+    color: var(--fg3);
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .stage-tab:hover { color: var(--fg2); }
+  .stage-tab.active {
+    color: var(--color-brand-600);
+    border-bottom-color: var(--color-brand-600);
+  }
+  .stage-tab.active .cnt {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+
+  .name-cell {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .name-cell .ava {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+  .name-cell .info { line-height: 1.25; min-width: 0; }
+  .name-cell .info .nm { font-size: 13px; font-weight: 500; color: var(--color-grey-800); }
+  .name-cell .info .em { font-size: 11px; color: var(--fg3); }
+
+  .interest-cell {
+    display: flex; flex-direction: column; line-height: 1.3;
+  }
+  .interest-cell .ttl { font-size: 13px; color: var(--color-grey-800); }
+  .interest-cell .typ { font-size: 11px; color: var(--fg3); }
+
+  .agent-cell {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .agent-cell .ava {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 600; color: white;
+  }
+  .agent-cell .nm { font-size: 12px; color: var(--color-grey-700); }
+  .agent-cell.unassigned .nm { color: var(--fg4); font-style: italic; }
+
+  .row-link td { cursor: pointer; }
+  .row-link:hover td { background: var(--color-brand-50) !important; }
+
+  .insight-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .insight-strip .card { padding: 14px 16px; }
+  .insight-strip .card-title { font-size: 12px; margin-bottom: 4px; }
+  .insight-strip .card-value { font-size: 20px; }
+  .insight-strip .delta { font-size: 11px; margin-top: 4px; }
+  .insight-strip .delta.up { color: var(--color-success-600); }
+  .insight-strip .delta.muted { color: var(--fg3); }
+  .insight-strip .delta.warn { color: var(--color-warning-700); }
+
+  /* ===== Share-intake dialog ===== */
+  .share-modal { width: 540px; }
+  .intake-url {
+    display: flex; align-items: center; gap: 0;
+    background: var(--color-grey-50);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    overflow: hidden;
+    font: 13px var(--font-mono, ui-monospace, Menlo, monospace);
+  }
+  .intake-url .scheme {
+    padding: 9px 0 9px 12px;
+    color: var(--fg4);
+    flex-shrink: 0;
+  }
+  .intake-url input {
+    flex: 1; min-width: 0;
+    border: 0; outline: 0;
+    background: transparent;
+    padding: 9px 4px;
+    color: var(--color-grey-900);
+    font: inherit;
+  }
+  .intake-url .copy-btn {
+    border: 0;
+    background: var(--color-brand-600);
+    color: #fff;
+    padding: 0 14px;
+    height: 38px;
+    cursor: pointer;
+    font: 500 12px var(--font-sans);
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background .15s;
+  }
+  .intake-url .copy-btn:hover { background: var(--color-brand-700); }
+  .intake-url .copy-btn.ok { background: var(--color-success-600); }
+
+  .share-channels {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .share-channels .chan {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 8px;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--color-grey-700);
+    transition: all .15s;
+  }
+  .share-channels .chan:hover {
+    border-color: var(--color-brand-300);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .share-channels .chan i { font-size: 20px; }
+  .share-channels .chan span { font: 500 11px var(--font-sans); }
+
+  .share-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 18px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+    font: 12px var(--font-sans);
+  }
+  .share-meta .row { display: flex; justify-content: space-between; gap: 8px; }
+  .share-meta .row .k { color: var(--fg3); }
+  .share-meta .row .v { color: var(--color-grey-800); font-weight: 500; }
+  .share-meta .row .v.lnk { color: var(--color-brand-600); cursor: pointer; }
+  .share-meta .row .v.lnk:hover { text-decoration: underline; }
+
+  .qr-block {
+    display: flex; gap: 14px;
+    margin-top: 14px;
+    padding: 14px;
+    background: var(--color-grey-50);
+    border-radius: 10px;
+    align-items: center;
+  }
+  .qr-svg {
+    width: 88px; height: 88px;
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 6px;
+    padding: 6px;
+    flex-shrink: 0;
+  }
+  .qr-block .txt { font: 12px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+  .qr-block .txt strong { color: var(--color-grey-900); display: block; margin-bottom: 2px; font-size: 13px; }
+
+  /* ===== Add-manually dialog ===== */
+  .am-modal { width: 580px; }
+  /* Reset the global .field box so labels+inputs don't render as double-bordered cards */
+  .am-form .field { border: 0; padding: 0; border-radius: 0; min-width: 0; display: block; }
+  .am-form { display: flex; flex-direction: column; gap: 14px; padding: 6px 20px 18px; }
+  .am-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .am-form .row.one { grid-template-columns: 1fr; }
+  .am-form label {
+    display: block;
+    font: 500 11px var(--font-sans);
+    color: var(--fg3);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .am-form input[type="text"],
+  .am-form input[type="email"],
+  .am-form input[type="tel"],
+  .am-form input[type="number"],
+  .am-form select,
+  .am-form textarea {
+    width: 100%;
+    padding: 9px 11px;
+    font: 13px var(--font-sans);
+    color: var(--color-grey-900);
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 7px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .am-form input:focus,
+  .am-form select:focus,
+  .am-form textarea:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-50);
+  }
+  .am-form textarea { resize: vertical; min-height: 64px; }
+  .am-form .help {
+    font: 11px var(--font-sans);
+    color: var(--fg4);
+    margin-top: 4px;
+  }
+  .am-form .err {
+    font: 11px var(--font-sans);
+    color: var(--color-error-600);
+    margin-top: 4px;
+    display: none;
+  }
+  .am-form .field.invalid input,
+  .am-form .field.invalid select { border-color: var(--color-error-500); }
+  .am-form .field.invalid .err { display: block; }
+
+  .seg {
+    display: inline-flex;
+    background: var(--color-grey-100);
+    border-radius: 7px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg button {
+    border: 0;
+    background: transparent;
+    padding: 6px 12px;
+    font: 500 12px var(--font-sans);
+    color: var(--fg3);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .seg button.active {
+    background: white;
+    color: var(--color-brand-700);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  .loan-fields { display: none; }
+  .loan-fields.show { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ===== Row-action dialog panes (call / email / schedule / reassign) ===== */
+  .act-pane { display: none; flex-direction: column; gap: 14px; padding: 6px 20px 18px; }
+  .act-pane.show { display: flex; }
+  .act-pane .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .act-pane .row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .act-pane .row.one { grid-template-columns: 1fr; }
+  .act-pane .field { border: 0; padding: 0; border-radius: 0; min-width: 0; display: block; }
+  .act-pane label {
+    display: block;
+    font: 500 11px var(--font-sans);
+    color: var(--fg3);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .act-pane input[type="text"],
+  .act-pane input[type="email"],
+  .act-pane input[type="tel"],
+  .act-pane input[type="number"],
+  .act-pane input[type="date"],
+  .act-pane input[type="time"],
+  .act-pane input[type="datetime-local"],
+  .act-pane select,
+  .act-pane textarea {
+    width: 100%;
+    padding: 9px 11px;
+    font: 14px var(--font-sans);
+    color: var(--fg0);
+    background: white;
+    border: 1px solid var(--color-grey-300);
+    border-radius: 8px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .act-pane input:focus,
+  .act-pane select:focus,
+  .act-pane textarea:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-50);
+  }
+  .act-pane textarea { resize: vertical; min-height: 72px; font-family: var(--font-sans); }
+  .act-pane .help { font: 11px var(--font-sans); color: var(--fg4); margin-top: 4px; }
+  .act-pane .err { font: 11px var(--font-sans); color: var(--color-error-600); margin-top: 4px; display: none; }
+  .act-pane .field.invalid input,
+  .act-pane .field.invalid select,
+  .act-pane .field.invalid textarea { border-color: var(--color-error-500); }
+  .act-pane .field.invalid .err { display: block; }
+  .act-pane .seg { display: inline-flex; background: var(--color-grey-100); border: 1px solid var(--color-grey-200); border-radius: 8px; padding: 2px; gap: 2px; }
+  .act-pane .seg button {
+    border: 0; background: transparent; padding: 6px 12px; border-radius: 6px;
+    font: 500 12px var(--font-sans); color: var(--fg2); cursor: pointer; transition: all .12s;
+  }
+  .act-pane .seg.full { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+  .act-pane .seg.three { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+  .act-pane .seg button.active { background: white; color: var(--color-brand-700); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .act-pane .check { display: inline-flex; align-items: center; gap: 8px; font: 13px var(--font-sans); color: var(--fg1); cursor: pointer; }
+
+  /* Email recipient pill */
+  .act-pane .recipient {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 8px 6px 6px; background: var(--color-grey-50);
+    border: 1px solid var(--color-grey-200); border-radius: 999px;
+    font: 13px var(--font-sans); color: var(--fg0);
+  }
+  .act-pane .recipient .av {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 10px var(--font-sans);
+  }
+
+  /* Agent radio cards (reassign) */
+  .agent-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .agent-cards label {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1px solid var(--color-grey-200); border-radius: 10px;
+    font: 500 13px var(--font-sans); color: var(--fg0); cursor: pointer;
+    transition: all .12s; text-transform: none; letter-spacing: 0; margin: 0;
+  }
+  .agent-cards label:hover { border-color: var(--color-grey-300); background: var(--color-grey-50); }
+  .agent-cards label.checked {
+    border-color: var(--color-brand-500); background: var(--color-brand-50);
+    box-shadow: 0 0 0 3px var(--color-brand-50);
+  }
+  .agent-cards input { position: absolute; opacity: 0; pointer-events: none; }
+  .agent-cards .av {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 11px var(--font-sans); flex-shrink: 0;
+  }
+  .agent-cards .meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .agent-cards .meta .nm { font: 500 13px var(--font-sans); color: var(--fg0); }
+  .agent-cards .meta .lo { font: 11px var(--font-sans); color: var(--fg3); }
+
+  /* Email template chips */
+  .tpl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tpl-chips button {
+    border: 1px solid var(--color-grey-200); background: white;
+    padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    font: 500 12px var(--font-sans); color: var(--fg2);
+  }
+  .tpl-chips button:hover { background: var(--color-grey-50); }
+  .tpl-chips button.active { background: var(--color-brand-50); color: var(--color-brand-700); border-color: var(--color-brand-200); }
+
+  /* ===== Toaster ===== */
+  #toaster {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex; flex-direction: column; gap: 8px;
+    align-items: center;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--color-grey-900);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font: 500 13px var(--font-sans);
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    pointer-events: auto;
+    animation: tIn .2s ease-out;
+  }
+  .toast.success { background: var(--color-success-600); }
+  .toast.warn { background: var(--color-warning-600); }
+  .toast.err { background: var(--color-error-600); }
+  .toast i { font-size: 15px; }
+  @keyframes tIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============================================================
+     Responsive
+     ----------------------------------------------------------------
+     Breakpoints:
+       ≤1180px  insight-strip 3 cols, allow filter chips to wrap
+       ≤960px   insight-strip horizontal scroll-snap row
+                stage-tabs horizontal scroll
+                filter chips horizontal scroll
+                table: hide est-monthly, last-activity, agent
+                page header stacks
+       ≤720px   table → stacked cards (mobile-card layout)
+                page actions become icon-led, share collapses to icon
+                table-footer stacks
+       ≤480px   insight-strip → 2-up grid (denser),
+                title size bumped down,
+                meta-labels in cards shrink, hide last-activity
+     ============================================================ */
+
+  /* — page-head wrapper for responsive stacking — */
+  .ph-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .ph-head .ph-title { min-width: 0; flex: 1; }
+  .ph-head .ph-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  /* default: hide the icon-only fallback button labels */
+  .ph-actions .ph-icon-only { display: none; }
+
+  /* — filter-chips: scroll-snap on mobile — */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* — table-footer made responsive — */
+  .table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 4px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1180px) {
+    .insight-strip { grid-template-columns: repeat(3, 1fr); }
+    .insight-strip .card:nth-child(4),
+    .insight-strip .card:nth-child(5) { grid-column: span 1; }
+  }
+
+  @media (max-width: 960px) {
+    /* Page header: stack title + actions */
+    .ph-head {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ph-head .ph-actions { width: 100%; }
+    .ph-head .ph-actions .btn { flex: 1; justify-content: center; }
+
+    /* Insight strip: horizontal scroll-snap so users can swipe through KPIs */
+    .insight-strip {
+      display: flex;
+      grid-template-columns: none;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 4px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .insight-strip::-webkit-scrollbar { display: none; }
+    .insight-strip .card {
+      flex: 0 0 160px;
+      scroll-snap-align: start;
+      min-width: 0;
+    }
+
+    /* Stage tabs: scroll horizontally */
+    .stage-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin: 0 -16px;
+      padding: 0 16px 6px;
+      scrollbar-width: none;
+    }
+    .stage-tabs::-webkit-scrollbar { display: none; }
+    .stage-tab { flex-shrink: 0; }
+
+    /* Filter row: scroll horizontally */
+    .filter-row {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin: 0 -16px;
+      padding: 0 16px 4px;
+      scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-row > * { flex-shrink: 0; }
+    .filter-row > [style*="flex:1"] { display: none; } /* spacer */
+    .filter-row .btn-text { order: 99; } /* push reset to end */
+
+    /* Table: trim less-essential columns */
+    #prospectsTable thead th:nth-child(5),  /* Est. monthly */
+    #prospectsTable thead th:nth-child(7),  /* Assigned to */
+    #prospectsTable thead th:nth-child(8),  /* Last activity */
+    #prospectsTable tbody td:nth-child(5),
+    #prospectsTable tbody td:nth-child(7),
+    #prospectsTable tbody td:nth-child(8) {
+      display: none;
+    }
+  }
+
+  /* — Tablet & phone: convert table to stacked cards — */
+  @media (max-width: 720px) {
+    /* Page header — actions become compact, share collapses to icon-only */
+    .ph-head .ph-actions { gap: 6px; }
+    .ph-head .ph-actions .ph-icon-only { display: inline-flex; }
+    .ph-head .ph-actions .ph-full { display: none; }
+
+    /* Reset table styles */
+    #prospectsTable,
+    #prospectsTable thead,
+    #prospectsTable tbody,
+    #prospectsTable tr,
+    #prospectsTable th,
+    #prospectsTable td {
+      display: block;
+      border: 0;
+      padding: 0;
+      background: transparent !important;
+    }
+    #prospectsTable thead { display: none; }
+    #prospectsTable {
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    /* Each row → card */
+    #prospectsTable tbody tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 12px;
+      row-gap: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-default);
+      border-radius: 14px;
+      background: var(--color-base-white);
+      position: relative;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .03);
+    }
+    #prospectsTable tbody tr.row-link:hover { background: var(--color-base-white); }
+    #prospectsTable tbody tr.row-link:active { background: var(--color-brand-50); }
+
+    /* Hide checkbox cell on mobile (use table-wide select via filter row instead) */
+    #prospectsTable tbody td:nth-child(1) { display: none; }
+
+    /* Cell 2: Prospect name — top-left, leaves room for kebab */
+    #prospectsTable tbody td:nth-child(2) {
+      grid-column: 1 / 2;
+      grid-row: 1;
+    }
+    #prospectsTable tbody td:nth-child(2) .name-cell .ava { width: 36px; height: 36px; font-size: 12px; }
+    #prospectsTable tbody td:nth-child(2) .name-cell .info .nm { font-size: 14px; }
+    #prospectsTable tbody td:nth-child(2) .name-cell .info .em {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    /* Cell 9: kebab — top-right */
+    #prospectsTable tbody td:nth-child(9) {
+      grid-column: 2 / 3;
+      grid-row: 1;
+      align-self: start;
+    }
+    #prospectsTable tbody td:nth-child(9) .row-kebab { padding: 6px 8px; }
+
+    /* Cell 3: Interest — full width, second row */
+    #prospectsTable tbody td:nth-child(3) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      padding: 8px 0 6px;
+      border-top: 1px dashed var(--border-default);
+      margin-top: 2px;
+    }
+    #prospectsTable tbody td:nth-child(3) .interest-cell .ttl { font-size: 14px; font-weight: 500; }
+    #prospectsTable tbody td:nth-child(3) .interest-cell .typ { font-size: 12px; }
+
+    /* Meta rows (Payment, Monthly, Stage, Agent, Last-activity) — labelled */
+    #prospectsTable tbody td:nth-child(4),
+    #prospectsTable tbody td:nth-child(5),
+    #prospectsTable tbody td:nth-child(6),
+    #prospectsTable tbody td:nth-child(7),
+    #prospectsTable tbody td:nth-child(8) {
+      grid-column: 1 / -1;
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+    #prospectsTable tbody td:nth-child(4)::before,
+    #prospectsTable tbody td:nth-child(5)::before,
+    #prospectsTable tbody td:nth-child(6)::before,
+    #prospectsTable tbody td:nth-child(7)::before,
+    #prospectsTable tbody td:nth-child(8)::before {
+      content: "";
+      flex: 0 0 96px;
+      font: 500 10px var(--font-sans);
+      color: var(--fg3);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    #prospectsTable tbody td:nth-child(4)::before { content: "Payment"; }
+    #prospectsTable tbody td:nth-child(5)::before { content: "Est. monthly"; }
+    #prospectsTable tbody td:nth-child(6)::before { content: "Stage"; }
+    #prospectsTable tbody td:nth-child(7)::before { content: "Assigned to"; }
+    #prospectsTable tbody td:nth-child(8)::before { content: "Last activity"; }
+
+    /* Show all rows again at this breakpoint, since we restructured */
+    #prospectsTable tbody td:nth-child(5),
+    #prospectsTable tbody td:nth-child(7),
+    #prospectsTable tbody td:nth-child(8) {
+      display: flex !important;
+    }
+    /* Group payment + stage on the same line for visual rhythm */
+    #prospectsTable tbody td:nth-child(6) { padding-top: 6px; border-top: 1px dashed var(--border-default); margin-top: 2px; }
+
+    /* Last-activity styling stays compact */
+    #prospectsTable tbody td:nth-child(8) { font-size: 12px; color: var(--fg3); }
+
+    /* Table footer stacks */
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      padding: 14px 4px 4px;
+      text-align: center;
+    }
+    .table-footer .pager { justify-content: center; }
+  }
+
+  @media (max-width: 480px) {
+    .page-title { font-size: 22px; }
+    .ph-head + div { font-size: 12px; }
+
+    /* Insight strip cards: 2-up grid (more glanceable than scroll on tiny phones) */
+    .insight-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      overflow: visible;
+      margin: 0;
+      padding: 0;
+      gap: 8px;
+    }
+    .insight-strip .card {
+      flex: initial;
+      padding: 10px 12px;
+    }
+    .insight-strip .card-value { font-size: 18px; }
+    .insight-strip .card-title { font-size: 11px; }
+
+    /* Hide the lowest-priority meta on tiny screens */
+    #prospectsTable tbody td:nth-child(5),  /* est monthly */
+    #prospectsTable tbody td:nth-child(8) { /* last activity */
+      display: none !important;
+    }
+
+    /* Card padding tightens */
+    #prospectsTable tbody tr {
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+    #prospectsTable tbody td:nth-child(4)::before,
+    #prospectsTable tbody td:nth-child(5)::before,
+    #prospectsTable tbody td:nth-child(6)::before,
+    #prospectsTable tbody td:nth-child(7)::before,
+    #prospectsTable tbody td:nth-child(8)::before {
+      flex: 0 0 80px;
+      font-size: 9px;
+    }
+    #prospectsTable tbody td:nth-child(2) .name-cell .info .em { max-width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Prospects</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true">
+          <span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true">
+          <span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item active" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-text-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false">
+          <span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false">
+          <span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="#"><i class="ri-calendar-check-line"></i> Repayments <span class="nav-dot"></span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="#"><i class="ri-shield-check-line"></i> Payment review <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="portfolio.html"><i class="ri-pie-chart-2-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Prospects</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search by name, email, plot…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="ph-head">
+          <div class="ph-title">
+            <h1 class="page-title">Prospects</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:560px;">
+              Leads who self-declared interest through your public form. Track each one through the pipeline and convert qualified prospects into customers in one click.
+            </div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-secondary ph-full" type="button" onclick="openShareIntake()"><i class="ri-share-forward-line"></i> Share intake link</button>
+            <button class="btn btn-secondary ph-icon-only" type="button" onclick="openShareIntake()" aria-label="Share intake link" title="Share intake link"><i class="ri-share-forward-line"></i></button>
+            <button class="btn btn-primary" type="button" onclick="openAddManually()"><i class="ri-add-line"></i> <span class="ph-full">Add manually</span><span class="ph-icon-only">Add</span></button>
+          </div>
+        </div>
+
+        <!-- Insight strip -->
+        <div class="insight-strip">
+          <div class="card">
+            <div class="card-title">New this week</div>
+            <div class="card-value">14</div>
+            <div class="delta up">+27% vs last week</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Active pipeline</div>
+            <div class="card-value">42</div>
+            <div class="delta muted">across 4 stages</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Avg. time-to-contact</div>
+            <div class="card-value">3.2h</div>
+            <div class="delta up">−42min this month</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Conversion rate</div>
+            <div class="card-value">31%</div>
+            <div class="delta up">+4pt MoM</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Stale &gt; 7 days</div>
+            <div class="card-value" style="color: var(--color-warning-700);">6</div>
+            <div class="delta warn">need follow-up</div>
+          </div>
+        </div>
+
+        <!-- Stage tabs -->
+        <div class="stage-tabs" role="tablist">
+          <button class="stage-tab active"><i class="ri-list-check"></i> All <span class="cnt">42</span></button>
+          <button class="stage-tab"><span style="width:8px; height:8px; border-radius:50%; background: var(--color-blue-500);"></span> Created <span class="cnt">9</span></button>
+          <button class="stage-tab"><span style="width:8px; height:8px; border-radius:50%; background: var(--color-warning-500);"></span> In progress <span class="cnt">21</span></button>
+          <button class="stage-tab"><span style="width:8px; height:8px; border-radius:50%; background: var(--color-brand-500);"></span> Scheduled <span class="cnt">7</span></button>
+          <button class="stage-tab"><span style="width:8px; height:8px; border-radius:50%; background: var(--color-success-500);"></span> Approved <span class="cnt">3</span></button>
+          <button class="stage-tab"><span style="width:8px; height:8px; border-radius:50%; background: var(--color-grey-400);"></span> Abandoned <span class="cnt">2</span></button>
+        </div>
+
+        <!-- Filter row -->
+        <div class="filter-row">
+          <button class="btn btn-secondary btn-sm">Source: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Asset: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Payment: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Agent: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Created: Last 30 days ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <div style="flex:1;"></div>
+          <button class="btn btn-secondary btn-sm"><i class="ri-download-2-line"></i> Export CSV</button>
+        </div>
+
+        <!-- Prospect table -->
+        <div>
+          <table class="table" id="prospectsTable">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>Prospect</th>
+                <th>Interest</th>
+                <th>Payment</th>
+                <th>Est. monthly</th>
+                <th>Stage</th>
+                <th>Assigned to</th>
+                <th>Last activity</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-brand-600);">JM</span>
+                    <div class="info">
+                      <div class="nm">Joseph Mensah</div>
+                      <div class="em">joseph.mensah@gmail.com · +233 24 880 1142</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-014 · Brookfield</div>
+                    <div class="typ">House · 3 bd, 2 ba</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td><strong>$1,420</strong> <span style="color:var(--fg4); font-size:11px;">/ 25y</span></td>
+                <td><span class="badge badge-warning">In progress</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-brand-700);">KM</span>
+                    <span class="nm">Kevin Manga</span>
+                  </div>
+                </td>
+                <td style="color: var(--fg3); font-size:12px;">2h ago · call logged</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-blue-600);">EA</span>
+                    <div class="info">
+                      <div class="nm">Esi Asante</div>
+                      <div class="em">esi.a@outlook.com · +233 50 221 0098</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Exploring options</div>
+                    <div class="typ">Land · 0.25–0.5 acre</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-success">One-time</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td><span class="badge badge-info">Created</span></td>
+                <td>
+                  <div class="agent-cell unassigned">
+                    <i class="ri-user-add-line" style="color: var(--fg4); font-size:14px;"></i>
+                    <span class="nm">Unassigned</span>
+                  </div>
+                </td>
+                <td style="color: var(--fg3); font-size:12px;">5min ago · form submitted</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-pink-600);">LO</span>
+                    <div class="info">
+                      <div class="nm">Linda Owusu</div>
+                      <div class="em">l.owusu@workmail.io · +233 27 553 8810</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-022 · Cedar Hills</div>
+                    <div class="typ">Land · 0.18 acre</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td><strong>$420</strong> <span style="color:var(--fg4); font-size:11px;">/ 10y</span></td>
+                <td><span class="badge badge-brand">Scheduled</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-pink-600);">SN</span>
+                    <span class="nm">Sara Ndong</span>
+                  </div>
+                </td>
+                <td style="color: var(--color-brand-700); font-size:12px;"><i class="ri-calendar-event-line"></i> Mtg · Tomorrow 10am</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-success-600);">DK</span>
+                    <div class="info">
+                      <div class="nm">Daniel Kofi</div>
+                      <div class="em">dkofi@gmail.com · +233 24 110 4477</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-007 · Waxahachie</div>
+                    <div class="typ">House · 4 bd, 3 ba</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-success">One-time</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td><span class="badge badge-success">Approved</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-brand-700);">KM</span>
+                    <span class="nm">Kevin Manga</span>
+                  </div>
+                </td>
+                <td style="color: var(--color-success-700); font-size:12px;"><i class="ri-check-line"></i> Contract sent · 1d ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-orange-600);">MZ</span>
+                    <div class="info">
+                      <div class="nm">Marcus Zhao</div>
+                      <div class="em">marcus@zhao.dev · +1 415 220 7790</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-031 · Maple Crest</div>
+                    <div class="typ">House · 2 bd, 1 ba</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td><strong>$890</strong> <span style="color:var(--fg4); font-size:11px;">/ 15y</span></td>
+                <td><span class="badge badge-warning">In progress</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-blue-600);">DP</span>
+                    <span class="nm">Daniel Park</span>
+                  </div>
+                </td>
+                <td style="color: var(--color-warning-700); font-size:12px;"><i class="ri-time-line"></i> Stale · 8d ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-blue-700);">AT</span>
+                    <div class="info">
+                      <div class="nm">Adwoa Tetteh</div>
+                      <div class="em">adwoa.t@yahoo.com · +233 55 909 2231</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Exploring options</div>
+                    <div class="typ">House · budget $80k–120k</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td><span class="badge badge-info">Created</span></td>
+                <td>
+                  <div class="agent-cell unassigned">
+                    <i class="ri-user-add-line" style="color: var(--fg4); font-size:14px;"></i>
+                    <span class="nm">Unassigned</span>
+                  </div>
+                </td>
+                <td style="color: var(--fg3); font-size:12px;">22min ago · form submitted</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-grey-500);">RB</span>
+                    <div class="info">
+                      <div class="nm">Robert Boateng</div>
+                      <div class="em">rboateng@gmail.com · +233 24 882 4400</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-019 · Brookfield</div>
+                    <div class="typ">Land · 0.5 acre</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td style="color: var(--fg4);">$610 / 20y</td>
+                <td><span class="badge badge-neutral">Abandoned</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-pink-600);">SN</span>
+                    <span class="nm">Sara Ndong</span>
+                  </div>
+                </td>
+                <td style="color: var(--fg3); font-size:12px;">Cold · 21d ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" onclick="location.href='prospect-detail.html'">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="name-cell">
+                    <span class="ava" style="background: var(--color-success-700);">YG</span>
+                    <div class="info">
+                      <div class="nm">Yaa Gyasi</div>
+                      <div class="em">yaa@gyasi.co · +233 27 110 7788</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="interest-cell">
+                    <div class="ttl">Plot #LND-009 · Waxahachie</div>
+                    <div class="typ">House · 3 bd, 2 ba</div>
+                  </div>
+                </td>
+                <td><span class="badge badge-brand">Loan</span></td>
+                <td><strong>$1,180</strong> <span style="color:var(--fg4); font-size:11px;">/ 20y</span></td>
+                <td><span class="badge badge-warning">In progress</span></td>
+                <td>
+                  <div class="agent-cell">
+                    <span class="ava" style="background: var(--color-brand-700);">KM</span>
+                    <span class="nm">Kevin Manga</span>
+                  </div>
+                </td>
+                <td style="color: var(--fg3); font-size:12px;">3h ago · email sent</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div>Rows per page <strong>10 ▾</strong></div>
+            <div class="pager">
+              <span>Page 1 of 5</span>
+              <button class="icon-btn"><i class="ri-arrow-left-double-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-left-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-double-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============== Share-intake dialog ============== -->
+<div class="modal-backdrop" id="shareIntakeModal" style="display:none;" onclick="if(event.target===this)closeShareIntake()" role="dialog" aria-labelledby="shareIntakeTitle" aria-modal="true">
+  <div class="modal share-modal">
+    <div class="modal-head">
+      <div class="pm-modal-icon" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-share-forward-line"></i></div>
+      <div style="flex:1;">
+        <div class="modal-title" id="shareIntakeTitle">Share your intake link</div>
+        <div class="modal-sub">Anyone with this link can submit their interest. New entries land in <b>Created</b>.</div>
+      </div>
+      <button class="icon-btn" type="button" onclick="closeShareIntake()" aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+
+    <div class="modal-body" style="padding: 8px 20px 18px;">
+      <div class="intake-url">
+        <span class="scheme">https://</span>
+        <input id="intakeUrl" readonly value="ream.app/i/greenline-co" />
+        <button class="copy-btn" type="button" onclick="copyIntakeUrl(this)" id="intakeCopyBtn"><i class="ri-file-copy-line"></i> Copy</button>
+      </div>
+
+      <div class="share-channels">
+        <a class="chan" id="chanEmail" href="#" onclick="shareVia('email'); return false;"><i class="ri-mail-send-line"></i><span>Email</span></a>
+        <a class="chan" id="chanSms" href="#" onclick="shareVia('sms'); return false;"><i class="ri-message-3-line"></i><span>SMS</span></a>
+        <a class="chan" id="chanWA" href="#" onclick="shareVia('whatsapp'); return false;"><i class="ri-whatsapp-line"></i><span>WhatsApp</span></a>
+        <a class="chan" href="#" onclick="qrPrint(); return false;"><i class="ri-printer-line"></i><span>Print QR</span></a>
+      </div>
+
+      <div class="qr-block">
+        <svg class="qr-svg" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg">
+          <!-- decorative deterministic QR-like pattern -->
+          <rect width="76" height="76" fill="white"/>
+          <g fill="#0f0e16">
+            <!-- finder TL -->
+            <rect x="4" y="4" width="20" height="20" fill="#0f0e16"/>
+            <rect x="8" y="8" width="12" height="12" fill="#fff"/>
+            <rect x="12" y="12" width="4" height="4" fill="#0f0e16"/>
+            <!-- finder TR -->
+            <rect x="52" y="4" width="20" height="20" fill="#0f0e16"/>
+            <rect x="56" y="8" width="12" height="12" fill="#fff"/>
+            <rect x="60" y="12" width="4" height="4" fill="#0f0e16"/>
+            <!-- finder BL -->
+            <rect x="4" y="52" width="20" height="20" fill="#0f0e16"/>
+            <rect x="8" y="56" width="12" height="12" fill="#fff"/>
+            <rect x="12" y="60" width="4" height="4" fill="#0f0e16"/>
+            <!-- modules -->
+            <rect x="28" y="4" width="4" height="4"/><rect x="36" y="4" width="4" height="4"/><rect x="44" y="4" width="4" height="4"/>
+            <rect x="32" y="12" width="4" height="4"/><rect x="40" y="8" width="4" height="4"/><rect x="48" y="12" width="4" height="4"/>
+            <rect x="28" y="20" width="4" height="4"/><rect x="36" y="20" width="4" height="4"/><rect x="44" y="20" width="4" height="4"/>
+            <rect x="4" y="28" width="4" height="4"/><rect x="12" y="32" width="4" height="4"/><rect x="20" y="28" width="4" height="4"/>
+            <rect x="28" y="32" width="4" height="4"/><rect x="32" y="28" width="4" height="4"/><rect x="40" y="32" width="4" height="4"/><rect x="44" y="28" width="4" height="4"/>
+            <rect x="48" y="32" width="4" height="4"/><rect x="56" y="28" width="4" height="4"/><rect x="64" y="32" width="4" height="4"/><rect x="72" y="28" width="4" height="4"/>
+            <rect x="4" y="36" width="4" height="4"/><rect x="16" y="36" width="4" height="4"/><rect x="24" y="40" width="4" height="4"/>
+            <rect x="32" y="36" width="4" height="4"/><rect x="40" y="40" width="4" height="4"/><rect x="48" y="36" width="4" height="4"/>
+            <rect x="56" y="40" width="4" height="4"/><rect x="64" y="36" width="4" height="4"/>
+            <rect x="8" y="44" width="4" height="4"/><rect x="20" y="44" width="4" height="4"/><rect x="28" y="48" width="4" height="4"/>
+            <rect x="36" y="44" width="4" height="4"/><rect x="44" y="48" width="4" height="4"/><rect x="52" y="44" width="4" height="4"/>
+            <rect x="60" y="48" width="4" height="4"/><rect x="68" y="44" width="4" height="4"/>
+            <rect x="28" y="56" width="4" height="4"/><rect x="40" y="56" width="4" height="4"/><rect x="48" y="60" width="4" height="4"/>
+            <rect x="56" y="56" width="4" height="4"/><rect x="68" y="60" width="4" height="4"/>
+            <rect x="32" y="64" width="4" height="4"/><rect x="44" y="64" width="4" height="4"/><rect x="52" y="68" width="4" height="4"/>
+            <rect x="60" y="64" width="4" height="4"/><rect x="68" y="68" width="4" height="4"/>
+            <rect x="28" y="72" width="4" height="4"/><rect x="40" y="72" width="4" height="4"/><rect x="56" y="72" width="4" height="4"/>
+          </g>
+        </svg>
+        <div class="txt">
+          <strong>Print or scan</strong>
+          Hand out flyers at site visits and open houses. Each scan tracks the source as <code style="font-size:11px;">utm=qr</code>.
+        </div>
+      </div>
+
+      <div class="share-meta">
+        <div class="row"><span class="k">Status</span><span class="v" style="color: var(--color-success-700);"><i class="ri-checkbox-circle-fill"></i> Active</span></div>
+        <div class="row"><span class="k">Submissions</span><span class="v">142 all-time · 14 this week</span></div>
+        <div class="row"><span class="k">Created</span><span class="v">Mar 8, 2025</span></div>
+        <div class="row"><span class="k">Auto-assign</span><span class="v lnk" onclick="toast('Settings → Public form', 'info')">Round-robin agents</span></div>
+        <div class="row" style="grid-column: 1 / -1;"><span class="k">Embed code</span><span class="v lnk" onclick="copyEmbed()"><i class="ri-code-s-slash-line"></i> Copy &lt;iframe&gt;</span></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-text btn-sm" type="button" onclick="rotateIntake()"><i class="ri-refresh-line"></i> Rotate slug</button>
+      <div style="flex:1;"></div>
+      <a class="btn btn-secondary btn-sm" href="prospect-public.html" target="_blank" rel="noopener"><i class="ri-external-link-line"></i> Preview form</a>
+      <button class="btn btn-primary btn-sm" type="button" onclick="closeShareIntake()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== Add-manually dialog ============== -->
+<div class="modal-backdrop" id="addManuallyModal" style="display:none;" onclick="if(event.target===this)closeAddManually()" role="dialog" aria-labelledby="addManTitle" aria-modal="true">
+  <div class="modal am-modal">
+    <div class="modal-head">
+      <div class="pm-modal-icon" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-user-add-line"></i></div>
+      <div style="flex:1;">
+        <div class="modal-title" id="addManTitle">Add prospect manually</div>
+        <div class="modal-sub">Use this for walk-ins, referrals, and call-ins. Source defaults to <b>Walk-in</b>.</div>
+      </div>
+      <button class="icon-btn" type="button" onclick="closeAddManually()" aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+
+    <form class="am-form" id="addManualForm" onsubmit="return submitAddManual(event)">
+      <div class="row">
+        <div class="field">
+          <label for="amFirst">First name *</label>
+          <input id="amFirst" type="text" required autocomplete="given-name" />
+          <div class="err">Required</div>
+        </div>
+        <div class="field">
+          <label for="amLast">Last name *</label>
+          <input id="amLast" type="text" required autocomplete="family-name" />
+          <div class="err">Required</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="amEmail">Email *</label>
+          <input id="amEmail" type="email" required autocomplete="email" />
+          <div class="err">Valid email required</div>
+        </div>
+        <div class="field">
+          <label for="amPhone">Phone</label>
+          <input id="amPhone" type="tel" placeholder="+1 555 123 4567" autocomplete="tel" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="amSource">Source *</label>
+          <select id="amSource" required>
+            <option value="WALK_IN">Walk-in</option>
+            <option value="REFERRAL">Referral</option>
+            <option value="CALL_IN">Phone call</option>
+            <option value="MARKETING">Marketing campaign</option>
+            <option value="PARTNER">Partner agent</option>
+            <option value="EVENT">Event / open house</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="amAgent">Assign to</label>
+          <select id="amAgent">
+            <option value="">Unassigned (round-robin)</option>
+            <option value="me" selected>Me — Kevin Manga</option>
+            <option value="sn">Sara Ndong</option>
+            <option value="dp">Daniel Park</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="amInterest">Interested in</label>
+        <select id="amInterest">
+          <option value="">Exploring options</option>
+          <option value="LND-014">Plot #LND-014 · Brookfield</option>
+          <option value="LND-019">Plot #LND-019 · Brookfield</option>
+          <option value="LND-022">Plot #LND-022 · Cedar Hills</option>
+          <option value="LND-031">Plot #LND-031 · Maple Crest</option>
+          <option value="LND-007">Plot #LND-007 · Waxahachie</option>
+          <option value="LND-009">Plot #LND-009 · Waxahachie</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Payment preference *</label>
+        <div class="seg" id="amPayment">
+          <button type="button" class="active" data-val="LOAN">Loan / financed</button>
+          <button type="button" data-val="CASH">One-time / cash</button>
+          <button type="button" data-val="UNDECIDED">Undecided</button>
+        </div>
+      </div>
+
+      <div class="loan-fields show" id="amLoanFields">
+        <div class="field">
+          <label for="amBudget">Budget (USD)</label>
+          <input id="amBudget" type="number" min="0" step="1000" placeholder="120000" />
+        </div>
+        <div class="field">
+          <label for="amDeposit">Deposit (USD)</label>
+          <input id="amDeposit" type="number" min="0" step="500" placeholder="24000" />
+        </div>
+        <div class="field">
+          <label for="amTerm">Term</label>
+          <select id="amTerm">
+            <option value="">—</option>
+            <option value="5">5 years</option>
+            <option value="10" selected>10 years</option>
+            <option value="15">15 years</option>
+            <option value="20">20 years</option>
+            <option value="25">25 years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row one">
+        <div class="field">
+          <label for="amNotes">Notes</label>
+          <textarea id="amNotes" placeholder="Where did they hear about us? What's the urgency? Anything an advisor should know before reaching out…"></textarea>
+        </div>
+      </div>
+    </form>
+
+    <div class="modal-foot">
+      <label style="display:inline-flex; align-items:center; gap: 6px; font: 12px var(--font-sans); color: var(--fg3); cursor: pointer;">
+        <input type="checkbox" id="amSendIntro" checked /> Send intake email to prospect
+      </label>
+      <div style="flex:1;"></div>
+      <button class="btn btn-text btn-sm" type="button" onclick="closeAddManually()">Cancel</button>
+      <button class="btn btn-primary btn-sm" type="submit" form="addManualForm" id="amSubmit">Create prospect</button>
+    </div>
+  </div>
+</div>
+
+<div id="toaster"></div>
+
+<script>
+  // ============================================================
+  // Share-intake handlers
+  // ============================================================
+  function openShareIntake() {
+    document.getElementById('shareIntakeModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // refresh share-channel hrefs from current url
+    refreshShareChannels();
+  }
+  function closeShareIntake() {
+    document.getElementById('shareIntakeModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  function fullIntakeUrl() {
+    return 'https://' + document.getElementById('intakeUrl').value.trim();
+  }
+  function refreshShareChannels() {
+    const url = fullIntakeUrl();
+    const subject = encodeURIComponent('Take a look at the plots we have available');
+    const body = encodeURIComponent('Hi — here\'s the form to register your interest. It takes about 2 minutes:\n\n' + url + '\n\nWe\'ll follow up within one business day.');
+    document.getElementById('chanEmail').href = `mailto:?subject=${subject}&body=${body}`;
+    document.getElementById('chanSms').href = `sms:?&body=${body}`;
+    document.getElementById('chanWA').href = `https://wa.me/?text=${body}`;
+  }
+  async function copyIntakeUrl(btn) {
+    const url = fullIntakeUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (_) {
+      // Fallback: select + execCommand
+      const inp = document.getElementById('intakeUrl');
+      inp.select(); document.execCommand('copy');
+    }
+    btn.classList.add('ok');
+    btn.innerHTML = '<i class="ri-check-line"></i> Copied';
+    toast('Link copied to clipboard', 'success');
+    setTimeout(() => {
+      btn.classList.remove('ok');
+      btn.innerHTML = '<i class="ri-file-copy-line"></i> Copy';
+    }, 1800);
+  }
+  function shareVia(channel) {
+    const labels = { email: 'Email', sms: 'SMS', whatsapp: 'WhatsApp' };
+    toast(`Opening ${labels[channel]}…`, 'info');
+  }
+  function qrPrint() {
+    const w = window.open('', '_blank', 'width=400,height=520');
+    if (!w) { toast('Pop-up blocked', 'warn'); return; }
+    const svg = document.querySelector('#shareIntakeModal .qr-svg').outerHTML;
+    const url = fullIntakeUrl();
+    w.document.write(`<!doctype html><html><head><title>Intake QR — ${url}</title>
+      <style>body{font-family:system-ui,sans-serif;text-align:center;padding:48px 24px;color:#1a1a1a}
+      h1{font-size:18px;margin:0 0 4px;font-weight:600} p{color:#666;font-size:13px;margin:0 0 32px}
+      .qr{width:280px;height:280px;margin:0 auto 24px} .url{font-family:monospace;font-size:13px;color:#1a1a1a}</style>
+      </head><body>
+      <h1>Pre-qualify with us</h1>
+      <p>Scan to register your interest in 2 minutes.</p>
+      <div class="qr">${svg.replace('class="qr-svg"', 'style="width:100%;height:100%"')}</div>
+      <div class="url">${url}</div>
+      <script>setTimeout(()=>window.print(),300)<\/script>
+      </body></html>`);
+    w.document.close();
+  }
+  async function copyEmbed() {
+    const url = fullIntakeUrl();
+    const code = `<iframe src="${url}?embed=1" width="100%" height="720" frameborder="0" loading="lazy" title="Pre-qualify form"></iframe>`;
+    try { await navigator.clipboard.writeText(code); } catch(_) {}
+    toast('Embed code copied', 'success');
+  }
+  function rotateIntake() {
+    if (!confirm('Rotate the public slug? The previous link will stop working immediately.')) return;
+    const slug = 'greenline-' + Math.random().toString(36).slice(2, 8);
+    document.getElementById('intakeUrl').value = 'ream.app/i/' + slug;
+    refreshShareChannels();
+    toast('New link issued', 'success');
+  }
+
+  // ============================================================
+  // Add-manually handlers
+  // ============================================================
+  function openAddManually() {
+    document.getElementById('addManuallyModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('amFirst').focus(), 50);
+  }
+  function closeAddManually() {
+    document.getElementById('addManuallyModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Segmented payment control
+  document.querySelectorAll('#amPayment button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#amPayment button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isLoan = btn.dataset.val === 'LOAN';
+      document.getElementById('amLoanFields').classList.toggle('show', isLoan);
+    });
+  });
+
+  function submitAddManual(e) {
+    e.preventDefault();
+    const f = document.getElementById('addManualForm');
+    // Reset validity flags
+    f.querySelectorAll('.field').forEach(x => x.classList.remove('invalid'));
+
+    let valid = true;
+    const required = [['amFirst', el => !!el.value.trim()],
+                      ['amLast',  el => !!el.value.trim()],
+                      ['amEmail', el => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())]];
+    required.forEach(([id, test]) => {
+      const el = document.getElementById(id);
+      if (!test(el)) { el.closest('.field').classList.add('invalid'); valid = false; }
+    });
+    if (!valid) { toast('Please fill in the required fields', 'err'); return false; }
+
+    const first = document.getElementById('amFirst').value.trim();
+    const last = document.getElementById('amLast').value.trim();
+    const email = document.getElementById('amEmail').value.trim();
+    const phone = document.getElementById('amPhone').value.trim();
+    const interest = document.getElementById('amInterest').selectedOptions[0]?.text || 'Exploring options';
+    const agent = document.getElementById('amAgent').selectedOptions[0]?.text || 'Unassigned';
+    const payment = document.querySelector('#amPayment button.active').dataset.val;
+    const sendEmail = document.getElementById('amSendIntro').checked;
+
+    // Optimistically prepend a new row
+    insertNewProspectRow({ first, last, email, phone, interest, agent, payment });
+
+    // Reset + close
+    f.reset();
+    document.querySelectorAll('#amPayment button').forEach((b, i) => b.classList.toggle('active', i === 0));
+    document.getElementById('amLoanFields').classList.add('show');
+    closeAddManually();
+
+    toast(`${first} ${last} added — stage Created${sendEmail ? ' · intake email queued' : ''}`, 'success');
+    return false;
+  }
+
+  function insertNewProspectRow(p) {
+    const tbody = document.querySelector('#prospectsTable tbody');
+    if (!tbody) return;
+    const initials = (p.first[0] + p.last[0]).toUpperCase();
+    const colors = ['var(--color-brand-600)', 'var(--color-blue-600)', 'var(--color-success-600)', 'var(--color-pink-600)', 'var(--color-orange-600)'];
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    const payBadge = p.payment === 'CASH'
+      ? '<span class="badge badge-success">One-time</span>'
+      : p.payment === 'UNDECIDED'
+        ? '<span class="badge badge-neutral">Undecided</span>'
+        : '<span class="badge badge-brand">Loan</span>';
+    const agentCell = p.agent === 'Unassigned'
+      ? '<div class="agent-cell unassigned"><i class="ri-user-add-line" style="color: var(--fg4); font-size:14px;"></i><span class="nm">Unassigned</span></div>'
+      : `<div class="agent-cell"><span class="ava" style="background: var(--color-brand-700);">${p.agent.split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase()}</span><span class="nm">${escapeHtml(p.agent.replace(/^Me — /, ''))}</span></div>`;
+
+    const tr = document.createElement('tr');
+    tr.className = 'row-link';
+    tr.style.background = 'var(--color-success-50)';
+    tr.style.transition = 'background 1.4s ease';
+    tr.onclick = () => location.href = 'prospect-detail.html';
+    tr.innerHTML = `
+      <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+      <td>
+        <div class="name-cell">
+          <span class="ava" style="background: ${c};">${initials}</span>
+          <div class="info">
+            <div class="nm">${escapeHtml(p.first)} ${escapeHtml(p.last)}</div>
+            <div class="em">${escapeHtml(p.email)}${p.phone ? ' · ' + escapeHtml(p.phone) : ''}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="interest-cell">
+          <div class="ttl">${escapeHtml(p.interest)}</div>
+          <div class="typ">Manually added</div>
+        </div>
+      </td>
+      <td>${payBadge}</td>
+      <td style="color: var(--fg4);">—</td>
+      <td><span class="badge badge-info">Created</span></td>
+      <td>${agentCell}</td>
+      <td style="color: var(--color-success-700); font-size:12px;"><i class="ri-add-line"></i> Just now</td>
+      <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+    `;
+    tbody.insertBefore(tr, tbody.firstChild);
+    setTimeout(() => { tr.style.background = ''; }, 80);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ============================================================
+  // Toast helper
+  // ============================================================
+  function toast(msg, kind) {
+    const host = document.getElementById('toaster');
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    const icons = { success: 'check-line', warn: 'alert-line', err: 'close-circle-line', info: 'information-line' };
+    const icon = icons[kind] || 'information-line';
+    el.innerHTML = `<i class="ri-${icon}"></i> ${escapeHtml(msg)}`;
+    host.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; }, 2400);
+    setTimeout(() => el.remove(), 2700);
+  }
+
+  // ============================================================
+  // Stage tabs (visual only — keep behaviour cosmetic)
+  // ============================================================
+  document.querySelectorAll('.stage-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.stage-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ESC closes either dialog
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('shareIntakeModal').style.display === 'flex') closeShareIntake();
+      if (document.getElementById('addManuallyModal').style.display === 'flex') closeAddManually();
+    }
+  });
+
+  // Initial channel hrefs
+  refreshShareChannels();
+
+  // Add `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />` is NOT here -- it's loaded via ream.css's include chain.
+
+  // ============================================================
+  // Row kebab menu — converts every existing `<td><i class="ri-more-2-fill"></i></td>`
+  // in the prospects table into a functional menu wrapper.
+  // ============================================================
+  function buildRowMenus() {
+    const tbl = document.getElementById('prospectsTable');
+    if (!tbl) return;
+    tbl.querySelectorAll('tbody tr').forEach((tr, i) => {
+      const last = tr.querySelector('td:last-child');
+      if (!last || last.dataset.menuReady) return;
+      // pull a name from the row for menu copy
+      const nameEl = tr.querySelector('td:nth-child(2) .uname, td:nth-child(2) strong, td:nth-child(2) a, td:nth-child(2)');
+      const name = (nameEl ? nameEl.textContent : 'Prospect').trim().split('\n')[0].slice(0, 40);
+      const emailEl = tr.querySelector('td:nth-child(2) .umail, td:nth-child(2) .email');
+      const email = emailEl ? emailEl.textContent.trim() : '';
+      const id = 'PR-' + String(1000 + i);
+      last.dataset.menuReady = '1';
+      last.style.cursor = 'default';
+      last.setAttribute('onclick', 'event.stopPropagation();');
+      last.innerHTML = `
+        <div class="row-menu-wrap">
+          <button class="row-kebab" type="button" aria-label="Open menu" onclick="toggleRowMenu(this, event)"><i class="ri-more-2-fill"></i></button>
+          <div class="row-menu" data-name="${name}" data-email="${email}" data-id="${id}">
+            <button type="button" onclick="rowAction(this,'open')"><i class="ri-arrow-right-up-line"></i> Open prospect</button>
+            <div class="rm-section">Log activity</div>
+            <button type="button" onclick="rowAction(this,'note')"><i class="ri-sticky-note-line"></i> Add note</button>
+            <button type="button" onclick="rowAction(this,'call')"><i class="ri-phone-line"></i> Log a call</button>
+            <button type="button" onclick="rowAction(this,'email')"><i class="ri-mail-send-line"></i> Send email</button>
+            <button type="button" onclick="rowAction(this,'task')"><i class="ri-task-line"></i> Create task</button>
+            <button type="button" onclick="rowAction(this,'meeting')"><i class="ri-calendar-event-line"></i> Schedule meeting</button>
+            <button type="button" onclick="rowAction(this,'request')"><i class="ri-upload-cloud-2-line"></i> Request documents</button>
+            <hr/>
+            <button type="button" onclick="rowAction(this,'proposal')"><i class="ri-share-forward-line"></i> Send contract proposal</button>
+            <button type="button" onclick="rowAction(this,'stage')"><i class="ri-flag-line"></i> Change stage</button>
+            <button type="button" onclick="rowAction(this,'convert')"><i class="ri-check-double-line"></i> Convert to customer</button>
+            <hr/>
+            <button type="button" onclick="rowAction(this,'reassign')"><i class="ri-user-shared-line"></i> Reassign agent</button>
+            <button type="button" onclick="rowAction(this,'copy')"><i class="ri-link"></i> Copy profile link</button>
+            <button type="button" class="danger" onclick="rowAction(this,'archive')"><i class="ri-archive-line"></i> Archive prospect</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+  function toggleRowMenu(btn, e) {
+    e.stopPropagation();
+    const menu = btn.nextElementSibling;
+    const wasOpen = menu.classList.contains('open');
+    document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.row-kebab.open').forEach(b => b.classList.remove('open'));
+    if (!wasOpen) { menu.classList.add('open'); btn.classList.add('open'); }
+  }
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.row-menu-wrap')) {
+      document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.row-kebab.open').forEach(b => b.classList.remove('open'));
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.row-kebab.open').forEach(b => b.classList.remove('open'));
+    }
+  });
+  function rowAction(btn, action) {
+    const menu = btn.closest('.row-menu');
+    const name = menu.dataset.name || 'Prospect';
+    const email = menu.dataset.email || '';
+    const id = menu.dataset.id || '';
+    document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.row-kebab.open').forEach(b => b.classList.remove('open'));
+    const ctx = { name, email, id };
+    switch (action) {
+      case 'open':     window.location.href = 'prospect-detail.html'; break;
+      case 'note':
+      case 'call':
+      case 'email':
+      case 'task':
+      case 'meeting':
+      case 'request':
+      case 'proposal':
+      case 'convert':
+      case 'stage':
+        if (window.openProspectActionDialog) window.openProspectActionDialog(action, ctx);
+        else toast('Dialog unavailable', 'warn');
+        break;
+      case 'reassign': toast(`Reassign ${name}`, 'info'); break;
+      case 'hot':      toast(`${name} marked as hot`, 'success'); break;
+      case 'copy': {
+        const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'prospect-detail.html?id=' + id;
+        if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Link copied', 'success'));
+        else toast('Link: ' + url, 'info');
+        break;
+      }
+      case 'archive':
+        if (confirm(`Archive ${name}? They'll move to the Archived view and stop receiving outreach.`)) {
+          const tr = btn.closest('tr');
+          tr.style.transition = 'opacity .2s, transform .2s';
+          tr.style.opacity = '0'; tr.style.transform = 'translateX(-12px)';
+          setTimeout(() => tr.remove(), 220);
+          toast(`${name} archived`, 'success');
+        }
+        break;
+    }
+  }
+  if (document.readyState !== 'loading') buildRowMenus();
+  else document.addEventListener('DOMContentLoaded', buildRowMenus);
+</script>
+
+<script src="prospects-row-dialog.js"></script>
+<style>
+  .row-menu .rm-section {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg3, #a1a1aa);
+    padding: 8px 12px 4px;
+    font-weight: 600;
+  }
+</style>
+
+</body>
+</html>

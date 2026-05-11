@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Invites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .seg-bar { display:flex;background:white;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden; }
+  .seg-bar button { background:transparent;border:0;padding:6px 12px;font:500 12px var(--font-sans);color:var(--adm-text-3);cursor:pointer;border-right:1px solid var(--adm-border); }
+  .seg-bar button:last-child { border-right:0; }
+  .seg-bar button.on { background:var(--adm-accent-50);color:var(--adm-accent-700);font-weight:600; }
+  .gate-card { background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);color:white;border-radius:12px;padding:18px 22px;margin-bottom:18px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center; }
+  .gate-card .left h3 { font:600 16px var(--font-sans);margin:0 0 4px;color:white; }
+  .gate-card .left p { margin:0;font:500 12.5px var(--font-sans);color:#c7d2fe;max-width:520px; }
+  .gate-card .switch-wrap { display:flex;align-items:center;gap:14px; }
+  .gate-card .lock-state { font:600 11px var(--font-mono);letter-spacing:0.08em;text-transform:uppercase;background:rgba(255,255,255,0.12);padding:4px 9px;border-radius:5px; }
+  .gate-card .lock-state.on { background:#15803d; }
+  .copy-btn { background:transparent;border:0;color:var(--adm-text-4);cursor:pointer;font-size:14px; }
+  .copy-btn:hover { color:var(--adm-stripe); }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"invites",
+    crumb:[{label:"Invites"}],
+    title:"Organization invites",
+    subtitle:"Self-serve signup is closed. The only way new orgs join the platform is via an invite token issued here.",
+    actions:`
+      <button class="adm-btn" id="bulkImport"><i class="material-symbols-rounded">link</i> Bulk import</button>
+      <button class="adm-btn adm-btn-primary" id="newInvite"><i class="material-symbols-rounded">add</i> New invite</button>
+    `,
+    env:"STAGING",
+  });
+</script>
+<script>
+const INV = [
+  { id:"inv_1f01", email:"jvasquez@pinecrest.com",     org:"Pinecrest Loans",   plan:"growth",    status:"accepted", sent:"Mar 13", by:"Daria Kim", expires:"—",      tok:"PCL-K8x9-31AT" },
+  { id:"inv_3a91", email:"morrisb@coastal-realty.io",  org:"Coastal Realty",    plan:"starter",   status:"sent",     sent:"May 8",  by:"Daria Kim", expires:"in 6 days", tok:"CR-M21z-9XPQ" },
+  { id:"inv_5511", email:"hello@summithold.com",        org:"Summit Holdings",  plan:"growth",    status:"sent",     sent:"May 7",  by:"Marc Olsen",expires:"in 5 days", tok:"SH-9q4Z-V12K" },
+  { id:"inv_4b22", email:"info@delta-mortgages.com",    org:"Delta Mortgages",   plan:"trial",     status:"opened",   sent:"May 6",  by:"Daria Kim", expires:"in 4 days", tok:"DM-7Yt2-MM03" },
+  { id:"inv_88e1", email:"founders@oakhurst.house",     org:"Oakhurst Homes",    plan:"enterprise",status:"sent",     sent:"May 5",  by:"Marc Olsen",expires:"in 3 days", tok:"OH-1pU3-EE01" },
+  { id:"inv_2210", email:"phil@nineoaks.io",            org:"Nine Oaks Realty",  plan:"starter",   status:"expired",  sent:"Apr 18", by:"Daria Kim", expires:"expired",   tok:"NO-2Lk0-EXPR" },
+  { id:"inv_99b0", email:"contact@brick-and-mortar.co", org:"Brick & Mortar Co", plan:"trial",     status:"revoked",  sent:"Apr 12", by:"Daria Kim", expires:"revoked",   tok:"BM-8K1m-RV01" },
+  { id:"inv_aa44", email:"dean@firstlight-realty.com",  org:"Firstlight Realty", plan:"growth",    status:"accepted", sent:"Apr 9",  by:"Marc Olsen",expires:"—",         tok:"FR-XK22-9MUE" },
+  { id:"inv_bb77", email:"ops@loomislending.com",       org:"Loomis Lending",    plan:"starter",   status:"opened",   sent:"May 4",  by:"Daria Kim", expires:"in 2 days", tok:"LL-q03X-AC1Z" },
+  { id:"inv_cc81", email:"sara@harborhomes.io",         org:"Harbor Homes",      plan:"growth",    status:"sent",     sent:"May 9",  by:"Daria Kim", expires:"in 7 days", tok:"HH-Mz8K-091P" },
+  { id:"inv_dd02", email:"team@apexlandco.com",         org:"Apex Land Co.",     plan:"starter",   status:"sent",     sent:"May 8",  by:"Marc Olsen",expires:"in 6 days", tok:"AL-9pPL-3KS3" },
+  { id:"inv_ee99", email:"founder@reverbrealty.com",    org:"Reverb Realty",     plan:"trial",     status:"opened",   sent:"May 7",  by:"Daria Kim", expires:"in 5 days", tok:"RR-Q7Mj-V0Z9" },
+];
+
+const STATUS_PILL = {
+  accepted: '<span class="adm-pill active">Accepted</span>',
+  sent:     '<span class="adm-pill pending">Sent</span>',
+  opened:   '<span class="adm-pill indigo">Opened</span>',
+  expired:  '<span class="adm-pill muted">Expired</span>',
+  revoked:  '<span class="adm-pill locked">Revoked</span>',
+};
+const PLAN_PILL = {
+  growth:    '<span class="adm-pill indigo no-dot">GROWTH</span>',
+  starter:   '<span class="adm-pill indigo no-dot" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe;">STARTER</span>',
+  enterprise:'<span class="adm-pill no-dot" style="background:#1e1b4b;color:white;border-color:#312e81;">ENTERPRISE</span>',
+  trial:     '<span class="adm-pill muted no-dot">TRIAL</span>',
+};
+
+const rows = INV.map(i => `
+  <tr>
+    <td>
+      <div class="adm-ent">
+        <span class="adm-ava round" style="background:#0ea5e9;">${i.org.split(" ").map(p=>p[0]).join("").slice(0,2)}</span>
+        <div class="meta"><div class="nm">${i.org}</div><div class="sub mono">${i.email}</div></div>
+      </div>
+    </td>
+    <td>${PLAN_PILL[i.plan]}</td>
+    <td>${STATUS_PILL[i.status]}</td>
+    <td>
+      <div class="row gap-2"><code class="mono" style="background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:11.5px;">${i.tok}</code>
+      <button class="copy-btn" data-copy="${i.tok}" title="Copy"><i class="material-symbols-rounded" style="font-size:14px;">content_copy</i></button></div>
+    </td>
+    <td class="muted">${i.sent}</td>
+    <td class="muted">${i.expires}</td>
+    <td>${i.by}</td>
+    <td class="right">
+      ${i.status === "sent" || i.status === "opened" ? `
+        <div class="row gap-2" style="justify-content:flex-end;">
+          <button class="adm-btn adm-btn-sm" data-resend="${i.id}" data-email="${i.email}" data-org="${i.org}">Resend</button>
+          <button class="adm-btn adm-btn-sm adm-btn-danger" data-revoke="${i.id}" data-org="${i.org}">Revoke</button>
+        </div>
+      ` : `<button class="adm-kebab" data-invk="${i.id}" data-istatus="${i.status}" data-org="${i.org}" data-email="${i.email}" data-tok="${i.tok}"><i class="material-symbols-rounded">more_horiz</i></button>`}
+    </td>
+  </tr>
+`).join("");
+
+document.getElementById("adm-content").innerHTML = `
+  <div class="gate-card">
+    <div class="left">
+      <h3><i class="material-symbols-rounded" style="vertical-align:-3px;color:#fbbf24;">lock</i> Public signup is closed</h3>
+      <p>The <code style="background:rgba(255,255,255,0.12);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);">signups.public_enabled</code> flag is OFF. <code style="background:rgba(255,255,255,0.12);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);">/register</code> redirects to the marketing site. The only path in is an invite token. Two-person rule applies before flipping this on.</p>
+    </div>
+    <div class="switch-wrap">
+      <span class="lock-state">CLOSED</span>
+      <button class="adm-switch" id="gateSwitch" aria-label="Toggle public signup"></button>
+    </div>
+  </div>
+
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">Open invites</div><div class="adm-kpi-value">12</div><div class="adm-kpi-delta flat">7 sent · 5 opened</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Accepted (30d)</div><div class="adm-kpi-value">26</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> 68% acceptance</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Avg time-to-accept</div><div class="adm-kpi-value">14 <span class="unit">hrs</span></div><div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_downward</i> 3h faster vs prev</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Expired/revoked (30d)</div><div class="adm-kpi-value">8</div><div class="adm-kpi-delta flat">21% drop-off</div></div>
+  </div>
+
+  <div class="adm-filterbar">
+    <div class="grow"><div class="adm-filter-input"><i class="material-symbols-rounded">search</i><input placeholder="Search by email, org, token, sender…"/></div></div>
+    <div class="seg-bar">
+      <button class="on">All <span class="muted">38</span></button>
+      <button>Sent <span class="muted">7</span></button>
+      <button>Opened <span class="muted">5</span></button>
+      <button>Accepted <span class="muted">26</span></button>
+      <button>Expired/revoked <span class="muted">8</span></button>
+    </div>
+    <button class="adm-pill-filter">Plan: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Sender: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+  </div>
+
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>Org / email</th><th>Plan</th><th>Status</th><th>Token</th><th>Sent</th><th>Expires</th><th>By</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <div class="adm-pager">
+    <span>Showing 1–12 of 38</span>
+    <div class="controls">
+      <button disabled><i class="material-symbols-rounded">chevron_left</i></button>
+      <button class="num active">1</button><button class="num">2</button><button class="num">3</button>
+      <button><i class="material-symbols-rounded">chevron_right</i></button>
+    </div>
+  </div>
+
+  <!-- New invite drawer -->
+  <div class="adm-drawer-back" id="invBack" onclick="closeInv()"></div>
+  <aside class="adm-drawer" id="invDrawer">
+    <div class="adm-drawer-head">
+      <h3><i class="material-symbols-rounded" style="vertical-align:-3px;color:var(--adm-stripe);">mail</i> New organization invite</h3>
+      <button class="adm-kebab" onclick="closeInv()"><i class="material-symbols-rounded">close</i></button>
+    </div>
+    <div class="adm-drawer-body">
+      <div class="adm-callout info"><i class="material-symbols-rounded">info</i><div>The recipient receives a one-time link. The token expires in 7 days. Acceptance creates the org with the recipient as Owner.</div></div>
+
+      <div class="adm-row cols-2">
+        <div><label class="adm-label">Recipient email</label><input class="adm-input" placeholder="founder@new-org.com" /></div>
+        <div><label class="adm-label">Recipient name (optional)</label><input class="adm-input" placeholder="First Last" /></div>
+      </div>
+      <div class="adm-row">
+        <div><label class="adm-label">Suggested org name</label><input class="adm-input" placeholder="New Org Inc."/><div class="adm-help">They can rename during onboarding.</div></div>
+      </div>
+      <div class="adm-row cols-2">
+        <div>
+          <label class="adm-label">Initial plan</label>
+          <select class="adm-select">
+            <option>Trial · 14 days</option>
+            <option>Starter · $19/seat</option>
+            <option selected>Growth · $45/seat</option>
+            <option>Enterprise · custom</option>
+          </select>
+        </div>
+        <div>
+          <label class="adm-label">Token expires in</label>
+          <select class="adm-select">
+            <option>24 hours</option>
+            <option selected>7 days</option>
+            <option>30 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="adm-row">
+        <div><label class="adm-label">Personal note (included in email)</label><textarea class="adm-textarea" placeholder="Looking forward to having you on Ream — this token sets you up with Growth so you can onboard your team."></textarea></div>
+      </div>
+
+      <div class="adm-row" style="margin-top:6px;">
+        <div>
+          <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+            <span class="adm-label" style="margin:0;">Pre-applied feature flags</span>
+            <button class="adm-btn adm-btn-sm adm-btn-ghost">+ Add</button>
+          </div>
+          <div class="row gap-2" style="flex-wrap:wrap;">
+            <span class="adm-pill indigo no-dot">portal_v2_redesign · ON</span>
+            <span class="adm-pill indigo no-dot">early_access_homes · ON</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div class="adm-label" style="margin-bottom:2px;">Token preview</div>
+          <code class="mono" style="background:#f3f4f6;padding:4px 8px;border-radius:4px;font-size:12.5px;">XX-AbCd-EfGh</code>
+        </div>
+        <div class="muted tiny">A unique token will be generated when you send.</div>
+      </div>
+    </div>
+    <div class="adm-drawer-foot">
+      <button class="adm-btn" onclick="closeInv()">Cancel</button>
+      <button class="adm-btn">Save as draft</button>
+      <button class="adm-btn adm-btn-primary"><i class="material-symbols-rounded">send</i> Send invite</button>
+    </div>
+  </aside>
+`;
+
+document.getElementById("newInvite").onclick = () => {
+  document.getElementById("invDrawer").classList.add("open");
+  document.getElementById("invBack").classList.add("open");
+};
+window.closeInv = () => {
+  document.getElementById("invDrawer").classList.remove("open");
+  document.getElementById("invBack").classList.remove("open");
+};
+
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const $ = (s, r=document) => r.querySelector(s);
+const T = AdminShell.toast;
+
+// Public-signup gate switch
+const gate = document.getElementById("gateSwitch");
+const gateState = gate.parentElement.querySelector(".lock-state");
+gate.onclick = async () => {
+  const isOn = gate.classList.contains("on");
+  if (!isOn) {
+    const ok = await AdminShell.confirmDialog({
+      title:"Enable public signup?",
+      body:"Anyone with a valid email will be able to create an org without an invite. Two-person rule applies — a second admin must approve within 5 minutes.",
+      confirmLabel:"Request approval", danger:true
+    });
+    if (!ok) return;
+    gate.classList.add("on");
+    gateState.textContent = "OPEN"; gateState.classList.add("on");
+    T("Public signup ENABLED · second admin approval required within 5 minutes", "warn");
+  } else {
+    gate.classList.remove("on");
+    gateState.textContent = "CLOSED"; gateState.classList.remove("on");
+    T("Public signup closed", "success");
+  }
+};
+
+// Bulk import
+$("#bulkImport").onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title:"Bulk import invites",
+    body:"Upload a CSV with columns: email, org_name, plan, expires_in_days. Each row creates a draft invite ready for review.",
+    confirmLabel:"Choose file"
+  });
+  if (ok) T("File picker stub — no file uploaded", "info");
+};
+
+// Copy token
+$$("[data-copy]").forEach(b => b.onclick = () => {
+  navigator.clipboard.writeText(b.dataset.copy);
+  T(`Token ${b.dataset.copy} copied`, "success");
+});
+
+// Resend / Revoke
+$$("[data-resend]").forEach(b => b.onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title:`Resend invite to ${b.dataset.org}?`,
+    body:`A fresh email will be sent to ${b.dataset.email}. The token expiry is reset to 7 days.`,
+    confirmLabel:"Resend invite"
+  });
+  if (ok) T(`Invite resent to ${b.dataset.email}`, "success");
+});
+$$("[data-revoke]").forEach(b => b.onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title:`Revoke invite for ${b.dataset.org}?`,
+    body:"The invite link stops working immediately. The recipient will see a generic 'invalid token' page if they click it.",
+    confirmLabel:"Revoke invite", danger:true
+  });
+  if (ok) {
+    T(`Invite revoked`, "danger");
+    const tr = b.closest("tr");
+    tr.querySelector("td:nth-child(3)").innerHTML = '<span class="adm-pill locked">Revoked</span>';
+    tr.querySelector("td:nth-child(6)").innerHTML = '<span class="muted">revoked</span>';
+    b.parentElement.innerHTML = '<button class="adm-kebab"><i class="material-symbols-rounded">more_horiz</i></button>';
+  }
+});
+
+// Kebab on accepted/expired/revoked rows
+$$("[data-invk]").forEach(btn => {
+  btn.onclick = () => {
+    const status = btn.dataset.istatus;
+    const org = btn.dataset.org, email = btn.dataset.email, tok = btn.dataset.tok;
+    const items = [
+      { label:"Copy token", icon:"content_copy", onClick:() => { navigator.clipboard.writeText(tok); T("Token copied", "success"); }},
+      { label:"View details", icon:"open_in_new", onClick:() => T(`Opening invite ${btn.dataset.invk}`, "info") },
+    ];
+    if (status === "expired" || status === "revoked") {
+      items.push({ label:"Resend as new invite", icon:"refresh", onClick:async () => {
+        const ok = await AdminShell.confirmDialog({ title:`Send new invite to ${org}?`, body:`A fresh token will be generated and emailed to ${email}.`, confirmLabel:"Send new invite" });
+        if (ok) T(`New invite sent to ${email}`, "success");
+      }});
+    }
+    if (status === "accepted") {
+      items.push({ label:"Open organization", icon:"domain", onClick:() => location.href=`admin-org-detail.html?org=${org.toLowerCase().replace(/\s+/g,"-")}` });
+    }
+    AdminShell.popMenu(btn, items);
+  };
+});
+
+// Filter pills
+$$(".adm-pill-filter").forEach(pf => {
+  pf.onclick = () => {
+    const label = pf.textContent.trim().split(":")[0].trim();
+    if (label === "Plan") AdminShell.popMenu(pf, ["Any","Trial","Starter","Growth","Enterprise"].map(p => ({ label:p, onClick:() => pf.querySelector(".v").textContent = p })));
+    else if (label === "Sender") AdminShell.popMenu(pf, ["Daria Kim","Marc Olsen","Any"].map(s => ({ label:s, onClick:() => pf.querySelector(".v").textContent = s.split(" ")[0] })));
+  };
+});
+
+// Search
+const inviteSearch = $(".adm-filterbar .adm-filter-input input");
+inviteSearch.addEventListener("input", () => {
+  const q = inviteSearch.value.trim().toLowerCase();
+  $$("tbody tr").forEach(tr => tr.style.display = !q || tr.textContent.toLowerCase().includes(q) ? "" : "none");
+});
+
+// Status segmented filter
+$$(".seg-bar button").forEach(btn => {
+  btn.onclick = () => {
+    $$(".seg-bar button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    const label = btn.firstChild.textContent.trim().toLowerCase();
+    $$("tbody tr").forEach(tr => {
+      let show = true;
+      if (label === "sent") show = !!tr.querySelector(".adm-pill.pending");
+      else if (label === "opened") show = !!tr.querySelector(".adm-pill.indigo:not(.no-dot)");
+      else if (label === "accepted") show = !!tr.querySelector(".adm-pill.active");
+      else if (label === "expired/revoked") show = !!(tr.querySelector(".adm-pill.muted:not(.no-dot)") || tr.querySelector(".adm-pill.locked"));
+      tr.style.display = show ? "" : "none";
+    });
+  };
+});
+
+// New invite drawer — Send / Save as draft
+$$(".adm-drawer-foot .adm-btn").forEach(btn => {
+  if (btn.textContent.includes("Send")) {
+    btn.onclick = () => {
+      const inputs = $$(".adm-drawer-body .adm-input");
+      const email = inputs[0]?.value?.trim();
+      if (!email || !email.includes("@")) { T("Recipient email is required", "danger"); return; }
+      const orgName = inputs[2]?.value?.trim() || "New organization";
+      T(`Invite sent to ${email} for ${orgName}`, "success");
+      window.closeInv();
+      inputs.forEach(i => i.value = "");
+    };
+  } else if (btn.textContent.includes("Save as draft")) {
+    btn.onclick = () => { T("Invite saved as draft", "info"); window.closeInv(); };
+  }
+});
+</script>
+</body>
+</html>

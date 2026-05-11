@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Land detail</title>
+<script>
+  // Public land-detail wrapper. Locks asset-detail.html to a land record.
+  // Usage: land-detail-public.html?id=LND-014
+  (function () {
+    const params = new URLSearchParams(location.search);
+    let id = (params.get('id') || '').toUpperCase();
+    if (!id || !id.startsWith('LND')) id = 'LND-014';
+    location.replace('asset-detail.html?id=' + encodeURIComponent(id));
+  })();
+</script>
+<meta http-equiv="refresh" content="0; url=asset-detail.html?id=LND-014" />
+</head>
+<body>
+<p>Loading land detail… <a href="asset-detail.html?id=LND-014">Continue</a></p>
+</body>
+</html>

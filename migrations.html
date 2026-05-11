@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Migrations</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="row-actions.css" />
+<link rel="stylesheet" href="dialog.css" />
+<link rel="stylesheet" href="_loan-import-wizard.css" />
+<style>
+  /* ── Migrations page ─────────────────────────────────────── */
+  .mg-hero {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
+    padding: 18px 22px;
+    background: linear-gradient(180deg, #fefcf8, #fffaf2);
+    border: 1px solid #fde9c8; border-radius: 14px;
+    margin-bottom: 18px;
+  }
+  .mg-hero .left { display: flex; gap: 14px; min-width: 0; }
+  .mg-hero .ic {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 14px rgba(120, 79, 41, 0.22);
+    flex: none;
+  }
+  .mg-hero h1 { margin: 0; font: 700 20px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.015em; }
+  .mg-hero .sb { font: 13px var(--font-sans); color: var(--fg2); margin-top: 4px; line-height: 1.55; max-width: 64ch; }
+  .mg-hero .actions { display: flex; gap: 8px; flex: none; }
+
+  /* KPI strip — five tiles, tab-clickable */
+  .mg-kpis {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+    margin-bottom: 18px;
+  }
+  .mg-kpi {
+    background: #fff; border: 1px solid var(--color-grey-200); border-radius: 12px;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color .12s, box-shadow .12s, transform .12s;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 6px;
+    appearance: none; font-family: inherit;
+  }
+  .mg-kpi:hover { border-color: var(--color-grey-300); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06); }
+  .mg-kpi.active { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgba(120, 79, 41, 0.10); }
+  .mg-kpi .lab { font: 600 11px var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg3); display: flex; align-items: center; gap: 6px; }
+  .mg-kpi .lab i { font-size: 13px; }
+  .mg-kpi .v { font: 700 26px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; line-height: 1; }
+  .mg-kpi .sb { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .mg-kpi.urgent .v { color: #dc2626; }
+  .mg-kpi.urgent .lab i { color: #dc2626; }
+  .mg-kpi.warn .v { color: #c2410c; }
+  .mg-kpi.warn .lab i { color: #c2410c; }
+  .mg-kpi.ok .v { color: #047857; }
+  .mg-kpi.ok .lab i { color: #047857; }
+
+  /* Tabs (the sticky strip showing which tab matches the active KPI) */
+  .mg-tabs {
+    display: flex; align-items: center; gap: 2px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 16px;
+  }
+  .mg-tab {
+    appearance: none; background: transparent; border: 0;
+    padding: 9px 14px;
+    font: 600 13px var(--font-sans); color: var(--fg2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: color .12s, border-color .12s;
+  }
+  .mg-tab:hover { color: var(--color-grey-900); }
+  .mg-tab.active { color: var(--color-grey-900); border-bottom-color: var(--color-brand-600); }
+  .mg-tab .ct {
+    font: 600 11px var(--font-sans);
+    padding: 1px 7px; border-radius: 999px;
+    background: var(--color-grey-100); color: var(--fg2);
+  }
+  .mg-tab.active .ct { background: var(--color-brand-100); color: var(--color-brand-800); }
+  .mg-tab.urgent.active .ct { background: #fee2e2; color: #b91c1c; }
+  .mg-tab.urgent .ct { background: #fef2f2; color: #b91c1c; }
+  .mg-tab.warn .ct { background: #fff7ed; color: #c2410c; }
+  .mg-tab.warn.active .ct { background: #fed7aa; color: #9a3412; }
+
+  /* Filter row */
+  .mg-filters {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .mg-search {
+    flex: 1; min-width: 240px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--color-grey-200); border-radius: 8px;
+    background: #fff;
+  }
+  .mg-search i { color: var(--fg3); }
+  .mg-search input { flex: 1; border: 0; outline: none; font: 13px var(--font-sans); }
+  .mg-pill {
+    appearance: none; cursor: pointer;
+    padding: 7px 12px;
+    border: 1px solid var(--color-grey-200);
+    background: #fff;
+    border-radius: 8px;
+    font: 600 12px var(--font-sans); color: var(--color-grey-800);
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: inherit;
+  }
+  .mg-pill:hover { border-color: var(--color-grey-300); background: var(--color-grey-50); }
+  .mg-pill i { color: var(--fg3); font-size: 13px; }
+
+  /* Data table */
+  .mg-table-wrap {
+    background: #fff;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .mg-table { width: 100%; border-collapse: collapse; }
+  .mg-table thead th {
+    background: var(--color-grey-50);
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--fg3);
+    padding: 9px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-grey-200);
+    white-space: nowrap;
+  }
+  .mg-table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--color-grey-100);
+    font: 13px var(--font-sans);
+    color: var(--color-grey-900);
+    vertical-align: top;
+  }
+  .mg-table tbody tr:last-child td { border-bottom: 0; }
+  .mg-table tbody tr { cursor: pointer; transition: background .1s; }
+  .mg-table tbody tr:hover { background: var(--color-grey-50); }
+  .mg-table .legid { font: 600 13px var(--font-mono); color: var(--color-brand-700); display: flex; align-items: center; gap: 6px; }
+  .mg-table .legid i { color: var(--fg3); }
+  .mg-table .meta { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .mg-table .borr-name { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .mg-table .num { font-family: var(--font-mono); font-weight: 600; text-align: right; white-space: nowrap; }
+  .mg-table th.num { text-align: right; }
+  .mg-table .age { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .mg-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font: 600 11px var(--font-sans);
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    white-space: nowrap;
+  }
+  .mg-badge i { font-size: 12px; }
+  .mg-badge.ok { background: #ecfdf5; color: #047857; }
+  .mg-badge.err { background: #fef2f2; color: #b91c1c; }
+  .mg-badge.warn { background: #fff7ed; color: #c2410c; }
+  .mg-badge.info { background: #eef6ff; color: #1d4ed8; }
+  .mg-badge.purple { background: #f5f1ff; color: #6d28d9; }
+
+  .mg-actions { display: flex; gap: 4px; justify-content: flex-end; }
+  .mg-iconbtn {
+    appearance: none; cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    border: 1px solid var(--color-grey-200);
+    background: #fff;
+    color: var(--color-grey-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .mg-iconbtn:hover { background: var(--color-grey-50); color: var(--color-grey-900); }
+  .mg-iconbtn.danger { color: #b91c1c; border-color: #fecaca; }
+  .mg-iconbtn.danger:hover { background: #fef2f2; }
+  .mg-iconbtn.primary { color: #fff; background: var(--color-brand-600); border-color: var(--color-brand-600); }
+  .mg-iconbtn.primary:hover { background: var(--color-brand-700); }
+
+  /* Drift delta inline */
+  .mg-drift-cell { display: flex; flex-direction: column; gap: 1px; align-items: flex-end; }
+  .mg-drift-cell .v { font: 600 13px var(--font-mono); }
+  .mg-drift-cell .v.up { color: #dc2626; }
+  .mg-drift-cell .v.down { color: #047857; }
+  .mg-drift-cell .lk { font: 10.5px var(--font-sans); color: var(--fg3); }
+
+  /* Empty state */
+  .mg-empty {
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .mg-empty .ic {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--color-grey-100); color: var(--fg3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin-bottom: 14px;
+  }
+  .mg-empty .ic.ok { background: #ecfdf5; color: #10b981; }
+  .mg-empty h3 { margin: 0 0 4px; font: 700 16px var(--font-sans); color: var(--color-grey-900); }
+  .mg-empty p { margin: 0 auto; font: 13px var(--font-sans); color: var(--fg2); max-width: 50ch; line-height: 1.55; }
+
+  /* Row detail drawer (slide-in) */
+  .mg-drawer-back {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.40);
+    z-index: 90;
+    display: none; align-items: stretch; justify-content: flex-end;
+  }
+  .mg-drawer-back.on { display: flex; }
+  .mg-drawer {
+    width: 540px; max-width: 100vw; height: 100vh;
+    background: #fff;
+    box-shadow: -16px 0 40px rgba(15, 23, 42, 0.18);
+    overflow-y: auto;
+    animation: mgSlide .18s ease;
+  }
+  @keyframes mgSlide { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .mg-drawer .dhead {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, #fefcf8, #fffaf2);
+    position: sticky; top: 0; z-index: 1;
+  }
+  .mg-drawer .dhead .id { font: 700 14px var(--font-mono); color: var(--color-brand-800); }
+  .mg-drawer .dhead .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .mg-drawer .dhead .x {
+    margin-left: auto; appearance: none; cursor: pointer; background: transparent; border: 0;
+    width: 32px; height: 32px; border-radius: 7px; color: var(--fg3);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .mg-drawer .dhead .x:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+  .mg-drawer .dbody { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .mg-drawer .dfoot {
+    padding: 12px 18px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--color-grey-50);
+    display: flex; gap: 8px; justify-content: flex-end;
+    position: sticky; bottom: 0;
+  }
+  .mg-drawer h4 {
+    margin: 0 0 8px; font: 700 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg3);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mg-drawer .card {
+    background: #fff;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .mg-drawer dl {
+    display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; margin: 0;
+    font: 12.5px var(--font-sans);
+  }
+  .mg-drawer dl dt { color: var(--fg3); font-weight: 500; }
+  .mg-drawer dl dd { margin: 0; color: var(--color-grey-900); font-weight: 600; font-family: var(--font-mono); text-align: right; }
+
+  /* Toast */
+  .mg-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    padding: 10px 16px;
+    background: var(--color-grey-900); color: #fff;
+    border-radius: 8px;
+    font: 500 13px var(--font-sans);
+    z-index: 9999;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mg-toast.ok { background: #047857; }
+  .mg-toast.err { background: #b91c1c; }
+
+  @media (max-width: 1080px) {
+    .mg-kpis { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Migrations</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+          <a class="nav-item" href="contacts.html"><i class="ri-contacts-line"></i> Contacts</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="followups.html"><i class="ri-customer-service-2-line"></i> Follow-ups <span class="nav-badge urgent">7</span></a>
+          <a class="nav-item" href="leads.html"><i class="ri-mail-line"></i> Inbox <span class="nav-badge">12</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-pin-line"></i> Sites <span class="nav-badge">12</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="payments.html"><i class="ri-exchange-dollar-line"></i> Payments <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Migrations</span><span class="urg">6</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item active" href="migrations.html"><i class="ri-shield-user-line"></i> Pending verification <span class="nav-badge urgent">4</span></a>
+          <a class="nav-item" href="migrations.html?tab=failed"><i class="ri-error-warning-line"></i> Reconciliation failed <span class="nav-badge urgent">2</span></a>
+          <a class="nav-item" href="migrations.html?tab=drift"><i class="ri-pulse-line"></i> Drift watch <span class="nav-badge">3</span></a>
+          <a class="nav-item" href="migrations.html?tab=materialized"><i class="ri-check-double-line"></i> Recently materialized</a>
+          <a class="nav-item" href="migrations.html?tab=rejected"><i class="ri-archive-line"></i> Rejected (audit)</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="loans.html"><i class="ri-bank-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Migrations</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input id="mgTopSearch" placeholder="Search legacy ID, borrower…" /></div>
+          <button class="icon-btn" id="mgTopNotif" title="Notifications"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- Hero -->
+        <div class="mg-hero">
+          <div class="left">
+            <div class="ic"><i class="ri-inbox-archive-line"></i></div>
+            <div>
+              <h1>Bring loans into Ream</h1>
+              <div class="sb">Loans you bring over from another system land here while a teammate eyeballs the numbers — usually a minute of work. Once they look right, click <b>Looks good</b> and the loan goes live.</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnReReconAll"><i class="ri-refresh-line"></i> Re-check live loans</button>
+            <button class="btn btn-primary" data-rw-open="loan"><i class="ri-add-line"></i> Import a loan</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="mg-kpis" id="mgKpis">
+          <button class="mg-kpi urgent" data-tab="pending">
+            <span class="lab"><i class="ri-shield-user-line"></i> Pending verification</span>
+            <span class="v">4</span>
+            <span class="sb">Awaiting second-admin signoff</span>
+          </button>
+          <button class="mg-kpi urgent" data-tab="failed">
+            <span class="lab"><i class="ri-error-warning-line"></i> Reconciliation failed</span>
+            <span class="v">2</span>
+            <span class="sb">Drift exceeded tolerance</span>
+          </button>
+          <button class="mg-kpi warn" data-tab="drift">
+            <span class="lab"><i class="ri-pulse-line"></i> Drift watch</span>
+            <span class="v">3</span>
+            <span class="sb">Live loans, post-migration re-check flagged</span>
+          </button>
+          <button class="mg-kpi ok" data-tab="materialized">
+            <span class="lab"><i class="ri-check-double-line"></i> Materialized · 30 d</span>
+            <span class="v">37</span>
+            <span class="sb">Live loan accounts created</span>
+          </button>
+          <button class="mg-kpi" data-tab="rejected">
+            <span class="lab"><i class="ri-archive-line"></i> Rejected (audit)</span>
+            <span class="v">5</span>
+            <span class="sb">Kept for compliance trail</span>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="mg-tabs" id="mgTabs">
+          <button class="mg-tab urgent active" data-tab="pending">Pending verification <span class="ct">4</span></button>
+          <button class="mg-tab urgent" data-tab="failed">Reconciliation failed <span class="ct">2</span></button>
+          <button class="mg-tab warn" data-tab="drift">Drift watch <span class="ct">3</span></button>
+          <button class="mg-tab" data-tab="materialized">Recently materialized <span class="ct">37</span></button>
+          <button class="mg-tab" data-tab="rejected">Rejected <span class="ct">5</span></button>
+        </div>
+
+        <!-- Filters -->
+        <div class="mg-filters">
+          <div class="mg-search"><i class="ri-search-line"></i><input id="mgSearch" placeholder="Search legacy ID, borrower, batch…" /></div>
+          <button class="mg-pill" data-filter="source" data-options="All|AcmeLOS v3.4|MortgageBot v8.2|Spreadsheet"><i class="ri-filter-3-line"></i> <span class="lbl">Source: All</span></button>
+          <button class="mg-pill" data-filter="batch" data-options="All|batch-2026-05-11-001|batch-2026-05-10-014|batch-2026-05-09-008"><i class="ri-stack-line"></i> <span class="lbl">Batch: All</span></button>
+          <button class="mg-pill" data-filter="when" data-options="Any time|Today|This week|This month"><i class="ri-calendar-event-line"></i> <span class="lbl">Submitted: Any time</span></button>
+          <button class="mg-pill" data-filter="sort" data-options="Newest first|Oldest first|Largest payoff|Smallest payoff"><i class="ri-sort-desc"></i> <span class="lbl">Newest first</span></button>
+        </div>
+
+        <!-- Table -->
+        <div class="mg-table-wrap" id="mgTableWrap">
+          <!-- rendered by JS -->
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Row detail drawer -->
+<div class="mg-drawer-back" id="mgDrawer">
+  <div class="mg-drawer">
+    <div class="dhead">
+      <div>
+        <div class="id" id="mgDrawerId">—</div>
+        <div class="sb" id="mgDrawerSb">—</div>
+      </div>
+      <button class="x" type="button" id="mgDrawerClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="dbody" id="mgDrawerBody"></div>
+    <div class="dfoot" id="mgDrawerFoot"></div>
+  </div>
+</div>
+
+<script src="_loan-import-wizard.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Sample data ----------------
+  function row(o) { return o; }
+  var DATA = {
+    pending: [
+      row({ id: 'pli_8h2k4', leg: 'LX-2019-00471', sys: 'AcmeLOS v3.4', batch: 'batch-2026-05-11-001', borrower: 'Anna Thompson', site: 'Sunridge · Plot 09', asOf: '2026-05-11', payoff: 164549.40, submittedBy: 'ops-ana · #17', submittedAt: '2 min ago', recon: 'ok' }),
+      row({ id: 'pli_3m9rq', leg: 'LX-2018-00892', sys: 'AcmeLOS v3.4', batch: 'batch-2026-05-11-001', borrower: 'Marcus Owusu', site: 'Oakwood · Plot 22', asOf: '2026-05-11', payoff: 92118.30, submittedBy: 'ops-ana · #17', submittedAt: '14 min ago', recon: 'ok' }),
+      row({ id: 'pli_7q1w8', leg: 'MB-77140', sys: 'MortgageBot v8.2', batch: 'batch-2026-05-11-001', borrower: 'Sade Bankole', site: 'Hilltop · Villa 6A', asOf: '2026-05-11', payoff: 211803.55, submittedBy: 'ops-tom · #24', submittedAt: '38 min ago', recon: 'ok' }),
+      row({ id: 'pli_2x5tz', leg: 'LX-2020-00112', sys: 'AcmeLOS v3.4', batch: 'batch-2026-05-10-014', borrower: 'Chen Wei', site: 'Sunridge · Plot 17', asOf: '2026-05-10', payoff: 78420.92, submittedBy: 'ops-tom · #24', submittedAt: '1 day ago', recon: 'ok' })
+    ],
+    failed: [
+      row({ id: 'pli_5k7p2', leg: 'LX-2017-00321', sys: 'AcmeLOS v3.4', batch: 'batch-2026-05-09-008', borrower: 'Imani Carter', site: 'Riverwalk · Plot 03', asOf: '2026-05-09', payoff: 58320.00, submittedBy: 'ops-ana · #17', submittedAt: '2 days ago', drift: 14.20, driftCmp: 'Interest' }),
+      row({ id: 'pli_9z4nv', leg: 'MB-77202', sys: 'MortgageBot v8.2', batch: 'batch-2026-05-09-008', borrower: 'Brandon Smith', site: 'Hilltop · Villa 11C', asOf: '2026-05-09', payoff: 233901.18, submittedBy: 'ops-tom · #24', submittedAt: '2 days ago', drift: 508.40, driftCmp: 'Principal' })
+    ],
+    drift: [
+      row({ id: 'pla_a23k1', loanId: 'L-2026-00088', leg: 'LX-2016-00088', borrower: 'Maya Patel', site: 'Oakwood · Plot 14', materializedAt: '2026-04-21', drift: 0.85, driftCmp: 'Escrow', lastReRecon: '6 h ago' }),
+      row({ id: 'pla_b94f7', loanId: 'L-2026-00510', leg: 'LX-2019-00510', borrower: 'Tom Hanson', site: 'Sunridge · Plot 33', materializedAt: '2026-04-29', drift: -2.10, driftCmp: 'Interest', lastReRecon: '1 d ago' }),
+      row({ id: 'pla_c11s3', loanId: 'L-2026-00415', leg: 'LX-2017-00415', borrower: 'Jordan Lee', site: 'Riverwalk · Plot 22', materializedAt: '2026-05-02', drift: 4.50, driftCmp: 'Principal', lastReRecon: '2 d ago' })
+    ],
+    materialized: [
+      row({ id: 'pla_d11x4', loanId: 'L-2026-00471', leg: 'LX-2019-00471', borrower: 'Anna Thompson', materializedAt: '2026-05-04', verifiedBy: 'fin-priya · #03', source: 'AcmeLOS v3.4' }),
+      row({ id: 'pla_e21t9', loanId: 'L-2026-00892', leg: 'LX-2018-00892', borrower: 'Marcus Owusu', materializedAt: '2026-05-04', verifiedBy: 'fin-priya · #03', source: 'AcmeLOS v3.4' }),
+      row({ id: 'pla_f33y1', loanId: 'L-2026-77140', leg: 'MB-77140', borrower: 'Sade Bankole', materializedAt: '2026-05-03', verifiedBy: 'fin-priya · #03', source: 'MortgageBot v8.2' }),
+      row({ id: 'pla_g44z6', loanId: 'L-2026-00112', leg: 'LX-2020-00112', borrower: 'Chen Wei', materializedAt: '2026-05-02', verifiedBy: 'fin-priya · #03', source: 'AcmeLOS v3.4' }),
+      row({ id: 'pla_h55r3', loanId: 'L-2026-00321', leg: 'LX-2017-00321', borrower: 'Imani Carter', materializedAt: '2026-05-01', verifiedBy: 'fin-priya · #03', source: 'AcmeLOS v3.4' })
+    ],
+    rejected: [
+      row({ id: 'pli_r10a', leg: 'LX-2015-00012', borrower: 'Diane Brooks', source: 'AcmeLOS v2.9', submittedAt: '2026-04-22', rejectedBy: 'fin-priya · #03', reason: 'Payoff drift > $500 — borrower disputes legacy interest' }),
+      row({ id: 'pli_r11b', leg: 'MB-66108', borrower: 'Kwame Asare', source: 'MortgageBot v8.2', submittedAt: '2026-04-19', rejectedBy: 'fin-priya · #03', reason: 'Missing legacy payoff statement' }),
+      row({ id: 'pli_r12c', leg: 'LX-2014-00009', borrower: 'Rosa Mendes', source: 'Spreadsheet', submittedAt: '2026-04-15', rejectedBy: 'fin-priya · #03', reason: 'Source fingerprint conflict — re-export from LOS first' })
+    ]
+  };
+
+  // ---------- Helpers ----------------------
+  function fmtUSD(n) {
+    if (!isFinite(n)) return '—';
+    var s = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (n < 0 ? '-' : '') + '$' + s;
+  }
+  function fmtSigned(n) {
+    var sign = n === 0 ? '' : (n > 0 ? '+' : '-');
+    return sign + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+  function fmtDate(s) {
+    if (!s) return '—';
+    try { return new Date(s + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); } catch (e) { return s; }
+  }
+  function toast(msg, kind) {
+    var t = document.createElement('div');
+    t.className = 'mg-toast' + (kind ? ' ' + kind : '');
+    t.innerHTML = (kind === 'ok' ? '<i class="ri-check-line"></i>' : kind === 'err' ? '<i class="ri-error-warning-line"></i>' : '<i class="ri-information-line"></i>') + ' ' + esc(msg);
+    document.body.appendChild(t);
+    setTimeout(function () { t.style.transition = 'opacity .25s'; t.style.opacity = '0'; }, 2200);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+
+  // ---------- Table renderers --------------
+  function renderTable(tab) {
+    var wrap = document.getElementById('mgTableWrap');
+    var rows = DATA[tab] || [];
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="mg-empty"><div class="ic ok"><i class="ri-check-double-line"></i></div><h3>Nothing here</h3><p>No imports in this state.</p></div>';
+      return;
+    }
+    if (tab === 'pending') wrap.innerHTML = renderPending(rows);
+    else if (tab === 'failed') wrap.innerHTML = renderFailed(rows);
+    else if (tab === 'drift') wrap.innerHTML = renderDrift(rows);
+    else if (tab === 'materialized') wrap.innerHTML = renderMaterialized(rows);
+    else if (tab === 'rejected') wrap.innerHTML = renderRejected(rows);
+    wireRowClicks(tab);
+  }
+
+  function renderPending(rows) {
+    var body = rows.map(function (r) {
+      return '<tr data-id="' + esc(r.id) + '">' +
+        '<td><div class="legid"><i class="ri-fingerprint-line"></i>' + esc(r.leg) + '</div><div class="meta">' + esc(r.sys) + ' · ' + esc(r.batch) + '</div></td>' +
+        '<td><div class="borr-name">' + esc(r.borrower) + '</div><div class="meta">' + esc(r.site) + '</div></td>' +
+        '<td>' + fmtDate(r.asOf) + '</td>' +
+        '<td class="num">' + fmtUSD(r.payoff) + '</td>' +
+        '<td><span class="mg-badge ok"><i class="ri-shield-check-line"></i> Within tolerance</span></td>' +
+        '<td>' + esc(r.submittedBy) + '<div class="meta">' + esc(r.submittedAt) + '</div></td>' +
+        '<td><div class="mg-actions" onclick="event.stopPropagation();">' +
+          '<button class="mg-iconbtn primary" data-act="open-report" title="Open full report"><i class="ri-file-text-line"></i></button>' +
+          '<button class="mg-iconbtn" data-act="more" title="Open quick summary"><i class="ri-more-2-fill"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    return '<table class="mg-table"><thead><tr>' +
+      '<th>Legacy ID</th><th>Borrower / collateral</th><th>As-of</th><th class="num">Payoff</th><th>Reconciliation</th><th>Submitted</th><th></th>' +
+    '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  function renderFailed(rows) {
+    var body = rows.map(function (r) {
+      return '<tr data-id="' + esc(r.id) + '">' +
+        '<td><div class="legid"><i class="ri-fingerprint-line"></i>' + esc(r.leg) + '</div><div class="meta">' + esc(r.sys) + ' · ' + esc(r.batch) + '</div></td>' +
+        '<td><div class="borr-name">' + esc(r.borrower) + '</div><div class="meta">' + esc(r.site) + '</div></td>' +
+        '<td>' + fmtDate(r.asOf) + '</td>' +
+        '<td class="num">' + fmtUSD(r.payoff) + '</td>' +
+        '<td><div class="mg-drift-cell"><span class="v up">' + fmtSigned(r.drift) + '</span><span class="lk">on ' + esc(r.driftCmp) + '</span></div></td>' +
+        '<td><span class="mg-badge err"><i class="ri-error-warning-line"></i> Drift exceeds tolerance</span></td>' +
+        '<td>' + esc(r.submittedBy) + '<div class="meta">' + esc(r.submittedAt) + '</div></td>' +
+        '<td><div class="mg-actions" onclick="event.stopPropagation();">' +
+          '<button class="mg-iconbtn primary" data-act="open-report" title="Open full report"><i class="ri-file-text-line"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    return '<table class="mg-table"><thead><tr>' +
+      '<th>Legacy ID</th><th>Borrower / collateral</th><th>As-of</th><th class="num">Payoff</th><th class="num">Drift</th><th>Status</th><th>Submitted</th><th></th>' +
+    '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  function renderDrift(rows) {
+    var body = rows.map(function (r) {
+      return '<tr data-id="' + esc(r.id) + '">' +
+        '<td><div class="legid"><i class="ri-bank-line"></i>' + esc(r.loanId) + '</div><div class="meta">imported from ' + esc(r.leg) + '</div></td>' +
+        '<td><div class="borr-name">' + esc(r.borrower) + '</div><div class="meta">' + esc(r.site) + '</div></td>' +
+        '<td>' + fmtDate(r.materializedAt) + '</td>' +
+        '<td><div class="mg-drift-cell"><span class="v ' + (r.drift > 0 ? 'up' : 'down') + '">' + fmtSigned(r.drift) + '</span><span class="lk">on ' + esc(r.driftCmp) + '</span></div></td>' +
+        '<td><span class="mg-badge warn"><i class="ri-pulse-line"></i> Drift detected</span></td>' +
+        '<td>' + esc(r.lastReRecon) + '</td>' +
+        '<td><div class="mg-actions" onclick="event.stopPropagation();">' +
+          '<button class="mg-iconbtn primary" data-act="rerecon" title="Re-reconcile now"><i class="ri-refresh-line"></i></button>' +
+          '<button class="mg-iconbtn" data-act="ack" title="Acknowledge"><i class="ri-eye-off-line"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    return '<table class="mg-table"><thead><tr>' +
+      '<th>Loan</th><th>Borrower / collateral</th><th>Materialized</th><th class="num">Drift</th><th>Status</th><th>Last check</th><th></th>' +
+    '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  function renderMaterialized(rows) {
+    var body = rows.map(function (r) {
+      return '<tr data-id="' + esc(r.id) + '">' +
+        '<td><div class="legid"><i class="ri-bank-line"></i>' + esc(r.loanId) + '</div><div class="meta">imported from ' + esc(r.leg) + '</div></td>' +
+        '<td><div class="borr-name">' + esc(r.borrower) + '</div></td>' +
+        '<td>' + esc(r.source) + '</td>' +
+        '<td>' + fmtDate(r.materializedAt) + '</td>' +
+        '<td>' + esc(r.verifiedBy) + '</td>' +
+        '<td><span class="mg-badge ok"><i class="ri-check-double-line"></i> Live · clean</span></td>' +
+        '<td><div class="mg-actions" onclick="event.stopPropagation();">' +
+          '<button class="mg-iconbtn" data-act="open-loan" title="Open loan"><i class="ri-external-link-line"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    return '<table class="mg-table"><thead><tr>' +
+      '<th>Loan</th><th>Borrower</th><th>Source</th><th>Materialized</th><th>Verified by</th><th>Status</th><th></th>' +
+    '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  function renderRejected(rows) {
+    var body = rows.map(function (r) {
+      return '<tr data-id="' + esc(r.id) + '">' +
+        '<td><div class="legid"><i class="ri-fingerprint-line"></i>' + esc(r.leg) + '</div><div class="meta">' + esc(r.source) + '</div></td>' +
+        '<td><div class="borr-name">' + esc(r.borrower) + '</div></td>' +
+        '<td>' + fmtDate(r.submittedAt) + '</td>' +
+        '<td>' + esc(r.rejectedBy) + '</td>' +
+        '<td style="max-width:340px; white-space:normal; line-height:1.45;">' + esc(r.reason) + '</td>' +
+        '<td><div class="mg-actions" onclick="event.stopPropagation();">' +
+          '<button class="mg-iconbtn" data-act="restart" title="Re-submit"><i class="ri-restart-line"></i></button>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+    return '<table class="mg-table"><thead><tr>' +
+      '<th>Legacy ID</th><th>Borrower</th><th>Submitted</th><th>Rejected by</th><th>Reason</th><th></th>' +
+    '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  // ---------- Row clicks & actions ----------
+  function wireRowClicks(tab) {
+    document.querySelectorAll('#mgTableWrap tbody tr').forEach(function (tr) {
+      tr.addEventListener('click', function (e) {
+        if (e.target.closest('[data-act]')) return;
+        openDrawer(tab, tr.dataset.id);
+      });
+    });
+    document.querySelectorAll('#mgTableWrap [data-act]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        handleAction(tab, b.closest('tr').dataset.id, b.dataset.act);
+      });
+    });
+  }
+
+  function handleAction(tab, id, act) {
+    if (act === 'open-report') {
+      window.location.href = 'loan-import-report.html?id=' + encodeURIComponent(id) + '&tab=' + encodeURIComponent(tab);
+    } else if (act === 'rerecon') {
+      toast('Re-reconciliation queued · check back in 1 min', 'ok');
+    } else if (act === 'ack') {
+      toast('Drift acknowledged');
+    } else if (act === 'reopen') {
+      window.location.href = 'loan-import-report.html?id=' + encodeURIComponent(id) + '&tab=' + encodeURIComponent(tab);
+    } else if (act === 'restart') {
+      window.LoanImportWizard && window.LoanImportWizard.open();
+    } else if (act === 'open-loan') {
+      window.location.href = 'loan-detail.html';
+    } else if (act === 'more') {
+      openDrawer(tab, id);
+    }
+  }
+
+  // ---------- Filter pills (cycle through options) ----
+  function wirePills() {
+    document.querySelectorAll('.mg-pill[data-filter]').forEach(function (p) {
+      var opts = p.dataset.options.split('|');
+      var idx = 0;
+      p.addEventListener('click', function () {
+        idx = (idx + 1) % opts.length;
+        var lbl = p.querySelector('.lbl');
+        var prefix = lbl.textContent.split(':')[0];
+        lbl.textContent = prefix.indexOf(' ') === -1 && p.dataset.filter !== 'sort' ? prefix + ': ' + opts[idx] : (p.dataset.filter === 'sort' ? opts[idx] : prefix + ': ' + opts[idx]);
+        p.classList.toggle('active', idx !== 0);
+        applyFilters();
+      });
+    });
+  }
+  function applyFilters() {
+    var src = getPill('source');
+    var batch = getPill('batch');
+    var q = (document.getElementById('mgSearch').value || '').toLowerCase().trim();
+    document.querySelectorAll('#mgTableWrap tbody tr').forEach(function (tr) {
+      var t = tr.textContent.toLowerCase();
+      var show = true;
+      if (src && src !== 'All' && t.indexOf(src.toLowerCase()) === -1) show = false;
+      if (batch && batch !== 'All' && t.indexOf(batch.toLowerCase()) === -1) show = false;
+      if (q && t.indexOf(q) === -1) show = false;
+      tr.style.display = show ? '' : 'none';
+    });
+  }
+  function getPill(name) {
+    var p = document.querySelector('.mg-pill[data-filter="' + name + '"]');
+    if (!p) return null;
+    var parts = p.querySelector('.lbl').textContent.split(':');
+    return parts.length > 1 ? parts.slice(1).join(':').trim() : parts[0].trim();
+  }
+
+  // ---------- Confirm dialogs (app-consistent modal) ----
+  function buildDialog(id) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = id;
+    el.className = 'modal-backdrop';
+    el.style.display = 'none';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML = '<div class="modal" style="width:440px;"><span class="grab"></span></div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function (e) { if (e.target === el) el.style.display = 'none'; });
+    return el;
+  }
+  function openVerifyDialog(onConfirm) {
+    var el = buildDialog('mgVerifyDlg');
+    el.querySelector('.modal').innerHTML = ''
+      + '<span class="grab"></span>'
+      + '<div class="modal-head">'
+      +   '<div style="width:36px;height:36px;border-radius:9px;background:#ecfdf5;color:#047857;display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ri-check-line"></i></div>'
+      +   '<div style="flex:1;"><h3 class="modal-title">Make this loan live?</h3><p class="modal-sub">A live loan account is created with today\'s opening balance pulled from the import. The full audit trail is kept either way.</p></div>'
+      + '</div>'
+      + '<div class="modal-foot"><span class="spacer"></span>'
+      +   '<button class="btn btn-secondary" data-act="cancel">Cancel</button>'
+      +   '<button class="btn btn-primary" data-act="ok"><i class="ri-check-line"></i> Looks good · make live</button>'
+      + '</div>';
+    el.style.display = 'flex';
+    el.querySelector('[data-act=cancel]').onclick = function () { el.style.display = 'none'; };
+    el.querySelector('[data-act=ok]').onclick = function () { el.style.display = 'none'; onConfirm && onConfirm(); };
+    setTimeout(function () { el.querySelector('[data-act=ok]').focus(); }, 30);
+  }
+  function openRejectDialog(onConfirm) {
+    var el = buildDialog('mgRejectDlg');
+    el.querySelector('.modal').innerHTML = ''
+      + '<span class="grab"></span>'
+      + '<div class="modal-head">'
+      +   '<div style="width:36px;height:36px;border-radius:9px;background:#fff7ed;color:#c2410c;display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ri-arrow-go-back-line"></i></div>'
+      +   '<div style="flex:1;"><h3 class="modal-title">Send this back to the submitter?</h3><p class="modal-sub">They\'ll see your note and can fix the import. Nothing goes live yet.</p></div>'
+      + '</div>'
+      + '<div style="padding:4px 20px 16px;"><label style="display:block;font:600 11px var(--font-sans);text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);margin-bottom:6px;">Note for the submitter</label>'
+      +   '<textarea id="mgRejReason" rows="3" placeholder="e.g. Payoff is off — please re-pull the latest statement and try again." style="width:100%;border:1px solid var(--border-default);border-radius:8px;padding:10px 12px;font:13px var(--font-sans);outline:none;resize:vertical;"></textarea></div>'
+      + '<div class="modal-foot"><span class="spacer"></span>'
+      +   '<button class="btn btn-secondary" data-act="cancel">Cancel</button>'
+      +   '<button class="btn btn-primary" data-act="ok" style="background:#c2410c;border-color:#c2410c;"><i class="ri-arrow-go-back-line"></i> Send back</button>'
+      + '</div>';
+    el.style.display = 'flex';
+    var ta = el.querySelector('#mgRejReason');
+    el.querySelector('[data-act=cancel]').onclick = function () { el.style.display = 'none'; };
+    el.querySelector('[data-act=ok]').onclick = function () {
+      var why = (ta.value || '').trim();
+      if (!why) { ta.focus(); ta.style.borderColor = '#dc2626'; return; }
+      el.style.display = 'none';
+      onConfirm && onConfirm(why);
+    };
+    setTimeout(function () { ta.focus(); }, 30);
+  }
+
+  // ---------- Drawer ----------------------
+  function openDrawer(tab, id) {
+    var row = (DATA[tab] || []).filter(function (r) { return r.id === id; })[0];
+    if (!row) return;
+    var idEl = document.getElementById('mgDrawerId');
+    var sbEl = document.getElementById('mgDrawerSb');
+    var body = document.getElementById('mgDrawerBody');
+    var foot = document.getElementById('mgDrawerFoot');
+    idEl.textContent = row.leg || row.loanId || row.id;
+    var sb = '';
+    if (tab === 'pending') sb = 'Pending verification · ' + (row.submittedAt || '');
+    else if (tab === 'failed') sb = 'Reconciliation failed · drift ' + fmtSigned(row.drift);
+    else if (tab === 'drift') sb = 'Live loan · drift detected post-migration';
+    else if (tab === 'materialized') sb = 'Materialized · ' + fmtDate(row.materializedAt);
+    else if (tab === 'rejected') sb = 'Rejected · ' + fmtDate(row.submittedAt);
+    sbEl.textContent = sb;
+
+    body.innerHTML = renderDrawerBody(tab, row);
+    foot.innerHTML = renderDrawerFoot(tab, row);
+    document.getElementById('mgDrawer').classList.add('on');
+  }
+
+  function renderDrawerBody(tab, r) {
+    if (tab === 'pending' || tab === 'failed') {
+      var reconCard = (tab === 'pending')
+        ? '<div class="li-verdict ok"><span class="ic"><i class="ri-check-line"></i></span><div><div class="vti">Within tolerance · $0.50 / 1.0 bp</div><div class="vsb">Submission is reconciliation-clean; you can verify.</div></div></div>'
+        : '<div class="li-verdict err"><span class="ic"><i class="ri-error-warning-line"></i></span><div><div class="vti">Drift on ' + esc(r.driftCmp) + ' · ' + fmtSigned(r.drift) + '</div><div class="vsb">Reopen and adjust totals or widen tolerance.</div></div></div>';
+      return [
+        '<div><h4><i class="ri-fingerprint-line"></i> Identity</h4><div class="card"><dl>' +
+          '<dt>Legacy ID</dt><dd>' + esc(r.leg) + '</dd>' +
+          '<dt>Source</dt><dd>' + esc(r.sys || '—') + '</dd>' +
+          '<dt>Batch</dt><dd>' + esc(r.batch || '—') + '</dd>' +
+          '<dt>As-of</dt><dd>' + fmtDate(r.asOf) + '</dd>' +
+        '</dl></div></div>',
+        '<div><h4><i class="ri-user-3-line"></i> Loan</h4><div class="card"><dl>' +
+          '<dt>Borrower</dt><dd style="font-family:var(--font-sans);">' + esc(r.borrower) + '</dd>' +
+          '<dt>Collateral</dt><dd style="font-family:var(--font-sans);">' + esc(r.site || '—') + '</dd>' +
+          '<dt>Payoff</dt><dd>' + fmtUSD(r.payoff) + '</dd>' +
+        '</dl></div></div>',
+        '<div><h4><i class="ri-shield-check-line"></i> Reconciliation</h4>' + reconCard + '</div>',
+        '<div><h4><i class="ri-shield-user-line"></i> Two-person rule</h4><div class="card" style="display:flex; align-items:center; gap:14px;"><div style="flex:1;"><div style="font:11px var(--font-sans); color:var(--fg3); letter-spacing:.04em; text-transform:uppercase;">Submitter</div><div style="font:600 13px var(--font-sans); color:var(--color-grey-900); margin-top:3px;">' + esc(r.submittedBy) + '</div></div><i class="ri-arrow-right-line" style="color:var(--fg3);"></i><div style="flex:1;"><div style="font:11px var(--font-sans); color:var(--fg3); letter-spacing:.04em; text-transform:uppercase;">Verifier</div><div style="font:600 13px var(--font-sans); color:#6d28d9; margin-top:3px;">You — Kevin Manga · admin/owner</div></div></div></div>'
+      ].join('');
+    }
+    if (tab === 'drift') {
+      return [
+        '<div><h4><i class="ri-bank-line"></i> Loan</h4><div class="card"><dl>' +
+          '<dt>Loan ID</dt><dd>' + esc(r.loanId) + '</dd>' +
+          '<dt>Legacy ID</dt><dd>' + esc(r.leg) + '</dd>' +
+          '<dt>Borrower</dt><dd style="font-family:var(--font-sans);">' + esc(r.borrower) + '</dd>' +
+          '<dt>Materialized</dt><dd>' + fmtDate(r.materializedAt) + '</dd>' +
+        '</dl></div></div>',
+        '<div><h4><i class="ri-pulse-line"></i> Drift</h4><div class="li-verdict err" style="background:#fff7ed; border-color:#fed7aa; color:#7c2d12;"><span class="ic" style="background:#c2410c;"><i class="ri-pulse-line"></i></span><div><div class="vti">' + fmtSigned(r.drift) + ' on ' + esc(r.driftCmp) + '</div><div class="vsb">Detected ' + esc(r.lastReRecon) + ' during scheduled re-reconciliation.</div></div></div></div>'
+      ].join('');
+    }
+    if (tab === 'materialized') {
+      return [
+        '<div><h4><i class="ri-bank-line"></i> Live loan</h4><div class="card"><dl>' +
+          '<dt>Loan ID</dt><dd>' + esc(r.loanId) + '</dd>' +
+          '<dt>Legacy ID</dt><dd>' + esc(r.leg) + '</dd>' +
+          '<dt>Borrower</dt><dd style="font-family:var(--font-sans);">' + esc(r.borrower) + '</dd>' +
+          '<dt>Source</dt><dd style="font-family:var(--font-sans);">' + esc(r.source) + '</dd>' +
+          '<dt>Materialized</dt><dd>' + fmtDate(r.materializedAt) + '</dd>' +
+          '<dt>Verified by</dt><dd style="font-family:var(--font-sans);">' + esc(r.verifiedBy) + '</dd>' +
+        '</dl></div></div>'
+      ].join('');
+    }
+    if (tab === 'rejected') {
+      return [
+        '<div><h4><i class="ri-archive-line"></i> Rejected import</h4><div class="card"><dl>' +
+          '<dt>Legacy ID</dt><dd>' + esc(r.leg) + '</dd>' +
+          '<dt>Borrower</dt><dd style="font-family:var(--font-sans);">' + esc(r.borrower) + '</dd>' +
+          '<dt>Submitted</dt><dd>' + fmtDate(r.submittedAt) + '</dd>' +
+          '<dt>Rejected by</dt><dd style="font-family:var(--font-sans);">' + esc(r.rejectedBy) + '</dd>' +
+        '</dl></div></div>',
+        '<div><h4><i class="ri-error-warning-line"></i> Reason</h4><div class="card" style="font:13px var(--font-sans); color:var(--color-grey-800); line-height:1.55;">' + esc(r.reason) + '</div></div>'
+      ].join('');
+    }
+    return '';
+  }
+
+  function renderDrawerFoot(tab, r) {
+    if (tab === 'pending' || tab === 'failed') {
+      return '<button class="li-btn secondary" type="button" data-fact="close-drawer">Close</button>' +
+             '<button class="li-btn primary" type="button" data-fact="open-report"><i class="ri-file-text-line"></i> Open full report</button>';
+    }
+    if (tab === 'failed-OLD') {
+      return '<button class="li-btn danger" type="button" data-fact="reject"><i class="ri-close-line"></i> Reject</button>' +
+             '<button class="li-btn primary" type="button" data-fact="open-wizard"><i class="ri-edit-line"></i> Open & fix</button>';
+    }
+    if (tab === 'drift') {
+      return '<button class="li-btn secondary" type="button" data-fact="ack">Acknowledge</button>' +
+             '<button class="li-btn primary" type="button" data-fact="rerecon"><i class="ri-refresh-line"></i> Re-reconcile now</button>';
+    }
+    if (tab === 'materialized') {
+      return '<button class="li-btn primary" type="button" data-fact="open-loan"><i class="ri-external-link-line"></i> Open live loan</button>';
+    }
+    if (tab === 'rejected') {
+      return '<button class="li-btn primary" type="button" data-fact="restart"><i class="ri-restart-line"></i> Start a new submission</button>';
+    }
+    return '';
+  }
+
+  document.getElementById('mgDrawerClose').addEventListener('click', function () {
+    document.getElementById('mgDrawer').classList.remove('on');
+  });
+  document.getElementById('mgDrawer').addEventListener('click', function (e) {
+    if (e.target.id === 'mgDrawer') document.getElementById('mgDrawer').classList.remove('on');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('mgDrawer').classList.remove('on');
+  });
+  document.getElementById('mgDrawerFoot').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-fact]');
+    if (!btn) return;
+    var act = btn.dataset.fact;
+    var rowId = document.getElementById('mgDrawerId').textContent;
+    var curTab = (document.querySelector('#mgTabs .mg-tab.active') || {}).dataset && document.querySelector('#mgTabs .mg-tab.active').dataset.tab;
+    if (act === 'close-drawer') {
+      document.getElementById('mgDrawer').classList.remove('on');
+    } else if (act === 'open-report') {
+      window.location.href = 'loan-import-report.html?tab=' + encodeURIComponent(curTab || 'pending');
+    } else if (act === 'rerecon') {
+      document.getElementById('mgDrawer').classList.remove('on');
+      toast('Re-reconciliation queued · check back in 1 min', 'ok');
+    } else if (act === 'ack') {
+      document.getElementById('mgDrawer').classList.remove('on');
+      toast('Drift acknowledged');
+    } else if (act === 'restart') {
+      document.getElementById('mgDrawer').classList.remove('on');
+      window.LoanImportWizard && window.LoanImportWizard.open();
+    } else if (act === 'open-loan') {
+      window.location.href = 'loan-detail.html';
+    }
+  });
+
+  // ---------- Tab routing ------------------
+  function setActive(tab) {
+    var tabs = ['pending', 'failed', 'drift', 'materialized', 'rejected'];
+    if (tabs.indexOf(tab) === -1) tab = 'pending';
+    document.querySelectorAll('#mgTabs .mg-tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
+    document.querySelectorAll('#mgKpis .mg-kpi').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === tab); });
+    // sidebar active
+    document.querySelectorAll('.nav-group .nav-item').forEach(function (a) { a.classList.remove('active'); });
+    var sidebarLink = document.querySelector('.nav-group a[href="migrations.html' + (tab === 'pending' ? '' : '?tab=' + tab) + '"]');
+    if (sidebarLink) sidebarLink.classList.add('active');
+    renderTable(tab);
+    var qs = tab === 'pending' ? '' : '?tab=' + tab;
+    history.replaceState(null, '', 'migrations.html' + qs);
+  }
+  document.querySelectorAll('#mgTabs .mg-tab').forEach(function (t) {
+    t.addEventListener('click', function () { setActive(t.dataset.tab); });
+  });
+  document.querySelectorAll('#mgKpis .mg-kpi').forEach(function (t) {
+    t.addEventListener('click', function () { setActive(t.dataset.tab); });
+  });
+
+  document.getElementById('btnReReconAll').addEventListener('click', function () {
+    toast('Queued re-reconciliation for 42 live loans', 'ok');
+  });
+
+  // Search filter (basic) — both inline search and topbar search
+  document.getElementById('mgSearch').addEventListener('input', applyFilters);
+  var topS = document.getElementById('mgTopSearch');
+  if (topS) topS.addEventListener('input', function (e) {
+    document.getElementById('mgSearch').value = e.target.value;
+    applyFilters();
+  });
+  var topN = document.getElementById('mgTopNotif');
+  if (topN) topN.addEventListener('click', function () { toast('No new notifications'); });
+  wirePills();
+
+  // Init from URL
+  var params = new URLSearchParams(location.search);
+  setActive(params.get('tab') || 'pending');
+})();
+</script>
+
+</body>
+</html>

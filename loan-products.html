@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Loan products</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="row-actions.css" />
+<link rel="stylesheet" href="_detail.css" />
+<style>
+  /* ---- Loan-product list specifics ---- */
+  .lp-table .nm-cell { display: flex; flex-direction: column; gap: 2px; }
+  .lp-table .nm-cell .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+  .lp-table .nm-cell .sb { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+  .lp-table td { vertical-align: middle; }
+  .lp-table .terms-cell { font-variant-numeric: tabular-nums; }
+  .lp-table .terms-cell b { font-weight: 600; color: var(--color-grey-900); }
+  .lp-table .terms-cell span { color: var(--fg3); }
+  .lp-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 10.5px var(--font-sans); padding: 2px 8px; border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .lp-pill.active   { background: var(--color-success-50); color: var(--color-success-800); border-color: var(--color-success-200); }
+  .lp-pill.draft    { background: var(--color-warning-50); color: var(--color-warning-800); border-color: var(--color-warning-200); }
+  .lp-pill.archived { background: var(--color-grey-100);   color: var(--color-grey-700);   border-color: var(--color-grey-200); }
+  .lp-pill.featured { background: var(--color-brand-50);   color: var(--color-brand-800);  border-color: var(--color-brand-200); }
+  .lp-usage-bar {
+    display: flex; align-items: center; gap: 6px;
+    font: 500 12px var(--font-sans); color: var(--fg2);
+    font-variant-numeric: tabular-nums;
+  }
+  .lp-usage-bar .bar {
+    flex: 1; max-width: 90px; height: 6px; border-radius: 3px;
+    background: var(--color-grey-100); overflow: hidden;
+  }
+  .lp-usage-bar .bar > span {
+    display: block; height: 100%; background: var(--color-brand-500); border-radius: 3px;
+  }
+  .lp-table tr.row-link { cursor: pointer; }
+  .lp-table tr.row-link:hover td { background: var(--color-grey-25); }
+
+  /* Section header for create dialog */
+  .dt-dialog .body .section-h {
+    font: 600 11px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: .04em;
+    border-top: 1px solid var(--color-grey-100);
+    padding-top: 14px; margin-top: 4px;
+  }
+  .dt-dialog .body .section-h:first-child { border-top: 0; padding-top: 0; }
+  .dt-dialog .body .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .dt-dialog .body .toggle-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border: 1px solid var(--color-grey-200); border-radius: 8px; background: var(--color-grey-25);
+  }
+  .dt-dialog .body .toggle-row label { margin: 0; flex: 1; text-transform: none; font-weight: 500; font-size: 13px; color: var(--color-grey-900); letter-spacing: 0; }
+  .dt-dialog .body .toggle-row label small { display: block; font: 500 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; text-transform: none; letter-spacing: 0; }
+  .dt-dialog .body .toggle-row input[type="checkbox"] { width: auto; accent-color: var(--color-brand-600); transform: scale(1.1); }
+  .dt-dialog-lg2 { width: min(720px, 100%) !important; }
+
+  /* Toast (matches site-detail pattern) */
+  .toast-stack {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    background: var(--color-grey-900); color: white;
+    padding: 10px 16px; border-radius: 8px; font: 500 13px var(--font-sans);
+    box-shadow: 0 12px 28px rgba(15,23,42,.25);
+    pointer-events: auto;
+    animation: toastIn .25s ease, toastOut .25s ease 3.5s forwards;
+  }
+  @keyframes toastIn { from { opacity:0; transform: translateY(8px); } }
+  @keyframes toastOut { to { opacity:0; transform: translateY(8px); } }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/loan-products</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <!-- =========== SIDEBAR =========== -->
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-sub">Dallas, TX</span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+          <a class="nav-item" href="reports.html"><i class="ri-bar-chart-line"></i> Reports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-list-3-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item active" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="repayments.html"><i class="ri-calendar-check-line"></i> Repayments <span class="nav-badge urgent">11</span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="payment-review.html"><i class="ri-shield-check-line"></i> Payment review <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <!-- =========== MAIN =========== -->
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="portfolio.html"><i class="ri-pie-chart-2-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Loan products</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search products by name, term, rate…" id="searchProducts" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px;">
+          <div>
+            <h1 class="page-title">Loan products</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:680px;">
+              Reusable financing templates — down payment, interest rate, term, and amortization rules — that agents attach to land or house listings when originating new loans.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-primary" id="btnNewProduct"><i class="ri-add-line"></i> New loan product</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="team-kpis">
+          <div class="card">
+            <div class="card-title">Active products</div>
+            <div class="card-value">6</div>
+            <div class="delta muted">2 featured · 1 draft</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Loans using</div>
+            <div class="card-value">89</div>
+            <div class="delta up">$4.82M originated</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Avg. APR</div>
+            <div class="card-value">9.2%</div>
+            <div class="delta muted">across active book</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Most used</div>
+            <div class="card-value" style="font-size:18px;">Standard 12-yr</div>
+            <div class="delta muted">42 loans · 47% of book</div>
+          </div>
+        </div>
+
+        <!-- Status tabs -->
+        <div class="type-tabs" role="tablist" id="typeTabs">
+          <button class="type-tab active" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">8</span></button>
+          <button class="type-tab" data-type="ACTIVE"><span class="lp-pill active" style="font-size:9px; padding:1px 6px;">Active</span> <span class="cnt">6</span></button>
+          <button class="type-tab" data-type="DRAFT"><span class="lp-pill draft" style="font-size:9px; padding:1px 6px;">Draft</span> <span class="cnt">1</span></button>
+          <button class="type-tab" data-type="ARCHIVED"><span class="lp-pill archived" style="font-size:9px; padding:1px 6px;">Archived</span> <span class="cnt">1</span></button>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-secondary btn-sm">Asset: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Term: Any ▾</button>
+          <button class="btn btn-secondary btn-sm">Rate: Any ▾</button>
+          <button class="btn btn-secondary btn-sm">Updated: All time ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <div style="flex:1;"></div>
+          <span style="font-size:12px; color: var(--fg3);"><span id="visibleCount">8</span> products</span>
+        </div>
+
+        <!-- Products table -->
+        <div>
+          <table class="table lp-table">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Down · APR · Term</th>
+                <th>Amortization</th>
+                <th>Loans / portfolio</th>
+                <th>Updated</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="productRows">
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-001">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Standard Land · 12-yr fixed <span class="lp-pill featured" style="margin-left:4px;"><i class="ri-star-fill"></i> Featured</span></div>
+                    <div class="sb">Default product for new land originations</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>$5,000</b> <span>down</span> · <b>9.50%</b> APR · <b>144 mo</b></td>
+                <td>Equal payment · monthly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:88%;"></span></div><span>42 loans</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Apr 18 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-002">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Standard Land · 15-yr fixed <span class="lp-pill featured" style="margin-left:4px;"><i class="ri-star-fill"></i> Featured</span></div>
+                    <div class="sb">Lower monthly · longer term</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>$5,000</b> <span>down</span> · <b>9.50%</b> APR · <b>180 mo</b></td>
+                <td>Equal payment · monthly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:55%;"></span></div><span>23 loans</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Apr 18 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-003">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Standard Land · 20-yr fixed</div>
+                    <div class="sb">Lowest monthly payment</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>$7,500</b> <span>down</span> · <b>9.00%</b> APR · <b>240 mo</b></td>
+                <td>Equal payment · monthly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:32%;"></span></div><span>14 loans</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Mar 02 · Mae</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-004">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Express Land · 8-yr</div>
+                    <div class="sb">Faster payoff · used for in-fill plots</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>$3,000</b> <span>down</span> · <b>8.75%</b> APR · <b>96 mo</b></td>
+                <td>Equal payment · monthly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:14%;"></span></div><span>6 loans</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Feb 10 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-005">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Premium House · 10-yr fixed</div>
+                    <div class="sb">For house listings only · stricter eligibility</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>15%</b> <span>down</span> · <b>10.25%</b> APR · <b>120 mo</b></td>
+                <td>Equal principal · monthly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:9%;"></span></div><span>3 loans</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Jan 22 · Aïssa</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="LP-006">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Bi-weekly Land · 10-yr</div>
+                    <div class="sb">Bi-weekly payments → 12 extra payments / year equivalent</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td class="terms-cell"><b>$5,000</b> <span>down</span> · <b>9.25%</b> APR · <b>120 mo</b></td>
+                <td>Equal payment · bi-weekly</td>
+                <td>
+                  <div class="lp-usage-bar"><div class="bar"><span style="width:5%;"></span></div><span>1 loan</span></div>
+                </td>
+                <td><span style="color:var(--fg3); font-size:12px;">Dec 11 · Mae</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="DRAFT" data-id="LP-007">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti">Co-buyer Land · 18-yr</div>
+                    <div class="sb">Two-borrower contract · pending legal review</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill draft"><i class="ri-edit-line"></i> Draft</span></td>
+                <td class="terms-cell"><b>10%</b> <span>down</span> · <b>9.75%</b> APR · <b>216 mo</b></td>
+                <td>Equal payment · monthly</td>
+                <td><span style="color:var(--fg3); font-size:12px;">— not published</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 02 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ARCHIVED" data-id="LP-LEG">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="nm-cell">
+                    <div class="ti" style="color: var(--fg3);">Legacy Land · 5-yr balloon</div>
+                    <div class="sb">Replaced by Standard 12-yr in Jan 2026</div>
+                  </div>
+                </td>
+                <td><span class="lp-pill archived"><i class="ri-archive-line"></i> Archived</span></td>
+                <td class="terms-cell" style="color: var(--fg3);"><b>$10,000</b> <span>down</span> · <b>11.00%</b> APR · <b>60 mo</b></td>
+                <td style="color: var(--fg3);">Interest-only + balloon</td>
+                <td><span style="color:var(--fg3); font-size:12px;">12 historical</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">Jan 12 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+<!-- ============================================================
+     CREATE / EDIT LOAN PRODUCT DIALOG
+     ============================================================ -->
+<div class="dt-overlay" id="lpDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog dt-dialog-lg2">
+    <header>
+      <i class="ri-bank-line" style="color: var(--color-brand-600); font-size: 18px;"></i>
+      <h3 id="lpDialogTitle">New loan product</h3>
+      <button class="x" id="lpDialogClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+
+      <div class="section-h">Identification</div>
+      <div>
+        <label>Product name</label>
+        <input id="lpName" type="text" placeholder="e.g. Standard Land · 12-yr fixed" autocomplete="off" />
+      </div>
+      <div>
+        <label>Description</label>
+        <textarea id="lpDesc" rows="2" placeholder="Optional internal description — what kind of deals is this product designed for?"></textarea>
+      </div>
+      <div class="row">
+        <div>
+          <label>Asset type</label>
+          <select id="lpAsset">
+            <option value="land" selected>Land</option>
+            <option value="house">House</option>
+            <option value="any">Land or house</option>
+          </select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="lpStatus">
+            <option value="ACTIVE" selected>Active</option>
+            <option value="DRAFT">Draft</option>
+            <option value="ARCHIVED">Archived</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-h">Loan terms</div>
+      <div class="row3">
+        <div>
+          <label>Down payment type</label>
+          <select id="lpDownType">
+            <option value="amount" selected>Fixed amount</option>
+            <option value="percent">Percent of price</option>
+          </select>
+        </div>
+        <div>
+          <label>Down payment</label>
+          <div class="input-with-unit">
+            <input id="lpDown" type="number" step="0.01" min="0" value="5000.00" />
+            <span class="unit" id="lpDownUnit">USD</span>
+          </div>
+        </div>
+        <div>
+          <label>Annual interest rate</label>
+          <div class="input-with-unit">
+            <input id="lpRate" type="number" step="0.01" min="0" value="9.50" />
+            <span class="unit">% APR</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row3">
+        <div>
+          <label>Default term</label>
+          <div class="input-with-unit">
+            <input id="lpTerm" type="number" min="1" value="144" />
+            <span class="unit">months</span>
+          </div>
+        </div>
+        <div>
+          <label>Payment frequency</label>
+          <select id="lpFrequency">
+            <option value="monthly" selected>Monthly</option>
+            <option value="bi-weekly">Bi-weekly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div>
+          <label>Amortization method</label>
+          <select id="lpAmort">
+            <option value="equal-payment" selected>Equal payment</option>
+            <option value="equal-principal">Equal principal</option>
+            <option value="interest-only">Interest-only + balloon</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-h">Fees &amp; safeguards</div>
+      <div class="row3">
+        <div>
+          <label>Late fee</label>
+          <div class="input-with-unit">
+            <input id="lpLateFee" type="number" step="0.01" min="0" value="25.00" />
+            <span class="unit">USD</span>
+          </div>
+        </div>
+        <div>
+          <label>Grace period</label>
+          <div class="input-with-unit">
+            <input id="lpGrace" type="number" min="0" value="5" />
+            <span class="unit">days</span>
+          </div>
+        </div>
+        <div>
+          <label>Prepayment penalty</label>
+          <div class="input-with-unit">
+            <input id="lpPrepay" type="number" step="0.01" min="0" value="0" />
+            <span class="unit">% of bal.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <input id="lpFeatured" type="checkbox" />
+        <label for="lpFeatured">
+          Mark as featured
+          <small>Featured products show first in the new-loan wizard and on listing pages.</small>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <input id="lpAutoSchedule" type="checkbox" checked />
+        <label for="lpAutoSchedule">
+          Auto-generate amortization schedule on attach
+          <small>Recommended — saves agents from building the schedule by hand for every loan.</small>
+        </label>
+      </div>
+
+    </div>
+    <footer>
+      <button class="btn btn-text" id="lpDialogCancel">Cancel</button>
+      <button class="btn btn-primary" id="lpDialogSave"><i class="ri-check-line"></i> Save loan product</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="row-actions.js"></script>
+<script>
+(function(){
+  // ============================================================
+  // Toast helper
+  // ============================================================
+  var toastStack = document.getElementById('toastStack');
+  function toast(msg){
+    var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+    toastStack.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 4000);
+  }
+
+  // ============================================================
+  // Status tabs
+  // ============================================================
+  var tabs = document.querySelectorAll('#typeTabs .type-tab');
+  var rows = document.querySelectorAll('#productRows tr');
+  var visibleCount = document.getElementById('visibleCount');
+  function applyFilters(){
+    var t = document.querySelector('#typeTabs .type-tab.active').dataset.type;
+    var q = (document.getElementById('searchProducts').value || '').trim().toLowerCase();
+    var n = 0;
+    rows.forEach(function(r){
+      var matchType = (t === 'all') || (r.dataset.type === t);
+      var hay = r.textContent.toLowerCase();
+      var matchQ = !q || hay.indexOf(q) >= 0;
+      var show = matchType && matchQ;
+      r.style.display = show ? '' : 'none';
+      if (show) n++;
+    });
+    visibleCount.textContent = n;
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      applyFilters();
+    });
+  });
+  document.getElementById('searchProducts').addEventListener('input', applyFilters);
+
+  // ============================================================
+  // Filter / generic buttons → toast
+  // ============================================================
+  document.querySelectorAll('.btn.btn-secondary.btn-sm, .btn.btn-text.btn-sm').forEach(function(b){
+    b.addEventListener('click', function(){ toast('Filter: ' + b.textContent.trim()); });
+  });
+  document.getElementById('btnExport').addEventListener('click', function(){
+    toast('Exporting loan products as CSV…');
+  });
+  document.querySelectorAll('.icon-btn').forEach(function(b){
+    b.addEventListener('click', function(){ toast('No new notifications'); });
+  });
+
+  // ============================================================
+  // Row click → product detail (placeholder; opens edit dialog)
+  // ============================================================
+  rows.forEach(function(r){
+    r.addEventListener('click', function(){
+      openDialog('edit', r);
+    });
+  });
+  // ============================================================
+  // CREATE / EDIT DIALOG
+  // ============================================================
+  var dialog = document.getElementById('lpDialog');
+  var dialogTitle = document.getElementById('lpDialogTitle');
+  var saveBtn = document.getElementById('lpDialogSave');
+
+  function openDialog(mode, row){
+    dialog.classList.add('open');
+    if (mode === 'edit' && row){
+      dialogTitle.innerHTML = 'Edit loan product · <span style="color:var(--fg3); font-weight:500;">' + row.dataset.id + '</span>';
+      saveBtn.innerHTML = '<i class="ri-check-line"></i> Save changes';
+      var ti = row.querySelector('.ti');
+      if (ti){
+        var name = ti.childNodes[0].textContent.trim();
+        document.getElementById('lpName').value = name;
+      }
+      document.getElementById('lpStatus').value = row.dataset.type || 'ACTIVE';
+    } else {
+      dialogTitle.textContent = 'New loan product';
+      saveBtn.innerHTML = '<i class="ri-check-line"></i> Save loan product';
+      document.getElementById('lpName').value = '';
+      document.getElementById('lpDesc').value = '';
+      document.getElementById('lpAsset').value = 'land';
+      document.getElementById('lpStatus').value = 'ACTIVE';
+      document.getElementById('lpDownType').value = 'amount';
+      document.getElementById('lpDown').value = '5000.00';
+      document.getElementById('lpRate').value = '9.50';
+      document.getElementById('lpTerm').value = '144';
+      document.getElementById('lpFrequency').value = 'monthly';
+      document.getElementById('lpAmort').value = 'equal-payment';
+      document.getElementById('lpLateFee').value = '25.00';
+      document.getElementById('lpGrace').value = '5';
+      document.getElementById('lpPrepay').value = '0';
+      document.getElementById('lpFeatured').checked = false;
+      document.getElementById('lpAutoSchedule').checked = true;
+      syncDownUnit();
+    }
+    setTimeout(function(){ document.getElementById('lpName').focus(); }, 60);
+  }
+  function closeDialog(){ dialog.classList.remove('open'); }
+
+  function syncDownUnit(){
+    var t = document.getElementById('lpDownType').value;
+    document.getElementById('lpDownUnit').textContent = t === 'percent' ? '%' : 'USD';
+  }
+  document.getElementById('lpDownType').addEventListener('change', syncDownUnit);
+
+  document.getElementById('btnNewProduct').addEventListener('click', function(){ openDialog('new'); });
+  document.getElementById('lpDialogClose').addEventListener('click', closeDialog);
+  document.getElementById('lpDialogCancel').addEventListener('click', closeDialog);
+  dialog.addEventListener('click', function(e){ if (e.target === dialog) closeDialog(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDialog(); });
+
+  saveBtn.addEventListener('click', function(){
+    var name = document.getElementById('lpName').value.trim();
+    if (!name){
+      toast('Please enter a product name');
+      document.getElementById('lpName').focus();
+      return;
+    }
+    var down  = parseFloat(document.getElementById('lpDown').value) || 0;
+    var dType = document.getElementById('lpDownType').value;
+    var rate  = parseFloat(document.getElementById('lpRate').value) || 0;
+    var term  = parseInt(document.getElementById('lpTerm').value, 10) || 0;
+    var status = document.getElementById('lpStatus').value;
+    var amort = document.getElementById('lpAmort').value;
+    var freq  = document.getElementById('lpFrequency').value;
+    var featured = document.getElementById('lpFeatured').checked;
+
+    var downStr = dType === 'percent' ? down + '%' : '$' + down.toLocaleString();
+    var amortStr = ({
+      'equal-payment':   'Equal payment',
+      'equal-principal': 'Equal principal',
+      'interest-only':   'Interest-only + balloon'
+    })[amort];
+    var freqStr = ({ 'monthly':'monthly', 'bi-weekly':'bi-weekly', 'weekly':'weekly' })[freq];
+
+    var statusPill =
+      status === 'ACTIVE'   ? '<span class="lp-pill active"><i class="ri-checkbox-circle-line"></i> Active</span>' :
+      status === 'DRAFT'    ? '<span class="lp-pill draft"><i class="ri-edit-line"></i> Draft</span>' :
+                              '<span class="lp-pill archived"><i class="ri-archive-line"></i> Archived</span>';
+    var featPill = featured ? ' <span class="lp-pill featured" style="margin-left:4px;"><i class="ri-star-fill"></i> Featured</span>' : '';
+
+    var tr = document.createElement('tr');
+    tr.className = 'row-link';
+    tr.dataset.type = status;
+    tr.dataset.id   = 'LP-' + Date.now().toString().slice(-3);
+    tr.innerHTML =
+      '<td onclick="event.stopPropagation();"><input type="checkbox" /></td>' +
+      '<td><div class="nm-cell"><div class="ti">' + name + featPill + '</div>' +
+        '<div class="sb">' + (document.getElementById('lpDesc').value.trim() || 'Just created') + '</div></div></td>' +
+      '<td>' + statusPill + '</td>' +
+      '<td class="terms-cell"><b>' + downStr + '</b> <span>down</span> · <b>' + rate.toFixed(2) + '%</b> APR · <b>' + term + ' mo</b></td>' +
+      '<td>' + amortStr + ' · ' + freqStr + '</td>' +
+      '<td><span style="color:var(--fg3); font-size:12px;">— new</span></td>' +
+      '<td><span style="color:var(--fg3); font-size:12px;">Just now · Kevin</span></td>' +
+      '<td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>';
+    var tbody = document.getElementById('productRows');
+    tbody.insertBefore(tr, tbody.firstChild);
+    tr.addEventListener('click', function(){ openDialog('edit', tr); });
+
+    closeDialog();
+    applyFilters();
+    toast('Loan product "' + name + '" saved');
+  });
+})();
+</script>
+
+</body>
+</html>

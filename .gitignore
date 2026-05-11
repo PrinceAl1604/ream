@@ -1,0 +1,10 @@
+.DS_Store
+*.bak
+node_modules/
+.vscode/
+.idea/
+.cache/
+/tmp/
+
+# Server logs from local dev
+/.claude/server-logs/

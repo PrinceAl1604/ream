@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Feature flags</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .seg-bar { display:flex;background:white;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden; }
+  .seg-bar button { background:transparent;border:0;padding:6px 12px;font:500 12px var(--font-sans);color:var(--adm-text-3);cursor:pointer;border-right:1px solid var(--adm-border); }
+  .seg-bar button:last-child { border-right:0; }
+  .seg-bar button.on { background:var(--adm-accent-50);color:var(--adm-accent-700);font-weight:600; }
+  .flag-row { display:grid;grid-template-columns:24px 1fr 200px 140px 110px 80px 32px;gap:14px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--adm-border-2); }
+  .flag-row:hover { background:#fafafe;cursor:pointer; }
+  .flag-row .name { font:600 13px var(--font-mono);color:var(--adm-text-1); }
+  .flag-row .desc { font:400 12px var(--font-sans);color:var(--adm-text-3);margin-top:2px; }
+  .flag-row .ic { width:24px;height:24px;border-radius:6px;background:var(--adm-accent-50);color:var(--adm-stripe);display:inline-flex;align-items:center;justify-content:center;font-size:13px; }
+  .roll-bar { background:#f3f4f6;height:6px;border-radius:999px;overflow:hidden;width:100%;position:relative; }
+  .roll-bar > div { background:var(--adm-stripe);height:100%; }
+  .roll-bar.kill > div { background:var(--adm-danger); }
+  .kill-card { background:linear-gradient(135deg,#7f1d1d 0%,#dc2626 100%);color:white;border-radius:12px;padding:16px 22px;margin-bottom:18px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center; }
+  .kill-card h3 { margin:0 0 4px;color:white;font:600 15px var(--font-sans); }
+  .kill-card p { margin:0;color:#fecaca;font:500 12.5px var(--font-sans); }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"flags",
+    crumb:[{label:"Feature flags"}],
+    title:"Feature flags",
+    subtitle:"Resolution order: user → org → cohort → global → default. Two-person rule applies to flags marked critical.",
+    actions:`<button class="adm-btn" id="flagsHistory"><i class="material-symbols-rounded">history</i> Rollout history</button><button class="adm-btn adm-btn-primary" id="flagsNew"><i class="material-symbols-rounded">add</i> New flag</button>`,
+    env:"STAGING",
+  });
+</script>
+<script>
+const FLAGS = [
+  { name:"portal_v2_redesign",       desc:"Redesigned prospect portal navigation + offer screens.", state:"%", val:50, owner:"Daria Kim", changed:"2 min ago", crit:false, kill:false },
+  { name:"refactor_payments_engine", desc:"Replaces legacy payments worker with new ledger pipeline.", state:"%", val:10, owner:"Marc Olsen", changed:"3 hr",     crit:true,  kill:false },
+  { name:"plaid_oauth_v2",           desc:"OAuth handshake for Plaid Link, replacing legacy creds.", state:"on", val:100, owner:"Engineering", changed:"5 days",  crit:false, kill:false },
+  { name:"signups_public_enabled",   desc:"Master switch for the public /register page.",          state:"off", val:0, owner:"Daria Kim", changed:"1 week",   crit:true,  kill:false },
+  { name:"emergency_lockdown",       desc:"Kill switch — disables all writes platform-wide.",      state:"off", val:0, owner:"Security", changed:"never",     crit:true,  kill:true },
+  { name:"new_pricing_table",        desc:"Updated pricing tier display in /settings/billing.",   state:"orgs", val:5, owner:"Growth",  changed:"yesterday", crit:false, kill:false },
+  { name:"early_access_homes",       desc:"Surfaces new House inventory module to allowlisted orgs.", state:"orgs", val:8, owner:"Product", changed:"3 days", crit:false, kill:false },
+  { name:"sms_provider_twilio",      desc:"Routes outbound SMS via Twilio instead of legacy SNS.", state:"%", val:25, owner:"Engineering", changed:"4 days",  crit:false, kill:false },
+  { name:"audit_log_export",         desc:"Allows org admins to export audit logs as CSV.",        state:"on", val:100, owner:"Compliance", changed:"2 weeks", crit:false, kill:false },
+  { name:"refactor_inventory_grid",  desc:"New virtualized inventory grid for &gt;500 lots.",          state:"off", val:0, owner:"Engineering", changed:"never",  crit:false, kill:false },
+];
+
+const stateCell = (f) => {
+  if (f.kill && f.state === "off") return '<span class="adm-pill muted no-dot">OFF (KILL)</span>';
+  if (f.state === "on") return '<span class="adm-pill active no-dot">100% (ON)</span>';
+  if (f.state === "off") return '<span class="adm-pill muted no-dot">OFF</span>';
+  if (f.state === "%") return `<div><div class="row" style="justify-content:space-between;font:500 11.5px var(--font-mono);margin-bottom:3px;"><span>${f.val}% rollout</span><span class="muted">${f.crit ? "2-person" : ""}</span></div><div class="roll-bar"><div style="width:${f.val}%"></div></div></div>`;
+  if (f.state === "orgs") return `<span class="adm-pill indigo no-dot">${f.val} orgs</span>`;
+};
+
+const rows = FLAGS.map(f => `
+  <div class="flag-row" onclick="location.href='admin-flag-detail.html?f=${f.name}'">
+    <span class="ic"><i class="material-symbols-rounded">${f.kill ? "emergency_home" : "toggle_on"}</i></span>
+    <div>
+      <div class="name">${f.name} ${f.crit ? '<span class="adm-pill crit no-dot" style="margin-left:6px;font-size:9px;">CRITICAL</span>' : ""} ${f.kill ? '<span class="adm-pill crit no-dot" style="margin-left:4px;font-size:9px;">KILL-SWITCH</span>' : ""}</div>
+      <div class="desc">${f.desc}</div>
+    </div>
+    <div>${stateCell(f)}</div>
+    <div class="muted" style="font:500 12px var(--font-sans);">${f.owner}</div>
+    <div class="muted" style="font:500 11.5px var(--font-mono);">${f.changed}</div>
+    <div class="row gap-2" onclick="event.stopPropagation();">
+      <button class="adm-switch ${f.val > 0 || f.state === "on" ? 'on' : ''} ${f.kill ? 'danger' : ''}" aria-label="Toggle"></button>
+    </div>
+    <button class="adm-kebab" onclick="event.stopPropagation();"><i class="material-symbols-rounded">more_horiz</i></button>
+  </div>
+`).join("");
+
+document.getElementById("adm-content").innerHTML = `
+  <div class="kill-card">
+    <div>
+      <h3><i class="material-symbols-rounded" style="vertical-align:-3px;">emergency_home</i> Emergency lockdown — currently OFF</h3>
+      <p>Master kill switch disables all writes across the platform. Flipping requires a second admin to approve within 60 seconds.</p>
+    </div>
+    <button class="adm-btn" id="killSwitchBtn" style="background:white;color:var(--adm-danger-700);border:0;font-weight:700;"><i class="material-symbols-rounded">emergency_home</i> Open kill-switch console</button>
+  </div>
+
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">Total flags</div><div class="adm-kpi-value">42</div><div class="adm-kpi-delta flat">8 stale (&gt;90d unchanged)</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">In rollout</div><div class="adm-kpi-value">7</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> 3 ramped this week</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Critical flags</div><div class="adm-kpi-value">5</div><div class="adm-kpi-delta flat">All require 2-person approval</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Avg evaluation</div><div class="adm-kpi-value">2.4 <span class="unit">ms</span></div><div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_downward</i> 0.3ms vs last week</div></div>
+  </div>
+
+  <div class="adm-filterbar">
+    <div class="grow"><div class="adm-filter-input"><i class="material-symbols-rounded">search</i><input placeholder="Search flag names, descriptions, owners…"/></div></div>
+    <div class="seg-bar">
+      <button class="on">All</button>
+      <button>In rollout</button>
+      <button>On globally</button>
+      <button>Off globally</button>
+      <button>Critical</button>
+      <button>Stale</button>
+    </div>
+    <button class="adm-pill-filter">Owner: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+  </div>
+
+  <div style="background:white;border:1px solid var(--adm-border);border-radius:10px;overflow:hidden;">
+    <div class="flag-row" style="background:#faf9fc;border-bottom:1px solid var(--adm-border);font:600 10.5px var(--font-sans);text-transform:uppercase;letter-spacing:0.08em;color:var(--adm-text-3);cursor:default;">
+      <span></span><span>Flag</span><span>State</span><span>Owner</span><span>Changed</span><span>Quick</span><span></span>
+    </div>
+    ${rows}
+  </div>
+`;
+
+// ============ WIRING ============
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const T = AdminShell.toast;
+
+// Topbar actions
+$("#flagsHistory").onclick = () => T("Opening rollout history…", "info");
+$("#flagsNew").onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title: "Create new feature flag",
+    body: "New flags ship in OFF state and can only be flipped after a code review references them. Continue to the flag creation form?",
+    confirmLabel: "Create flag"
+  });
+  if (ok) T("New flag drafted — finish details on the flag page", "success");
+};
+
+// Kill switch console
+$("#killSwitchBtn").onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title: "Open kill-switch console?",
+    body: "This is the master write-disable for the entire platform. Flipping requires a second admin to approve within 60 seconds. Open the console?",
+    confirmLabel: "Open console",
+    danger: true
+  });
+  if (ok) T("Kill-switch console opened · awaiting second admin", "warn");
+};
+
+// Search
+const flagSearch = $(".adm-filterbar .adm-filter-input input");
+flagSearch.addEventListener("input", () => {
+  const q = flagSearch.value.trim().toLowerCase();
+  $$(".flag-row").forEach((row, i) => {
+    if (i === 0) return; // header row
+    row.style.display = !q || row.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+});
+
+// Segmented filter
+$$(".seg-bar button").forEach(btn => {
+  btn.onclick = () => {
+    $$(".seg-bar button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    const label = btn.textContent.trim().toLowerCase();
+    $$(".flag-row").forEach((row, i) => {
+      if (i === 0) return;
+      let show = true;
+      if (label === "in rollout") show = !!row.querySelector(".roll-bar") || row.textContent.includes("orgs");
+      else if (label === "on globally") show = !!row.querySelector(".adm-pill.active");
+      else if (label === "off globally") show = !!row.querySelector(".adm-pill.muted");
+      else if (label === "critical") show = row.textContent.includes("CRITICAL") || row.textContent.includes("KILL-SWITCH");
+      else if (label === "stale") show = row.textContent.includes("week") || row.textContent.includes("never");
+      row.style.display = show ? "" : "none";
+    });
+    T(`Filter: ${label}`, "info");
+  };
+});
+
+// Owner filter pill
+$$(".adm-pill-filter").forEach(pf => {
+  pf.onclick = () => {
+    AdminShell.popMenu(pf, ["Any","Daria Kim","Marc Olsen","Engineering","Security","Growth","Product","Compliance"].map(o => ({
+      label: o, onClick: () => pf.querySelector(".v").textContent = o === "Any" ? "Any" : o.split(" ")[0]
+    })));
+  };
+});
+
+// Per-row switches (with confirmation for critical flags)
+$$(".flag-row .adm-switch").forEach((sw, i) => {
+  sw.onclick = async (e) => {
+    e.stopPropagation();
+    const f = FLAGS[i];
+    if (!f) return;
+    const turningOn = !sw.classList.contains("on");
+    if (f.crit || f.kill) {
+      const ok = await AdminShell.confirmDialog({
+        title: `${turningOn ? "Enable" : "Disable"} ${f.name}?`,
+        body: `This flag is marked ${f.kill ? "KILL-SWITCH" : "CRITICAL"} — two-person approval is required. Request approval to ${turningOn ? "enable" : "disable"} it?`,
+        confirmLabel: "Request approval",
+        danger: f.kill
+      });
+      if (!ok) return;
+      T(`${f.name} flip requested · awaiting second admin`, "warn");
+      return;
+    }
+    sw.classList.toggle("on");
+    T(`${f.name} ${turningOn ? "enabled" : "disabled"}`, turningOn ? "success" : "info");
+  };
+});
+
+// Per-row kebab
+$$(".flag-row .adm-kebab").forEach((btn, i) => {
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    const f = FLAGS[i];
+    if (!f) return;
+    AdminShell.popMenu(btn, [
+      { label: "Open flag", icon: "open_in_new", onClick: () => location.href = `admin-flag-detail.html?f=${f.name}` },
+      { label: "Copy flag name", icon: "content_copy", onClick: () => { navigator.clipboard.writeText(f.name); T("Flag name copied", "success"); }},
+      { label: "View rollout history", icon: "history", onClick: () => T(`Loading history for ${f.name}…`, "info") },
+      "-",
+      { label: "Promote to 100%", icon: "trending_up", onClick: async () => {
+        const ok = await AdminShell.confirmDialog({
+          title: `Promote ${f.name} to 100%?`,
+          body: f.crit ? "This flag is critical — requires two-person approval before applying." : "All users on this flag will receive the new behavior immediately.",
+          confirmLabel: f.crit ? "Request approval" : "Promote to 100%"
+        });
+        if (ok) T(`${f.name} ${f.crit ? "promotion requested" : "promoted to 100%"}`, "success");
+      }},
+      { label: "Roll back to 0%", icon: "trending_down", danger: true, onClick: async () => {
+        const ok = await AdminShell.confirmDialog({
+          title: `Roll back ${f.name}?`,
+          body: "All users will fall through to the default behavior. Use this if you're seeing regressions.",
+          confirmLabel: "Roll back", danger: true
+        });
+        if (ok) T(`${f.name} rolled back to 0%`, "danger");
+      }},
+      { label: "Archive flag", icon: "archive", danger: true, onClick: async () => {
+        const ok = await AdminShell.confirmDialog({
+          title: `Archive ${f.name}?`,
+          body: "Archived flags stop evaluating and disappear from the list. References in code will return the default value.",
+          confirmLabel: "Archive", danger: true
+        });
+        if (ok) T(`${f.name} archived`, "danger");
+      }}
+    ]);
+  };
+});
+</script>
+</body>
+</html>

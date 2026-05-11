@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Express your interest</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--pub-canvas);
+    font-family: var(--font-sans);
+    color: var(--color-grey-800);
+    min-height: 100vh;
+  }
+
+  .pp-shell {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .pp-hero {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .pp-hero .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    border: 1px solid var(--color-brand-100);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .pp-hero h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--pub-ink-1);
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+    line-height: 1.1;
+  }
+  .pp-hero p {
+    font-size: 16px;
+    color: var(--pub-ink-3);
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* progress rail */
+  .progress {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 20px;
+    position: sticky;
+    top: 24px;
+  }
+  .progress h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg3);
+    margin: 0 0 14px;
+    font-weight: 500;
+  }
+  .progress ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .progress li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--fg3);
+  }
+  .progress li .num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--color-grey-100);
+    color: var(--fg3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .progress li.done .num { background: var(--color-success-500); color: white; }
+  .progress li.active .num { background: var(--color-brand-600); color: white; }
+  .progress li.active { color: var(--color-grey-800); font-weight: 500; }
+  .progress li .ttl { line-height: 1.4; }
+  .progress li .sub { font-size: 11px; color: var(--fg4); margin-top: 1px; font-weight: 400; }
+
+  /* card */
+  .form-card {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .section {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .section:first-child { padding-top: 0; }
+  .section:last-child { border-bottom: none; padding-bottom: 0; }
+  .section h2 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-grey-900);
+    margin: 0 0 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section h2 .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+  }
+  .section .desc {
+    font-size: 13px;
+    color: var(--fg3);
+    margin: 0 0 16px 34px;
+    line-height: 1.5;
+  }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .field-group label {
+    font-size: 12px;
+    color: var(--color-grey-700);
+    font-weight: 500;
+  }
+  .field-group label .req { color: var(--color-error-600); }
+  .field-group input[type="text"],
+  .field-group input[type="email"],
+  .field-group input[type="number"],
+  .field-group input[type="tel"],
+  .field-group select,
+  .field-group textarea {
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: 14px var(--font-sans);
+    color: var(--color-grey-800);
+    background: white;
+    width: 100%;
+    outline: none;
+    transition: border 0.15s, box-shadow 0.15s;
+  }
+  .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-100);
+  }
+  .field-group .hint {
+    font-size: 11px;
+    color: var(--fg4);
+  }
+
+  /* asset choice */
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .choice {
+    border: 1.5px solid var(--border-default);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.15s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .choice .ico {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--color-grey-50);
+    color: var(--fg3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .choice .ttl { font-size: 14px; font-weight: 500; color: var(--color-grey-800); margin-bottom: 2px; }
+  .choice .sub { font-size: 12px; color: var(--fg3); line-height: 1.4; }
+  .choice.selected {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+  }
+  .choice.selected .ico { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .choice:hover:not(.selected) { border-color: var(--color-grey-400); }
+
+  /* plot picker */
+  .plot-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .plot-pick {
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.15s;
+  }
+  .plot-pick:hover { border-color: var(--color-brand-400); }
+  .plot-pick.selected { border-color: var(--color-brand-600); background: var(--color-brand-50); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .plot-pick .top { display:flex; justify-content: space-between; align-items: flex-start; }
+  .plot-pick .id { font-family: var(--font-mono); font-size: 11px; color: var(--color-brand-700); font-weight: 600; }
+  .plot-pick .price { font-size: 14px; font-weight: 600; color: var(--color-grey-800); }
+  .plot-pick .nm { font-size: 14px; font-weight: 500; color: var(--color-grey-800); margin: 4px 0 2px; }
+  .plot-pick .meta { font-size: 11px; color: var(--fg3); }
+
+  /* payment toggle */
+  .pay-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .pay-option {
+    border: 1.5px solid var(--border-default);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    background: white;
+    text-align: left;
+    font-family: inherit;
+  }
+  .pay-option .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .pay-option .top .ttl { font-size: 14px; font-weight: 500; color: var(--color-grey-800); }
+  .pay-option .desc { font-size: 12px; color: var(--fg3); line-height: 1.4; }
+  .pay-option .radio {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--color-grey-300);
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .pay-option.selected {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+  }
+  .pay-option.selected .radio {
+    border-color: var(--color-brand-600);
+  }
+  .pay-option.selected .radio::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: var(--color-brand-600);
+    border-radius: 50%;
+  }
+
+  /* loan calc */
+  .calc {
+    background: linear-gradient(135deg, var(--color-brand-50), #f3f0ff);
+    border: 1px solid var(--color-brand-100);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 12px;
+  }
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .calc h4 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: var(--color-brand-700);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .calc .calc-readouts {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--color-brand-100);
+  }
+  .calc-readouts .pri-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .calc-readouts .pri-row .lbl {
+    font-size: 12px;
+    color: var(--fg3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .calc-readouts .pri-row .v {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-brand-700);
+    letter-spacing: -0.02em;
+  }
+  .calc-readouts .pri-row .v small { font-size: 12px; color: var(--fg3); font-weight: 400; }
+  .calc-readouts .sec-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--fg2);
+    padding: 4px 0;
+  }
+  .calc-readouts .sec-row .v { color: var(--color-grey-800); font-weight: 500; }
+
+  /* slider */
+  .slider-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .slider-wrap .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .slider-wrap .top .lbl { font-size: 12px; color: var(--color-grey-700); font-weight: 500; }
+  .slider-wrap .top .val { font-size: 14px; color: var(--color-brand-700); font-weight: 600; }
+  .slider-wrap input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--color-brand-100);
+    border-radius: 2px;
+    outline: none;
+  }
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(135, 79, 250, 0.4);
+  }
+  .slider-wrap .ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--fg4);
+  }
+
+  /* footer / submit */
+  .form-foot {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .form-foot .reassure {
+    font-size: 12px;
+    color: var(--fg3);
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .form-foot .reassure i { color: var(--color-success-600); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--color-brand-600); color: white; }
+  .btn-primary:hover { background: var(--color-brand-700); }
+  .btn-text { background: none; color: var(--fg3); }
+
+</style>
+</head>
+<body class="pub-body">
+
+<!-- ============== TOPBAR (shared) ============== -->
+<header class="pub-top">
+  <div class="pub-top-inner">
+    <a class="pub-brand" href="landing.html"><span class="dot" aria-hidden="true"></span>DIG</a>
+    <button class="pub-burger" type="button" aria-label="Menu" onclick="this.parentElement.querySelector('.pub-nav').classList.toggle('open'); this.parentElement.querySelector('.pub-top-right').classList.toggle('open');"><i class="ri-menu-line"></i></button>
+    <nav class="pub-nav" aria-label="Primary">
+      <a href="landing.html">Home</a>
+      <a href="browse-v2.html">Browse</a>
+      <a href="financing.html">Financing</a>
+      <a href="prospect-public.html" class="on">Get matched</a>
+      <a href="landing.html#faq">FAQ</a>
+    </nav>
+    <div class="pub-top-right">
+      <a class="pub-btn pub-btn-ghost" href="login.html">Sign in</a>
+      <a class="pub-btn pub-btn-primary" href="prospect-public.html"><i class="ri-magic-line"></i> Get started</a>
+    </div>
+  </div>
+</header>
+
+<div class="pp-shell">
+
+  <div class="pp-hero">
+    <div class="eyebrow"><i class="ri-magic-line"></i> Express your interest · 2 min</div>
+    <h1>Find your next home or plot of land.</h1>
+    <p>Tell us a little about what you're looking for — a house, a piece of land, or both — and how you'd like to pay. We'll match you with the right agent and send a personalized estimate within hours.</p>
+  </div>
+
+  <form id="ppForm" class="form-grid" onsubmit="ppSubmit(event)">
+
+    <div>
+      <div class="form-card">
+
+        <!-- 1. Who are you -->
+        <section class="section">
+          <h2><span class="step-num">1</span> Who are you?</h2>
+          <p class="desc">Just the basics — we'll use this to follow up.</p>
+
+          <div class="row">
+            <div class="field-group">
+              <label>First name <span class="req">*</span></label>
+              <input type="text" id="ppFirst" name="first" placeholder="Joseph" autocomplete="given-name" />
+            </div>
+            <div class="field-group">
+              <label>Last name <span class="req">*</span></label>
+              <input type="text" id="ppLast" name="last" placeholder="Mensah" autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field-group">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" id="ppEmail" name="email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+            <div class="field-group">
+              <label>Phone</label>
+              <input type="tel" id="ppPhone" name="phone" placeholder="+233 24 880 1142" autocomplete="tel" />
+              <span class="hint">Optional — helps us reach you faster</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. What are you interested in -->
+        <section class="section">
+          <h2><span class="step-num">2</span> What are you looking for?</h2>
+          <p class="desc" id="ppLookDesc">Tell us roughly what you're after — we'll match you to options. If you've already seen a specific property, browse the catalog and pick it from there.</p>
+
+          <!-- Selected-property card: only shown when ?id= is in URL -->
+          <div id="ppPicked" style="display:none; margin-bottom:16px; border:1px solid var(--color-brand-200); background: var(--color-brand-25); border-radius:10px; padding:14px 16px; display:flex; gap:14px; align-items:center;">
+            <div style="width:48px; height:48px; border-radius:8px; background: var(--color-brand-100); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="ri-home-4-line" style="font-size:22px; color:var(--color-brand-700);"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-brand-700); font-weight:600; margin-bottom:2px;">Selected property</div>
+              <div style="font-size:15px; font-weight:600; color:var(--pub-ink-1);" id="ppPickedName">—</div>
+              <div style="font-size:12px; color:var(--fg3);" id="ppPickedMeta">—</div>
+            </div>
+            <a href="#" id="ppChangeProp" style="font-size:12px; color:var(--color-brand-700); white-space:nowrap; text-decoration:none; font-weight:500;">
+              <i class="ri-edit-line"></i> Change
+            </a>
+          </div>
+
+          <!-- Just-exploring is the only choice on this page -->
+          <div class="choice selected" style="cursor:default;">
+            <div class="ico"><i class="ri-search-eye-line"></i></div>
+            <div>
+              <div class="ttl">Just exploring</div>
+              <div class="sub">Tell us roughly what you're after — we'll match you to options.</div>
+            </div>
+          </div>
+
+          <!-- Hint to browse for specific properties -->
+          <a href="browse-v2.html" id="ppBrowseLink" style="display:flex; gap:10px; align-items:center; margin-top:14px; padding:12px 14px; border:1px dashed var(--border-default); border-radius:10px; background: var(--color-grey-25); text-decoration:none; color:var(--pub-ink-2); font-size:13px;">
+            <i class="ri-compass-3-line" style="color:var(--color-brand-600); font-size:18px;"></i>
+            <span style="flex:1;">Looking for a <strong>specific land or house</strong>? Browse the catalog and pick one.</span>
+            <i class="ri-arrow-right-line" style="color:var(--fg4);"></i>
+          </a>
+
+          <div style="margin-top:18px; padding: 14px; background: var(--color-grey-25); border-radius: 8px;">
+            <div style="font-size:12px; font-weight: 500; color: var(--color-grey-700); margin-bottom: 8px;">A few preferences</div>
+            <div class="row">
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Move-in timeline</label>
+                <select id="ppTimeline" name="timeline">
+                  <option value="3m">Within 3 months</option>
+                  <option value="3-6m">3–6 months</option>
+                  <option value="6-12m">6–12 months</option>
+                  <option value="12m+">12+ months</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Type</label>
+                <select id="ppKind" name="kind">
+                  <option value="any">Open to either</option>
+                  <option value="house">House</option>
+                  <option value="land">Land</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Payment -->
+        <section class="section">
+          <h2><span class="step-num">3</span> How would you like to pay?</h2>
+          <p class="desc">Don't worry — these numbers are just estimates. Final terms are set with your agent.</p>
+
+          <div class="pay-options">
+            <button type="button" class="pay-option" data-pay="full" onclick="ppSetPay('full')">
+              <div class="top">
+                <span class="ttl">Pay in full</span>
+                <span class="radio"></span>
+              </div>
+              <div class="desc">One-time payment. Fastest closing — typically within 2 weeks.</div>
+            </button>
+            <button type="button" class="pay-option selected" data-pay="loan" onclick="ppSetPay('loan')">
+              <div class="top">
+                <span class="ttl">Finance with a loan</span>
+                <span class="radio"></span>
+              </div>
+              <div class="desc">Spread payments over 5–30 years. We'll show you an instant estimate.</div>
+            </button>
+          </div>
+
+          <div class="calc" id="calc">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <i class="ri-calculator-line" style="color: var(--color-brand-600);"></i>
+              <h4 style="margin:0;">Loan estimate</h4>
+              <span style="font-size:11px; color:var(--fg3); margin-left:auto;">Indicative · 6.25% APR assumed</span>
+            </div>
+
+            <div class="calc-grid">
+              <div class="slider-wrap">
+                <div class="top">
+                  <span class="lbl">Downpayment</span>
+                  <span class="val" id="ppDownVal">$37,300 · 20%</span>
+                </div>
+                <input type="range" id="ppDown" name="down" min="20" max="60" value="20" />
+                <div class="ticks"><span>20% min</span><span>40%</span><span>60%</span></div>
+              </div>
+
+              <div class="slider-wrap">
+                <div class="top">
+                  <span class="lbl">Loan term</span>
+                  <span class="val" id="ppTermVal">25 years</span>
+                </div>
+                <input type="range" id="ppTerm" name="term" min="5" max="30" value="25" />
+                <div class="ticks"><span>5y</span><span>15y</span><span>30y max</span></div>
+              </div>
+            </div>
+
+            <div class="calc-readouts">
+              <div class="pri-row">
+                <span class="lbl">Estimated monthly payment</span>
+                <span class="v">$1,420 <small>/ month</small></span>
+              </div>
+              <div class="sec-row"><span>Property price</span><span class="v">$186,500</span></div>
+              <div class="sec-row"><span>Downpayment</span><span class="v">$37,300</span></div>
+              <div class="sec-row"><span>Loan amount</span><span class="v">$149,200</span></div>
+              <div class="sec-row"><span>Total interest over 25y</span><span class="v">$176,840</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Anything else -->
+        <section class="section">
+          <h2><span class="step-num">4</span> Anything we should know?</h2>
+          <p class="desc">Optional — share context, questions, or special preferences.</p>
+          <div class="field-group">
+            <textarea id="ppNotes" name="notes" rows="3" placeholder="e.g. 'Best to call after 5pm,' or 'Looking for ground-floor entry only…'"></textarea>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="form-foot">
+        <div class="reassure">
+          <i class="ri-shield-check-line"></i>
+          We'll never share your info. By submitting you agree to our <a href="#" style="color:var(--color-brand-600);">terms</a>.
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-text" onclick="ppSaveDraft()">Save &amp; finish later</button>
+          <button type="submit" class="btn btn-primary">Submit interest <i class="ri-arrow-right-line"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: progress -->
+    <div class="progress">
+      <h3>Your progress</h3>
+      <ol>
+        <li class="done">
+          <span class="num"><i class="ri-check-line"></i></span>
+          <div><div class="ttl">Who you are</div><div class="sub">2 of 4 fields</div></div>
+        </li>
+        <li class="active">
+          <span class="num">2</span>
+          <div><div class="ttl">What you're looking for</div><div class="sub">Brookfield · House selected</div></div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div><div class="ttl">How you'll pay</div><div class="sub">Loan, 25y</div></div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div><div class="ttl">Anything else</div><div class="sub">Optional</div></div>
+        </li>
+        <li>
+          <span class="num">5</span>
+          <div><div class="ttl">Track your request</div><div class="sub" id="rail-acct-sub">Account · fastest replies</div></div>
+        </li>
+      </ol>
+
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--fg3); line-height: 1.5;">
+        <strong style="color:var(--color-grey-800);">What happens next?</strong>
+        <ol style="padding-left: 18px; margin: 8px 0 0;">
+          <li>An agent reviews your request — usually within 3 hours for account holders.</li>
+          <li>You'll see your prospect dashboard with their offer.</li>
+          <li>Schedule a viewing or call when you're ready.</li>
+        </ol>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+<!-- ============== FOOTER (shared) ============== -->
+<footer class="pub-foot">
+  <div class="pub-foot-inner">
+    <div class="pub-foot-brand">
+      <a class="pub-brand" href="landing.html"><span class="dot"></span>DIG</a>
+      <p>Dispensation Investment Group — pre-financing land &amp; homes across Texas. Real estate ownership made accessible.</p>
+      <div class="pub-foot-contact">
+        <span><i class="ri-map-pin-2-line"></i> 3232 McKinney Ave, Suite 512, Dallas, TX 75204</span>
+        <span><i class="ri-phone-line"></i> <a href="tel:+12147728720">+1 (214) 772-8720</a></span>
+        <span><i class="ri-mail-line"></i> <a href="mailto:info@dinvestgroup.com">info@dinvestgroup.com</a></span>
+      </div>
+      <div class="pub-foot-licenses">
+        <span><i class="ri-shield-check-line"></i> TREC License #9612045</span>
+        <span><i class="ri-bank-line"></i> Texas Owner-Finance Mortgage Servicer</span>
+        <span><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      </div>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Browse</h4>
+      <ul>
+        <li><a href="browse-v2.html">All listings</a></li>
+        <li><a href="browse-v2.html?type=land">Land</a></li>
+        <li><a href="browse-v2.html?type=house">Houses</a></li>
+        <li><a href="prospect-public.html">Get matched</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Financing</h4>
+      <ul>
+        <li><a href="financing.html">Why owner-financing</a></li>
+        <li><a href="financing.html#simulator">Payment simulator</a></li>
+        <li><a href="financing.html#qualify">How to qualify</a></li>
+        <li><a href="prospect-public.html">Pre-qualify now</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="landing.html#about">About</a></li>
+        <li><a href="landing.html#faq">FAQ</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="terms.html">Terms of service</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="legal.html">Disclosures</a></li>
+        <li><a href="#">Licensing</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pub-foot-meta">
+    <span>© 2026 Dispensation Investment Group LLC · Dallas, TX</span>
+    <span class="lks">
+      <span class="pub-foot-eho"><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      <a href="legal.html">Disclosures</a>
+      <a href="privacy.html">Privacy</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   prospect-public.html — state persistence
+   - Form fields & payment selection are persisted to URL params on input.
+   - "Save & finish later" stores the same payload to localStorage.
+   - On load: restore from URL params first, fall back to localStorage.
+   - When user clicks "Browse properties", current URL params carry over.
+   - When ?id= is present (came from asset-detail), we show the picked card.
+   ===================================================================== */
+(function () {
+  const PROPS = {
+    'LND-014': { name: 'Brookfield · House',  meta: '3 bd · 2 ba · 0.21 acre',  price: 186500 },
+    'LND-022': { name: 'Cedar Hills · Land',  meta: '0.18 acre · road frontage', price:  42000 },
+    'LND-031': { name: 'Maple Crest · House', meta: '2 bd · 1 ba · 0.15 acre',  price:  98200 },
+    'LND-009': { name: 'Waxahachie · House',  meta: '3 bd · 2 ba · 0.30 acre',  price: 220000 },
+  };
+
+  const KEYS = ['first','last','email','phone','timeline','kind','pay','down','term','notes','id'];
+  const LS_KEY = 'ream.prospect.draft.v1';
+  const $ = (id) => document.getElementById(id);
+
+  function readURL() {
+    const p = new URLSearchParams(location.search);
+    const out = {};
+    KEYS.forEach(k => { if (p.has(k)) out[k] = p.get(k); });
+    return out;
+  }
+
+  function readDraft() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function applyState(s) {
+    if (s.first    != null) $('ppFirst').value = s.first;
+    if (s.last     != null) $('ppLast').value  = s.last;
+    if (s.email    != null) $('ppEmail').value = s.email;
+    if (s.phone    != null) $('ppPhone').value = s.phone;
+    if (s.timeline != null) $('ppTimeline').value = s.timeline;
+    if (s.kind     != null) $('ppKind').value     = s.kind;
+    if (s.notes    != null) $('ppNotes').value    = s.notes;
+    if (s.down     != null) { $('ppDown').value = s.down; }
+    if (s.term     != null) { $('ppTerm').value = s.term; }
+    if (s.pay === 'full' || s.pay === 'loan') {
+      window.ppSetPay(s.pay, /*silent*/ true);
+    }
+    if (s.id && PROPS[s.id]) {
+      $('ppPicked').style.display = 'flex';
+      $('ppPickedName').textContent = PROPS[s.id].name + ' · #' + s.id;
+      $('ppPickedMeta').textContent = PROPS[s.id].meta + ' · $' + PROPS[s.id].price.toLocaleString();
+      $('ppLookDesc').textContent = "You came in with a property in mind — we've kept it pinned. Adjust your preferences below.";
+      $('ppKind').value = s.id.includes('-022') ? 'land' : (PROPS[s.id].name.toLowerCase().includes('land') ? 'land' : 'house');
+    }
+    refreshCalc();
+  }
+
+  function getState() {
+    const s = {
+      first:    $('ppFirst').value.trim(),
+      last:     $('ppLast').value.trim(),
+      email:    $('ppEmail').value.trim(),
+      phone:    $('ppPhone').value.trim(),
+      timeline: $('ppTimeline').value,
+      kind:     $('ppKind').value,
+      pay:      document.querySelector('.pay-option.selected')?.dataset.pay || 'loan',
+      down:     $('ppDown').value,
+      term:     $('ppTerm').value,
+      notes:    $('ppNotes').value.trim(),
+    };
+    const u = new URLSearchParams(location.search);
+    if (u.get('id')) s.id = u.get('id');
+    return s;
+  }
+
+  function pushURL() {
+    const s = getState();
+    const p = new URLSearchParams();
+    Object.entries(s).forEach(([k, v]) => {
+      if (v !== '' && v != null) p.set(k, v);
+    });
+    history.replaceState(null, '', '?' + p.toString());
+    updateBrowseLink();
+  }
+
+  function updateBrowseLink() {
+    // Carry state forward when user jumps to browse, so they don't lose info.
+    const s = getState();
+    delete s.id; // they're picking a new one
+    const p = new URLSearchParams();
+    Object.entries(s).forEach(([k, v]) => { if (v !== '' && v != null) p.set(k, v); });
+    p.set('return', 'prospect-public.html'); // hint for browse / asset-detail
+    $('ppBrowseLink').href = 'browse-v2.html?' + p.toString();
+    const change = $('ppChangeProp');
+    if (change) change.href = 'browse-v2.html?' + p.toString();
+  }
+
+  function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function refreshCalc() {
+    const u = new URLSearchParams(location.search);
+    const id = u.get('id');
+    const price = (id && PROPS[id]) ? PROPS[id].price : 186500;
+    const downPct = parseInt($('ppDown').value, 10);
+    const termY = parseInt($('ppTerm').value, 10);
+    const down = Math.round(price * downPct / 100);
+    const loan = price - down;
+    const r = 0.0625 / 12;
+    const n = termY * 12;
+    const monthly = loan > 0 ? (loan * r) / (1 - Math.pow(1 + r, -n)) : 0;
+    const interest = monthly * n - loan;
+
+    $('ppDownVal').textContent = fmtMoney(down) + ' · ' + downPct + '%';
+    $('ppTermVal').textContent = termY + ' years';
+
+    // The static readouts mirror these values
+    const readouts = document.querySelector('.calc-readouts');
+    if (readouts) {
+      const sec = readouts.querySelectorAll('.sec-row .v');
+      const pri = readouts.querySelector('.pri-row .v');
+      if (pri) pri.innerHTML = fmtMoney(monthly) + ' <small>/ month</small>';
+      if (sec[0]) sec[0].textContent = fmtMoney(price);
+      if (sec[1]) sec[1].textContent = fmtMoney(down);
+      if (sec[2]) sec[2].textContent = fmtMoney(loan);
+      if (sec[3]) sec[3].textContent = fmtMoney(interest);
+    }
+  }
+
+  // ---- Public handlers ---------------------------------------------------
+  window.ppSetPay = function (which, silent) {
+    document.querySelectorAll('.pay-option').forEach(o => {
+      o.classList.toggle('selected', o.dataset.pay === which);
+    });
+    document.getElementById('calc').style.display = (which === 'loan') ? 'block' : 'none';
+    if (!silent) pushURL();
+  };
+
+  window.ppSaveDraft = function () {
+    const s = getState();
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+    // Tiny inline toast
+    let t = document.getElementById('ppToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'ppToast';
+      t.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--color-grey-900); color:white; padding:10px 16px; border-radius:8px; font-size:13px; z-index:9999; box-shadow: 0 4px 14px rgba(0,0,0,0.2); display:flex; gap:8px; align-items:center;';
+      document.body.appendChild(t);
+    }
+    t.innerHTML = '<i class="ri-check-line" style="color:var(--color-success-400);"></i> Draft saved — come back anytime on this device.';
+    t.style.opacity = '1';
+    clearTimeout(window.__ppToast);
+    window.__ppToast = setTimeout(() => { t.style.transition = 'opacity 0.4s'; t.style.opacity = '0'; }, 2400);
+  };
+
+  window.ppSubmit = function (e) {
+    e.preventDefault();
+    // Persist final state and clear draft, then navigate.
+    const s = getState();
+    localStorage.removeItem(LS_KEY);
+    const p = new URLSearchParams();
+    Object.entries(s).forEach(([k, v]) => { if (v !== '' && v != null) p.set(k, v); });
+    location.href = 'prospect-submitted.html?' + p.toString();
+  };
+
+  // ---- Init --------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. URL params win; 2. otherwise fall back to localStorage draft.
+    const fromURL = readURL();
+    if (Object.keys(fromURL).length === 0) {
+      applyState(readDraft());
+    } else {
+      applyState(fromURL);
+    }
+    refreshCalc();
+    updateBrowseLink();
+
+    // Wire change events on every form field so URL stays in sync.
+    ['ppFirst','ppLast','ppEmail','ppPhone','ppTimeline','ppKind','ppNotes'].forEach(id => {
+      const el = $(id);
+      if (el) el.addEventListener('input', pushURL);
+      if (el && el.tagName === 'SELECT') el.addEventListener('change', pushURL);
+    });
+    $('ppDown').addEventListener('input', () => { refreshCalc(); pushURL(); });
+    $('ppTerm').addEventListener('input', () => { refreshCalc(); pushURL(); });
+  });
+})();
+</script>
+
+</body>
+</html>

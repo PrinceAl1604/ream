@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — House detail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+<link rel="stylesheet" href="_detail.css" />
+</head>
+<body>
+<div data-screen-label="House Detail">
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Houses/HSE-027</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="houses"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <a href="houses.html">Houses</a>
+          <span class="sep">/</span>
+          <span class="current">Sunridge · Lot 14B</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ===================== HERO with GALLERY ===================== -->
+        <div class="dt-hero with-gallery" data-img="sunridge">
+          <div class="dt-photo"></div>
+          <div class="dt-gallery" id="gallery">
+            <div class="main" id="galMain" style="background-image: linear-gradient(180deg, #1f2937 0%, #475569 30%, #94a3b8 60%, #f1f5f9 100%);">
+              <span class="badge" data-tone="financed"><i class="ri-bank-line"></i> FINANCED</span>
+              <span class="count" id="galCount"><i class="ri-image-line"></i> 1 / 5</span>
+            </div>
+            <div class="dt-thumbs" id="galThumbs">
+              <div class="dt-thumb on" data-kind="image" data-bg="linear-gradient(180deg, #1f2937 0%, #475569 30%, #94a3b8 60%, #f1f5f9 100%)" data-cap="Front elevation · dusk"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(135deg, #fef3c7 0%, #fde68a 40%, #d97706 100%)" data-cap="Open-plan kitchen · living"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%)" data-cap="Pool deck · rear terrace"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #312e81 0%, #6366f1 50%, #c7d2fe 100%)" data-cap="Master suite"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #fbbf24 100%)" data-cap="Sunset · valley view"></div>
+              <div class="dt-thumb" data-kind="video" data-cap="Walk-through video · 2 min"><i class="ri-play-circle-fill"></i><span class="vlab">Video</span></div>
+            </div>
+          </div>
+          <div class="dt-head">
+            <div class="eyebrow">HSE-027 · 4-BED VILLA</div>
+            <h1>Sunridge · Lot 14B</h1>
+            <div class="loc"><i class="ri-map-pin-line"></i> 14 Ridge Lane · Sunridge Estate, Accra</div>
+            <div class="pills">
+              <span class="pill" data-tone="brand"><i class="ri-bank-line"></i> Active loan · L-2304</span>
+              <span class="pill" data-tone="success"><i class="ri-check-line"></i> Title transferred</span>
+              <span class="pill"><i class="ri-hotel-bed-line"></i> 4 bed · 3 bath</span>
+              <span class="pill"><i class="ri-ruler-2-line"></i> 2,840 ft²</span>
+              <span class="pill"><i class="ri-car-line"></i> 2-car garage</span>
+              <span class="pill"><i class="ri-water-percent-line"></i> Pool</span>
+            </div>
+            <div class="actions">
+              <a class="btn btn-primary" href="loan-detail.html"><i class="ri-bank-line"></i> Open loan</a>
+              <button class="btn btn-secondary" id="btnPlayTour"><i class="ri-play-circle-line"></i> Play tour</button>
+              <button class="btn btn-secondary"><i class="ri-share-line"></i> Share listing</button>
+              <button class="btn btn-secondary" id="btnHeaderEdit"><i class="ri-pencil-line"></i> Edit</button>
+              <div class="dt-kebab" id="heroKebab">
+                <button class="btn btn-secondary icon-only" aria-label="More" data-kebab-trigger><i class="ri-more-2-line"></i></button>
+                <div class="dt-kebab-menu" role="menu">
+                  <button role="menuitem" data-kebab="replace-media"><i class="ri-image-edit-line"></i> Replace cover &amp; gallery…</button>
+                  <button role="menuitem" data-kebab="video"><i class="ri-video-add-line"></i> Manage video tour…</button>
+                  <button role="menuitem" data-kebab="public"><i class="ri-external-link-line"></i> Open public listing</button>
+                  <button role="menuitem" data-kebab="export"><i class="ri-download-2-line"></i> Export property sheet (PDF)</button>
+                  <button role="menuitem" data-kebab="duplicate"><i class="ri-file-copy-line"></i> Duplicate listing</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="loan"><i class="ri-bank-line"></i> Open active loan</button>
+                  <button role="menuitem" data-kebab="transfer"><i class="ri-user-shared-line"></i> Transfer ownership…</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="archive" data-tone="danger"><i class="ri-archive-line"></i> Archive property…</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== KPIs ===================== -->
+        <div class="dt-kpis">
+          <div class="card">
+            <div class="card-title">Sale price</div>
+            <div class="card-value">$285,000</div>
+            <div class="delta">$100 / ft²</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Loan balance</div>
+            <div class="card-value warn">$214,820</div>
+            <div class="delta">75% remaining · 12 yr term</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Monthly payment</div>
+            <div class="card-value">$2,164</div>
+            <div class="delta up"><i class="ri-check-line"></i> On schedule</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Owner</div>
+            <div class="card-value" style="font-size: 16px;">Anna Thompson</div>
+            <div class="delta">Closed <b>Apr 12, 2024</b></div>
+          </div>
+        </div>
+
+        <!-- ===================== TABS ===================== -->
+        <div class="dt-tabs" id="dtTabs">
+          <button class="dt-tab on" data-tab="overview"><i class="ri-information-line"></i> Overview</button>
+          <button class="dt-tab" data-tab="construction"><i class="ri-tools-line"></i> Construction</button>
+          <button class="dt-tab" data-tab="loan"><i class="ri-bank-line"></i> Loan</button>
+          <button class="dt-tab" data-tab="documents"><i class="ri-file-text-line"></i> Documents <span class="cnt">7</span></button>
+          <button class="dt-tab" data-tab="activity"><i class="ri-pulse-line"></i> Activity <span class="cnt">12</span></button>
+          <button class="dt-tab" data-tab="history"><i class="ri-history-line"></i> History</button>
+        </div>
+
+        <!-- ===================== OVERVIEW PANE ===================== -->
+        <div class="dt-pane" id="paneOverview">
+          <div class="dt-grid">
+            <!-- LEFT -->
+            <section>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-information-line lead"></i> About the home</h3></header>
+                <div class="body">
+                  <div class="dt-prose">
+                    <p>Architect-designed 4-bedroom villa on the second-highest plot in Sunridge Phase 2, with full sunset views over the western valley. Open-plan kitchen / living, vaulted ceilings in the master, and a covered terrace that runs the full length of the rear elevation.</p>
+                    <p>Energy-efficient build: full solar with battery backup, double-glazed windows throughout, and a 5,000-litre rainwater harvesting system. Construction completed in March 2024 by Goldcrest's in-house build team.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-ruler-line lead"></i> Specifications</h3></header>
+                <div class="body flush">
+                  <div class="dt-specs">
+                    <div>
+                      <span class="ic"><i class="ri-hotel-bed-line"></i></span>
+                      <span class="num">4 bed</span>
+                      <span class="lab">incl. 1 ensuite master</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-shower-line"></i></span>
+                      <span class="num">3 bath</span>
+                      <span class="lab">+ 1 powder room</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-ruler-2-line"></i></span>
+                      <span class="num">2,840 ft²</span>
+                      <span class="lab">Interior · 2 storey</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-landscape-line"></i></span>
+                      <span class="num">650 m²</span>
+                      <span class="lab">Lot size</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-car-line"></i></span>
+                      <span class="num">2-car</span>
+                      <span class="lab">Covered garage</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-water-percent-line"></i></span>
+                      <span class="num">Yes</span>
+                      <span class="lab">8 × 4 m pool</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-calendar-line"></i></span>
+                      <span class="num">2024</span>
+                      <span class="lab">Year built</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-leaf-line"></i></span>
+                      <span class="num">A+</span>
+                      <span class="lab">Energy rating</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-flashlight-line lead"></i> Features &amp; finishes</h3></header>
+                <div class="body">
+                  <div class="dt-tags">
+                    <span class="tag"><i class="ri-sun-line"></i> Solar + battery backup</span>
+                    <span class="tag"><i class="ri-cloud-line"></i> Rainwater harvesting</span>
+                    <span class="tag"><i class="ri-temp-cold-line"></i> Split-unit AC throughout</span>
+                    <span class="tag"><i class="ri-leaf-line"></i> Double-glazed windows</span>
+                    <span class="tag"><i class="ri-fire-line"></i> Granite countertops</span>
+                    <span class="tag"><i class="ri-paint-brush-line"></i> Hardwood floors</span>
+                    <span class="tag"><i class="ri-shield-keyhole-line"></i> Smart locks · 4 zones</span>
+                    <span class="tag"><i class="ri-camera-line"></i> CCTV (8 cam)</span>
+                    <span class="tag"><i class="ri-wifi-line"></i> Fibre internet</span>
+                    <span class="tag"><i class="ri-tree-line"></i> Mature landscaping</span>
+                    <span class="tag"><i class="ri-water-flash-line"></i> 800-gal water tank</span>
+                    <span class="tag"><i class="ri-mountain-line"></i> West-facing balcony</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-map-pin-line lead"></i> Location</h3>
+                  <span class="meta">5°37'12"N · 0°11'20"W</span>
+                </header>
+                <div class="body" style="padding: 14px;">
+                  <div class="dt-map">
+                    <div class="pin-pop">📍 14 Ridge Lane · Sunridge</div>
+                  </div>
+                </div>
+              </div>
+
+            </section>
+
+            <!-- RIGHT -->
+            <section>
+              <div class="dt-stack">
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-bank-line lead"></i> Loan summary</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>Loan ID</dt>       <dd><a href="loan-detail.html">L-2304</a></dd>
+                      <dt>Originated</dt>    <dd>Apr 12, 2024</dd>
+                      <dt>Principal</dt>     <dd><span class="num">$285,000</span></dd>
+                      <dt>Down payment</dt>  <dd><span class="num">$57,000</span> · 20%</dd>
+                      <dt>Balance</dt>       <dd><span class="num">$214,820</span></dd>
+                      <dt>Term</dt>          <dd>144 mo · 12 yr · 9.50%</dd>
+                      <dt>Next due</dt>      <dd><b>$2,164.18</b> on Jul 12</dd>
+                    </dl>
+                    <div class="dt-progress" style="margin-top: 12px;">
+                      <div class="lab"><span>Paid off</span><b>25% · $70,180</b></div>
+                      <div class="bar"><span style="width: 25%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-user-3-line lead"></i> Owner</h3></header>
+                  <div class="dt-person">
+                    <span class="ava">AT</span>
+                    <div>
+                      <div class="nm">Anna Thompson</div>
+                      <div class="sb">anna.t@example.com · +233 24 555 0118</div>
+                    </div>
+                    <a class="icon-btn" href="customer-detail.html" aria-label="Open"><i class="ri-arrow-right-line"></i></a>
+                  </div>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-map-2-line lead"></i> Site</h3></header>
+                  <a class="dt-link-card" href="site-detail.html" style="text-decoration:none;">
+                    <span class="img" style="background-image: linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%);"></span>
+                    <div>
+                      <div class="nm">Sunridge Estate</div>
+                      <div class="sb">Phase 2 · 14 ha · 48 lots</div>
+                    </div>
+                    <i class="ri-arrow-right-line" style="color: var(--fg4);"></i>
+                  </a>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-user-star-line lead"></i> Sales agent</h3></header>
+                  <div class="dt-person">
+                    <span class="ava" data-color="violet">JE</span>
+                    <div>
+                      <div class="nm">Jordan Evans</div>
+                      <div class="sb">Closer · jordan.e@goldcrest.com</div>
+                    </div>
+                    <button class="icon-btn" aria-label="Message"><i class="ri-message-3-line"></i></button>
+                  </div>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-tools-line lead"></i> Build &amp; warranty</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>Builder</dt>    <dd>Goldcrest Build Co.</dd>
+                      <dt>Architect</dt>  <dd>Mensah Studio</dd>
+                      <dt>Hand-over</dt>  <dd>Mar 28, 2024</dd>
+                      <dt>Warranty</dt>   <dd>10-yr structural · 2-yr fittings</dd>
+                    </dl>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== CONSTRUCTION PANE ===================== -->
+        <div class="dt-pane" id="paneConstruction" hidden>
+          <div class="dt-grid">
+            <section>
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-tools-line lead"></i> Build progress</h3>
+                  <span class="meta">Completed Mar 2024 · 100%</span>
+                </header>
+                <div class="body">
+                  <div class="dt-progress">
+                    <div class="lab"><span>Overall</span><b>100% · handed over</b></div>
+                    <div class="bar"><span style="width: 100%;"></span></div>
+                  </div>
+                </div>
+                <div class="dt-milestones">
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Foundation poured</div><div class="sb">Reinforced raft · soil compaction certified</div></div><span class="when">Aug 2023</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Structure &amp; frame complete</div><div class="sb">Block-work + slab pour to roof level</div></div><span class="when">Oct 2023</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Roofing &amp; waterproofing</div><div class="sb">Standing-seam metal · 25-yr warranty</div></div><span class="when">Nov 2023</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">First fix MEP</div><div class="sb">Plumbing + electrical rough-in passed inspection</div></div><span class="when">Dec 2023</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Plastering &amp; tiling</div><div class="sb">Italian porcelain · interior walls dry</div></div><span class="when">Jan 2024</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Solar + battery commissioned</div><div class="sb">8 kW system · 16 kWh battery</div></div><span class="when">Feb 2024</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Final fix &amp; snagging</div><div class="sb">All 23 snags closed by Mar 22</div></div><span class="when">Mar 2024</span></div>
+                  <div class="ms" data-state="done"><span class="ic"><i class="ri-check-line"></i></span><div><div class="nm">Hand-over to owner</div><div class="sb">Keys + warranty pack delivered to A. Thompson</div></div><span class="when">Mar 28, 2024</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div class="dt-stack">
+                <div class="dt-panel">
+                  <header><h3><i class="ri-pie-chart-2-line lead"></i> Build cost</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>Foundation</dt>  <dd><span class="num">$32,400</span></dd>
+                      <dt>Structure</dt>   <dd><span class="num">$78,200</span></dd>
+                      <dt>MEP</dt>         <dd><span class="num">$24,800</span></dd>
+                      <dt>Finishes</dt>    <dd><span class="num">$48,300</span></dd>
+                      <dt>Solar / battery</dt><dd><span class="num">$14,500</span></dd>
+                      <dt>Landscaping</dt> <dd><span class="num">$8,800</span></dd>
+                      <dt style="border-top:1px solid var(--border-subtle);padding-top:10px;">Total</dt>
+                      <dd style="border-top:1px solid var(--border-subtle);padding-top:10px;font-weight:700;"><span class="num">$207,000</span></dd>
+                    </dl>
+                  </div>
+                </div>
+                <div class="dt-panel">
+                  <header><h3><i class="ri-shield-check-line lead"></i> Inspections</h3></header>
+                  <div class="body flush">
+                    <div class="dt-docs">
+                      <div class="doc"><i class="ri-shield-check-line lead"></i><div><div class="nm">Structural sign-off</div><div class="sb">Mensah Studio · Nov 14</div></div><span class="pill" data-state="received">Pass</span><span></span></div>
+                      <div class="doc"><i class="ri-shield-check-line lead"></i><div><div class="nm">Electrical certification</div><div class="sb">ECG · Feb 8</div></div><span class="pill" data-state="received">Pass</span><span></span></div>
+                      <div class="doc"><i class="ri-shield-check-line lead"></i><div><div class="nm">Building completion cert</div><div class="sb">AMA · Mar 22</div></div><span class="pill" data-state="registered">Issued</span><span></span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== LOAN PANE ===================== -->
+        <div class="dt-pane" id="paneLoan" hidden>
+          <div class="dt-grid">
+            <section>
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-bank-line lead"></i> Active loan · L-2304</h3>
+                  <span class="meta"><a href="loan-detail.html">Open full →</a></span>
+                </header>
+                <div class="body">
+                  <dl class="dt-kv">
+                    <dt>Borrower</dt>      <dd><a href="customer-detail.html">Anna Thompson</a></dd>
+                    <dt>Originated</dt>    <dd>Apr 12, 2024</dd>
+                    <dt>Principal</dt>     <dd><span class="num">$285,000</span></dd>
+                    <dt>Down payment</dt>  <dd><span class="num">$57,000</span> · 20%</dd>
+                    <dt>Financed</dt>      <dd><span class="num">$228,000</span></dd>
+                    <dt>Rate · Term</dt>   <dd>9.50% APR · 144 months · 12 years</dd>
+                    <dt>Monthly</dt>       <dd><span class="num">$2,164.18</span></dd>
+                    <dt>Balance</dt>       <dd><span class="num">$214,820</span></dd>
+                    <dt>Status</dt>        <dd><span style="display:inline-flex;align-items:center;gap:6px;color:var(--color-success-700);"><i class="ri-check-line"></i> On schedule</span></dd>
+                  </dl>
+                </div>
+              </div>
+              <div class="dt-panel">
+                <header><h3><i class="ri-history-line lead"></i> Recent payments</h3></header>
+                <div class="body flush">
+                  <div class="dt-docs">
+                    <div class="doc"><i class="ri-bank-card-line lead"></i><div><div class="nm">$2,164.18 · Jun 12</div><div class="sb">Principal $360.20 · Interest $1,803.98</div></div><span class="pill" data-state="received">Posted</span><span></span></div>
+                    <div class="doc"><i class="ri-bank-card-line lead"></i><div><div class="nm">$2,164.18 · May 12</div><div class="sb">Principal $357.36 · Interest $1,806.82</div></div><span class="pill" data-state="received">Posted</span><span></span></div>
+                    <div class="doc"><i class="ri-bank-card-line lead"></i><div><div class="nm">$2,164.18 · Apr 12</div><div class="sb">Principal $354.53 · Interest $1,809.65</div></div><span class="pill" data-state="received">Posted</span><span></span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section>
+              <div class="dt-stack">
+                <div class="dt-panel">
+                  <header><h3><i class="ri-calendar-event-line lead"></i> Next payment</h3></header>
+                  <div class="body">
+                    <div style="font: 700 28px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em;">$2,164.18</div>
+                    <div style="font: 13px var(--font-sans); color: var(--fg3); margin-top: 4px;">Due <b style="color: var(--color-grey-900);">Jul 12, 2025</b></div>
+                    <button class="btn btn-primary" style="margin-top:14px;width:100%;"><i class="ri-bank-card-line"></i> Record payment</button>
+                  </div>
+                </div>
+                <div class="dt-panel">
+                  <header><h3><i class="ri-pie-chart-line lead"></i> Loan health</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>On-time pmts</dt> <dd><span style="color:var(--color-success-700);font-weight:700;">14 / 14</span></dd>
+                      <dt>Late pmts</dt>   <dd>0</dd>
+                      <dt>Score</dt>       <dd><b>A · excellent</b></dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== DOCUMENTS PANE ===================== -->
+        <div class="dt-pane" id="paneDocuments" hidden>
+          <div class="dt-panel">
+            <div class="dt-docs">
+              <div class="doc"><i class="ri-file-shield-2-line lead"></i><div><div class="nm">Title deed (transferred)</div><div class="sb">GHA-LT-2024-00088 · 1.8 MB</div></div><span class="pill" data-state="registered">Registered</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-file-text-line lead"></i><div><div class="nm">Sale &amp; purchase agreement</div><div class="sb">Signed Apr 12, 2024 · 4 pages</div></div><span class="pill" data-state="received">Signed</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-bank-line lead"></i><div><div class="nm">Loan agreement L-2304</div><div class="sb">12 yr · 9.50% APR</div></div><span class="pill" data-state="registered">Registered</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-tools-line lead"></i><div><div class="nm">Building completion certificate</div><div class="sb">AMA · issued Mar 22, 2024</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-shield-check-line lead"></i><div><div class="nm">Builder warranty</div><div class="sb">10-yr structural · Goldcrest Build</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-image-2-line lead"></i><div><div class="nm">Architectural drawings</div><div class="sb">Mensah Studio · 8 sheets · DWG + PDF</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+              <div class="doc"><i class="ri-fire-line lead"></i><div><div class="nm">Insurance binder</div><div class="sb">Vanguard · expires Apr 12, 2026</div></div><span class="pill" data-state="received">Active</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== ACTIVITY PANE ===================== -->
+        <div class="dt-pane" id="paneActivity" hidden>
+          <div class="dt-panel">
+            <div class="dt-activity">
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti">Payment received — $2,164.18</div><div class="sb">Auto-debit · GCB Bank</div></div><span class="when">Jun 12</span></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti">Payment received — $2,164.18</div><div class="sb">Auto-debit · GCB Bank</div></div><span class="when">May 12</span></div>
+              <div class="item"><span class="ic"><i class="ri-tools-line"></i></span><div><div class="ti">Snag closed — kitchen tap leak</div><div class="sb">Resolved by Goldcrest Build · 2-yr warranty</div></div><span class="when">May 04</span></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti">Payment received — $2,164.18</div><div class="sb">Auto-debit · GCB Bank</div></div><span class="when">Apr 12</span></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-key-line"></i></span><div><div class="ti">Hand-over completed</div><div class="sb">Keys delivered to Anna Thompson</div></div><span class="when">Mar 28</span></div>
+              <div class="item"><span class="ic"><i class="ri-shield-check-line"></i></span><div><div class="ti">Building completion certificate issued</div><div class="sb">By AMA</div></div><span class="when">Mar 22</span></div>
+              <div class="item"><span class="ic"><i class="ri-tools-line"></i></span><div><div class="ti">Final fix &amp; snagging — 23 items closed</div><div class="sb">By Goldcrest Build team</div></div><span class="when">Mar 18</span></div>
+              <div class="item"><span class="ic"><i class="ri-flashlight-line"></i></span><div><div class="ti">Solar system commissioned</div><div class="sb">8 kW · 16 kWh battery</div></div><span class="when">Feb 14</span></div>
+              <div class="item"><span class="ic"><i class="ri-camera-line"></i></span><div><div class="ti">Listing photos updated</div><div class="sb">12 new images uploaded</div></div><span class="when">Feb 02</span></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-bank-line"></i></span><div><div class="ti">Loan L-2304 originated</div><div class="sb">$228,000 financed · 12-yr term</div></div><span class="when">Apr 12, 2024</span></div>
+              <div class="item"><span class="ic"><i class="ri-add-line"></i></span><div><div class="ti">House published as listing</div><div class="sb">Status set to Available</div></div><span class="when">Feb 02, 2024</span></div>
+              <div class="item"><span class="ic"><i class="ri-tools-line"></i></span><div><div class="ti">Construction started</div><div class="sb">Foundation pour at Lot 14B</div></div><span class="when">Aug 14, 2023</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== HISTORY PANE ===================== -->
+        <div class="dt-pane" id="paneHistory" hidden>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="font: 13px var(--font-sans); color: var(--fg3);"><b style="color:var(--color-grey-900);">22</b> changes · all time</div>
+            <select class="dt-select" style="padding:6px 10px; border:1px solid var(--color-grey-200); border-radius:8px; font:13px var(--font-sans); background:white;">
+              <option>Newest first</option><option>Oldest first</option>
+            </select>
+          </div>
+          <div class="dt-panel">
+            <div class="dt-history">
+              <div class="day">June 2025</div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti"><b>System</b> recorded loan payment</div><div class="diff"><span class="to">$2,164.18 · auto-debit</span></div><div class="who"><span class="ava" data-color="purple">SY</span> System</div></div><div class="when">Jun 12 · 09:00</div></div>
+              <div class="day">May 2025</div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti"><b>System</b> recorded loan payment</div><div class="diff"><span class="to">$2,164.18 · auto-debit</span></div><div class="who"><span class="ava" data-color="purple">SY</span> System</div></div><div class="when">May 12 · 09:00</div></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-edit-line"></i></span><div><div class="ti"><b>Kevin Manga</b> closed snag</div><div class="diff"><span class="from">OPEN</span><span class="arr">→</span><span class="to">RESOLVED</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">May 04 · 11:30</div></div>
+              <div class="day">March 2025</div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-key-line"></i></span><div><div class="ti"><b>Jordan Evans</b> completed handover</div><div class="diff"><span class="to">Keys delivered to Anna Thompson</span></div><div class="who"><span class="ava" data-color="green">JE</span> Jordan Evans</div></div><div class="when">Mar 28 · 14:00</div></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-shield-check-line"></i></span><div><div class="ti"><b>System</b> updated status</div><div class="diff"><span class="from">UNDER CONSTRUCTION</span><span class="arr">→</span><span class="to">OCCUPIED</span></div><div class="who"><span class="ava" data-color="purple">SY</span> System</div></div><div class="when">Mar 22 · 16:08</div></div>
+              <div class="day">April 2024</div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-bank-line"></i></span><div><div class="ti"><b>Jordan Evans</b> originated loan</div><div class="diff"><span class="to">L-2304 · $228,000 · 12 yr</span></div><div class="who"><span class="ava" data-color="green">JE</span> Jordan Evans</div></div><div class="when">Apr 12, 2024 · 10:14</div></div>
+              <div class="item"><span class="ic"><i class="ri-edit-line"></i></span><div><div class="ti"><b>Kevin Manga</b> updated price</div><div class="diff"><span class="from">$295,000</span><span class="arr">→</span><span class="to">$285,000</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">Mar 04, 2024 · 09:42</div></div>
+              <div class="day">February 2024</div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-eye-line"></i></span><div><div class="ti"><b>Kevin Manga</b> published listing</div><div class="diff"><span class="from">DRAFT</span><span class="arr">→</span><span class="to">AVAILABLE</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">Feb 02, 2024 · 11:18</div></div>
+              <div class="day">August 2023</div>
+              <div class="item"><span class="ic"><i class="ri-add-line"></i></span><div><div class="ti"><b>System</b> created property</div><div class="diff"><span class="to">HSE-027 · Sunridge Lot 14B</span></div><div class="who"><span class="ava" data-color="purple">SY</span> System</div></div><div class="when">Aug 14, 2023 · 08:00</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+(function(){
+  var tabs = document.querySelectorAll('#dtTabs .dt-tab');
+  var panes = { overview: document.getElementById('paneOverview'),
+                construction: document.getElementById('paneConstruction'),
+                loan: document.getElementById('paneLoan'),
+                documents: document.getElementById('paneDocuments'),
+                activity: document.getElementById('paneActivity'),
+                history: document.getElementById('paneHistory') };
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      Object.keys(panes).forEach(function(k){ panes[k].hidden = (k !== t.dataset.tab); });
+    });
+  });
+})();
+
+// -------- Hero kebab dropdown --------
+(function(){
+  var kebab = document.getElementById('heroKebab');
+  if (!kebab) return;
+  var trig = kebab.querySelector('[data-kebab-trigger]');
+  trig.addEventListener('click', function(e){ e.stopPropagation(); kebab.classList.toggle('open'); });
+  document.addEventListener('click', function(e){ if (!kebab.contains(e.target)) kebab.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') kebab.classList.remove('open'); });
+  kebab.querySelectorAll('[data-kebab]').forEach(function(item){
+    item.addEventListener('click', function(){
+      kebab.classList.remove('open');
+      var act = item.dataset.kebab;
+      if (act === 'archive') { if (!confirm('Archive this property? It will be hidden from listings.')) return; toast('Property archived'); }
+      else if (act === 'loan') { window.location.href = 'loan-detail.html'; }
+      else toast(item.textContent.trim().replace('\u2026',''));
+    });
+  });
+})();
+
+// -------- Header edit pencil --------
+document.getElementById('btnHeaderEdit')?.addEventListener('click', function(){
+  document.querySelector('#dtTabs .dt-tab[data-tab="overview"]')?.click();
+  toast('Click any panel\u2019s edit \u270e to inline-edit');
+});
+
+// -------- Hero gallery --------
+(function(){
+  var thumbs = document.querySelectorAll('#galThumbs .dt-thumb');
+  var main = document.getElementById('galMain');
+  var count = document.getElementById('galCount');
+  thumbs.forEach(function(t){ if (t.dataset.bg) t.style.backgroundImage = t.dataset.bg; });
+  var imgs = Array.prototype.filter.call(thumbs, function(t){ return t.dataset.kind === 'image'; });
+  thumbs.forEach(function(t){
+    t.addEventListener('click', function(){
+      thumbs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      if (t.dataset.kind === 'video') { toast('Video tour player'); return; }
+      main.style.backgroundImage = t.dataset.bg;
+      var idx = imgs.indexOf(t);
+      if (count) count.innerHTML = '<i class="ri-image-line"></i> ' + (idx+1) + ' / ' + imgs.length;
+    });
+  });
+  document.getElementById('btnPlayTour')?.addEventListener('click', function(){ toast('Video tour player'); });
+})();
+</script>
+</body>
+</html>

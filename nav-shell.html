@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — App shell</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="dialog.css" />
+<style>
+  /* ============================================================
+     nav-shell additions — extend (not replace) the reference
+     prospects.html / prospect-detail.html visual vocabulary.
+     - Sidebar uses .sidebar / .brand / .group-label / .nav-item / .user
+       from ream.css. We add: org-pill brand row, collapsible groups,
+       presence dot + role chip in the user pill, sidebar bottom-rail
+       icon buttons, notifications panel, generic menu popover.
+     ============================================================ */
+
+  /* --- Org pill (replaces simple "Ream" wordmark in the brand slot) --- */
+  .sidebar .brand.org-pill {
+    padding: 8px 8px 12px;
+    margin: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-sans); /* override .brand display-font; we want SaaS-style row */
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-grey-800);
+    letter-spacing: 0;
+    border-radius: 8px;
+    transition: background .12s;
+  }
+  .sidebar .brand.org-pill:hover { background: var(--color-grey-50); }
+  .sidebar .brand.org-pill .org-logo {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 13px var(--font-sans); color: white;
+    background: var(--color-brand-600);
+    letter-spacing: -0.02em;
+  }
+  .sidebar .brand.org-pill .org-meta { line-height: 1.2; min-width: 0; }
+  .sidebar .brand.org-pill .org-name {
+    font: 600 13px var(--font-sans);
+    color: var(--color-grey-900);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sidebar .brand.org-pill .org-plan {
+    font: 500 10.5px var(--font-sans);
+    color: var(--fg3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+  .sidebar .brand.org-pill .org-caret { color: var(--fg3); font-size: 14px; }
+
+  /* --- Collapsible group label (was a static .group-label in ream.css) --- */
+  .sidebar button.group-label {
+    background: transparent; border: 0;
+    width: 100%;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    padding: 6px 10px 4px;
+    text-align: left;
+    /* inherit existing .group-label typography */
+  }
+  .sidebar button.group-label:hover { background: var(--color-grey-50); color: var(--color-grey-700); }
+  .sidebar button.group-label .chev {
+    font-size: 14px; color: var(--fg4);
+    transition: transform .15s ease;
+  }
+  .sidebar .nav-group[data-collapsed="true"] button.group-label .chev { transform: rotate(-90deg); }
+  .sidebar .nav-group[data-collapsed="true"] .nav-group-items { display: none; }
+  .sidebar .nav-group .nav-group-items { display: flex; flex-direction: column; gap: 0; }
+  /* Urgent indicator on collapsed groups */
+  .sidebar button.group-label .urg {
+    font: 600 9.5px var(--font-sans);
+    color: var(--color-error-700, #b91c1c);
+    background: var(--color-error-100, #fee2e2);
+    padding: 1px 6px;
+    border-radius: 999px;
+    visibility: hidden;
+  }
+  .sidebar .nav-group[data-collapsed="true"][data-has-urgent="true"] button.group-label .urg { visibility: visible; }
+
+  /* --- nav-item badges (override the inline style used on prospects.html) --- */
+  .sidebar .nav-item .nav-badge {
+    margin-left: auto;
+    font: 600 10.5px var(--font-sans);
+    background: var(--color-grey-100);
+    color: var(--color-grey-700);
+    padding: 1px 7px;
+    border-radius: 999px;
+    min-width: 18px; text-align: center;
+  }
+  .sidebar .nav-item.active .nav-badge { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .sidebar .nav-item .nav-badge.urgent { background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); }
+  .sidebar .nav-item .nav-dot {
+    margin-left: auto;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-warning-500, #f59e0b);
+  }
+
+  /* --- Bottom rail: notifications + settings + help, sitting right above the .user pill --- */
+  .sidebar .sb-rail {
+    display: flex; gap: 4px;
+    padding: 0 4px 6px;
+  }
+  .sidebar .sb-rail-btn {
+    flex: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 32px;
+    border-radius: 6px;
+    background: transparent; border: 0;
+    color: var(--fg3); cursor: pointer;
+    position: relative;
+    transition: background .12s, color .12s;
+  }
+  .sidebar .sb-rail-btn:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+  .sidebar .sb-rail-btn i { font-size: 16px; }
+  .sidebar .sb-rail-btn .nb {
+    position: absolute; top: 2px; right: 8px;
+    background: var(--color-error-600, #dc2626);
+    color: white;
+    font: 700 9.5px var(--font-sans);
+    padding: 1px 5px; border-radius: 999px;
+    min-width: 16px; text-align: center; line-height: 1.4;
+    box-shadow: 0 0 0 2px var(--color-base-white);
+  }
+
+  /* --- Augment .user pill with role chip + presence dot on avatar --- */
+  .sidebar .user.with-menu {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 10px;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+  }
+  .sidebar .user.with-menu .avatar { position: relative; }
+  .sidebar .user.with-menu .avatar .presence {
+    position: absolute; bottom: -1px; right: -1px;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--color-base-white);
+  }
+  .presence[data-status="online"]   { background: #10b981; }
+  .presence[data-status="away"]     { background: #f59e0b; }
+  .presence[data-status="busy"]     { background: #ef4444; }
+  .presence[data-status="invisible"]{ background: #94a3b8; }
+  .presence[data-status="offline"]  { background: #cbd5e1; }
+  .sidebar .user.with-menu .meta { min-width: 0; line-height: 1.2; }
+  .sidebar .user.with-menu .role-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; min-width: 0; }
+  .sidebar .user.with-menu .role-chip {
+    font: 600 10px var(--font-sans);
+    background: var(--color-grey-100);
+    color: var(--color-grey-700);
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px;
+  }
+  /* Override default .user .status (green text) — we now show role chip instead */
+  .sidebar .user.with-menu .status { display: none; }
+  .sidebar .user.with-menu .more { color: var(--fg3); font-size: 14px; align-self: center; }
+
+  /* --- Generic popover (used for org / settings / quickadd / user menus) --- */
+  .menu-pop {
+    position: fixed; z-index: 6000;
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15,23,42,.06);
+    padding: 6px;
+    min-width: 240px;
+    display: flex; flex-direction: column;
+    font: 13px var(--font-sans);
+  }
+  .menu-pop .mp-section {
+    padding: 8px 10px 4px;
+    font: 600 10.5px var(--font-sans);
+    color: var(--fg3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .menu-pop .mp-item {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 10px;
+    border: 0; background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    color: var(--color-grey-800);
+    font: 500 13px var(--font-sans);
+  }
+  .menu-pop .mp-item:hover { background: var(--color-grey-50); }
+  .menu-pop .mp-item i.lead { font-size: 15px; color: var(--fg3); width: 22px; text-align: center; }
+  .menu-pop .mp-item .check { color: var(--color-brand-600); font-size: 14px; visibility: hidden; }
+  .menu-pop .mp-item[aria-current="true"] .check { visibility: visible; }
+  .menu-pop .mp-item[aria-current="true"] { color: var(--color-grey-900); font-weight: 600; }
+  .menu-pop .mp-item .pres-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .menu-pop .sep { height: 1px; background: var(--border-subtle); margin: 6px 4px; }
+
+  /* Org switcher rows (richer than mp-item) */
+  .menu-pop .mp-org {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 8px 10px;
+    border: 0; background: transparent; border-radius: 7px;
+    cursor: pointer; text-align: left; width: 100%;
+    color: var(--color-grey-800);
+  }
+  .menu-pop .mp-org:hover { background: var(--color-grey-50); }
+  .menu-pop .mp-org .lg { width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font: 700 12px var(--font-sans); color: white; }
+  .menu-pop .mp-org .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); line-height: 1.25; }
+  .menu-pop .mp-org .pl { font: 500 11px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .menu-pop .mp-org .check { color: var(--color-brand-600); font-size: 14px; visibility: hidden; }
+  .menu-pop .mp-org[aria-current="true"] .check { visibility: visible; }
+
+  /* Role rows: a sub-line for description */
+  .menu-pop .mp-role {
+    display: grid; grid-template-columns: 22px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 7px 10px;
+    border: 0; background: transparent; border-radius: 6px;
+    cursor: pointer; text-align: left; width: 100%;
+  }
+  .menu-pop .mp-role:hover { background: var(--color-grey-50); }
+  .menu-pop .mp-role i.lead { font-size: 15px; color: var(--fg3); }
+  .menu-pop .mp-role .nm { font: 500 13px var(--font-sans); color: var(--color-grey-800); line-height: 1.2; }
+  .menu-pop .mp-role[aria-current="true"] .nm { color: var(--color-grey-900); font-weight: 600; }
+  .menu-pop .mp-role .desc { font: 11px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.3; }
+  .menu-pop .mp-role .check { color: var(--color-brand-600); font-size: 14px; visibility: hidden; align-self: center; }
+  .menu-pop .mp-role[aria-current="true"] .check { visibility: visible; }
+
+  .menu-pop .mp-head {
+    padding: 10px 10px 6px;
+  }
+  .menu-pop .mp-head .nm  { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .menu-pop .mp-head .em  { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .menu-pop .mp-head .tag { display: inline-block; margin-top: 6px;
+                            font: 600 9.5px var(--font-sans);
+                            padding: 1px 6px; border-radius: 4px;
+                            text-transform: uppercase; letter-spacing: 0.04em; }
+  .menu-pop .mp-head .tag[data-dept="follow_up"] { background: var(--color-blue-50, #ecfeff);  color: var(--color-blue-700, #0e7490); }
+  .menu-pop .mp-head .tag[data-dept="sales"]     { background: var(--color-warning-50);        color: var(--color-warning-700); }
+  .menu-pop .mp-head .tag[data-dept="finance"]   { background: var(--color-success-50);        color: var(--color-success-700); }
+  .menu-pop .mp-head .tag[data-dept="admin"]     { background: var(--color-brand-50);          color: var(--color-brand-700); }
+
+  /* --- Notifications panel --- */
+  .nt-panel {
+    position: fixed; z-index: 6000;
+    width: 380px; max-height: 540px;
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15,23,42,.06);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .nt-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); }
+  .nt-head .ti { font: 600 14px var(--font-sans); color: var(--color-grey-900); }
+  .nt-head .clear { font: 500 12px var(--font-sans); color: var(--color-brand-600); background: transparent; border: 0; cursor: pointer; padding: 4px 6px; border-radius: 4px; }
+  .nt-head .clear:hover { background: var(--color-brand-50); }
+  .nt-tabs { display: flex; gap: 2px; padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); }
+  .nt-tab { flex: 1; padding: 6px 8px; font: 500 12px var(--font-sans); color: var(--fg3); background: transparent; border: 0; border-radius: 6px; cursor: pointer; }
+  .nt-tab:hover { background: var(--color-grey-50); }
+  .nt-tab.on { color: var(--color-grey-900); background: var(--color-grey-100); font-weight: 600; }
+  .nt-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .nt-item {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    gap: 10px; padding: 10px 14px; cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nt-item:last-child { border-bottom: 0; }
+  .nt-item:hover { background: var(--color-grey-50); }
+  .nt-item .ic { width: 32px; height: 32px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .nt-item .ic[data-tone="brand"]   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .nt-item .ic[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .nt-item .ic[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .nt-item .ic[data-tone="error"]   { background: var(--color-error-50, #fee2e2); color: var(--color-error-700, #b91c1c); }
+  .nt-item .body { line-height: 1.35; min-width: 0; }
+  .nt-item .ti { font: 600 12.5px var(--font-sans); color: var(--color-grey-900); }
+  .nt-item .sb { font: 12px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .nt-item .ts { font: 500 10.5px var(--font-sans); color: var(--fg4); white-space: nowrap; margin-top: 2px; }
+  .nt-item.unread .ti::after {
+    content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-brand-600); margin-left: 6px; vertical-align: middle;
+  }
+  .nt-empty { padding: 32px 18px; text-align: center; color: var(--fg3); font: 13px var(--font-sans); }
+  .nt-empty i { font-size: 26px; color: var(--color-grey-300); display: block; margin-bottom: 6px; }
+
+  /* --- Page content overrides --- */
+  /* Match prospects.html .insight-strip (5-col responsive grid of cards) */
+  .insight-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .insight-strip .card { padding: 14px 16px; }
+  .insight-strip .card-title { font-size: 12px; margin-bottom: 4px; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+  .insight-strip .card-value { font-size: 22px; font-weight: 700; color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .insight-strip .delta { font-size: 11px; margin-top: 4px; }
+  .insight-strip .delta.up { color: var(--color-success-600); }
+  .insight-strip .delta.muted { color: var(--fg3); }
+  .insight-strip .delta.warn { color: var(--color-warning-700); }
+
+  /* Today's focus list — matches prospect-detail's reminder rows */
+  .focus-card { margin-top: 16px; }
+  .focus-card h3 { margin: 0 0 10px; font: 600 14px var(--font-sans); color: var(--color-grey-900); display: flex; align-items: center; gap: 8px; }
+  .focus-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .focus-list li {
+    display: grid; grid-template-columns: 28px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 10px 12px; border: 1px solid var(--border-default); border-radius: 8px; background: white;
+  }
+  .focus-list li .ic { width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .focus-list .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+  .focus-list .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .focus-list .when { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+
+  /* Demo role indicator — slim, uses badge primitive */
+  .demo-line {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 12px var(--font-sans); color: var(--fg3);
+    margin: -2px 0 14px;
+  }
+  .demo-line code { font: 600 11.5px var(--font-mono, ui-monospace, Menlo, monospace); background: var(--color-grey-100); color: var(--color-grey-800); padding: 1px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> REAM</div>
+    <div class="url"><i class="ri-lock-line"></i> ream.app/home</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <!-- =========== SIDEBAR =========== -->
+    <aside class="sidebar">
+
+      <!-- Org switcher (replaces simple "Ream" wordmark in the brand slot) -->
+      <button class="brand org-pill" type="button" id="orgSwitcher" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo" id="orgLogo">G</span>
+        <span class="org-meta">
+          <span class="org-name" id="orgName">Goldcrest Realty</span>
+          <span class="org-plan" id="orgPlan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <!-- Nav body (built by JS) -->
+      <div id="sbNav"></div>
+
+      <div class="spacer"></div>
+
+      <!-- Bottom rail: notifications, settings, help -->
+      <div class="sb-rail">
+        <button class="sb-rail-btn" type="button" id="ntBtn" title="Notifications" aria-haspopup="menu">
+          <i class="ri-notification-3-line"></i>
+          <span class="nb" id="ntBadge">5</span>
+        </button>
+        <button class="sb-rail-btn" type="button" id="settingsBtn" title="Settings" aria-haspopup="menu">
+          <i class="ri-settings-3-line"></i>
+        </button>
+        <button class="sb-rail-btn" type="button" id="helpBtn" title="Help & support">
+          <i class="ri-question-line"></i>
+        </button>
+      </div>
+
+      <!-- User pill -->
+      <button class="user with-menu" type="button" id="userMenuBtn" aria-haspopup="menu">
+        <div class="avatar" style="background: var(--color-brand-700);">
+          <span id="userInitials">KM</span>
+          <span class="presence" id="userPresence" data-status="online"></span>
+        </div>
+        <div class="meta">
+          <div class="name" id="userName">Kevin Manga</div>
+          <div class="role-row">
+            <span class="role-chip" id="userRoleChip">Admin / Owner</span>
+          </div>
+        </div>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <!-- =========== MAIN =========== -->
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <span class="current" id="pageTitle">Home</span>
+        </div>
+        <div class="actions">
+          <div class="search">
+            <i class="ri-search-line"></i>
+            <input id="globalSearch" placeholder="Search prospects, listings, loans…" />
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="ph-head">
+          <div class="ph-title">
+            <h1 class="page-title" id="greetingLine">Good afternoon, Kevin</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:560px;" id="greetingSub">
+              Here's what's happening across Goldcrest Realty.
+            </div>
+            <div class="demo-line">
+              <i class="ri-information-line"></i>
+              <span>Demo · viewing as <code id="bannerRole">ADMIN / OWNER</code> at <code id="bannerOrg">Goldcrest Realty</code>. Switch via your avatar.</span>
+            </div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-secondary" type="button" id="quickAddBtn"><i class="ri-add-line"></i> New</button>
+          </div>
+        </div>
+
+        <!-- Insight strip — same primitive as prospects.html -->
+        <div class="insight-strip" id="homeGrid"></div>
+
+        <!-- Today's focus — list pattern from prospect-detail -->
+        <div class="card focus-card">
+          <h3><i class="ri-focus-3-line"></i> Today's focus</h3>
+          <ul class="focus-list" id="focusList"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const ORGS = [
+  { id: 'goldcrest', name: 'Goldcrest Realty',  short: 'G', plan: 'Growth · Accra',     color: 'var(--color-brand-600)',     listings: 124, prospects: 42,  customers: 186, loans: 89  },
+  { id: 'palmview',  name: 'Palmview Estates',  short: 'P', plan: 'Starter · Tema',     color: 'var(--color-success-600)',   listings: 38,  prospects: 14,  customers: 61,  loans: 23  },
+  { id: 'avenir',    name: 'Avenir Properties', short: 'A', plan: 'Enterprise · Lagos', color: 'var(--color-blue-600, #2563eb)', listings: 412, prospects: 156, customers: 894, loans: 327 }
+];
+
+const ROLES = [
+  { id: 'follow_up_agent',   label: 'Follow-up agent',   dept: 'follow_up', desc: 'Manages reminders & document collection' },
+  { id: 'sales_agent',       label: 'Sales agent',       dept: 'sales',     desc: 'Works prospects & shares listings' },
+  { id: 'follow_up_manager', label: 'Follow-up manager', dept: 'follow_up', desc: 'Oversees follow-up team & docs queue' },
+  { id: 'sales_manager',     label: 'Sales manager',     dept: 'sales',     desc: 'Oversees sales team & listings' },
+  { id: 'finance_manager',   label: 'Finance manager',   dept: 'finance',   desc: 'Oversees loans, repayments & payments' },
+  { id: 'admin',             label: 'Admin / Owner',     dept: 'admin',     desc: 'Full access across the organization' }
+];
+
+const ALL = ['follow_up_agent','sales_agent','follow_up_manager','sales_manager','finance_manager','admin'];
+
+const NAV = [
+  { id: 'workspace', label: 'Workspace', items: [
+    { id: 'home',     label: 'Home',          icon: 'ri-home-5-line',   roles: ALL },
+    { id: 'inbox',    label: 'Inbox',         icon: 'ri-inbox-line',    roles: ALL, badge: 12, urgent: true },
+    { id: 'tasks',    label: 'My tasks',      icon: 'ri-task-line',     roles: ALL, badge: 4 },
+    { id: 'calendar', label: 'Calendar',      icon: 'ri-calendar-line', roles: ALL },
+    { id: 'activity', label: 'Activity feed', icon: 'ri-pulse-line',    roles: ALL }
+  ]},
+  { id: 'pipeline', label: 'Pipeline', items: [
+    { id: 'prospects', label: 'Prospects',         icon: 'ri-user-search-line', roles: ['follow_up_agent','sales_agent','follow_up_manager','sales_manager','admin'], badge: 42 },
+    { id: 'customers', label: 'Customers',         icon: 'ri-team-line',        roles: ALL, badge: 186 },
+    { id: 'requests',  label: 'Document requests', icon: 'ri-file-text-line',   roles: ['follow_up_agent','follow_up_manager','admin'], badge: 7, urgent: true }
+  ]},
+  { id: 'listings', label: 'Listings', items: [
+    { id: 'houses', label: 'Houses', icon: 'ri-home-3-line',    roles: ['sales_agent','sales_manager','admin'], badge: 48 },
+    { id: 'land',   label: 'Land',   icon: 'ri-landscape-line', roles: ['sales_agent','sales_manager','admin'], badge: 76 },
+    { id: 'sites',  label: 'Sites',  icon: 'ri-map-2-line',     roles: ['sales_manager','admin'] }
+  ]},
+  { id: 'finance', label: 'Finance', items: [
+    { id: 'loans',        label: 'Loans',          icon: 'ri-bank-line',            roles: ['finance_manager','admin'], badge: 89 },
+    { id: 'repayments',   label: 'Repayments',     icon: 'ri-calendar-check-line',  roles: ['finance_manager','admin'], dot: true },
+    { id: 'transactions', label: 'Transactions',   icon: 'ri-arrow-left-right-line',roles: ['finance_manager','admin'] },
+    { id: 'review',       label: 'Payment review', icon: 'ri-shield-check-line',    roles: ['finance_manager','admin'], badge: 3, urgent: true },
+    { id: 'imports',      label: 'Imports',        icon: 'ri-upload-cloud-2-line',  roles: ['finance_manager','admin'] }
+  ]},
+  { id: 'team', label: 'Team', items: [
+    { id: 'sales_agents', label: 'Sales agents',     icon: 'ri-user-star-line',     roles: ['sales_manager','admin'] },
+    { id: 'fu_agents',    label: 'Follow-up agents', icon: 'ri-user-voice-line',    roles: ['follow_up_manager','admin'] },
+    { id: 'finance_team', label: 'Finance team',     icon: 'ri-user-settings-line', roles: ['finance_manager','admin'] },
+    { id: 'managers',     label: 'Managers',         icon: 'ri-shield-user-line',   roles: ['admin'] }
+  ]},
+  { id: 'insights', label: 'Insights', items: [
+    { id: 'reports',     label: 'Reports',          icon: 'ri-bar-chart-2-line', roles: ['follow_up_manager','sales_manager','finance_manager','admin'] },
+    { id: 'performance', label: 'Team performance', icon: 'ri-line-chart-line',  roles: ['follow_up_manager','sales_manager','finance_manager','admin'] }
+  ]}
+];
+
+const DEFAULT_COLLAPSED = {
+  follow_up_agent:   { listings: true, team: true, insights: true, finance: true },
+  sales_agent:       { team: true, insights: true, finance: true },
+  follow_up_manager: { listings: true, finance: true, insights: true, team: true },
+  sales_manager:     { finance: true, insights: true, team: true },
+  finance_manager:   { listings: true, team: true, insights: true },
+  admin:             { listings: true, finance: true, team: true, insights: true }
+};
+
+const SETTINGS_MENU = [
+  { group: 'Personal', items: [
+    { id: 'profile',    label: 'Profile',                 icon: 'ri-user-line',           roles: ALL },
+    { id: 'prefs',      label: 'Preferences',             icon: 'ri-tools-line',          roles: ALL },
+    { id: 'shortcuts',  label: 'Keyboard shortcuts',      icon: 'ri-keyboard-line',       roles: ALL },
+    { id: 'notif_pref', label: 'Notification settings',   icon: 'ri-notification-3-line', roles: ALL }
+  ]},
+  { group: 'Organization', items: [
+    { id: 'org_settings', label: 'Organization',         icon: 'ri-building-2-line',     roles: ['admin'] },
+    { id: 'roles_perm',   label: 'Roles & permissions',  icon: 'ri-key-2-line',          roles: ['admin'] },
+    { id: 'billing',      label: 'Billing & plan',       icon: 'ri-bank-card-line',      roles: ['admin'] },
+    { id: 'audit',        label: 'Audit log',            icon: 'ri-file-list-3-line',    roles: ['admin'] },
+    { id: 'integrations', label: 'Integrations',         icon: 'ri-plug-line',           roles: ['admin'] },
+    { id: 'imports_admin',label: 'Imports & exports',    icon: 'ri-upload-cloud-2-line', roles: ['admin'] }
+  ]}
+];
+
+const NOTIFICATIONS = [
+  { id: 'n1', tone: 'warn',    icon: 'ri-time-line',          ti: 'Pay stubs from Joseph Mensah are 2 days overdue', sb: 'Required for underwriting',        ts: '12m', unread: true },
+  { id: 'n2', tone: 'brand',   icon: 'ri-calendar-event-line',ti: 'Site visit Thu, May 14 · 2:00 PM',                sb: 'With Joseph & spouse',             ts: '1h',  unread: true },
+  { id: 'n3', tone: 'success', icon: 'ri-check-line',         ti: 'Payment of GHS 4,500 cleared',                    sb: 'Loan #L-00214 · Adwoa B.',         ts: '3h',  unread: true },
+  { id: 'n4', tone: 'error',   icon: 'ri-error-warning-line', ti: '3 transactions need review',                      sb: 'Mismatch in payment review queue', ts: '5h',  unread: true },
+  { id: 'n5', tone: 'brand',   icon: 'ri-user-add-line',      ti: 'New prospect from public form',                   sb: 'Akosua Owusu — Tema East',         ts: '8h',  unread: true },
+  { id: 'n6', tone: 'brand',   icon: 'ri-mail-line',          ti: 'Esi Asare replied to your email',                 sb: '"Yes, Friday 4pm works…"',         ts: 'yesterday', unread: false }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  orgId: 'goldcrest',
+  roleId: 'admin',
+  active: 'home',
+  presence: 'online',
+  ntFilter: 'all',
+  collapsed: {}
+};
+
+const $ = (s, r=document) => r.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+function closeAllPops() { document.querySelectorAll('.menu-pop, .nt-panel').forEach(p => p.remove()); }
+
+const currentOrg  = () => ORGS.find(o => o.id === state.orgId);
+const currentRole = () => ROLES.find(r => r.id === state.roleId);
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderOrgPill() {
+  const o = currentOrg();
+  $('#orgLogo').textContent = o.short;
+  $('#orgLogo').style.background = o.color;
+  $('#orgName').textContent = o.name;
+  $('#orgPlan').textContent = o.plan;
+}
+
+function renderUser() {
+  const r = currentRole();
+  $('#userRoleChip').textContent = r.label;
+  $('#userPresence').setAttribute('data-status', state.presence);
+}
+
+function renderNav() {
+  const root = $('#sbNav');
+  root.innerHTML = '';
+  const role = state.roleId;
+  const defaults = DEFAULT_COLLAPSED[role] || {};
+
+  NAV.forEach(section => {
+    const items = section.items.filter(it => it.roles.includes(role));
+    if (!items.length) return;
+
+    const collapsedKey = role + ':' + section.id;
+    const isCollapsed = state.collapsed[collapsedKey] != null
+      ? state.collapsed[collapsedKey]
+      : !!defaults[section.id];
+
+    const urgentCount = items.filter(i => i.urgent).reduce((s,i) => s + (i.badge || 0), 0);
+
+    const grp = el('div', 'nav-group');
+    grp.dataset.collapsed = isCollapsed ? 'true' : 'false';
+    if (urgentCount > 0) grp.dataset.hasUrgent = 'true';
+
+    const lbl = document.createElement('button');
+    lbl.type = 'button';
+    lbl.className = 'group-label';
+    lbl.innerHTML = `
+      <span>${section.label}</span>
+      <span class="urg">${urgentCount}</span>
+      <i class="ri-arrow-down-s-line chev"></i>
+    `;
+    lbl.addEventListener('click', () => {
+      state.collapsed[collapsedKey] = !isCollapsed;
+      renderNav();
+    });
+    grp.appendChild(lbl);
+
+    const itemsWrap = el('div', 'nav-group-items');
+    items.forEach(it => {
+      const a = el('button', 'nav-item' + (state.active === it.id ? ' active' : ''));
+      a.type = 'button';
+      a.style.cssText = 'background:transparent; border:0; width:100%; text-align:left; cursor:pointer; font: inherit;';
+      a.innerHTML = `
+        <i class="${it.icon}"></i>
+        <span>${it.label}</span>
+        ${it.badge != null ? `<span class="nav-badge ${it.urgent ? 'urgent' : ''}">${it.badge}</span>`
+          : it.dot ? `<span class="nav-dot" title="Action needed"></span>` : ''}
+      `;
+      a.addEventListener('click', () => {
+        state.active = it.id;
+        renderNav();
+        $('#pageTitle').textContent = it.label;
+      });
+      itemsWrap.appendChild(a);
+    });
+    grp.appendChild(itemsWrap);
+    root.appendChild(grp);
+  });
+}
+
+function renderHome() {
+  const o = currentOrg();
+  const r = currentRole();
+  $('#greetingLine').textContent = `${greetingFor()}, Kevin`;
+  $('#greetingSub').textContent = subFor(r, o);
+  $('#bannerRole').textContent = r.label.toUpperCase();
+  $('#bannerOrg').textContent  = o.name;
+
+  const grid = $('#homeGrid');
+  grid.innerHTML = '';
+  kpisFor(r, o).forEach(k => {
+    const c = el('div', 'card');
+    c.innerHTML = `<div class="card-title">${k.label}</div><div class="card-value">${k.value}</div><div class="delta ${k.tone || 'muted'}">${k.delta}</div>`;
+    grid.appendChild(c);
+  });
+
+  const list = $('#focusList');
+  list.innerHTML = '';
+  focusFor(r).forEach(f => {
+    const li = el('li');
+    li.innerHTML = `
+      <span class="ic" style="background:${f.bg};color:${f.fg};"><i class="${f.icon}"></i></span>
+      <div><div class="ti">${f.ti}</div><div class="sb">${f.sb}</div></div>
+      <span class="when">${f.when}</span>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function greetingFor() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
+
+function subFor(r, o) {
+  switch (r.id) {
+    case 'follow_up_agent':   return `4 prospects need a follow-up today at ${o.name}.`;
+    case 'sales_agent':       return `You have 3 hot prospects and 2 viewings scheduled this week.`;
+    case 'follow_up_manager': return `Your team is tracking ${o.prospects} active prospects, with 7 docs overdue.`;
+    case 'sales_manager':     return `Pipeline coverage at ${o.name}: ${o.prospects} prospects · ${o.listings} listings.`;
+    case 'finance_manager':   return `${o.loans} active loans · 3 transactions need your review.`;
+    default:                  return `Here's what's happening across ${o.name}.`;
+  }
+}
+
+function kpisFor(r, o) {
+  switch (r.id) {
+    case 'follow_up_agent': return [
+      { label: 'My open tasks',     value: '12',  delta: '4 due today',     tone: 'warn' },
+      { label: 'Docs to collect',   value: '7',   delta: '2 overdue',       tone: 'warn' },
+      { label: 'Calls logged · wk', value: '23',  delta: '+18% vs last',    tone: 'up' }
+    ];
+    case 'sales_agent': return [
+      { label: 'Active prospects',  value: '14',  delta: '3 hot leads',     tone: 'up' },
+      { label: 'Listings shared',   value: '9',   delta: 'this week',       tone: 'muted' },
+      { label: 'Conversion · 30d',  value: '24%', delta: '+3pt MoM',        tone: 'up' }
+    ];
+    case 'follow_up_manager': return [
+      { label: 'Team prospects',    value: o.prospects, delta: '12 stalled > 7d', tone: 'warn' },
+      { label: 'Docs queue',        value: '34',  delta: '7 overdue',       tone: 'warn' },
+      { label: 'SLA · response',    value: '2.1h',delta: '−18min',          tone: 'up' }
+    ];
+    case 'sales_manager': return [
+      { label: 'Pipeline value',    value: '₵ 4.2M', delta: '+12% MoM',     tone: 'up' },
+      { label: 'Active listings',   value: o.listings, delta: '6 new this week', tone: 'up' },
+      { label: 'Team conversion',   value: '31%', delta: '+4pt',            tone: 'up' }
+    ];
+    case 'finance_manager': return [
+      { label: 'Active loans',      value: o.loans,  delta: '+4 this week', tone: 'up' },
+      { label: 'Collected · MTD',   value: '₵ 312k', delta: 'on target',    tone: 'muted' },
+      { label: 'Review queue',      value: '3',      delta: 'needs action', tone: 'warn' }
+    ];
+    default: return [
+      { label: 'Total customers',   value: o.customers, delta: '+12 this week',     tone: 'up' },
+      { label: 'Active listings',   value: o.listings,  delta: 'across all teams',  tone: 'muted' },
+      { label: 'MTD revenue',       value: '₵ 412k',    delta: '+9% vs target',     tone: 'up' }
+    ];
+  }
+}
+
+function focusFor(r) {
+  const FU  = { bg:'var(--color-blue-50, #ecfeff)',    fg:'var(--color-blue-700, #0e7490)' };
+  const SAL = { bg:'var(--color-warning-50)',          fg:'var(--color-warning-700)' };
+  const FIN = { bg:'var(--color-success-50)',          fg:'var(--color-success-700)' };
+  const ADM = { bg:'var(--color-brand-50)',            fg:'var(--color-brand-700)' };
+  switch (r.id) {
+    case 'follow_up_agent': return [
+      { ti: 'Call Joseph Mensah re: pay stubs',  sb: '2 days overdue',         when: 'Now',   icon: 'ri-phone-line', ...FU },
+      { ti: 'Confirm site visit with Akosua O.', sb: 'Thu, May 14 · 2 PM',     when: 'Today', icon: 'ri-calendar-event-line', ...FU },
+      { ti: 'Send proof-of-income reminder · 3', sb: 'Esi, Kwame, Adwoa',      when: 'Today', icon: 'ri-mail-send-line', ...FU }
+    ];
+    case 'sales_agent': return [
+      { ti: 'Send revised proposal v2',          sb: 'Joseph & spouse',        when: 'Today', icon: 'ri-file-text-line', ...SAL },
+      { ti: 'Follow-up call · Akosua O.',        sb: 'After viewing on Thu',   when: 'Fri',   icon: 'ri-phone-line', ...SAL },
+      { ti: 'Share 3 new listings · East Legon', sb: 'To 5 hot prospects',     when: 'Today', icon: 'ri-share-forward-line', ...SAL }
+    ];
+    case 'follow_up_manager': return [
+      { ti: 'Review docs queue (34 items, 7 overdue)', sb: 'Reassign or escalate', when: 'Now',   icon: 'ri-folder-warning-line', ...FU },
+      { ti: 'Stalled prospects review · 12',           sb: 'No activity > 7 days', when: 'Today', icon: 'ri-user-unfollow-line', ...FU },
+      { ti: 'Team standup notes',                      sb: '4 agents · Tue 9:30', when: 'Tue',   icon: 'ri-team-line', ...FU }
+    ];
+    case 'sales_manager': return [
+      { ti: 'Approve 6 new listings',     sb: 'East Legon · Spintex',           when: 'Today', icon: 'ri-stack-line', ...SAL },
+      { ti: 'Pipeline review · weekly',   sb: '4 agents · ₵4.2M',               when: 'Fri',   icon: 'ri-line-chart-line', ...SAL },
+      { ti: 'Esi Asare 1:1',              sb: 'Performance review',             when: 'Wed',   icon: 'ri-user-voice-line', ...SAL }
+    ];
+    case 'finance_manager': return [
+      { ti: 'Review 3 mismatched transactions', sb: 'Payment review queue',     when: 'Now',   icon: 'ri-shield-check-line', ...FIN },
+      { ti: 'Approve loan payoff · Adwoa B.',   sb: 'Loan #L-00214',            when: 'Today', icon: 'ri-bank-line', ...FIN },
+      { ti: 'Reconcile bank import',            sb: 'GCB · 142 lines',          when: 'Today', icon: 'ri-upload-cloud-2-line', ...FIN }
+    ];
+    default: return [
+      { ti: 'Approve new manager invite',  sb: 'Sarah Nyong → Sales mgr',       when: 'Today',  icon: 'ri-shield-user-line', ...ADM },
+      { ti: 'Review monthly billing',      sb: 'Growth plan · 28 seats',        when: 'May 15', icon: 'ri-bank-card-line', ...ADM },
+      { ti: 'Audit: 4 permission changes', sb: 'Last 7 days',                   when: 'Today',  icon: 'ri-file-list-3-line', ...ADM }
+    ];
+  }
+}
+
+function setRole(roleId) {
+  state.roleId = roleId;
+  const flat = NAV.flatMap(s => s.items);
+  const cur = flat.find(i => i.id === state.active);
+  if (!cur || !cur.roles.includes(roleId)) state.active = 'home';
+  renderUser(); renderNav(); renderHome();
+}
+
+function setOrg(orgId) {
+  state.orgId = orgId;
+  renderOrgPill(); renderHome();
+}
+
+/* ============================================================
+   POPOVER PLACEMENT + DISMISS
+   ============================================================ */
+function placeNear(pop, anchor, side='right') {
+  const r = anchor.getBoundingClientRect();
+  document.body.appendChild(pop);
+  const pr = pop.getBoundingClientRect();
+  const margin = 8;
+  let top, left;
+  if (side === 'right')         { top = r.top;                 left = r.right + margin; }
+  else if (side === 'top-right'){ top = r.top - pr.height - margin; left = r.right + margin; }
+  else if (side === 'above')    { top = r.top - pr.height - margin; left = r.left; }
+  else if (side === 'above-right'){top = r.top - pr.height - margin; left = r.right - pr.width; }
+  else                          { top = r.bottom + margin;     left = r.left; }
+  top  = Math.max(8, Math.min(top,  window.innerHeight - pr.height - 8));
+  left = Math.max(8, Math.min(left, window.innerWidth  - pr.width  - 8));
+  pop.style.top = top + 'px';
+  pop.style.left = left + 'px';
+}
+
+function withDismiss(pop, anchor) {
+  setTimeout(() => {
+    function onDoc(e) {
+      if (!pop.contains(e.target) && !(anchor && anchor.contains(e.target))) {
+        pop.remove();
+        document.removeEventListener('mousedown', onDoc);
+        document.removeEventListener('keydown', onKey);
+        if (anchor) anchor.setAttribute('aria-expanded', 'false');
+      }
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        pop.remove();
+        document.removeEventListener('mousedown', onDoc);
+        document.removeEventListener('keydown', onKey);
+        if (anchor) anchor.setAttribute('aria-expanded', 'false');
+      }
+    }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+  }, 0);
+}
+
+/* ============================================================
+   MENUS
+   ============================================================ */
+function openOrgSwitcher() {
+  closeAllPops();
+  const anchor = $('#orgSwitcher');
+  anchor.setAttribute('aria-expanded', 'true');
+  const pop = el('div', 'menu-pop');
+  pop.style.minWidth = '280px';
+  pop.appendChild(el('div', 'mp-section', 'Organizations'));
+  ORGS.forEach(o => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mp-org';
+    if (o.id === state.orgId) b.setAttribute('aria-current', 'true');
+    b.innerHTML = `
+      <span class="lg" style="background:${o.color};">${o.short}</span>
+      <span class="meta" style="line-height:1.2; min-width:0;">
+        <span class="nm">${o.name}</span>
+        <span class="pl">${o.plan}</span>
+      </span>
+      <i class="ri-check-line check"></i>
+    `;
+    b.addEventListener('click', () => { setOrg(o.id); pop.remove(); });
+    pop.appendChild(b);
+  });
+  pop.appendChild(el('div', 'sep'));
+  const create = el('button', 'mp-item', `<i class="lead ri-add-line"></i><span>Create new organization</span><i class="ri-check-line check"></i>`);
+  create.type = 'button';
+  create.addEventListener('click', () => { toast('Create new organization'); pop.remove(); });
+  pop.appendChild(create);
+  const settings = el('button', 'mp-item', `<i class="lead ri-settings-3-line"></i><span>Organization settings</span><i class="ri-check-line check"></i>`);
+  settings.type = 'button';
+  settings.addEventListener('click', () => { toast('Organization settings'); pop.remove(); });
+  pop.appendChild(settings);
+
+  placeNear(pop, anchor, 'right');
+  withDismiss(pop, anchor);
+}
+
+function openQuickAdd() {
+  closeAllPops();
+  const anchor = $('#quickAddBtn');
+  const pop = el('div', 'menu-pop');
+  pop.style.minWidth = '230px';
+  const role = state.roleId;
+  const items = [
+    { id: 'prospect', label: 'New prospect',     icon: 'ri-user-add-line',       roles: ['follow_up_agent','sales_agent','follow_up_manager','sales_manager','admin'] },
+    { id: 'meeting',  label: 'Schedule meeting', icon: 'ri-calendar-event-line', roles: ALL },
+    { id: 'note',     label: 'New note',         icon: 'ri-sticky-note-line',    roles: ALL },
+    { id: 'task',     label: 'New task',         icon: 'ri-task-line',           roles: ALL },
+    { id: 'request',  label: 'Request document', icon: 'ri-file-text-line',      roles: ['follow_up_agent','follow_up_manager','admin'] },
+    { id: 'listing',  label: 'New listing',      icon: 'ri-stack-line',          roles: ['sales_manager','admin'] },
+    { id: 'loan',     label: 'New loan',         icon: 'ri-bank-line',           roles: ['finance_manager','admin'] },
+    { id: 'invite',   label: 'Invite teammate',  icon: 'ri-user-shared-line',    roles: ['follow_up_manager','sales_manager','finance_manager','admin'] }
+  ];
+  items.filter(i => i.roles.includes(role)).forEach(i => {
+    const b = el('button', 'mp-item', `<i class="lead ${i.icon}"></i><span>${i.label}</span><i class="ri-check-line check"></i>`);
+    b.type = 'button';
+    b.addEventListener('click', () => { toast(`${i.label} dialog`); pop.remove(); });
+    pop.appendChild(b);
+  });
+  placeNear(pop, anchor, 'below');
+  pop.style.top  = (anchor.getBoundingClientRect().bottom + 8) + 'px';
+  pop.style.left = Math.max(8, anchor.getBoundingClientRect().right - pop.getBoundingClientRect().width) + 'px';
+  withDismiss(pop, anchor);
+}
+
+function openSettingsMenu() {
+  closeAllPops();
+  const anchor = $('#settingsBtn');
+  const pop = el('div', 'menu-pop');
+  pop.style.minWidth = '260px';
+  const role = state.roleId;
+  SETTINGS_MENU.forEach((grp, gi) => {
+    const visible = grp.items.filter(i => i.roles.includes(role));
+    if (!visible.length) return;
+    if (gi > 0) pop.appendChild(el('div', 'sep'));
+    pop.appendChild(el('div', 'mp-section', grp.group));
+    visible.forEach(i => {
+      const b = el('button', 'mp-item', `<i class="lead ${i.icon}"></i><span>${i.label}</span><i class="ri-check-line check"></i>`);
+      b.type = 'button';
+      b.addEventListener('click', () => { toast(i.label); pop.remove(); });
+      pop.appendChild(b);
+    });
+  });
+  placeNear(pop, anchor, 'above');
+  withDismiss(pop, anchor);
+}
+
+function openUserMenu() {
+  closeAllPops();
+  const anchor = $('#userMenuBtn');
+  const pop = el('div', 'menu-pop');
+  pop.style.minWidth = '300px';
+
+  const r = currentRole();
+  const head = el('div', 'mp-head');
+  head.innerHTML = `
+    <div class="nm">Kevin Manga</div>
+    <div class="em">kevin@${currentOrg().id}.com</div>
+    <span class="tag" data-dept="${r.dept}">${r.label}</span>
+  `;
+  pop.appendChild(head);
+  pop.appendChild(el('div', 'sep'));
+
+  pop.appendChild(el('div', 'mp-section', 'Status'));
+  const presences = [
+    { id: 'online',    label: 'Online',         color: '#10b981' },
+    { id: 'away',      label: 'Away',           color: '#f59e0b' },
+    { id: 'busy',      label: 'Do not disturb', color: '#ef4444' },
+    { id: 'invisible', label: 'Invisible',      color: '#94a3b8' },
+    { id: 'offline',   label: 'Appear offline', color: '#cbd5e1' }
+  ];
+  presences.forEach(p => {
+    const b = el('button', 'mp-item');
+    b.type = 'button';
+    if (state.presence === p.id) b.setAttribute('aria-current', 'true');
+    b.innerHTML = `<span class="pres-dot" style="background:${p.color};"></span><span>${p.label}</span><i class="ri-check-line check"></i>`;
+    b.addEventListener('click', () => { state.presence = p.id; renderUser(); pop.remove(); openUserMenu(); });
+    pop.appendChild(b);
+  });
+
+  pop.appendChild(el('div', 'sep'));
+
+  pop.appendChild(el('div', 'mp-section', 'Switch role · demo'));
+  ROLES.forEach(role => {
+    const b = el('button', 'mp-role');
+    b.type = 'button';
+    if (state.roleId === role.id) b.setAttribute('aria-current', 'true');
+    b.innerHTML = `
+      <i class="lead ${roleIcon(role)}"></i>
+      <div>
+        <div class="nm">${role.label}</div>
+        <div class="desc">${role.desc}</div>
+      </div>
+      <i class="ri-check-line check"></i>
+    `;
+    b.addEventListener('click', () => { setRole(role.id); pop.remove(); });
+    pop.appendChild(b);
+  });
+
+  pop.appendChild(el('div', 'sep'));
+
+  [['Profile settings','ri-user-line'], ['Keyboard shortcuts','ri-keyboard-line'], ['Switch organization','ri-building-2-line']]
+    .forEach(([label, ic]) => {
+      const b = el('button', 'mp-item', `<i class="lead ${ic}"></i><span>${label}</span><i class="ri-check-line check"></i>`);
+      b.type = 'button';
+      b.addEventListener('click', () => {
+        if (label === 'Switch organization') { pop.remove(); openOrgSwitcher(); return; }
+        toast(label); pop.remove();
+      });
+      pop.appendChild(b);
+    });
+
+  pop.appendChild(el('div', 'sep'));
+
+  const out = el('button', 'mp-item');
+  out.type = 'button';
+  out.innerHTML = `<i class="lead ri-logout-circle-r-line" style="color:var(--color-error-600, #dc2626);"></i><span style="color:var(--color-error-600, #dc2626);">Sign out</span><i class="ri-check-line check"></i>`;
+  out.addEventListener('click', () => { toast('Signing out…'); pop.remove(); });
+  pop.appendChild(out);
+
+  placeNear(pop, anchor, 'above-right');
+  withDismiss(pop, anchor);
+}
+
+function roleIcon(role) {
+  switch (role.dept) {
+    case 'follow_up': return 'ri-user-voice-line';
+    case 'sales':     return 'ri-user-star-line';
+    case 'finance':   return 'ri-bank-line';
+    default:          return 'ri-vip-crown-line';
+  }
+}
+
+/* ============================================================
+   NOTIFICATIONS
+   ============================================================ */
+function openNotifications() {
+  closeAllPops();
+  const anchor = $('#ntBtn');
+  const pop = el('div', 'nt-panel');
+  pop.innerHTML = `
+    <div class="nt-head">
+      <span class="ti">Notifications</span>
+      <button class="clear" type="button">Mark all as read</button>
+    </div>
+    <div class="nt-tabs">
+      <button class="nt-tab ${state.ntFilter==='all'?'on':''}" data-f="all">All</button>
+      <button class="nt-tab ${state.ntFilter==='unread'?'on':''}" data-f="unread">Unread</button>
+    </div>
+    <div class="nt-list" id="ntList"></div>
+  `;
+  document.body.appendChild(pop);
+  const r = anchor.getBoundingClientRect();
+  pop.style.left = (r.right + 8) + 'px';
+  pop.style.top  = Math.max(8, r.bottom - 480) + 'px';
+
+  const list = pop.querySelector('#ntList');
+  const renderList = () => {
+    list.innerHTML = '';
+    const items = NOTIFICATIONS.filter(n => state.ntFilter === 'all' || n.unread);
+    if (!items.length) {
+      list.innerHTML = `<div class="nt-empty"><i class="ri-checkbox-circle-line"></i>You're all caught up.</div>`;
+      return;
+    }
+    items.forEach(n => {
+      const r = el('div', 'nt-item' + (n.unread ? ' unread' : ''));
+      r.innerHTML = `
+        <span class="ic" data-tone="${n.tone}"><i class="${n.icon}"></i></span>
+        <div class="body">
+          <div class="ti">${n.ti}</div>
+          <div class="sb">${n.sb}</div>
+        </div>
+        <span class="ts">${n.ts}</span>
+      `;
+      r.addEventListener('click', () => { n.unread = false; updateNtBadge(); renderList(); });
+      list.appendChild(r);
+    });
+  };
+  renderList();
+  pop.querySelectorAll('.nt-tab').forEach(t => t.addEventListener('click', () => {
+    state.ntFilter = t.dataset.f;
+    pop.querySelectorAll('.nt-tab').forEach(x => x.classList.toggle('on', x.dataset.f === state.ntFilter));
+    renderList();
+  }));
+  pop.querySelector('.clear').addEventListener('click', () => {
+    NOTIFICATIONS.forEach(n => n.unread = false);
+    updateNtBadge(); renderList();
+  });
+  withDismiss(pop, anchor);
+}
+
+function updateNtBadge() {
+  const n = NOTIFICATIONS.filter(x => x.unread).length;
+  const b = $('#ntBadge');
+  if (n === 0) { b.style.display = 'none'; }
+  else { b.style.display = ''; b.textContent = String(n); }
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg) {
+  const t = el('div', '', msg);
+  Object.assign(t.style, {
+    position: 'fixed', left: '50%', bottom: '24px', transform: 'translateX(-50%) translateY(20px)',
+    background: 'var(--color-grey-900, #0f172a)', color: 'white', padding: '8px 14px', borderRadius: '8px',
+    font: '500 13px var(--font-sans)', zIndex: 9999, opacity: '0', transition: 'all .18s ease', boxShadow: '0 8px 24px rgba(0,0,0,.18)'
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; setTimeout(() => t.remove(), 200); }, 1800);
+}
+
+/* ============================================================
+   WIRE
+   ============================================================ */
+$('#orgSwitcher').addEventListener('click', openOrgSwitcher);
+$('#quickAddBtn').addEventListener('click', openQuickAdd);
+$('#userMenuBtn').addEventListener('click', openUserMenu);
+$('#ntBtn').addEventListener('click', openNotifications);
+$('#settingsBtn').addEventListener('click', openSettingsMenu);
+$('#helpBtn').addEventListener('click', () => toast('Help center'));
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    $('#globalSearch').focus();
+  }
+});
+
+renderOrgPill();
+renderUser();
+renderNav();
+renderHome();
+updateNtBadge();
+</script>
+
+</body>
+</html>

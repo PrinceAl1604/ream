@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Activity templates</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="row-actions.css" />
+<link rel="stylesheet" href="_detail.css" />
+<style>
+  /* ===== Activity-template list specifics ===== */
+  .at-table td { vertical-align: middle; }
+  .at-name-cell { display: flex; flex-direction: column; gap: 3px; }
+  .at-name-cell .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); display: flex; align-items: center; gap: 6px; }
+  .at-name-cell .sb { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+
+  .at-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 10.5px var(--font-sans); padding: 2px 8px; border-radius: 999px;
+    border: 1px solid transparent; line-height: 1.4;
+  }
+  .at-pill.active   { background: var(--color-success-50); color: var(--color-success-800); border-color: var(--color-success-200); }
+  .at-pill.draft    { background: var(--color-warning-50); color: var(--color-warning-800); border-color: var(--color-warning-200); }
+  .at-pill.archived { background: var(--color-grey-100); color: var(--color-grey-700); border-color: var(--color-grey-200); }
+
+  /* Audience chips reuse t-sales / t-followup / t-finance from team-shared.css */
+  .at-aud-stack { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+
+  /* Activities count cell: split mandatory / optional */
+  .at-count {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 600 12.5px var(--font-sans); color: var(--color-grey-900);
+    font-variant-numeric: tabular-nums;
+  }
+  .at-count .mand { display: inline-flex; align-items: center; gap: 4px; color: var(--color-error-700); }
+  .at-count .opt  { display: inline-flex; align-items: center; gap: 4px; color: var(--fg3); font-weight: 500; }
+  .at-count .sep { color: var(--color-grey-300); font-weight: 400; }
+
+  /* Compliance bar */
+  .at-comp {
+    display: flex; align-items: center; gap: 8px;
+    font: 600 12px var(--font-sans); color: var(--color-grey-900);
+    font-variant-numeric: tabular-nums;
+  }
+  .at-comp .bar {
+    flex: 1; max-width: 96px; height: 6px; border-radius: 3px;
+    background: var(--color-grey-100); overflow: hidden; position: relative;
+  }
+  .at-comp .bar > span { display: block; height: 100%; border-radius: 3px; }
+  .at-comp.is-good   .bar > span { background: var(--color-success-500); }
+  .at-comp.is-warn   .bar > span { background: var(--color-warning-500); }
+  .at-comp.is-bad    .bar > span { background: var(--color-error-500); }
+  .at-comp.is-good   .lbl { color: var(--color-success-800); }
+  .at-comp.is-warn   .lbl { color: var(--color-warning-800); }
+  .at-comp.is-bad    .lbl { color: var(--color-error-800); }
+  .at-comp .sub { color: var(--fg3); font-weight: 500; font-size: 11px; }
+
+  /* "How KPIs are derived" callout */
+  .kpi-derive {
+    display: flex; gap: 16px; align-items: stretch;
+    background: linear-gradient(180deg, var(--color-brand-25, #faf7ff) 0%, #fff 100%);
+    border: 1px solid var(--color-brand-100);
+    border-radius: 12px; padding: 14px 16px;
+  }
+  .kpi-derive .ic {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .kpi-derive .body { flex: 1; min-width: 0; }
+  .kpi-derive .body h3 {
+    margin: 0 0 4px;
+    font: 600 13.5px var(--font-sans); color: var(--color-grey-900);
+  }
+  .kpi-derive .body p {
+    margin: 0; font: 500 12.5px var(--font-sans); color: var(--fg2); line-height: 1.5;
+  }
+  .kpi-derive .body code {
+    font: 600 12px var(--font-mono, ui-monospace, monospace);
+    background: var(--color-brand-50); color: var(--color-brand-800);
+    padding: 1px 6px; border-radius: 4px;
+  }
+  .kpi-derive .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  /* New-template dialog */
+  .at-dialog .body .section-h {
+    font: 600 11px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: .04em;
+    border-top: 1px solid var(--color-grey-100);
+    padding-top: 14px; margin-top: 4px;
+  }
+  .at-dialog .body .section-h:first-child { border-top: 0; padding-top: 0; }
+  .at-dialog-lg { width: min(720px, 100%) !important; }
+
+  /* Audience picker */
+  .aud-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+  .aud-pick {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 12px var(--font-sans); color: var(--color-grey-800);
+    padding: 8px 12px; border-radius: 8px;
+    border: 1.5px solid var(--color-grey-200); background: #fff;
+    cursor: pointer; user-select: none;
+  }
+  .aud-pick i { font-size: 13px; color: var(--fg3); }
+  .aud-pick:hover { border-color: var(--color-grey-300); }
+  .aud-pick.on { background: var(--color-brand-50); border-color: var(--color-brand-400); color: var(--color-brand-800); }
+  .aud-pick.on i { color: var(--color-brand-600); }
+
+  /* Activity quick-add list inside dialog */
+  .act-list {
+    display: flex; flex-direction: column; gap: 6px;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 10px; padding: 6px;
+    background: var(--color-grey-25);
+  }
+  .act-row {
+    display: grid;
+    grid-template-columns: 22px 1fr 110px 100px 28px;
+    gap: 8px; align-items: center;
+    padding: 6px 8px; border-radius: 6px;
+    background: #fff;
+    border: 1px solid var(--color-grey-100);
+  }
+  .act-row .drag { color: var(--fg4); cursor: grab; font-size: 14px; text-align: center; }
+  .act-row input[type="text"] {
+    border: 0; background: transparent; padding: 4px 0;
+    font: 500 13px var(--font-sans); color: var(--color-grey-900);
+    outline: none;
+  }
+  .act-row input[type="text"]:focus { background: var(--color-grey-25); padding: 4px 6px; border-radius: 4px; }
+  .act-row select, .act-row input[type="number"] {
+    border: 1px solid var(--color-grey-200); background: #fff;
+    border-radius: 6px; padding: 4px 6px;
+    font: 500 12px var(--font-sans); color: var(--color-grey-900);
+    width: 100%;
+  }
+  .act-row .mand-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 10.5px var(--font-sans);
+    padding: 3px 7px; border-radius: 999px;
+    cursor: pointer; user-select: none;
+    border: 1px solid var(--color-grey-200); background: #fff; color: var(--fg3);
+  }
+  .act-row .mand-toggle.on {
+    background: var(--color-error-50); color: var(--color-error-800); border-color: var(--color-error-200);
+  }
+  .act-row .x-btn {
+    width: 24px; height: 24px;
+    border-radius: 6px; border: 0; background: transparent; color: var(--fg4);
+    cursor: pointer;
+  }
+  .act-row .x-btn:hover { background: var(--color-error-50); color: var(--color-error-700); }
+  .act-add {
+    display: flex; align-items: center; gap: 6px;
+    font: 600 12.5px var(--font-sans); color: var(--color-brand-700);
+    background: transparent; border: 1px dashed var(--color-grey-300);
+    padding: 8px; border-radius: 6px; cursor: pointer;
+  }
+  .act-add:hover { background: var(--color-brand-50); border-color: var(--color-brand-300); }
+
+  /* Toast */
+  .toast-stack {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    background: var(--color-grey-900); color: white;
+    padding: 10px 16px; border-radius: 8px; font: 500 13px var(--font-sans);
+    box-shadow: 0 12px 28px rgba(15,23,42,.25);
+    pointer-events: auto;
+    animation: toastIn .25s ease, toastOut .25s ease 3.5s forwards;
+  }
+  @keyframes toastIn { from { opacity:0; transform: translateY(8px); } }
+  @keyframes toastOut { to { opacity:0; transform: translateY(8px); } }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/activity-templates</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <!-- =========== SIDEBAR =========== -->
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-sub">Dallas, TX</span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+          <a class="nav-item" href="reports.html"><i class="ri-bar-chart-line"></i> Reports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Team</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="agents.html"><i class="ri-user-star-line"></i> Agents <span class="nav-badge">14</span></a>
+          <a class="nav-item" href="managers.html"><i class="ri-shield-user-line"></i> Managers</a>
+          <a class="nav-item active" href="activity-templates.html"><i class="ri-list-check-3"></i> Activity templates <span class="nav-badge">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-list-3-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="org-settings.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <!-- =========== MAIN =========== -->
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Team</span>
+          <span class="sep">/</span>
+          <span class="current">Activity templates</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search templates by name, audience, activity…" id="searchTpl" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px;">
+          <div>
+            <h1 class="page-title">Activity templates</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:680px;">
+              Reusable daily checklists managers assign to agents — group activities into a collection,
+              mark which are <strong>mandatory</strong> vs optional, and Ream will derive each agent's
+              daily KPIs from the completion record automatically.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-primary" id="btnNewTpl"><i class="ri-add-line"></i> New template</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="team-kpis">
+          <div class="card">
+            <div class="card-title">Active templates</div>
+            <div class="card-value">7</div>
+            <div class="delta muted">across 3 audiences</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Agents covered</div>
+            <div class="card-value">14<span style="font-size:14px; color:var(--fg3); font-weight:500;"> / 14</span></div>
+            <div class="delta up">100% have a template</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Today's mandatory completion</div>
+            <div class="card-value" style="color: var(--color-success-700);">82%</div>
+            <div class="delta up">+6pt vs yesterday</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Agents at risk · today</div>
+            <div class="card-value" style="color: var(--color-warning-700);">3</div>
+            <div class="delta muted">&lt;50% of mandatory done</div>
+          </div>
+        </div>
+
+        <!-- Why this matters -->
+        <div class="kpi-derive">
+          <div class="ic"><i class="ri-bar-chart-box-line"></i></div>
+          <div class="body">
+            <h3>How daily KPIs are derived</h3>
+            <p>
+              Every completed activity in a template increments a counter on the assigned agent.
+              Mandatory activities count toward the <code>complete-day</code> rate;
+              count-based activities feed numeric KPIs (e.g. <code>calls/day</code>, <code>visits/day</code>);
+              optional activities surface as <em>bonus</em> productivity. KPIs roll up to managers and
+              org dashboards in real time — no extra logging needed.
+            </p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-text" href="reports.html"><i class="ri-line-chart-line"></i> View KPI report</a>
+          </div>
+        </div>
+
+        <!-- Status tabs -->
+        <div class="type-tabs" role="tablist" id="typeTabs">
+          <button class="type-tab active" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">9</span></button>
+          <button class="type-tab" data-type="ACTIVE"><span class="at-pill active" style="font-size:9px; padding:1px 6px;">Active</span> <span class="cnt">7</span></button>
+          <button class="type-tab" data-type="DRAFT"><span class="at-pill draft" style="font-size:9px; padding:1px 6px;">Draft</span> <span class="cnt">1</span></button>
+          <button class="type-tab" data-type="ARCHIVED"><span class="at-pill archived" style="font-size:9px; padding:1px 6px;">Archived</span> <span class="cnt">1</span></button>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-secondary btn-sm">Audience: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Region: Any ▾</button>
+          <button class="btn btn-secondary btn-sm">Compliance: Any ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <div style="flex:1;"></div>
+          <span style="font-size:12px; color: var(--fg3);"><span id="visibleCount">9</span> templates</span>
+        </div>
+
+        <!-- Templates table -->
+        <div>
+          <table class="table at-table">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>Template</th>
+                <th>Audience</th>
+                <th>Status</th>
+                <th>Activities</th>
+                <th>Assigned</th>
+                <th>Today's compliance</th>
+                <th>Updated</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tplRows">
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-001">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Sales · Daily Outreach <span class="at-pill active" style="margin-left:4px; font-size:9.5px; padding:1px 6px;"><i class="ri-star-fill"></i> Default</span></div>
+                    <div class="sb">Calls, listing shares, and prospect entry — required for SALES agents</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 5</span><span class="sep">·</span><span class="opt">2 optional</span></span></td>
+                <td><strong>6</strong> agents</td>
+                <td><div class="at-comp is-good"><div class="bar"><span style="width:91%;"></span></div><span class="lbl">91%</span><span class="sub">5/6 on track</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 8 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-002">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Follow-up · Stale Lead Recovery</div>
+                    <div class="sb">Re-engage prospects idle &gt;7d · doc-collection follow-ups</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 4</span><span class="sep">·</span><span class="opt">1 optional</span></span></td>
+                <td><strong>5</strong> agents</td>
+                <td><div class="at-comp is-warn"><div class="bar"><span style="width:74%;"></span></div><span class="lbl">74%</span><span class="sub">3/5 on track</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 5 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-003">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Finance · Collections Daily</div>
+                    <div class="sb">Collection calls, payment review, reminder messages</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-finance"><i class="ri-bank-card-line"></i> Finance</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 6</span><span class="sep">·</span><span class="opt">0 optional</span></span></td>
+                <td><strong>3</strong> agents</td>
+                <td><div class="at-comp is-good"><div class="bar"><span style="width:88%;"></span></div><span class="lbl">88%</span><span class="sub">3/3 on track</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 7 · Aïssa</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-004">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Sales · Site Visit Heavy</div>
+                    <div class="sb">High-touch listing-tour week — for senior sales agents</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 3</span><span class="sep">·</span><span class="opt">3 optional</span></span></td>
+                <td><strong>2</strong> agents</td>
+                <td><div class="at-comp is-good"><div class="bar"><span style="width:100%;"></span></div><span class="lbl">100%</span><span class="sub">2/2 on track</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 1 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-005">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Onboarding · First 14 Days</div>
+                    <div class="sb">Auto-applies to new agents · graduates them to a regular template</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="at-aud-stack">
+                    <span class="type-chip t-sales" style="font-size:9.5px; padding:1px 6px;">Sales</span>
+                    <span class="type-chip t-followup" style="font-size:9.5px; padding:1px 6px;">Follow-up</span>
+                    <span class="type-chip t-finance" style="font-size:9.5px; padding:1px 6px;">Finance</span>
+                  </div>
+                </td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 8</span><span class="sep">·</span><span class="opt">2 optional</span></span></td>
+                <td><strong>1</strong> agent</td>
+                <td><div class="at-comp is-warn"><div class="bar"><span style="width:62%;"></span></div><span class="lbl">62%</span><span class="sub">Diane · day 4</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">Apr 28 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-006">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Follow-up · Document Chase</div>
+                    <div class="sb">Drives down the doc-request backlog · time-bounded</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 3</span><span class="sep">·</span><span class="opt">1 optional</span></span></td>
+                <td><strong>2</strong> agents</td>
+                <td><div class="at-comp is-bad"><div class="bar"><span style="width:38%;"></span></div><span class="lbl">38%</span><span class="sub">0/2 on track</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">Apr 24 · Marie</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ACTIVE" data-id="AT-007">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Manager · Weekly Review</div>
+                    <div class="sb">Manager-only checklist · runs Monday + Friday</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-finance"><i class="ri-shield-user-line"></i> Manager</span></td>
+                <td><span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 4</span><span class="sep">·</span><span class="opt">1 optional</span></span></td>
+                <td><strong>3</strong> managers</td>
+                <td><div class="at-comp is-good"><div class="bar"><span style="width:100%;"></span></div><span class="lbl">100%</span><span class="sub">3/3 done today</span></div></td>
+                <td><span style="color:var(--fg3); font-size:12px;">Apr 18 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="DRAFT" data-id="AT-008">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti">Sales · Inbound-only</div>
+                    <div class="sb">Lighter version for the call-center pilot · pending Marie's review</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td><span class="at-pill draft"><i class="ri-edit-line"></i> Draft</span></td>
+                <td><span class="at-count"><span class="mand"><i class="ri-asterisk"></i> 3</span><span class="sep">·</span><span class="opt">2 optional</span></span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">— not assigned</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">—</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">May 9 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <tr class="row-link" data-type="ARCHIVED" data-id="AT-LEG">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td>
+                  <div class="at-name-cell">
+                    <div class="ti" style="color:var(--fg3);">Legacy Daily Checklist</div>
+                    <div class="sb">Replaced by audience-specific templates in Mar 2026</div>
+                  </div>
+                </td>
+                <td><span class="type-chip t-sales" style="opacity:.6;">Mixed</span></td>
+                <td><span class="at-pill archived"><i class="ri-archive-line"></i> Archived</span></td>
+                <td><span class="at-count" style="opacity:.6;"><span class="mand"><i class="ri-asterisk"></i> 12</span><span class="sep">·</span><span class="opt">0 optional</span></span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">— retired</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">—</span></td>
+                <td><span style="color:var(--fg3); font-size:12px;">Mar 03 · Kevin</span></td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div>Rows per page <strong>20 ▾</strong></div>
+            <div class="pager">
+              <span>Page 1 of 1</span>
+              <button class="icon-btn"><i class="ri-arrow-left-double-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-left-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-double-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+     CREATE TEMPLATE DIALOG
+     ============================================================ -->
+<div class="dt-overlay at-dialog" id="atDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog at-dialog-lg">
+    <header>
+      <i class="ri-list-check-3" style="color: var(--color-brand-600); font-size: 18px;"></i>
+      <h3 id="atDialogTitle">New activity template</h3>
+      <button class="x" id="atDialogClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+
+      <div class="section-h">Identification</div>
+      <div>
+        <label>Template name</label>
+        <input id="atName" type="text" placeholder="e.g. Sales · Daily Outreach" autocomplete="off" />
+      </div>
+      <div>
+        <label>Description</label>
+        <textarea id="atDesc" rows="2" placeholder="What kind of day does this template represent? (Visible to assigned agents.)"></textarea>
+      </div>
+      <div>
+        <label>Audience</label>
+        <div class="aud-picker" id="audPicker">
+          <button type="button" class="aud-pick on" data-aud="SALES"><i class="ri-megaphone-line"></i> Sales</button>
+          <button type="button" class="aud-pick" data-aud="FOLLOW_UP"><i class="ri-phone-line"></i> Follow-up</button>
+          <button type="button" class="aud-pick" data-aud="FINANCE"><i class="ri-bank-card-line"></i> Finance</button>
+          <button type="button" class="aud-pick" data-aud="MANAGER"><i class="ri-shield-user-line"></i> Manager</button>
+        </div>
+        <div style="font: 500 11.5px var(--font-sans); color: var(--fg3); margin-top:6px;">
+          Pick one or more — agents matching any selected role can be assigned this template.
+        </div>
+      </div>
+
+      <div class="section-h">Activities</div>
+      <div style="font: 500 12px var(--font-sans); color: var(--fg3); margin-top:-4px; margin-bottom:6px;">
+        Each activity feeds a daily KPI. Toggle <strong style="color:var(--color-error-700);">Mandatory</strong>
+        to require it for the agent's <code style="font-family:var(--font-mono, monospace); background:var(--color-grey-100); padding:1px 4px; border-radius:3px; font-size:11px;">complete-day</code> rate.
+      </div>
+
+      <div class="act-list" id="actList">
+        <div class="act-row">
+          <span class="drag"><i class="ri-draggable"></i></span>
+          <input type="text" value="Prospect calls" />
+          <select><option>Count · per day</option><option>Boolean · done?</option><option>Time · minutes</option></select>
+          <input type="number" value="15" min="0" />
+          <button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>
+          <span></span>
+          <span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">
+            <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+            <span>Source: <strong style="color:var(--color-grey-800);">Prospect timeline · Call</strong></span>
+          </span>
+          <span></span>
+        </div>
+
+        <div class="act-row">
+          <span class="drag"><i class="ri-draggable"></i></span>
+          <input type="text" value="Site visits scheduled" />
+          <select><option>Count · per day</option><option>Boolean · done?</option><option>Time · minutes</option></select>
+          <input type="number" value="3" min="0" />
+          <button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>
+          <span></span>
+          <span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">
+            <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+            <span>Source: <strong style="color:var(--color-grey-800);">Prospect timeline · Visit</strong></span>
+          </span>
+          <span></span>
+        </div>
+
+        <div class="act-row">
+          <span class="drag"><i class="ri-draggable"></i></span>
+          <input type="text" value="Listings shared" />
+          <select><option>Count · per day</option><option>Boolean · done?</option><option>Time · minutes</option></select>
+          <input type="number" value="5" min="0" />
+          <button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>
+          <span></span>
+          <span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">
+            <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+            <span>Source: <strong style="color:var(--color-grey-800);">Listing share event</strong></span>
+          </span>
+          <span></span>
+        </div>
+
+        <div class="act-row">
+          <span class="drag"><i class="ri-draggable"></i></span>
+          <input type="text" value="Update prospect notes" />
+          <select><option>Boolean · done?</option><option>Count · per day</option><option>Time · minutes</option></select>
+          <input type="number" value="1" min="0" disabled style="opacity:.5;" />
+          <button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>
+          <span></span>
+          <span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">
+            <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+            <span>Source: <strong style="color:var(--color-grey-800);">Prospect timeline · Note</strong></span>
+          </span>
+          <span></span>
+        </div>
+
+        <div class="act-row">
+          <span class="drag"><i class="ri-draggable"></i></span>
+          <input type="text" value="New prospects added" />
+          <select><option>Count · per day</option><option>Boolean · done?</option><option>Time · minutes</option></select>
+          <input type="number" value="2" min="0" />
+          <button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>
+          <span></span>
+          <span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">
+            <button class="mand-toggle" type="button"><i class="ri-asterisk"></i> Optional</button>
+            <span>Source: <strong style="color:var(--color-grey-800);">Prospect created</strong></span>
+          </span>
+          <span></span>
+        </div>
+
+        <button class="act-add" id="addActBtn" type="button"><i class="ri-add-line"></i> Add activity</button>
+      </div>
+
+      <div class="section-h">Schedule &amp; assignment</div>
+      <div class="row3">
+        <div>
+          <label>Active days</label>
+          <select>
+            <option selected>Mon – Fri</option>
+            <option>Every day</option>
+            <option>Custom…</option>
+          </select>
+        </div>
+        <div>
+          <label>Reset cycle</label>
+          <select>
+            <option selected>Daily · 00:00 local</option>
+            <option>Weekly · Monday</option>
+          </select>
+        </div>
+        <div>
+          <label>Auto-assign</label>
+          <select>
+            <option selected>By role match</option>
+            <option>Manual only</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <footer>
+      <button class="btn btn-text" id="atDialogCancel">Cancel</button>
+      <span style="flex:1;"></span>
+      <button class="btn btn-secondary" id="atSaveDraft"><i class="ri-draft-line"></i> Save as draft</button>
+      <button class="btn btn-primary" id="atDialogSave"><i class="ri-check-line"></i> Publish template</button>
+    </footer>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="row-actions.js"></script>
+<script>
+(function(){
+  // Toast helper
+  var toastStack = document.getElementById('toastStack');
+  function toast(msg){
+    var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+    toastStack.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 4000);
+  }
+
+  // Status tabs + search
+  var tabs = document.querySelectorAll('#typeTabs .type-tab');
+  var rows = document.querySelectorAll('#tplRows tr');
+  var visibleCount = document.getElementById('visibleCount');
+  function applyFilters(){
+    var t = document.querySelector('#typeTabs .type-tab.active').dataset.type;
+    var q = (document.getElementById('searchTpl').value || '').trim().toLowerCase();
+    var n = 0;
+    rows.forEach(function(r){
+      var matchType = (t === 'all') || (r.dataset.type === t);
+      var hay = r.textContent.toLowerCase();
+      var matchQ = !q || hay.indexOf(q) >= 0;
+      var show = matchType && matchQ;
+      r.style.display = show ? '' : 'none';
+      if (show) n++;
+    });
+    visibleCount.textContent = n;
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      applyFilters();
+    });
+  });
+  document.getElementById('searchTpl').addEventListener('input', applyFilters);
+
+  // Generic filter buttons → toast
+  document.querySelectorAll('.btn.btn-secondary.btn-sm, .btn.btn-text.btn-sm').forEach(function(b){
+    b.addEventListener('click', function(){ toast('Filter: ' + b.textContent.trim()); });
+  });
+  document.getElementById('btnExport').addEventListener('click', function(){ toast('Exporting templates as CSV…'); });
+  document.querySelectorAll('.icon-btn').forEach(function(b){
+    b.addEventListener('click', function(){ toast('No new notifications'); });
+  });
+
+  // Row click → detail page
+  rows.forEach(function(r){
+    r.addEventListener('click', function(){
+      window.location.href = 'activity-template-detail.html?id=' + (r.dataset.id || 'AT-001');
+    });
+  });
+
+  // Audience picker
+  document.querySelectorAll('#audPicker .aud-pick').forEach(function(b){
+    b.addEventListener('click', function(){ b.classList.toggle('on'); });
+  });
+
+  // Mandatory toggles
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('.mand-toggle');
+    if (!t) return;
+    t.classList.toggle('on');
+    if (t.classList.contains('on')) {
+      t.innerHTML = '<i class="ri-asterisk"></i> Mandatory';
+    } else {
+      t.innerHTML = '<i class="ri-asterisk"></i> Optional';
+    }
+  });
+
+  // Add-activity row
+  document.getElementById('addActBtn').addEventListener('click', function(){
+    var list = document.getElementById('actList');
+    var addBtn = document.getElementById('addActBtn');
+    var row = document.createElement('div');
+    row.className = 'act-row';
+    row.innerHTML =
+      '<span class="drag"><i class="ri-draggable"></i></span>' +
+      '<input type="text" placeholder="Activity name…" />' +
+      '<select><option>Count · per day</option><option>Boolean · done?</option><option>Time · minutes</option></select>' +
+      '<input type="number" value="1" min="0" />' +
+      '<button class="x-btn" title="Remove"><i class="ri-close-line"></i></button>' +
+      '<span></span>' +
+      '<span style="grid-column: 2 / -2; display:flex; gap:6px; align-items:center; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 0 0 4px 0;">' +
+        '<button class="mand-toggle" type="button"><i class="ri-asterisk"></i> Optional</button>' +
+        '<span>Source: <strong style="color:var(--color-grey-800);">Manual log</strong></span>' +
+      '</span>' +
+      '<span></span>';
+    list.insertBefore(row, addBtn);
+    row.querySelector('input[type="text"]').focus();
+  });
+
+  // Remove row
+  document.addEventListener('click', function(e){
+    var x = e.target.closest('.x-btn');
+    if (!x) return;
+    var row = x.closest('.act-row');
+    if (row) row.remove();
+  });
+
+  // Dialog
+  var dialog = document.getElementById('atDialog');
+  function openDialog(){
+    dialog.classList.add('open');
+    setTimeout(function(){ document.getElementById('atName').focus(); }, 60);
+  }
+  function closeDialog(){ dialog.classList.remove('open'); }
+  document.getElementById('btnNewTpl').addEventListener('click', openDialog);
+  document.getElementById('atDialogClose').addEventListener('click', closeDialog);
+  document.getElementById('atDialogCancel').addEventListener('click', closeDialog);
+  dialog.addEventListener('click', function(e){ if (e.target === dialog) closeDialog(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDialog(); });
+
+  document.getElementById('atDialogSave').addEventListener('click', function(){
+    var name = document.getElementById('atName').value.trim() || 'Untitled template';
+    closeDialog();
+    toast('Template "' + name + '" published');
+  });
+  document.getElementById('atSaveDraft').addEventListener('click', function(){
+    closeDialog();
+    toast('Saved as draft');
+  });
+})();
+</script>
+
+</body>
+</html>

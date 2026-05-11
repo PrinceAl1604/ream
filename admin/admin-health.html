@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Health</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .uptime-grid { display:flex;gap:2px;flex-wrap:wrap; }
+  .uptime-grid .cell { width:8px;height:24px;border-radius:1.5px;background:var(--adm-ok); }
+  .uptime-grid .cell.warn { background:var(--adm-warn); }
+  .uptime-grid .cell.crit { background:var(--adm-danger); }
+  .uptime-grid .cell.gap { background:var(--adm-border); }
+  .svc-row { display:grid;grid-template-columns:32px 1fr 380px 90px 80px;gap:14px;padding:14px 16px;border-bottom:1px solid var(--adm-border-2);align-items:center; }
+  .svc-row:last-child { border-bottom:0; }
+  .svc-row .ic { width:32px;height:32px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center; }
+  .svc-row .ic.ok { background:var(--adm-ok-50);color:var(--adm-ok); }
+  .svc-row .ic.warn { background:var(--adm-warn-50);color:var(--adm-warn); }
+  .svc-row .ic.crit { background:var(--adm-danger-50);color:var(--adm-danger); }
+  .svc-row .nm { font:600 13.5px var(--font-sans);color:var(--adm-text-1); }
+  .svc-row .desc { font:500 11.5px var(--font-sans);color:var(--adm-text-3);margin-top:1px; }
+  .latency-bars { display:flex;align-items:flex-end;gap:2px;height:32px; }
+  .latency-bars .b { flex:1;background:var(--adm-accent-200);border-radius:1px;min-height:3px; }
+  .latency-bars .b.hi { background:var(--adm-stripe); }
+  .incident-card { background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px 16px;margin-bottom:14px; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"health",
+    crumb:[{label:"Health"}],
+    title:"System health",
+    subtitle:"Live status across services, queues, and integrations. Wired to Datadog + StatusPage.",
+    actions:`<button class="adm-btn" id="hReprobe"><i class="material-symbols-rounded">sync</i> Re-run probes</button><button class="adm-btn" id="hStatusPage"><i class="material-symbols-rounded">open_in_new</i> Open StatusPage</button>`,
+    env:"STAGING",
+  });
+</script>
+<script>
+const cellsFor = (failPattern) => {
+  const cells = [];
+  for (let i = 0; i < 90; i++) {
+    if (failPattern[i] === 2) cells.push("crit");
+    else if (failPattern[i] === 1) cells.push("warn");
+    else cells.push("ok");
+  }
+  return cells.map(k => `<span class="cell ${k}"></span>`).join("");
+};
+const allOk = Array(90).fill(0);
+const someWarn = [...Array(90).fill(0)]; someWarn[18] = 1; someWarn[42] = 1; someWarn[83] = 2;
+const apiPattern = [...Array(90).fill(0)]; apiPattern[31] = 1;
+const plaidPattern = [...Array(90).fill(0)]; plaidPattern[88] = 2; plaidPattern[89] = 2;
+
+const SVCS = [
+  { ic:"public",       k:"ok",   nm:"Web (app.ream.com)",       desc:"Next.js app, edge cached. p95 124ms.", up:"99.99%", uptime:allOk },
+  { ic:"api",          k:"ok",   nm:"API (api.ream.com)",       desc:"REST + GraphQL. p95 142ms · 0 errors (5m).", up:"99.97%", uptime:apiPattern },
+  { ic:"shield_lock",  k:"ok",   nm:"Auth service",             desc:"Sessions, MFA, SSO. p95 38ms.", up:"100.0%", uptime:allOk },
+  { ic:"manage_search",k:"warn", nm:"Background workers",       desc:"6 of 8 healthy · 2 instances cycling.", up:"99.4%", uptime:someWarn },
+  { ic:"account_balance", k:"crit", nm:"Plaid integration",     desc:"Webhook backlog 142 events &gt; 5min. P1 active.", up:"96.1%", uptime:plaidPattern },
+  { ic:"sms",          k:"ok",   nm:"SMS (Twilio)",             desc:"25% rolled out · stable.", up:"99.99%", uptime:allOk },
+  { ic:"mail",         k:"ok",   nm:"Email (Postmark)",         desc:"8.4k sent today, 0 bounces.", up:"99.99%", uptime:allOk },
+  { ic:"cloud",        k:"ok",   nm:"S3 / uploads",             desc:"14.2 GB delta today.", up:"100.0%", uptime:allOk },
+  { ic:"storage",      k:"ok",   nm:"Postgres (primary)",       desc:"Primary · 12% CPU · 2.1 GB WAL lag = 0s.", up:"100.0%", uptime:allOk },
+  { ic:"storage",      k:"ok",   nm:"Postgres (read replica)",  desc:"Lag 0.4s.", up:"100.0%", uptime:allOk },
+  { ic:"speed",        k:"ok",   nm:"Redis cache",              desc:"Hit rate 96.4%.", up:"100.0%", uptime:allOk },
+];
+
+document.getElementById("adm-content").innerHTML = `
+  <div class="incident-card">
+    <div class="row" style="justify-content:space-between;gap:14px;align-items:flex-start;">
+      <div>
+        <div class="row gap-2" style="margin-bottom:4px;">
+          <span class="adm-pill crit">P1 ACTIVE</span>
+          <span style="font:600 14px var(--font-sans);color:var(--adm-danger-700);">Plaid webhook backlog · 142 events queued &gt; 5 min</span>
+        </div>
+        <div style="font:500 12.5px var(--font-sans);color:#7f1d1d;">Started 11 min ago. Affects payment status updates across 28 orgs. Webhook handler appears to be deadlocked on a Postgres advisory lock.</div>
+        <div class="row gap-2" style="margin-top:8px;">
+          <a class="adm-btn adm-btn-sm" data-i="runbook">Open runbook</a>
+          <a class="adm-btn adm-btn-sm" data-i="drain">Drain queue</a>
+          <a class="adm-btn adm-btn-sm" data-i="page">Page on-call</a>
+          <a class="adm-btn adm-btn-sm" data-i="post" style="background:var(--adm-danger);color:white;border-color:var(--adm-danger);">Post status update</a>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="muted tiny">Started</div>
+        <div style="font:500 12.5px var(--font-mono);color:var(--adm-text-1);">11 min ago</div>
+        <div class="muted tiny" style="margin-top:6px;">On-call</div>
+        <div style="font:500 12.5px var(--font-sans);color:var(--adm-text-1);">@morgan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">p95 API latency</div><div class="adm-kpi-value">142 <span class="unit">ms</span></div><div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_downward</i> 18ms vs 7d</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Error rate</div><div class="adm-kpi-value">0.04%</div><div class="adm-kpi-delta flat">SLO 0.10%</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Worker queue depth</div><div class="adm-kpi-value">142</div><div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_upward</i> Plaid backlog</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Uptime (90d)</div><div class="adm-kpi-value">99.94%</div><div class="adm-kpi-delta flat">SLO 99.90%</div></div>
+  </div>
+
+  <div class="adm-card" style="margin-bottom:14px;">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">speed</i> API latency · last 24 h</h3>
+      <div class="row gap-2"><div class="muted tiny">p50 / p95 / p99</div></div>
+    </div>
+    <div class="adm-card-body">
+      <svg viewBox="0 0 600 200" style="width:100%;height:200px;">
+        <g stroke="#ecebf1" stroke-width="1">
+          <line x1="0" y1="40" x2="600" y2="40"/>
+          <line x1="0" y1="80" x2="600" y2="80"/>
+          <line x1="0" y1="120" x2="600" y2="120"/>
+          <line x1="0" y1="160" x2="600" y2="160"/>
+        </g>
+        <text x="2" y="45" font-size="9" fill="#9892a3">200ms</text>
+        <text x="2" y="85" font-size="9" fill="#9892a3">150ms</text>
+        <text x="2" y="125" font-size="9" fill="#9892a3">100ms</text>
+        <text x="2" y="165" font-size="9" fill="#9892a3">50ms</text>
+        <!-- p99 -->
+        <path d="M0,98 L25,94 L50,90 L75,96 L100,84 L125,82 L150,86 L175,78 L200,80 L225,72 L250,74 L275,68 L300,76 L325,70 L350,82 L375,72 L400,68 L425,72 L450,64 L475,72 L500,68 L525,84 L550,88 L575,90 L600,82" stroke="#a5b4fc" fill="none" stroke-width="1.6"/>
+        <!-- p95 -->
+        <path d="M0,118 L25,116 L50,112 L75,114 L100,108 L125,104 L150,108 L175,102 L200,100 L225,96 L250,98 L275,94 L300,98 L325,94 L350,102 L375,96 L400,94 L425,96 L450,90 L475,98 L500,94 L525,108 L550,114 L575,116 L600,108" stroke="#6366f1" fill="none" stroke-width="2.2"/>
+        <!-- p50 -->
+        <path d="M0,156 L25,158 L50,154 L75,156 L100,150 L125,148 L150,150 L175,146 L200,148 L225,142 L250,144 L275,140 L300,144 L325,142 L350,146 L375,142 L400,140 L425,144 L450,138 L475,146 L500,142 L525,150 L550,154 L575,156 L600,150" stroke="#10b981" fill="none" stroke-width="2"/>
+        <g font-family="Inter" font-size="10" fill="#9892a3" text-anchor="middle">
+          <text x="0" y="195">-24h</text><text x="200" y="195">-16h</text><text x="400" y="195">-8h</text><text x="600" y="195">now</text>
+        </g>
+      </svg>
+      <div class="legend" style="margin-top:8px;display:flex;gap:14px;font:500 11.5px var(--font-sans);color:var(--adm-text-3);">
+        <span><span style="width:10px;height:10px;background:#10b981;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span>p50 · 64ms</span>
+        <span><span style="width:10px;height:10px;background:#6366f1;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span>p95 · 142ms</span>
+        <span><span style="width:10px;height:10px;background:#a5b4fc;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle;"></span>p99 · 218ms</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-card" style="margin-bottom:14px;">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">monitor_heart</i> Services · last 90 days</h3>
+      <div class="muted tiny">Each cell = 1 day · click any service to drill in</div>
+    </div>
+    <div style="padding:0;">
+      ${SVCS.map(s => `
+        <div class="svc-row">
+          <span class="ic ${s.k}"><i class="material-symbols-rounded">${s.ic}</i></span>
+          <div>
+            <div class="nm">${s.nm}</div>
+            <div class="desc">${s.desc}</div>
+          </div>
+          <div class="uptime-grid">${cellsFor(s.uptime)}</div>
+          <div class="mono" style="font:500 12.5px var(--font-mono);color:var(--adm-text-1);text-align:right;">${s.up}</div>
+          <span class="adm-pill ${s.k === "ok" ? "active" : (s.k === "warn" ? "warn" : "crit")}">${s.k === "ok" ? "Healthy" : (s.k === "warn" ? "Degraded" : "Down")}</span>
+        </div>
+      `).join("")}
+    </div>
+  </div>
+
+  <div class="adm-detail-grid" id="hLowerGrid">
+    <div>
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">history</i> Recent incidents</h3></div>
+        <div class="adm-card-body" style="padding:0 18px;">
+          ${[
+            {sev:"P1",k:"crit",t:"Plaid webhook backlog",d:"In progress · 11 min",who:"@morgan"},
+            {sev:"P3",k:"warn",t:"Worker pod restart loop (eu-west-1)",d:"Resolved · 2 days ago · 22 min",who:"@karl"},
+            {sev:"P2",k:"warn",t:"Postgres failover · primary→replica",d:"Resolved · 1 wk ago · 4 min impact",who:"@morgan"},
+            {sev:"P4",k:"warn",t:"Postmark inbound delay",d:"Resolved · 2 wk · auto-cleared",who:"system"},
+          ].map(i => `
+            <div class="adm-stat-row" style="border-bottom:1px solid var(--adm-border-2);">
+              <span class="lbl"><span class="adm-pill ${i.k} no-dot" style="margin-right:8px;font-size:10px;">${i.sev}</span> ${i.t}<div class="muted tiny" style="margin-top:2px;">${i.d}</div></span>
+              <span class="val">${i.who}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">policy</i> SLO posture</h3></div>
+        <div class="adm-card-body">
+          ${[
+            {n:"API availability",   slo:"99.90%", actual:"99.94%", k:"ok"},
+            {n:"Web availability",   slo:"99.90%", actual:"99.99%", k:"ok"},
+            {n:"Payment job success",slo:"99.50%", actual:"96.10%", k:"crit"},
+            {n:"p95 latency &lt; 250ms", slo:"95% of weeks", actual:"92%", k:"warn"},
+          ].map(s => `
+            <div style="margin-bottom:12px;">
+              <div class="row" style="justify-content:space-between;font:500 12.5px var(--font-sans);">
+                <span style="color:var(--adm-text-1);font-weight:600;">${s.n}</span>
+                <span class="${s.k === "crit" ? "" : ""}" style="color:${s.k === "crit" ? "var(--adm-danger-700)" : (s.k === "warn" ? "var(--adm-warn-700)" : "var(--adm-ok-700)")};font-weight:700;">${s.actual}</span>
+              </div>
+              <div class="muted tiny">SLO ${s.slo}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const T = AdminShell.toast;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
+// Top-bar
+$("#hReprobe").onclick = () => {
+  const btn = $("#hReprobe");
+  const orig = btn.innerHTML;
+  btn.innerHTML = `<i class="material-symbols-rounded" style="animation:spin 1s linear infinite;">sync</i> Re-running…`;
+  btn.disabled = true;
+  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; T("11 probes complete · 1 critical, 1 degraded, 9 healthy", "info"); }, 1400);
+};
+$("#hStatusPage").onclick = () => T("Opening StatusPage.io console in new tab…", "info");
+
+// Incident actions
+$$("[data-i]").forEach(b => b.onclick = async () => {
+  const k = b.dataset.i;
+  if (k === "runbook") T("Opening runbook: plaid-webhook-backlog.md", "info");
+  else if (k === "drain") {
+    const ok = await AdminShell.confirmDialog({ title:"Drain Plaid webhook queue?", body:"Force-drops the advisory lock and replays all 142 queued events through a fresh worker. May create duplicate payment events that must be reconciled.", confirmLabel:"Drain queue", danger:true });
+    if (ok) T("Drain started · ETA 2 min · monitoring duplicates", "warn");
+  } else if (k === "page") {
+    const ok = await AdminShell.confirmDialog({ title:"Page secondary on-call?", body:"PagerDuty will wake @karl as backup to @morgan. Use only if escalation is required.", confirmLabel:"Page now" });
+    if (ok) T("@karl paged via PagerDuty", "warn");
+  } else if (k === "post") {
+    const ok = await AdminShell.confirmDialog({ title:"Post status update?", body:"Posts to status.ream.com — visible to all customers. Title: 'Investigating: payment status delays'.", confirmLabel:"Post update" });
+    if (ok) T("Status update posted to status.ream.com", "success");
+  }
+});
+
+// Service rows clickable
+$$(".svc-row").forEach(r => {
+  r.style.cursor = "pointer";
+  r.onclick = () => {
+    const nm = r.querySelector(".nm").textContent;
+    T(`Opening service detail: ${nm}`, "info");
+  };
+});
+
+// Incident list rows clickable
+$$("#hLowerGrid .adm-stat-row").forEach(r => {
+  r.style.cursor = "pointer";
+  r.onclick = () => {
+    const t = r.querySelector(".lbl").firstChild.nextSibling ? r.querySelector(".lbl").textContent.split("\n")[0].trim() : "incident";
+    T(`Opening incident: ${t.split("Resolved")[0].split("In progress")[0].trim() || "incident"}`, "info");
+  };
+});
+
+// Add a small @keyframes for spinner if not present
+const sty = document.createElement("style");
+sty.textContent = "@keyframes spin { to { transform: rotate(360deg); } }";
+document.head.appendChild(sty);
+</script>
+</body>
+</html>

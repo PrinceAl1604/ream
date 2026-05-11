@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Loan agreement · Anna Thompson</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="/projects/019de152-1abf-76c4-a15f-103aaf99ac47/tokens.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --fg2: #475569; --fg3: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-sans); background: #f1f5f9;
+    color: #0f172a; min-height: 100vh;
+  }
+  .b-top {
+    background: white; border-bottom: 1px solid var(--color-grey-200);
+    padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  .b-top .logo {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+    color: white; display: inline-flex; align-items: center; justify-content: center;
+    font: 700 13px var(--font-mono);
+  }
+  .b-top .org { font: 600 14px var(--font-sans); color: var(--color-grey-900); flex: 1; }
+  .b-top .org .sub { font: 500 11px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .b-top .who { display: flex; align-items: center; gap: 8px; font: 500 12.5px var(--font-sans); color: var(--fg2); }
+  .b-top .who .av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--color-brand-700); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 11px var(--font-sans);
+  }
+
+  .b-wrap { max-width: 880px; margin: 0 auto; padding: 28px 20px 80px; }
+  .b-status {
+    margin: 0 0 18px; padding: 14px 18px; border-radius: 12px;
+    background: white; border: 1px solid var(--color-grey-200);
+    border-left: 4px solid var(--color-brand-600);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .b-status .pill {
+    padding: 4px 10px; border-radius: 999px;
+    font: 600 11px var(--font-sans); text-transform: uppercase; letter-spacing: .04em;
+    background: var(--color-brand-50); color: var(--color-brand-800); border: 1px solid var(--color-brand-200);
+  }
+  .b-status .pill.signed { background: var(--color-success-50); color: var(--color-success-800); border-color: var(--color-success-200); }
+  .b-status .pill.declined { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .b-status .pill.active { background: var(--color-success-50); color: var(--color-success-800); border-color: var(--color-success-200); }
+  .b-status .h { font: 600 14px var(--font-sans); color: var(--color-grey-900); }
+  .b-status .s { font: 500 12.5px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+
+  .b-card {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 14px;
+    padding: 26px 28px; box-shadow: 0 1px 0 rgba(15,23,42,.04);
+  }
+  .b-card h1 {
+    margin: 0 0 4px; font: 700 22px var(--font-sans); color: var(--color-grey-900);
+  }
+  .b-card .sub { font: 500 13px var(--font-sans); color: var(--fg3); margin-bottom: 22px; }
+  .b-section { margin-top: 22px; }
+  .b-section h2 {
+    font: 600 11px var(--font-sans); letter-spacing: .04em; text-transform: uppercase;
+    color: var(--fg3); margin: 0 0 8px;
+  }
+  .b-rows { display: flex; flex-direction: column; }
+  .b-rows .r {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--color-grey-100);
+  }
+  .b-rows .r:last-child { border-bottom: 0; }
+  .b-rows .k { font: 500 12.5px var(--font-sans); color: var(--fg2); }
+  .b-rows .v { font: 600 13px var(--font-sans); color: var(--color-grey-900); font-variant-numeric: tabular-nums; text-align: right; }
+
+  .b-cta {
+    margin-top: 28px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+  }
+  .b-btn {
+    appearance: none; cursor: pointer; border: 0; padding: 11px 18px; border-radius: 10px;
+    font: 600 13px var(--font-sans); display: inline-flex; align-items: center; gap: 8px;
+  }
+  .b-btn.primary { background: var(--color-brand-700); color: white; }
+  .b-btn.primary:hover { background: var(--color-brand-800); }
+  .b-btn.ghost { background: transparent; color: var(--fg2); border: 1px solid var(--color-grey-200); }
+  .b-btn.ghost:hover { background: var(--color-grey-50); }
+  .b-btn.danger { background: transparent; color: #b91c1c; border: 1px solid #fecaca; }
+  .b-btn.danger:hover { background: #fef2f2; }
+
+  /* DocuSign-style modal */
+  .ds-back { position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .ds-back.on { display: flex; }
+  .ds-dlg {
+    width: 720px; max-width: 100%; max-height: calc(100vh - 40px);
+    background: white; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 24px 60px rgba(0,0,0,.32);
+  }
+  .ds-head { background: #FFCC00; color: #2c2c2c; padding: 12px 18px; display: flex; align-items: center; gap: 10px; }
+  .ds-head .ds-logo { font: 800 14px var(--font-sans); letter-spacing: -.02em; background:#000; color:#FFCC00; padding: 3px 8px; border-radius: 4px; }
+  .ds-head .ti { font: 600 14px var(--font-sans); flex: 1; }
+  .ds-body { flex: 1; overflow-y: auto; padding: 24px 28px; background: #f8fafc; }
+  .ds-doc {
+    background: white; padding: 36px 40px; border: 1px solid var(--color-grey-200);
+    border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    font: 500 13px var(--font-sans); color: #1f2937; line-height: 1.7;
+  }
+  .ds-doc h3 { font: 700 15px var(--font-sans); margin: 18px 0 8px; color: var(--color-grey-900); }
+  .ds-sig-block {
+    margin-top: 28px; padding: 18px; border: 2px dashed #FFCC00; border-radius: 8px;
+    background: #fffbeb; display: flex; flex-direction: column; gap: 8px;
+  }
+  .ds-sig-block .sg-lbl { font: 600 11px var(--font-sans); color: #b45309; text-transform: uppercase; letter-spacing: .05em; }
+  .ds-sig-line {
+    height: 56px; background: white; border: 1px solid var(--color-grey-200); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font: 600 14px var(--font-sans); color: var(--fg3); cursor: pointer;
+  }
+  .ds-sig-line.signed {
+    color: #6366f1; font: italic 700 24px 'Brush Script MT','Lucida Handwriting', cursive;
+    background: #f8fafc;
+  }
+  .ds-foot { padding: 12px 18px; background: white; border-top: 1px solid var(--color-grey-200); display: flex; gap: 10px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<header class="b-top">
+  <div class="logo">G</div>
+  <div class="org">
+    Greatlife Real Estate
+    <div class="sub">Loan agreement portal</div>
+  </div>
+  <div class="who">
+    <span>Signed in as <b>Anna Thompson</b></span>
+    <span class="av">AT</span>
+  </div>
+</header>
+
+<main class="b-wrap">
+
+  <!-- Status banner — content swaps based on state -->
+  <div class="b-status" id="bStatus"></div>
+
+  <article class="b-card">
+    <h1>Loan agreement · L-DRAFT</h1>
+    <div class="sub">From Greatlife Real Estate · Sent May 9, 2026</div>
+
+    <div class="b-section">
+      <h2>The land</h2>
+      <div class="b-rows">
+        <div class="r"><span class="k">Site</span><span class="v">Brookfield</span></div>
+        <div class="r"><span class="k">Parcels</span><span class="v">1 parcel</span></div>
+        <div class="r"><span class="k">Total price</span><span class="v">$62,167</span></div>
+      </div>
+    </div>
+
+    <div class="b-section">
+      <h2>Loan terms</h2>
+      <div class="b-rows">
+        <div class="r"><span class="k">Product</span><span class="v">Standard 25-year</span></div>
+        <div class="r"><span class="k">Term</span><span class="v">300 months</span></div>
+        <div class="r"><span class="k">Rate</span><span class="v">6.25% APR</span></div>
+        <div class="r"><span class="k">Downpayment</span><span class="v">$12,433 (20%)</span></div>
+        <div class="r"><span class="k">Financed</span><span class="v">$49,734</span></div>
+        <div class="r"><span class="k">Monthly payment</span><span class="v">~$328</span></div>
+      </div>
+    </div>
+
+    <div class="b-section">
+      <h2>Borrower</h2>
+      <div class="b-rows">
+        <div class="r"><span class="k">Name</span><span class="v">Anna Thompson</span></div>
+        <div class="r"><span class="k">Email</span><span class="v">anna.t@example.com</span></div>
+        <div class="r"><span class="k">National ID</span><span class="v">GHA-•••• 8821</span></div>
+      </div>
+    </div>
+
+    <div class="b-cta" id="bCta"></div>
+  </article>
+
+  <p style="text-align:center; font:500 11.5px var(--font-sans); color: var(--fg3); margin-top: 30px;">
+    Powered by Ream · Secured signing via DocuSign · Demo
+  </p>
+</main>
+
+<!-- DocuSign-style sign modal -->
+<div class="ds-back" id="dsBack">
+  <div class="ds-dlg">
+    <div class="ds-head">
+      <span class="ds-logo">DocuSign</span>
+      <span class="ti">Loan agreement · L-DRAFT</span>
+      <button id="dsClose" style="appearance:none;cursor:pointer;background:transparent;border:0;color:#2c2c2c;font-size:18px;">✕</button>
+    </div>
+    <div class="ds-body">
+      <div class="ds-doc">
+        <h3>Loan Agreement</h3>
+        <p>This Agreement is made on May 9, 2026 between <b>Greatlife Real Estate</b> ("Lender") and <b>Anna Thompson</b> ("Borrower").</p>
+        <p>The Borrower agrees to purchase one (1) parcel at <b>Brookfield</b> for a total price of <b>$62,167</b>, financed under the Standard 25-year loan product at <b>6.25% APR</b> over 300 months, with a downpayment of <b>$12,433</b>.</p>
+        <h3>Terms of repayment</h3>
+        <p>Monthly installments of approximately <b>$328</b> are due on the 1st of each month. Late payments incur a 5% fee after a 7-day grace period.</p>
+        <h3>Cancellation</h3>
+        <p>The Borrower has fourteen (14) days from the contract becoming valid to cancel this agreement without penalty.</p>
+        <p style="color:var(--fg3); font-size:11.5px;">…full agreement continues for 12 more pages…</p>
+        <div class="ds-sig-block">
+          <div class="sg-lbl">⚑ Sign here — Borrower</div>
+          <div class="ds-sig-line" id="dsSig">Click to sign</div>
+        </div>
+      </div>
+    </div>
+    <div class="ds-foot">
+      <button class="b-btn danger" id="dsDecline"><i class="ri-close-circle-line"></i> Decline to sign</button>
+      <div style="flex:1;"></div>
+      <button class="b-btn ghost" id="dsClose2">Close</button>
+      <button class="b-btn primary" id="dsFinish" disabled style="opacity:.5;"><i class="ri-check-line"></i> Finish signing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATES = {
+  sent:     { pill:'Awaiting your signature', cls:'',         h:'You have a loan agreement to sign',     s:'Greatlife sent you a contract for the Brookfield purchase. Review and sign to proceed.' },
+  opened:   { pill:'In review',               cls:'',         h:'You opened the agreement',              s:'Take your time. When you\'re ready, click "View & sign agreement" below.' },
+  signed:   { pill:'Awaiting countersignature',cls:'signed',  h:'Thanks — your signature is in',         s:'Greatlife will counter-sign shortly. You\'ll receive a copy once the contract is finalised.' },
+  active:   { pill:'Contract active',          cls:'active',  h:'Welcome — your contract is live',       s:'You have 14 days to cancel without penalty. After that, the loan becomes binding.' },
+  declined: { pill:'Declined',                 cls:'declined',h:'You declined to sign',                  s:'Greatlife was notified. If this was a mistake, contact your loan officer.' },
+};
+
+const params = new URLSearchParams(location.search);
+let state = params.get('state') || 'sent';
+const bStatus = document.getElementById('bStatus');
+const bCta = document.getElementById('bCta');
+
+function render() {
+  const s = STATES[state] || STATES.sent;
+  bStatus.innerHTML = `
+    <span class="pill ${s.cls}">${s.pill}</span>
+    <div style="flex:1;">
+      <div class="h">${s.h}</div>
+      <div class="s">${s.s}</div>
+    </div>
+  `;
+  bCta.innerHTML = '';
+  if (state === 'sent' || state === 'opened') {
+    bCta.innerHTML = `
+      <button class="b-btn ghost" onclick="setState('opened')">I'll review later</button>
+      <button class="b-btn primary" onclick="openSign()"><i class="ri-pen-nib-line"></i> View & sign agreement</button>
+    `;
+  } else if (state === 'signed') {
+    bCta.innerHTML = `<button class="b-btn ghost" disabled><i class="ri-time-line"></i> Waiting on Greatlife</button>`;
+  } else if (state === 'active') {
+    bCta.innerHTML = `
+      <button class="b-btn danger" onclick="setState('declined')"><i class="ri-close-circle-line"></i> Cancel within 14 days</button>
+      <button class="b-btn primary"><i class="ri-download-line"></i> Download signed contract</button>
+    `;
+  } else if (state === 'declined') {
+    bCta.innerHTML = `<button class="b-btn ghost" onclick="setState('sent')">Reconsider</button>`;
+  }
+}
+function setState(s) {
+  state = s;
+  history.replaceState(null,'','?state=' + s);
+  // First open auto-bumps sent → opened
+  if (s === 'opened') {
+    setTimeout(() => {}, 0);
+  }
+  render();
+}
+window.setState = setState;
+
+// Sign modal
+const dsBack = document.getElementById('dsBack');
+function openSign() {
+  if (state === 'sent') setState('opened');
+  dsBack.classList.add('on');
+}
+window.openSign = openSign;
+function closeSign() { dsBack.classList.remove('on'); }
+document.getElementById('dsClose').onclick = closeSign;
+document.getElementById('dsClose2').onclick = closeSign;
+document.getElementById('dsBack').addEventListener('click', e => { if (e.target === dsBack) closeSign(); });
+
+const dsSig = document.getElementById('dsSig');
+const dsFinish = document.getElementById('dsFinish');
+dsSig.addEventListener('click', () => {
+  dsSig.classList.add('signed');
+  dsSig.textContent = 'Anna Thompson';
+  dsFinish.disabled = false;
+  dsFinish.style.opacity = '1';
+});
+dsFinish.addEventListener('click', () => {
+  closeSign(); setState('signed');
+  setTimeout(() => { setState('active'); }, 1500); // simulate countersign
+});
+document.getElementById('dsDecline').addEventListener('click', () => {
+  closeSign(); setState('declined');
+});
+
+// Auto-bump sent → opened on first paint
+if (state === 'sent') setTimeout(() => setState('opened'), 800);
+render();
+</script>
+</body>
+</html>

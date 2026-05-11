@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Organization admin · REAM operator manual</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="_shared.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  .role-icon-strip { display: flex; gap: 12px; margin: 18px 0 6px; }
+  .role-icon-strip .ic { width: 56px; height: 56px; border-radius: 12px; background: #b45309; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .responsib { background: white; border: 1px solid var(--border-default); border-radius: 12px; padding: 18px 22px; margin: 14px 0; }
+  .responsib h4 { margin: 0 0 6px; font: 700 14px/1.3 var(--font-sans); color: var(--color-grey-900); }
+  .responsib p { margin: 0 0 6px; }
+  .crown-tag { display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; color: #b45309; padding: 4px 10px; border-radius: 999px; font: 600 11px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<header class="gd-topbar">
+  <div class="gd-topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>REAM <span class="sub">User guides</span></a>
+    <div class="spacer"></div>
+    <nav class="switcher">
+      <span class="grp">External</span>
+      <a href="public-visitor.html">Public</a>
+      <a href="prospect.html">Prospect</a>
+      <a href="customer.html">Customer</a>
+      <span class="sep"></span>
+      <span class="grp">Internal</span>
+      <a href="sales.html">Sales</a>
+      <a href="finance.html">Finance</a>
+      <a href="followup.html">Follow-up</a>
+      <a class="on" href="org-admin.html">Org admin</a>
+    </nav>
+    <div class="actions"><a href="../owner-dashboard.html"><i class="ri-arrow-right-up-line"></i> Open app</a></div>
+  </div>
+</header>
+
+<div class="gd-shell internal">
+
+  <aside class="gd-toc">
+    <div class="lbl">Org admin manual</div>
+    <ol>
+      <li><a href="#about" class="toc-link" data-toc>About the role</a></li>
+      <li><a href="#start" class="toc-link" data-toc>Onboarding the org</a></li>
+      <li><a href="#daily" class="toc-link" data-toc>Daily &amp; weekly flows</a></li>
+      <li><a href="#cadence" class="toc-link" data-toc>Quarterly &amp; annual</a></li>
+      <li><a href="#screens" class="toc-link" data-toc>Screens</a></li>
+      <li><a href="#perms" class="toc-link" data-toc>Permissions</a></li>
+      <li><a href="#glossary" class="toc-link" data-toc>Glossary</a></li>
+      <li><a href="#faq" class="toc-link" data-toc>FAQ &amp; gotchas</a></li>
+      <li><a href="#escalation" class="toc-link" data-toc>Escalation</a></li>
+    </ol>
+  </aside>
+
+  <main class="gd-main">
+
+    <div class="gd-hero">
+      <div class="role-tag"><span class="dot"></span>Organization admin · Tenant owner</div>
+      <h1>Org admin operator manual.</h1>
+      <p class="lede">You own the REAM tenant. You're the person who set up the org, who invites every internal user, who owns billing, and who makes policy calls that span Sales, Finance, and Follow-up. There's usually only one or two of you. This manual covers the day-one setup, the ongoing administrative rhythm, and the cross-line moments where Org admin is the only person who can act.</p>
+      <div class="meta">
+        <span><i class="ri-time-line"></i> Read time <b>22 min</b></span>
+        <span><i class="ri-vip-crown-line"></i> Single tier <b>Tenant owner</b></span>
+        <span><i class="ri-flow-chart"></i> Flows <b>7</b></span>
+        <span><i class="ri-calendar-line"></i> Updated <b>May 2026</b></span>
+      </div>
+    </div>
+
+    <div class="gd-video">
+      <div class="play"><i class="ri-play-circle-fill"></i><span>Org admin tour<em>Setup, invites, policies, billing</em></span></div>
+      <div class="caption">Video walkthrough · 8:30</div>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about" class="gd-section">
+      <span class="sec-num">01 · About the role</span>
+      <h2>Who Org admin is.</h2>
+      <p class="lede-p">Org admin is the only role that's not part of a line. You sit above Sales / Finance / Follow-up and own the things that cross them: people, policy, branding, billing, integrations, audit. You don't run a pipeline, work the payment queue, or handle hardship calls. You make sure the people who do can.</p>
+
+      <div class="role-icon-strip">
+        <div class="ic"><i class="ri-vip-crown-line"></i></div>
+        <div class="ic"><i class="ri-team-line"></i></div>
+        <div class="ic"><i class="ri-bank-card-line"></i></div>
+        <div class="ic"><i class="ri-shield-keyhole-line"></i></div>
+      </div>
+
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>People</h4>
+        <p>Every internal user is invited by you. Every role/tier change is yours. When someone leaves, you offboard.</p>
+      </div>
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>Branding &amp; identity</h4>
+        <p>Logo, colors, domain, email sender, public listings styling. Anything a customer or prospect sees as "from the org".</p>
+      </div>
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>Billing &amp; subscription</h4>
+        <p>The REAM contract, seats, plan, payment method, invoices.</p>
+      </div>
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>Cross-line policy</h4>
+        <p>When Sales, Finance, and Follow-up disagree, you call it. Coordinate them on loan products, deferral thresholds, contract terms.</p>
+      </div>
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>Audit &amp; legal</h4>
+        <p>Audit log, data export, GDPR/CCPA requests, legal flags on customer accounts (divorce, death, ownership transfer).</p>
+      </div>
+      <div class="responsib">
+        <span class="crown-tag"><i class="ri-vip-crown-line"></i> Owns</span>
+        <h4>Imports &amp; integrations</h4>
+        <p>Migrating from a spreadsheet or another CRM. Bank-feed integrations, e-sign provider, email/SMS providers.</p>
+      </div>
+    </section>
+
+    <!-- ONBOARDING -->
+    <section id="start" class="gd-section">
+      <span class="sec-num">02 · Onboarding the org</span>
+      <h2>Your first week setting up REAM.</h2>
+      <p class="lede-p">A complete REAM setup is usually a single afternoon for an existing organization, plus a few days of inventory and template work. The order below matters — each step unblocks the next.</p>
+
+      <div class="gd-shot">
+        <div class="gd-shot-frame">
+          <div class="gd-shot-bar"><span class="dots"><span></span><span></span><span></span></span><span class="url"><i class="ri-lock-line"></i>app.ream.com/owner-dashboard</span><a class="open" href="../owner-dashboard.html" target="_blank">Open in app <i class="ri-arrow-right-up-line"></i></a></div>
+          <div class="gd-shot-stage">
+            <iframe src="../owner-dashboard.html" title="Owner dashboard"></iframe>
+            <div class="gd-pins">
+              <div class="gd-pin" style="left:30%;top:22%;">1</div>
+              <div class="gd-pin" style="left:62%;top:38%;">2</div>
+              <div class="gd-pin" style="left:30%;top:64%;">3</div>
+              <div class="gd-pin" style="left:74%;top:72%;">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="gd-legend">
+          <ol>
+            <li><div><b>Setup checklist</b> — every step the org needs before going live.</div></li>
+            <li><div><b>People / roles widget</b> — invite, edit, deactivate.</div></li>
+            <li><div><b>Branding card</b> — logo, colors, public domain.</div></li>
+            <li><div><b>Plan &amp; billing</b> — seat count, plan tier, payment method.</div></li>
+          </ol>
+        </div>
+      </div>
+
+      <ol class="gd-steps">
+        <li><div class="s-ttl">Complete org profile</div><div class="s-det">Legal name, address, jurisdiction, fiscal year start, currency. This becomes the namespace for every document and report.</div></li>
+        <li><div class="s-ttl">Brand the tenant</div><div class="s-det">Logo, primary color, custom domain (or use the default subdomain), email sender, default footer text.</div></li>
+        <li><div class="s-ttl">Invite the team</div><div class="s-det">Sales admin first. Finance admin next. Follow-up admin third. Each tier admin then helps you invite their own line.</div></li>
+        <li><div class="s-ttl">Configure templates</div><div class="s-det">Loan agreement, deferral letter, payoff quote, satisfaction survey, monthly statement. Use the defaults and customize.</div></li>
+        <li><div class="s-ttl">Connect integrations</div><div class="s-det">Bank feed, e-sign provider, email/SMS provider, Google Workspace if SSO needed.</div></li>
+        <li><div class="s-ttl">Migrate data (if applicable)</div><div class="s-det">Use Imports → CSV for prospects, customers, properties, historic transactions.</div></li>
+        <li><div class="s-ttl">Publish public site</div><div class="s-det">Point your domain at the listings page; verify the public intake form posts to your tenant.</div></li>
+      </ol>
+
+      <div class="gd-callout"><div class="ttl"><i class="ri-information-line"></i> Phase the work</div><p>Day 1 is profile, branding, and one of each admin. Day 2–3 is templates and policies. Day 4+ is migration. Sites and listings can grow gradually — you don't need a full catalog to be operational.</p></div>
+    </section>
+
+    <!-- DAILY FLOWS -->
+    <section id="daily" class="gd-section">
+      <span class="sec-num">03 · Daily &amp; weekly flows</span>
+      <h2>What Org admin does, end-to-end.</h2>
+      <p class="lede-p">Seven flows cover the ongoing rhythm — most are sporadic, not daily. The job is more steward than operator.</p>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">01</div><div class="ttl">Invite a new internal user</div><div class="meta">5 min · As needed</div></div>
+        <div class="gd-flow-body">
+          <p>Every internal user is invited by you. Self-signup is not allowed for the internal app.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Admin → Users → Invite</div><div class="s-det">Or the gear icon → Users.</div></li>
+            <li><div class="s-ttl">Fill name + email</div><div class="s-det">Plus role (Sales / Finance / Follow-up), tier (Agent / Manager / Admin), team if applicable.</div></li>
+            <li><div class="s-ttl">Send invite</div><div class="s-det">Emailed link, valid 7 days. They confirm and pick a password.</div></li>
+            <li><div class="s-ttl">Confirm dashboard</div><div class="s-det">After they log in, ask them to confirm what they see matches their tier. If not, adjust.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">02</div><div class="ttl">Offboard a leaving user</div><div class="meta">15 min · As needed</div></div>
+        <div class="gd-flow-body">
+          <p>When someone leaves, you reassign their portfolio, deactivate their account, and preserve their audit trail.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Reassign first, deactivate after</div><div class="s-det">Open Prospects (or Customers) → filter <code>Owner: [name]</code> → bulk reassign. Same for activities, document requests.</div></li>
+            <li><div class="s-ttl">Deactivate the user</div><div class="s-det">Admin → Users → [name] → Deactivate. Their login is revoked immediately.</div></li>
+            <li><div class="s-ttl">Preserve audit</div><div class="s-det">Historical activities they logged stay on timelines. The audit log keeps their login history.</div></li>
+            <li><div class="s-ttl">Notify cross-line</div><div class="s-det">Tell Sales/Finance/Follow-up admins about the change.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">03</div><div class="ttl">Run a quarterly audit-log review</div><div class="meta">45 min · Quarterly</div></div>
+        <div class="gd-flow-body">
+          <p>The audit log records every consequential action: role changes, ledger reversals, write-offs, configuration changes, impersonations. Read through it.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Admin → Audit log</div><div class="s-det">Filter by date range (last quarter).</div></li>
+            <li><div class="s-ttl">Sample by severity</div><div class="s-det">Read every <code>impersonate</code>, every <code>write-off</code>, every <code>policy-change</code>.</div></li>
+            <li><div class="s-ttl">Investigate anomalies</div><div class="s-det">Anything that looks unusual — DM the actor, get context.</div></li>
+            <li><div class="s-ttl">Export for compliance</div><div class="s-det">CSV export for the legal team or auditor.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">04</div><div class="ttl">Handle a legal flag on a customer</div><div class="meta">30 min · Rare</div></div>
+        <div class="gd-flow-body">
+          <p>Divorce, death, transfer of ownership — situations where the loan can't be modified unilaterally. You set a legal flag on the customer account that locks down certain actions until resolved.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open customer detail → Actions → Set legal flag</div><div class="s-det">Pick the flag type and reason.</div></li>
+            <li><div class="s-ttl">Lock down actions</div><div class="s-det">No deferrals, no restructures, no transfers without your manual approval.</div></li>
+            <li><div class="s-ttl">Loop legal counsel</div><div class="s-det">Document everything. Outside REAM if needed.</div></li>
+            <li><div class="s-ttl">Resolve and unflag</div><div class="s-det">Once the legal matter clears, unflag the account.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">05</div><div class="ttl">Coordinate cross-line policy change</div><div class="meta">2 hours · Quarterly</div></div>
+        <div class="gd-flow-body">
+          <p>When the org changes how it does business — new loan product, new deferral threshold, new fee schedule — multiple admins need to align.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Convene the three line admins</div><div class="s-det">Sales, Finance, Follow-up.</div></li>
+            <li><div class="s-ttl">Agree the policy</div><div class="s-det">Document in plain English first; configuration follows.</div></li>
+            <li><div class="s-ttl">Update each line's config</div><div class="s-det">Loan product (Finance), pipeline / offer guardrails (Sales), cadence (Follow-up).</div></li>
+            <li><div class="s-ttl">Announce internally</div><div class="s-det">Send broadcast to the org. Note the effective date.</div></li>
+            <li><div class="s-ttl">Update templates</div><div class="s-det">Anything customer-facing that referenced the old policy.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">06</div><div class="ttl">Manage billing &amp; seats</div><div class="meta">10 min · Monthly</div></div>
+        <div class="gd-flow-body">
+          <p>REAM bills by seat. You monitor seat usage and pay the invoice. Plan changes happen here too.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Org settings → Billing</div><div class="s-det">Current plan, seat count, invoice history.</div></li>
+            <li><div class="s-ttl">Upgrade / downgrade plan</div><div class="s-det">Self-service.</div></li>
+            <li><div class="s-ttl">Update payment method</div><div class="s-det">Card or ACH.</div></li>
+            <li><div class="s-ttl">Download invoices</div><div class="s-det">For your books.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">07</div><div class="ttl">Run an import / migration</div><div class="meta">2–8 hours · Rare</div></div>
+        <div class="gd-flow-body">
+          <p>Bringing data in from a spreadsheet or another CRM. REAM supports CSV/Excel for prospects, customers, properties, and historic transactions.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Imports → New import</div><div class="s-det">Pick what you're importing.</div></li>
+            <li><div class="s-ttl">Upload file</div><div class="s-det">CSV or Excel.</div></li>
+            <li><div class="s-ttl">Map columns</div><div class="s-det">REAM auto-detects; you correct.</div></li>
+            <li><div class="s-ttl">Preview</div><div class="s-det">First 50 rows shown. Catch obvious errors here.</div></li>
+            <li><div class="s-ttl">Run import</div><div class="s-det">Background job. Status banner on dashboard.</div></li>
+            <li><div class="s-ttl">Reconcile</div><div class="s-det">After import, spot-check 10–20 random records.</div></li>
+          </ol>
+          <div class="gd-callout warn"><div class="ttl"><i class="ri-error-warning-line"></i> Historic transactions are tricky</div><p>Don't import historical loan transactions blindly. Coordinate with Finance admin so accruals and statements regenerate correctly. Often best done in a fresh sandbox tenant first.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- CADENCE -->
+    <section id="cadence" class="gd-section">
+      <span class="sec-num">04 · Quarterly &amp; annual</span>
+      <h2>The rhythm.</h2>
+      <ul>
+        <li><b>Monthly</b> — Billing review. Seat count. Invoice download.</li>
+        <li><b>Quarterly</b> — Audit log review. Inactive-user sweep. Template hygiene.</li>
+        <li><b>Quarterly</b> — Cross-line policy meeting with Sales/Finance/Follow-up admins.</li>
+        <li><b>Annually</b> — REAM contract review. Plan tier. Seat right-sizing.</li>
+        <li><b>Annually</b> — Org branding refresh (logo, colors, footer).</li>
+        <li><b>Annually</b> — GDPR / data retention review.</li>
+        <li><b>Ad hoc</b> — Onboarding new users, offboarding leavers, legal flags, support escalations.</li>
+      </ul>
+    </section>
+
+    <!-- SCREENS -->
+    <section id="screens" class="gd-section">
+      <span class="sec-num">05 · Screens</span>
+      <h2>Every page Org admin touches.</h2>
+      <div class="gd-screens">
+        <a class="gd-screen-card" href="../owner-dashboard.html" target="_blank"><div class="head"><div class="ico"><i class="ri-dashboard-line"></i></div><h4>Owner dashboard</h4></div><span class="url">/owner-dashboard</span><p>Setup checklist + cross-line summary.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../org-settings.html" target="_blank"><div class="head"><div class="ico"><i class="ri-building-2-line"></i></div><h4>Org settings</h4></div><span class="url">/org-settings</span><p>Profile, branding, billing, integrations.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../agents.html" target="_blank"><div class="head"><div class="ico"><i class="ri-team-line"></i></div><h4>Users / Agents</h4></div><span class="url">/agents</span><p>Invite, edit roles, deactivate.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../managers.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-star-line"></i></div><h4>Managers</h4></div><span class="url">/managers</span><p>Managers across all lines.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../admins.html" target="_blank"><div class="head"><div class="ico"><i class="ri-shield-star-line"></i></div><h4>Admins</h4></div><span class="url">/admins</span><p>Sales / Finance / Follow-up admins; plus you.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../document-templates.html" target="_blank"><div class="head"><div class="ico"><i class="ri-file-text-line"></i></div><h4>Document templates</h4></div><span class="url">/document-templates</span><p>Loan agreement, deferral, statement, payoff, addendum.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../emails-catalog.html" target="_blank"><div class="head"><div class="ico"><i class="ri-mail-line"></i></div><h4>Email templates</h4></div><span class="url">/emails-catalog</span><p>All system-sent and team-sent emails.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../activity-templates.html" target="_blank"><div class="head"><div class="ico"><i class="ri-pencil-ruler-2-line"></i></div><h4>Activity templates</h4></div><span class="url">/activity-templates</span><p>Reusable call scripts and SMS.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../imports.html" target="_blank"><div class="head"><div class="ico"><i class="ri-upload-cloud-2-line"></i></div><h4>Imports</h4></div><span class="url">/imports</span><p>Bulk data import for prospects, customers, properties.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../user-settings.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-settings-line"></i></div><h4>User settings</h4></div><span class="url">/user-settings</span><p>Your own profile, security, notifications.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+      </div>
+    </section>
+
+    <!-- PERMS -->
+    <section id="perms" class="gd-section">
+      <span class="sec-num">06 · Permissions</span>
+      <h2>What Org admin can do.</h2>
+      <p>Org admin sees every screen the internal app exposes, but the actions that change financial or sales state still belong to the line admin. The rule of thumb: <strong>if it crosses lines, you can act; if it's inside one line, you defer to the line admin.</strong></p>
+      <table class="gd-perm">
+        <thead><tr><th>Action</th><th>Org admin</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Invite / remove internal users</td><td><span class="yes">Yes</span></td><td>Only role with this power</td></tr>
+          <tr><td>Change a user's role / tier</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Set / unset a legal flag on a customer</td><td><span class="yes">Yes</span></td><td>Only role with this power</td></tr>
+          <tr><td>Edit org profile, branding, domain</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Manage billing, plan, payment method</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Connect / disconnect integrations</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Run imports</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>View / export the audit log</td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Edit document templates</td><td><span class="yes">Yes</span></td><td>Coordinate with the line admin who uses them</td></tr>
+          <tr><td>View any prospect / customer / loan</td><td><span class="yes">Yes</span></td><td>Read-only by default</td></tr>
+          <tr><td>Edit a loan ledger</td><td><span class="no">No</span></td><td>Finance only</td></tr>
+          <tr><td>Build / send an offer</td><td><span class="no">No</span></td><td>Sales only</td></tr>
+          <tr><td>File a deferral / restructure</td><td><span class="no">No</span></td><td>Follow-up initiates</td></tr>
+          <tr><td>Approve a write-off</td><td><span class="no">No</span></td><td>Finance admin</td></tr>
+          <tr><td>Impersonate another user</td><td><span class="lim">Audited</span></td><td>For support purposes; logged loudly</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section id="glossary" class="gd-section">
+      <span class="sec-num">07 · Glossary</span>
+      <h2>The vocabulary of REAM.</h2>
+      <p>The complete glossary every guide carries — Org admin needs all of it, since you span every line.</p>
+      <div class="gd-glossary-search"><i class="ri-search-line"></i><input type="text" placeholder="Filter terms…" oninput="filterGlossary(this.value)" /></div>
+      <dl class="gd-glossary" id="glossary"></dl>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="gd-section">
+      <span class="sec-num">08 · FAQ &amp; gotchas</span>
+      <h2>Things that trip people up.</h2>
+      <div class="gd-faq">
+        <details><summary>I want to invite someone but I'm not sure which tier.</summary><div class="a"><p>When in doubt, invite as the lower tier — easier to promote than demote. Ask the line admin who they should report to; that usually reveals the right tier.</p></div></details>
+        <details><summary>Can I have two Org admins?</summary><div class="a"><p>Yes, and it's recommended for continuity. Two is the practical max — more and accountability blurs.</p></div></details>
+        <details><summary>An admin asked me to give them ledger access. Should I?</summary><div class="a"><p>Probably not. Finance owns the ledger by design. If they're trying to do something specific (run a report, troubleshoot an allocation), get them to do it through Finance. If Finance is unresponsive, escalate inside Finance, don't route around them.</p></div></details>
+        <details><summary>A customer is asking to take over a deceased borrower's loan.</summary><div class="a"><p>Set the <code>Death</code> legal flag immediately. Loop legal counsel. The path is usually either payoff from the estate or assumption — both require formal documentation outside REAM. Don't let any Follow-up action proceed until cleared.</p></div></details>
+        <details><summary>How do I do a GDPR/CCPA delete request?</summary><div class="a"><p>Org settings → Privacy → Subject request. The system anonymizes the user's personal data while preserving the audit trail of financial transactions (required by law). Customer-facing portals go dark for that user.</p></div></details>
+        <details><summary>I accidentally invited the wrong person.</summary><div class="a"><p>Pending invites can be revoked from the Invites page. If they've already accepted, deactivate the user and reassign their (empty) portfolio.</p></div></details>
+        <details><summary>I forgot what was changed in our last policy update.</summary><div class="a"><p>Audit log is your friend. Filter by <code>policy-change</code> events; each entry has before/after values.</p></div></details>
+        <details><summary>REAM is broken and I'm losing business.</summary><div class="a"><p>Status page first (status.ream.com). If down, your team's emails confirm. If up, support@ream.com with "P1 outage" in the subject — 1h SLA. Have the audit log timestamp of the first failure ready.</p></div></details>
+      </div>
+    </section>
+
+    <!-- ESCALATION -->
+    <section id="escalation" class="gd-section">
+      <span class="sec-num">09 · Escalation</span>
+      <h2>Who to ask.</h2>
+      <div class="gd-esc">
+        <div class="gd-esc-row"><div class="ico"><i class="ri-shield-star-line"></i></div><div class="who">Your line admins<small>Sales / Finance / Follow-up — for anything inside one line.</small></div><div class="contact">In app · DM<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-customer-service-2-line"></i></div><div class="who">REAM customer success<small>Onboarding, training, best practices, feature requests.</small></div><div class="contact">success@ream.com<small>Named contact</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-tools-line"></i></div><div class="who">REAM technical support<small>Platform issues, integrations, bug reports.</small></div><div class="contact">support@ream.com<small>1–24h SLA</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-megaphone-line"></i></div><div class="who">REAM account exec<small>Contract, plan, commercial questions.</small></div><div class="contact">Your named AE<small>Per contract</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-scales-line"></i></div><div class="who">Your legal counsel<small>Anything involving a legal flag, dispute, or compliance request.</small></div><div class="contact">External<small>—</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-error-warning-line"></i></div><div class="who">REAM P1 line<small>Platform-down outages affecting collections or signing.</small></div><div class="contact">status.ream.com<small>1h SLA</small></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="gd-footer">
+  <span>Org admin operator manual · v1 · May 2026</span>
+  <span><a href="index.html">← All role guides</a></span>
+</footer>
+
+<script src="_glossary.js"></script>
+<script>
+  renderGlossary();
+  (function(){var links=Array.from(document.querySelectorAll('.toc-link'));var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});function s(){var y=window.scrollY+140;var cur=sections[0];for(var i=0;i<sections.length;i++){if(sections[i]&&sections[i].offsetTop<=y)cur=sections[i];}links.forEach(function(a){a.classList.remove('on');});var m=links.find(function(a){return cur&&a.getAttribute('href')==='#'+cur.id;});if(m)m.classList.add('on');}window.addEventListener('scroll',s,{passive:true});s();})();
+</script>
+</body>
+</html>

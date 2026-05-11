@@ -1,0 +1,110 @@
+/* =====================================================================
+   Ream · Team pages (Agents / Managers / Admins)
+   Shared styles for the role-listing screens.
+   ===================================================================== */
+
+/* ---- Type chip (FOLLOW_UP / SALES / FINANCE) ---- */
+.type-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 999px;
+  font: 600 11px var(--font-sans);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.type-chip i { font-size: 11px; }
+.type-chip.t-sales      { background: #eef5ff; color: #1e40af; border-color: #c7dbff; }
+.type-chip.t-followup   { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.type-chip.t-finance    { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.type-chip.t-admin      { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+
+/* ---- Type tab strip ---- */
+.type-tabs {
+  display: flex; gap: 4px;
+  border-bottom: 1px solid var(--border-default);
+}
+.type-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 0; cursor: pointer;
+  padding: 10px 14px;
+  font: 500 13px var(--font-sans);
+  color: var(--fg3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.type-tab:hover { color: var(--fg1); }
+.type-tab.active { color: var(--color-brand-700); border-bottom-color: var(--color-brand-600); }
+.type-tab .cnt {
+  font: 500 11px var(--font-sans);
+  background: var(--color-grey-100); color: var(--fg3);
+  padding: 1px 7px; border-radius: 999px;
+}
+.type-tab.active .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+/* ---- Person row ---- */
+.person-cell { display: flex; align-items: center; gap: 10px; }
+.person-cell .ava {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 600 11px var(--font-sans); color: white; flex-shrink: 0;
+}
+.person-cell .nm { font: 500 13px var(--font-sans); color: var(--color-grey-800); }
+.person-cell .em { font: 11px var(--font-sans); color: var(--fg3); }
+
+/* ---- KPI strip ---- */
+.team-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.team-kpis .card { padding: 14px 16px; }
+.team-kpis .card-title { font-size: 12px; margin-bottom: 4px; }
+.team-kpis .card-value { font-size: 22px; }
+.team-kpis .delta { font-size: 11px; margin-top: 4px; }
+.team-kpis .delta.up { color: var(--color-success-600); }
+.team-kpis .delta.muted { color: var(--fg3); }
+
+/* ---- Active row hover ---- */
+.row-link td { cursor: pointer; }
+.row-link:hover td { background: var(--color-brand-50) !important; }
+
+
+/* ============================================================
+   RESPONSIVE — team
+   ============================================================ */
+@media (max-width: 1024px) {
+  .team-kpis { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .team-kpis { grid-template-columns: 1fr; }
+}
+
+
+/* ---- Pending invitee rows ---- */
+.table tr.is-pending td { background: #fffbeb; }
+.table tr.is-pending:hover td { background: #fef3c7; }
+.table tr.is-pending td:first-child { box-shadow: inset 3px 0 0 0 var(--color-warning-500, #f59e0b); }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px; border-radius: 999px;
+  font: 600 10.5px var(--font-sans);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.status-pill i { font-size: 11px; }
+.status-pill.s-pending {
+  background: #fef3c7; color: #92400e; border-color: #fde68a;
+}
+.status-pill.s-active {
+  background: #dcfce7; color: #166534; border-color: #bbf7d0;
+}
+
+.pending-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-left: 6px;
+  padding: 1px 6px; border-radius: 4px;
+  font: 500 10px var(--font-sans);
+  background: #f3f4f6; color: #6b7280;
+  vertical-align: middle;
+}
+.pending-tag i { font-size: 10px; }

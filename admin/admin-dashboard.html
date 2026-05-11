@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+  :root { --font-sans: "Inter", system-ui, sans-serif; --font-display: "Fraunces", serif; --font-mono: "JetBrains Mono", ui-monospace, monospace; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 360px; gap: 18px; }
+  @media (max-width: 1180px) { .dash-grid { grid-template-columns: 1fr; } }
+  .dash-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; margin-bottom: 18px; }
+  @media (max-width: 980px) { .dash-row { grid-template-columns: 1fr; } }
+  .alert-list { display: flex; flex-direction: column; }
+  .alert { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--adm-border-2); align-items: center; }
+  .alert:last-child { border-bottom: 0; }
+  .alert .ic { width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; }
+  .alert.crit .ic { background: var(--adm-danger-50); color: var(--adm-danger); }
+  .alert.warn .ic { background: var(--adm-warn-50); color: var(--adm-warn); }
+  .alert.info .ic { background: var(--adm-accent-50); color: var(--adm-stripe); }
+  .alert .title { font: 600 13px var(--font-sans); color: var(--adm-text-1); }
+  .alert .sub { font: 500 11.5px var(--font-sans); color: var(--adm-text-3); margin-top: 1px; }
+  .area-chart { height: 220px; padding: 10px 0; }
+  .legend { display: flex; gap: 14px; font: 500 11.5px var(--font-sans); color: var(--adm-text-3); }
+  .legend .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; vertical-align: middle; }
+  .feed-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--adm-border-2); align-items: flex-start; }
+  .feed-row:last-child { border-bottom: 0; }
+  .feed-row .ic { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--adm-accent-50); color: var(--adm-stripe); font-size: 13px; }
+  .feed-row .ic.warn { background: var(--adm-warn-50); color: var(--adm-warn); }
+  .feed-row .ic.ok   { background: var(--adm-ok-50);   color: var(--adm-ok); }
+  .feed-row .ic.crit { background: var(--adm-danger-50);color: var(--adm-danger); }
+  .feed-row .body { font: 500 12.5px/1.5 var(--font-sans); color: var(--adm-text-2); min-width: 0; }
+  .feed-row .body b { color: var(--adm-text-1); font-weight: 600; }
+  .feed-row .body a { color: var(--adm-stripe); font-weight: 600; text-decoration: none; }
+  .feed-row .ts { font: 500 11px var(--font-mono); color: var(--adm-text-4); white-space: nowrap; padding-top: 4px; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active: "dashboard",
+    crumb: [{ label: "Dashboard" }],
+    title: "Platform overview",
+    subtitle: "Last 30 days · all environments roll up here. Numbers are read from the production replica.",
+    actions: `
+      <button class="adm-btn" data-action="export"><i class="material-symbols-rounded">file_download</i> Export</button>
+      <button class="adm-btn-primary adm-btn" data-action="invite-org"><i class="material-symbols-rounded">add</i> Invite organization</button>
+    `,
+    env: "STAGING",
+  });
+</script>
+
+<script>
+  // KPI strip
+  const kpiHTML = `
+    <div class="adm-kpi-grid">
+      <div class="adm-kpi">
+        <div class="adm-kpi-label"><i class="material-symbols-rounded">domain</i> Active orgs</div>
+        <div class="adm-kpi-value">142</div>
+        <div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +6 this week</div>
+        <div class="spark adm-kpi-spark">
+          ${[12,14,18,16,20,22,18,24,28,26,30,32,30,34].map((h,i,a)=>`<div class="b ${i===a.length-1?"hi":""}" style="height:${h*2}px"></div>`).join("")}
+        </div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label"><i class="material-symbols-rounded">group</i> Active users</div>
+        <div class="adm-kpi-value">8,412</div>
+        <div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +312 (7d)</div>
+        <div class="spark adm-kpi-spark">
+          ${[40,42,38,46,50,48,52,56,54,60,58,64,62,68].map((h,i,a)=>`<div class="b ${i===a.length-1?"hi":""}" style="height:${h*0.4}px"></div>`).join("")}
+        </div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label"><i class="material-symbols-rounded">mail</i> Open invites</div>
+        <div class="adm-kpi-value">12 <span class="unit">of 38 sent</span></div>
+        <div class="adm-kpi-delta flat">68% accepted (7d)</div>
+        <div class="spark adm-kpi-spark">
+          ${[8,12,10,14,16,12,14,18,16,20,14,18,16,12].map((h,i,a)=>`<div class="b ${i===a.length-1?"hi":""}" style="height:${h*1.4}px"></div>`).join("")}
+        </div>
+      </div>
+      <div class="adm-kpi">
+        <div class="adm-kpi-label"><i class="material-symbols-rounded">monitoring</i> p95 latency</div>
+        <div class="adm-kpi-value">142 <span class="unit">ms</span></div>
+        <div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_downward</i> 18ms vs last week</div>
+        <div class="spark adm-kpi-spark">
+          ${[18,20,16,18,14,16,12,14,18,12,14,10,12,14].map((h,i,a)=>`<div class="b ${i===a.length-1?"hi":""}" style="height:${h*1.6}px"></div>`).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Alerts
+  const alertsHTML = `
+    <div class="adm-card" style="margin-bottom:18px;">
+      <div class="adm-card-head">
+        <h3><i class="material-symbols-rounded">notifications_active</i> Alerts requiring attention</h3>
+        <a href="admin-health.html" class="adm-btn adm-btn-ghost">View all health</a>
+      </div>
+      <div class="alert-list">
+        <div class="alert crit">
+          <span class="ic"><i class="material-symbols-rounded">error</i></span>
+          <div>
+            <div class="title">Plaid webhook backlog · 142 events queued for &gt; 5 min</div>
+            <div class="sub">Started 11 min ago · affects payment status updates across 28 orgs</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-action="nav" data-href="admin-health.html">Investigate</button>
+        </div>
+        <div class="alert warn">
+          <span class="ic"><i class="material-symbols-rounded">warning</i></span>
+          <div>
+            <div class="title">3 orgs on Trial expiring in &lt; 7 days</div>
+            <div class="sub">Greenline Properties, Atlas Capital, Maven Realty — no upgrade scheduled</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-action="nav" data-href="admin-orgs.html?status=trial">Review</button>
+        </div>
+        <div class="alert warn">
+          <span class="ic"><i class="material-symbols-rounded">key_off</i></span>
+          <div>
+            <div class="title">2 platform admins haven't reset MFA in 90+ days</div>
+            <div class="sub">Policy violation · enforcement window closes Friday</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-action="nav" data-href="admin-settings.html#admins">Settings</button>
+        </div>
+        <div class="alert info">
+          <span class="ic"><i class="material-symbols-rounded">flag</i></span>
+          <div>
+            <div class="title">Feature flag <span class="mono">portal_v2_redesign</span> at 50% rollout</div>
+            <div class="sub">Stable for 72h · ready to promote to 100%</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-action="nav" data-href="admin-flag-detail.html">Open flag</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Charts (CSS area chart)
+  const chartHTML = `
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <h3><i class="material-symbols-rounded">show_chart</i> Org &amp; user growth</h3>
+        <div class="row gap-2">
+          <div class="legend">
+            <span><span class="sw" style="background:#6366f1"></span>Orgs</span>
+            <span><span class="sw" style="background:#a5b4fc"></span>Users (÷100)</span>
+          </div>
+          <div class="row gap-2" data-range-group>
+            <button class="adm-pill-filter" data-range="7d">7d</button>
+            <button class="adm-pill-filter is-on" data-range="30d">30d</button>
+            <button class="adm-pill-filter" data-range="90d">90d</button>
+          </div>
+        </div>
+      </div>
+      <div class="adm-card-body">
+        <svg viewBox="0 0 600 220" class="area-chart" style="width:100%;display:block;">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6366f1" stop-opacity="0.32"/>
+              <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a5b4fc" stop-opacity="0.32"/>
+              <stop offset="100%" stop-color="#a5b4fc" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#ecebf1" stroke-width="1">
+            <line x1="0" y1="44"  x2="600" y2="44"/>
+            <line x1="0" y1="88"  x2="600" y2="88"/>
+            <line x1="0" y1="132" x2="600" y2="132"/>
+            <line x1="0" y1="176" x2="600" y2="176"/>
+          </g>
+          <!-- Users area -->
+          <path d="M0,170 L40,168 L80,160 L120,156 L160,148 L200,140 L240,134 L280,128 L320,118 L360,108 L400,100 L440,92 L480,84 L520,72 L560,62 L600,52 L600,220 L0,220 Z" fill="url(#g2)" />
+          <path d="M0,170 L40,168 L80,160 L120,156 L160,148 L200,140 L240,134 L280,128 L320,118 L360,108 L400,100 L440,92 L480,84 L520,72 L560,62 L600,52" fill="none" stroke="#a5b4fc" stroke-width="2"/>
+          <!-- Orgs area -->
+          <path d="M0,196 L40,194 L80,188 L120,184 L160,178 L200,172 L240,170 L280,164 L320,160 L360,154 L400,150 L440,144 L480,138 L520,134 L560,130 L600,124 L600,220 L0,220 Z" fill="url(#g1)" />
+          <path d="M0,196 L40,194 L80,188 L120,184 L160,178 L200,172 L240,170 L280,164 L320,160 L360,154 L400,150 L440,144 L480,138 L520,134 L560,130 L600,124" fill="none" stroke="#6366f1" stroke-width="2.4"/>
+          <!-- x labels -->
+          <g font-family="Inter" font-size="10" fill="#9892a3" text-anchor="middle">
+            <text x="0"   y="214">Apr 11</text>
+            <text x="150" y="214">Apr 18</text>
+            <text x="300" y="214">Apr 25</text>
+            <text x="450" y="214">May 2</text>
+            <text x="600" y="214">May 9</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  `;
+
+  // Recent audit feed
+  const feedHTML = `
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <h3><i class="material-symbols-rounded">fact_check</i> Recent activity</h3>
+        <a href="admin-audit.html" class="adm-btn adm-btn-ghost">Open audit log</a>
+      </div>
+      <div class="adm-card-body" style="padding:0 16px;">
+        ${[
+          { ic:"flag",     k:"info", html:`<b>Daria Kim</b> set flag <a href="admin-flags.html">portal_v2_redesign</a> from <span class="mono">25%</span> to <span class="mono">50%</span>`, ts:"2 min ago" },
+          { ic:"mail",     k:"info", html:`<b>Daria Kim</b> sent invite to <a href="admin-orgs.html">Pinecrest Loans</a> · <span class="mono">jvasquez@pinecrest.com</span>`, ts:"14 min" },
+          { ic:"lock",     k:"warn", html:`<b>System</b> moved <a>Northgate Realty</a> to <span class="mono">READ_ONLY</span> · trial expired`, ts:"1 hr" },
+          { ic:"verified_user", k:"ok", html:`<b>Marc Olsen</b> approved 2-person promote of flag <a class="mono">refactor_payments_engine</a> to 10%`, ts:"3 hr" },
+          { ic:"campaign", k:"info", html:`<b>Daria Kim</b> scheduled broadcast <a>"Maintenance window — May 12 02:00 UTC"</a> to all orgs`, ts:"4 hr" },
+          { ic:"key_off",  k:"crit", html:`<b>Security</b> blocked unsuccessful super-admin login from <span class="mono">203.0.113.44</span> (not in allowlist)`, ts:"6 hr" },
+          { ic:"person_remove", k:"warn", html:`<b>Marc Olsen</b> locked user <a>tina@atlascap.com</a> · reason: ABUSE`, ts:"yesterday" },
+        ].map(f => `
+          <div class="feed-row">
+            <span class="ic ${f.k}"><i class="material-symbols-rounded">${f.ic}</i></span>
+            <div class="body">${f.html}</div>
+            <span class="ts">${f.ts}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  // Side rail
+  const sideHTML = `
+    <div class="adm-card" style="margin-bottom:14px;">
+      <div class="adm-card-head"><h3><i class="material-symbols-rounded">workspaces</i> Plan distribution</h3></div>
+      <div class="adm-card-body">
+        ${[
+          { plan:"Trial",      n:18, pct:13, color:"#9ca3af" },
+          { plan:"Starter",    n:62, pct:44, color:"#a5b4fc" },
+          { plan:"Growth",     n:48, pct:34, color:"#6366f1" },
+          { plan:"Enterprise", n:14, pct:9,  color:"#4338ca" },
+        ].map(p => `
+          <div style="margin-bottom:14px;">
+            <div class="row" style="justify-content:space-between;font:500 12.5px var(--font-sans);margin-bottom:4px;">
+              <span style="color:var(--adm-text-1);font-weight:600;">${p.plan}</span>
+              <span style="color:var(--adm-text-3);">${p.n} <span class="muted">· ${p.pct}%</span></span>
+            </div>
+            <div style="background:#f3f4f6;height:6px;border-radius:999px;overflow:hidden;">
+              <div style="background:${p.color};width:${p.pct}%;height:100%;"></div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="adm-card" style="margin-bottom:14px;">
+      <div class="adm-card-head">
+        <h3><i class="material-symbols-rounded">toggle_on</i> Feature flag rollouts</h3>
+        <a href="admin-flags.html" class="adm-btn adm-btn-ghost adm-btn-sm">View all</a>
+      </div>
+      <div class="adm-card-body" style="padding:0;">
+        ${[
+          { name:"portal_v2_redesign", state:"50%", k:"indigo" },
+          { name:"refactor_payments_engine", state:"10%", k:"warn" },
+          { name:"plaid_oauth_v2", state:"100%", k:"active" },
+          { name:"emergency_lockdown", state:"OFF", k:"muted" },
+          { name:"new_pricing_table", state:"5 orgs", k:"indigo" },
+        ].map(f => `
+          <div class="row" style="padding:10px 16px;border-bottom:1px solid var(--adm-border-2);justify-content:space-between;">
+            <span class="mono" style="font-size:12px;color:var(--adm-text-1);">${f.name}</span>
+            <span class="adm-pill ${f.k} no-dot">${f.state}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-card-head"><h3><i class="material-symbols-rounded">cloud_queue</i> System health</h3></div>
+      <div class="adm-card-body" style="padding:8px 16px;">
+        ${[
+          { svc:"API", st:"Operational", k:"active" },
+          { svc:"Web", st:"Operational", k:"active" },
+          { svc:"Workers", st:"Degraded", k:"warn" },
+          { svc:"Plaid", st:"Backlog", k:"crit" },
+          { svc:"S3 / uploads", st:"Operational", k:"active" },
+          { svc:"Postgres (primary)", st:"Operational", k:"active" },
+        ].map(s => `
+          <div class="adm-stat-row">
+            <span class="lbl">${s.svc}</span>
+            <span class="adm-pill ${s.k}">${s.st}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  // Toast helper
+  function toast(msg, kind = "ok") {
+    let host = document.getElementById("adm-toast-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "adm-toast-host";
+      host.style.cssText = "position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999;";
+      document.body.appendChild(host);
+    }
+    const el = document.createElement("div");
+    const palette = kind === "crit" ? ["var(--color-error-50)","var(--color-error-200)","var(--color-error-800)"]
+                  : kind === "warn" ? ["var(--color-warning-50)","var(--color-warning-200)","var(--color-warning-800)"]
+                  : ["var(--color-brand-50)","var(--color-brand-200)","var(--color-brand-800)"];
+    el.style.cssText = `background:${palette[0]};border:1px solid ${palette[1]};color:${palette[2]};padding:10px 14px;border-radius:8px;font:500 13px var(--font-sans);box-shadow:var(--shadow-md);min-width:240px;`;
+    el.textContent = msg;
+    host.appendChild(el);
+    setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity .3s"; }, 2400);
+    setTimeout(() => el.remove(), 2800);
+  }
+
+  // Invite-org dialog
+  function openInviteDialog() {
+    const back = document.createElement("div");
+    back.className = "adm-drawer-back open";
+    const drawer = document.createElement("div");
+    drawer.className = "adm-drawer open";
+    drawer.innerHTML = `
+      <div class="adm-drawer-head">
+        <h3>Invite organization</h3>
+        <button class="adm-kebab" data-close><i class="material-symbols-rounded">close</i></button>
+      </div>
+      <div class="adm-drawer-body">
+        <label class="adm-label">Organization name</label>
+        <input class="adm-input" id="iv-org" placeholder="e.g. Pinecrest Loans" />
+        <div class="adm-help" style="margin-bottom:14px;">Shown on the invite email and as the workspace name once they sign up.</div>
+        <label class="adm-label">Admin email</label>
+        <input class="adm-input" id="iv-em" type="email" placeholder="founder@example.com" />
+        <div class="adm-help" style="margin-bottom:14px;">First admin for the org. They get an invite link valid for 14 days.</div>
+        <label class="adm-label">Plan</label>
+        <select class="adm-select" id="iv-pl"><option>Trial — 30 days</option><option>Starter</option><option>Growth</option><option>Enterprise</option></select>
+        <div class="adm-help">Can be changed later from the org detail page.</div>
+      </div>
+      <div class="adm-drawer-foot">
+        <button class="adm-btn" data-close>Cancel</button>
+        <button class="adm-btn adm-btn-primary" data-send><i class="material-symbols-rounded">send</i> Send invite</button>
+      </div>`;
+    document.body.append(back, drawer);
+    const close = () => { back.remove(); drawer.remove(); };
+    back.onclick = close;
+    drawer.querySelectorAll("[data-close]").forEach(b => b.onclick = close);
+    drawer.querySelector("[data-send]").onclick = () => {
+      const org = drawer.querySelector("#iv-org").value.trim();
+      const em  = drawer.querySelector("#iv-em").value.trim();
+      if (!org || !em) { toast("Name and email are required", "warn"); return; }
+      close();
+      toast(`Invite sent to ${em}`);
+    };
+  }
+
+  // Wire all buttons via delegation
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-action], [data-range]");
+    if (!t) return;
+    const a = t.dataset.action;
+    if (a === "nav") {
+      const href = t.dataset.href;
+      if (href) location.href = href;
+    } else if (a === "export") {
+      const csv = "metric,value\nactive_orgs,142\nactive_users,8412\nopen_invites,12\np95_latency_ms,142\n";
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = `ream-platform-overview-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(link); link.click(); link.remove();
+      URL.revokeObjectURL(url);
+      toast("Exported overview.csv");
+    } else if (a === "invite-org") {
+      openInviteDialog();
+    } else if (t.dataset.range) {
+      const grp = t.closest("[data-range-group]");
+      grp.querySelectorAll(".adm-pill-filter").forEach(b => b.classList.remove("is-on"));
+      t.classList.add("is-on");
+      toast(`Range: ${t.dataset.range}`);
+    }
+  });
+
+  // CSS for active filter pill
+  const styleEl = document.createElement("style");
+  styleEl.textContent = `.adm-pill-filter.is-on{background:var(--color-brand-50);border-color:var(--color-brand-200);color:var(--color-brand-700);}`;
+  document.head.appendChild(styleEl);
+
+  document.getElementById("adm-content").innerHTML = `
+    ${kpiHTML}
+    ${alertsHTML}
+    <div class="dash-grid">
+      <div>
+        ${chartHTML}
+        <div style="height:14px;"></div>
+        ${feedHTML}
+      </div>
+      <div>${sideHTML}</div>
+    </div>
+  `;
+</script>
+</body>
+</html>

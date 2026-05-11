@@ -1,0 +1,1701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Welcome, Amara</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="dialog.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  /* Re-use the org-pill / collapsible-group / user-pill additions from ream.html
+     in a slimmer form — owner-only nav, no JS-built tree. */
+  .sidebar .brand.org-pill {
+    padding: 8px 8px 12px; margin: 0; cursor: pointer; background: transparent; border: 0;
+    width: 100%; text-align: left;
+    display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 10px;
+    font-family: var(--font-sans); font-weight: 600; font-size: 14px;
+    color: var(--color-grey-800); border-radius: 8px; transition: background .12s;
+  }
+  .sidebar .brand.org-pill:hover { background: var(--color-grey-50); }
+  .sidebar .brand.org-pill .org-logo {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 13px var(--font-sans); color: white; background: var(--color-brand-600);
+  }
+  .sidebar .brand.org-pill .org-meta { line-height: 1.2; min-width: 0; }
+  .sidebar .brand.org-pill .org-name {
+    font: 600 13px var(--font-sans); color: var(--color-grey-900);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sidebar .brand.org-pill .org-plan {
+    font: 500 10.5px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px;
+  }
+  .sidebar .brand.org-pill .org-caret { color: var(--fg3); font-size: 14px; }
+  .sidebar .nav-item .nav-badge {
+    margin-left: auto; font: 600 10.5px var(--font-sans);
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    padding: 1px 7px; border-radius: 999px; min-width: 18px; text-align: center;
+  }
+  .sidebar .nav-item.active .nav-badge { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .sidebar .user.with-menu {
+    display: grid; grid-template-columns: 36px 1fr 16px; gap: 10px; align-items: center;
+    padding: 8px; border-radius: 10px; background: transparent; border: 0; width: 100%;
+    text-align: left; cursor: pointer;
+  }
+  .sidebar .user.with-menu:hover { background: var(--color-grey-50); }
+  .sidebar .user.with-menu .avatar {
+    width: 36px; height: 36px; border-radius: 50%; position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font: 600 13px var(--font-sans);
+  }
+  .sidebar .user.with-menu .avatar .presence {
+    position: absolute; bottom: -1px; right: -1px; width: 11px; height: 11px;
+    border-radius: 50%; background: var(--color-success-500, #10b981);
+    border: 2px solid var(--color-base-white);
+  }
+  .sidebar .user.with-menu .name { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .sidebar .user.with-menu .role-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 500 10.5px var(--font-sans); color: var(--fg3);
+    margin-top: 1px;
+  }
+  .sidebar .user.with-menu .more { color: var(--fg3); font-size: 14px; }
+
+  /* Bottom rail (lifted from ream.html shell) */
+  .sidebar .sb-rail {
+    display: flex; gap: 4px;
+    padding: 0 4px 6px;
+    margin-top: 8px;
+  }
+  .sidebar .sb-rail-btn {
+    flex: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 32px;
+    background: transparent; border: 0;
+    border-radius: 7px;
+    color: var(--fg2); cursor: pointer;
+    position: relative;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+  }
+  .sidebar .sb-rail-btn:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+  .sidebar .sb-rail-btn i { font-size: 16px; }
+  .sidebar .sb-rail-btn .nb {
+    position: absolute; top: 2px; right: 8px;
+    background: var(--color-error-600, #dc2626);
+    color: #fff;
+    font: 700 9.5px var(--font-sans);
+    min-width: 14px; height: 14px;
+    padding: 0 3px;
+    border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* ========== Owner home content ========== */
+  .ow-content { padding: 24px 28px 56px; max-width: 1280px; margin: 0 auto; }
+
+  /* Ream-style welcome */
+  .ow-welcome2 {
+    display: grid; grid-template-columns: 1fr auto; gap: 24px;
+    padding: 22px 24px; margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(59,91,217,0.05), rgba(59,91,217,0) 65%), var(--color-base-white);
+    border: 1px solid var(--border-subtle); border-radius: 14px;
+  }
+  .ow-welcome2 .greet-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .ow-welcome2 .dept-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--color-brand-500); }
+  .ow-welcome2 h1 {
+    margin: 0; font: 700 24px var(--font-sans);
+    color: var(--color-grey-900); letter-spacing: -0.02em;
+  }
+  .ow-welcome2 h1 .nm { color: var(--color-brand-700); }
+  .ow-welcome2 .greet-sub { margin-top: 6px; font: 13.5px var(--font-sans); color: var(--fg2); max-width: 640px; line-height: 1.5; }
+  .ow-welcome2 .greet-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .ow-welcome2 .greet-meta .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--color-grey-50); border: 1px solid var(--border-subtle);
+    font: 500 11.5px var(--font-sans); color: var(--color-grey-800);
+  }
+  .ow-welcome2 .greet-meta .pill i { font-size: 13px; color: var(--fg3); }
+  .ow-welcome2 .greet-meta .pill[data-tone="brand"] { background: var(--color-brand-50); border-color: transparent; color: var(--color-brand-700); }
+  .ow-welcome2 .greet-meta .pill[data-tone="brand"] i { color: var(--color-brand-600); }
+  .ow-welcome2 .greet-meta .pill[data-tone="warn"] { background: var(--color-warning-50); border-color: transparent; color: var(--color-warning-700); }
+  .ow-welcome2 .greet-meta .pill[data-tone="warn"] i { color: var(--color-warning-600); }
+  .ow-welcome2 .greet-actions { display: flex; gap: 8px; align-self: flex-start; flex-shrink: 0; }
+  .ow-welcome2 .greet-actions .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px;
+    font: 600 12.5px var(--font-sans);
+    border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  }
+  .ow-welcome2 .greet-actions .btn.primary { background: var(--color-brand-600); color: #fff; }
+  .ow-welcome2 .greet-actions .btn.primary:hover { background: var(--color-brand-700); }
+  .ow-welcome2 .greet-actions .btn.secondary { background: var(--color-base-white); color: var(--color-grey-800); border-color: var(--border-default); }
+  .ow-welcome2 .greet-actions .btn.secondary:hover { background: var(--color-grey-50); }
+
+  /* Quick actions chip strip */
+  .ow-qa { display: flex; align-items: center; gap: 12px; margin: -4px 0 18px; padding: 0; flex-wrap: wrap; }
+  .ow-qa .eyebrow { font: 500 11px var(--font-sans); color: var(--fg3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .ow-qa .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ow-qa .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--color-base-white); border: 1px solid var(--border-default);
+    font: 500 12.5px var(--font-sans); color: var(--color-grey-800);
+    cursor: pointer; text-decoration: none;
+  }
+  .ow-qa .chip:hover { background: var(--color-brand-50); border-color: var(--color-brand-100); color: var(--color-brand-700); }
+  .ow-qa .chip i { font-size: 13.5px; color: var(--fg3); }
+  .ow-qa .chip:hover i { color: var(--color-brand-600); }
+
+  /* 2-col layout for checklist + side */
+  .ow-setup-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 1080px) { .ow-setup-grid { grid-template-columns: 1fr; } }
+
+  /* Side stack cards */
+  .ow-side-card {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .ow-side-card + .ow-side-card { margin-top: 14px; }
+  .ow-side-card .side-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .ow-side-card .side-head h3 {
+    margin: 0; font: 600 13.5px var(--font-sans); color: var(--color-grey-900);
+    letter-spacing: -0.005em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ow-side-card .side-head h3 i {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--color-brand-50); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .ow-trial-bar { height: 6px; border-radius: 999px; background: var(--color-grey-100); overflow: hidden; margin: 6px 0 8px; }
+  .ow-trial-bar .fill { display: block; height: 100%; background: linear-gradient(90deg, var(--color-brand-500), var(--color-brand-700)); border-radius: 999px; }
+  .ow-trial-meta { display: flex; align-items: baseline; justify-content: space-between; }
+  .ow-trial-meta .big { font: 700 22px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; }
+  .ow-trial-meta .big small { font: 500 12px var(--font-sans); color: var(--fg3); margin-left: 4px; }
+  .ow-trial-meta .right { font: 500 12px var(--font-sans); color: var(--fg2); }
+  .ow-trial-detail { font: 12.5px var(--font-sans); color: var(--fg2); margin-top: 4px; line-height: 1.5; }
+  .ow-side-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .ow-side-actions .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 7px;
+    font: 600 12px var(--font-sans);
+    border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  }
+  .ow-side-actions .btn.primary { background: var(--color-brand-600); color: #fff; }
+  .ow-side-actions .btn.secondary { background: transparent; color: var(--color-grey-800); border-color: var(--border-default); }
+  .ow-side-actions .btn.secondary:hover { background: var(--color-grey-50); }
+
+  /* Resource list */
+  .ow-res-list { display: flex; flex-direction: column; gap: 2px; margin: 0 -8px; }
+  .ow-res-item {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 8px; border-radius: 8px;
+    text-decoration: none; color: inherit; cursor: pointer;
+    background: transparent; border: 0; width: 100%; text-align: left;
+  }
+  .ow-res-item:hover { background: var(--color-grey-50); }
+  .ow-res-item .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--color-grey-50); color: var(--color-grey-700);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .ow-res-item .ti { font: 600 12.5px var(--font-sans); color: var(--color-grey-900); }
+  .ow-res-item .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.4; }
+  .ow-res-item .arrow { color: var(--fg4); font-size: 14px; }
+  .ow-res-item:hover .arrow { color: var(--color-brand-600); }
+
+  /* Welcome banner */
+  .ow-welcome {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .ow-welcome::before {
+    content: ""; position: absolute; right: -80px; top: -80px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, var(--color-brand-50) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .ow-welcome-grid { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; position: relative; z-index: 1; }
+  .ow-welcome h1 { margin: 0 0 6px; font: 700 24px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; }
+  .ow-welcome p { margin: 0; font: 14px var(--font-sans); color: var(--fg2); line-height: 1.5; max-width: 60ch; }
+  .ow-welcome .progress-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--color-brand-50); color: var(--color-brand-800);
+    padding: 8px 14px; border-radius: 999px;
+    font: 600 12.5px var(--font-sans);
+    border: 1px solid var(--color-brand-100);
+  }
+  .ow-welcome .ring {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: conic-gradient(var(--color-brand-600) 0deg, var(--color-grey-200) 0deg);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ow-welcome .ring::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--color-brand-50); }
+
+  /* Get started checklist */
+  .ow-checklist {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .ow-checklist-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; border-bottom: 1px solid var(--border-subtle);
+  }
+  .ow-checklist-head h2 { margin: 0; font: 600 16px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .ow-checklist-head .progress-text { font: 500 13px var(--font-sans); color: var(--fg2); }
+  .ow-checklist-head .progress-text b { color: var(--color-grey-900); font-weight: 600; }
+  .ow-progress-bar { height: 4px; background: var(--color-grey-100); position: relative; }
+  .ow-progress-bar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--color-brand-600); width: 0%; transition: width .3s; }
+
+  .ow-steps { list-style: none; margin: 0; padding: 0; }
+  .ow-step {
+    display: grid; grid-template-columns: 24px 1fr auto; gap: 14px; align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer; transition: background .12s;
+  }
+  .ow-step:last-child { border-bottom: 0; }
+  .ow-step:hover { background: var(--color-grey-50); }
+  .ow-step .check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--color-grey-300);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: transparent; font-size: 13px;
+    transition: all .12s;
+  }
+  .ow-step.done .check { background: var(--color-success-500, #10b981); border-color: var(--color-success-500, #10b981); color: #fff; }
+  .ow-step .step-body { min-width: 0; }
+  .ow-step .step-title {
+    font: 600 13.5px var(--font-sans);
+    color: var(--color-grey-900);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ow-step.done .step-title { color: var(--fg3); text-decoration: line-through; }
+  .ow-step .step-est {
+    font: 500 11px var(--font-sans); color: var(--fg3);
+    background: var(--color-grey-50); padding: 1px 7px; border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+  }
+  .ow-step .step-desc { font: 13px var(--font-sans); color: var(--fg2); margin-top: 2px; line-height: 1.45; }
+  .ow-step .step-cta {
+    font: 600 13px var(--font-sans); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 10px; border-radius: 6px;
+  }
+  .ow-step:hover .step-cta { background: var(--color-brand-50); }
+  .ow-step.done .step-cta { color: var(--fg3); }
+
+  /* Empty section cards */
+  .ow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ow-card {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .ow-card-head { display: flex; align-items: center; justify-content: space-between; }
+  .ow-card-head h3 {
+    margin: 0; font: 600 14px var(--font-sans);
+    color: var(--color-grey-900); letter-spacing: -0.005em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ow-card-head h3 i {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--color-brand-50); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .ow-card .empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 24px 0 8px; gap: 6px;
+  }
+  .ow-card .empty .ill {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: var(--color-grey-50);
+    border: 1px dashed var(--color-grey-300);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--fg3); font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .ow-card .empty .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-800); }
+  .ow-card .empty .sb { font: 12.5px var(--font-sans); color: var(--fg3); max-width: 32ch; line-height: 1.5; }
+  .ow-card .empty .ac {
+    margin-top: 6px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 12.5px var(--font-sans); color: var(--color-brand-700);
+    background: var(--color-base-white); border: 1px solid var(--color-brand-200, #c7d2fe);
+    padding: 7px 12px; border-radius: 7px; cursor: pointer; text-decoration: none;
+  }
+  .ow-card .empty .ac:hover { background: var(--color-brand-50); }
+
+  /* ============================================================
+     ONBOARDING WIZARD (uses dialog.css overlay pattern, custom body)
+     ============================================================ */
+  .wiz-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.42);
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+    padding: 32px;
+  }
+  .wiz-overlay.open { display: flex; }
+  .wiz-shell {
+    width: 100%; max-width: 920px; height: min(680px, 90vh);
+    background: var(--color-base-white);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24), 0 2px 8px rgba(15, 23, 42, 0.08);
+    display: grid; grid-template-columns: 280px 1fr;
+    overflow: hidden;
+  }
+
+  /* Stepper rail */
+  .wiz-rail {
+    background: var(--color-grey-50);
+    border-right: 1px solid var(--border-subtle);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .wiz-rail-head { margin-bottom: 18px; }
+  .wiz-rail-head .eye {
+    font: 700 10.5px var(--font-sans); letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--color-brand-700);
+  }
+  .wiz-rail-head .ti { font: 700 18px var(--font-sans); color: var(--color-grey-900); margin-top: 4px; letter-spacing: -0.02em; }
+  .wiz-rail-head .sb { font: 13px var(--font-sans); color: var(--fg2); margin-top: 4px; line-height: 1.5; }
+
+  .wiz-step-row {
+    display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: flex-start;
+    padding: 10px 8px; border-radius: 8px;
+    text-align: left; background: transparent; border: 0; cursor: pointer;
+    color: inherit; font-family: inherit;
+  }
+  .wiz-step-row:hover { background: rgba(15, 23, 42, 0.04); }
+  .wiz-step-row .num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--color-grey-200); color: var(--fg2);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 12px var(--font-sans);
+    transition: background .12s, color .12s;
+    margin-top: 1px;
+  }
+  .wiz-step-row.active .num { background: var(--color-brand-600); color: #fff; }
+  .wiz-step-row.done .num { background: var(--color-success-500, #10b981); color: #fff; }
+  .wiz-step-row .lbl { font: 600 13px var(--font-sans); color: var(--color-grey-800); line-height: 1.3; }
+  .wiz-step-row.active .lbl { color: var(--color-grey-900); }
+  .wiz-step-row .desc { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.4; }
+
+  /* Body */
+  .wiz-body { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .wiz-head {
+    padding: 22px 32px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .wiz-head .ti { font: 700 18px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.015em; }
+  .wiz-head .sb { font: 13px var(--font-sans); color: var(--fg2); margin-top: 3px; line-height: 1.5; }
+  .wiz-close {
+    background: transparent; border: 0; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 6px;
+    color: var(--fg3); display: inline-flex; align-items: center; justify-content: center;
+  }
+  .wiz-close:hover { background: var(--color-grey-100); color: var(--color-grey-800); }
+
+  .wiz-scroll { flex: 1 1 0; min-height: 0; overflow: auto; padding: 24px 32px; }
+  .wiz-foot { flex-shrink: 0; }
+  .wiz-foot {
+    padding: 14px 32px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--color-grey-50);
+  }
+  .wiz-foot-progress { font: 500 12.5px var(--font-sans); color: var(--fg2); }
+  .wiz-foot-actions { display: flex; gap: 8px; }
+  .wiz-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 16px;
+    font: 600 13px var(--font-sans);
+    border-radius: 7px; cursor: pointer;
+    border: 1px solid transparent;
+    transition: background .12s, border-color .12s, color .12s;
+  }
+  .wiz-btn.ghost { background: transparent; color: var(--fg2); border-color: transparent; }
+  .wiz-btn.ghost:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+  .wiz-btn.secondary { background: var(--color-base-white); color: var(--color-grey-800); border-color: var(--color-grey-300); }
+  .wiz-btn.secondary:hover { background: var(--color-grey-50); border-color: var(--color-grey-400); }
+  .wiz-btn.primary { background: var(--color-brand-600); color: #fff; border-color: var(--color-brand-600); }
+  .wiz-btn.primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+
+  /* Wizard form fields */
+  .wiz-fields { display: flex; flex-direction: column; gap: 18px; }
+  .wiz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .wiz-row.full { grid-template-columns: 1fr; }
+  .wiz-f { display: flex; flex-direction: column; gap: 6px; }
+  .wiz-f label { font: 600 12px var(--font-sans); color: var(--color-grey-800); }
+  .wiz-f .hint { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .wiz-input, .wiz-select, .wiz-textarea {
+    width: 100%; min-height: 38px;
+    background: var(--color-base-white);
+    border: 1px solid var(--color-grey-300);
+    border-radius: 7px; padding: 8px 12px;
+    font: 13.5px var(--font-sans); color: var(--color-grey-900);
+    outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .wiz-input:focus, .wiz-select:focus, .wiz-textarea:focus {
+    border-color: var(--color-brand-600);
+    box-shadow: 0 0 0 3px rgba(59, 91, 217, 0.12);
+  }
+  .wiz-textarea { min-height: 80px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+  /* Inline-suffix input — matches loan-create-v2 .lc-suffix pattern */
+  .wiz-suffix { position: relative; }
+  .wiz-suffix .wiz-input { padding-right: 56px; }
+  .wiz-suffix .suf {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font: 500 12px var(--font-sans); color: var(--fg3);
+    pointer-events: none; white-space: nowrap;
+  }
+  /* Inline-prefix input */
+  .wiz-prefix { position: relative; }
+  .wiz-prefix .wiz-input { padding-left: 50px; }
+  .wiz-prefix .pre {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font: 500 12px var(--font-sans); color: var(--fg3);
+    pointer-events: none; white-space: nowrap;
+  }
+
+  /* Sub-section header inside a wizard pane */
+  .wiz-section-head {
+    font: 600 11.5px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--fg3);
+    margin: 4px 0 -4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .wiz-section-head:first-child { margin-top: 0; }
+
+  /* Tag chip input (taglines) */
+  .wiz-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 8px 10px;
+    background: var(--color-base-white);
+    border: 1px solid var(--color-grey-300);
+    border-radius: 7px;
+    min-height: 38px;
+    align-items: center;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .wiz-chips:focus-within { border-color: var(--color-brand-600); box-shadow: 0 0 0 3px rgba(59, 91, 217, 0.12); }
+  .wiz-chips .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-brand-50); color: var(--color-brand-800);
+    border: 1px solid var(--color-brand-100);
+    padding: 3px 4px 3px 10px;
+    border-radius: 999px;
+    font: 500 12.5px var(--font-sans);
+  }
+  .wiz-chips .chip button {
+    background: transparent; border: 0; color: var(--color-brand-700);
+    width: 18px; height: 18px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px;
+  }
+  .wiz-chips .chip button:hover { background: var(--color-brand-100); }
+  .wiz-chips input {
+    flex: 1; min-width: 140px;
+    border: 0; outline: 0; background: transparent;
+    font: 13.5px var(--font-sans); color: var(--color-grey-900);
+    padding: 4px 4px;
+  }
+
+  /* Logo upload */
+  .wiz-logo-up {
+    display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: center;
+    padding: 12px;
+    border: 1px dashed var(--color-grey-300);
+    border-radius: 10px;
+    background: var(--color-grey-50);
+  }
+  .wiz-logo-preview {
+    width: 80px; height: 80px; border-radius: 12px;
+    background: var(--color-brand-600); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 28px var(--font-sans); letter-spacing: -0.02em;
+  }
+  .wiz-logo-up .ti { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .wiz-logo-up .sb { font: 12px var(--font-sans); color: var(--fg3); margin-top: 3px; line-height: 1.5; }
+  .wiz-logo-up .upload-btn {
+    margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-base-white); border: 1px solid var(--color-grey-300);
+    padding: 6px 10px; border-radius: 6px;
+    font: 600 12px var(--font-sans); color: var(--color-grey-800);
+    cursor: pointer;
+  }
+  .wiz-logo-up .upload-btn:hover { border-color: var(--color-grey-400); background: var(--color-grey-50); }
+
+  /* Currency / radio cards */
+  .wiz-radio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .wiz-radio-grid label {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-grey-300);
+    border-radius: 8px;
+    cursor: pointer; transition: all .12s;
+    background: var(--color-base-white);
+  }
+  .wiz-radio-grid label:hover { border-color: var(--color-grey-400); background: var(--color-grey-50); }
+  .wiz-radio-grid label.active {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+    box-shadow: 0 0 0 3px rgba(59, 91, 217, 0.10);
+  }
+  .wiz-radio-grid label input { display: none; }
+  .wiz-radio-grid label .rt { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .wiz-radio-grid label .rs { font: 11.5px var(--font-sans); color: var(--fg3); }
+
+  /* Invite teammates step */
+  .wiz-invite-add { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; }
+  .wiz-invite-list {
+    list-style: none; margin: 14px 0 0; padding: 0;
+    display: flex; flex-direction: column;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .wiz-invite-list:empty { display: none; }
+  .wiz-invite-list li {
+    display: grid; grid-template-columns: 32px 1fr auto auto; gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--color-base-white);
+  }
+  .wiz-invite-list li:last-child { border-bottom: 0; }
+  .wiz-invite-list .av {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 12px var(--font-sans);
+  }
+  .wiz-invite-list .em { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+  .wiz-invite-list .role-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 11px var(--font-sans); color: var(--color-brand-700);
+    background: var(--color-brand-50); border: 1px solid var(--color-brand-100);
+    padding: 3px 9px 3px 7px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .wiz-invite-list .role-pill i { font-size: 12px; line-height: 1; }
+  /* Role-specific colors */
+  .wiz-invite-list .role-pill.role-agent   { color: #1e6fb8; background: #e8f1fb; border-color: #cfe1f5; }
+  .wiz-invite-list .role-pill.role-manager { color: #7a4eb5; background: #f1ebfb; border-color: #e0d2f4; }
+  .wiz-invite-list .role-pill.role-admin   { color: #b54e3c; background: #fbece8; border-color: #f3d2c9; }
+  /* Team-specific colors */
+  .wiz-invite-list .team-pill.team-sales     { color: #1f7a52; background: #e8f5ee; border-color: #cfe7d8; }
+  .wiz-invite-list .team-pill.team-followup  { color: #b07315; background: #fcf2dd; border-color: #f1e0b8; }
+  .wiz-invite-list .team-pill.team-finance   { color: #4a5d8a; background: #ecf0f9; border-color: #d3dbef; }
+  .wiz-invite-list .rm {
+    background: transparent; border: 0; color: var(--fg3); cursor: pointer;
+    padding: 4px 6px; border-radius: 4px;
+  }
+  .wiz-invite-list .rm:hover { background: var(--color-error-50, #fef2f2); color: var(--color-error-700, #b91c1c); }
+
+  /* Done state */
+  .wiz-done {
+    text-align: center; padding: 48px 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .wiz-done .check-big {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--color-success-500, #10b981); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 38px;
+  }
+  .wiz-done h3 { margin: 0; font: 700 22px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; }
+  .wiz-done p { margin: 0; font: 14px var(--font-sans); color: var(--fg2); max-width: 44ch; line-height: 1.55; }
+
+  @media (max-width: 720px) {
+    .wiz-shell { grid-template-columns: 1fr; height: 100vh; max-height: none; border-radius: 0; }
+    .wiz-rail { display: none; }
+    .ow-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- =========== SIDEBAR =========== -->
+  <aside class="sidebar">
+    <button class="brand org-pill" type="button" id="orgSwitcher">
+      <span class="org-logo">G</span>
+      <span class="org-meta">
+        <span class="org-name">Golden Acres Realty</span>
+        <span class="org-plan">Studio · Trial</span>
+      </span>
+      <i class="ri-expand-up-down-line org-caret"></i>
+    </button>
+
+    <div class="group-label" style="padding: 6px 10px 4px;">Workspace</div>
+    <button class="nav-item active" type="button"><i class="ri-home-5-line"></i> Home</button>
+    <button class="nav-item" type="button"><i class="ri-inbox-line"></i> Inbox</button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Listings &amp; pipeline</div>
+    <button class="nav-item" type="button"><i class="ri-building-line"></i> Houses <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-landscape-line"></i> Lands <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-bank-card-line"></i> Loans <span class="nav-badge">0</span></button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Team &amp; settings</div>
+    <button class="nav-item" type="button"><i class="ri-team-line"></i> Agents <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-shield-user-line"></i> Admins <span class="nav-badge">1</span></button>
+    <button class="nav-item" type="button"><i class="ri-bar-chart-2-line"></i> Reports</button>
+
+    <div class="spacer" style="flex: 1;"></div>
+
+    <!-- Bottom rail: notifications, settings, help -->
+    <div class="sb-rail">
+      <button class="sb-rail-btn" type="button" id="ntBtn" title="Notifications" aria-haspopup="menu">
+        <i class="ri-notification-3-line"></i>
+        <span class="nb">3</span>
+      </button>
+      <a class="sb-rail-btn" href="org-settings.html" id="settingsBtn" title="Organization settings">
+        <i class="ri-settings-3-line"></i>
+      </a>
+      <button class="sb-rail-btn" type="button" id="helpBtn" title="Help & support">
+        <i class="ri-question-line"></i>
+      </button>
+    </div>
+
+    <a class="user with-menu" href="user-settings.html" style="text-decoration: none;">
+      <div class="avatar" style="background: var(--color-brand-700);">
+        <span>AO</span><span class="presence" data-status="online"></span>
+      </div>
+      <div class="meta">
+        <div class="name">Amara Osei</div>
+        <div class="role-chip"><i class="ri-vip-crown-line"></i> Owner</div>
+      </div>
+      <i class="ri-expand-up-down-line more"></i>
+    </a>
+  </aside>
+
+  <!-- =========== MAIN =========== -->
+  <section class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="current">Home</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="ow-content">
+
+        <!-- WELCOME -->
+        <div class="ow-welcome2">
+          <div>
+            <div class="greet-eyebrow">
+              <span class="dept-dot"></span>
+              <span>Owner · Admin</span>
+              <span style="color: var(--fg4);">·</span>
+              <span>Golden Acres Realty</span>
+            </div>
+            <h1>Welcome to Ream, <span class="nm">Amara</span> 👋</h1>
+            <div class="greet-sub">Your agency workspace is live. Walk through a quick setup to get Golden Acres ready to take on customers — you can pause and pick it back up whenever.</div>
+            <div class="greet-meta">
+              <span class="pill"><i class="ri-map-pin-line"></i> California, US</span>
+              <span class="pill"><i class="ri-team-line"></i> 1 teammate</span>
+            </div>
+          </div>
+          <div class="greet-actions">
+            <button class="btn secondary" type="button" id="helpConcierge"><i class="ri-customer-service-2-line"></i> Talk to concierge</button>
+            <button class="btn primary" type="button" id="continueSetupBtn"><i class="ri-arrow-right-line"></i> Continue setup</button>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="ow-qa">
+          <span class="eyebrow">Quick actions</span>
+          <div class="row">
+            <a href="houses.html" class="chip"><i class="ri-add-line"></i> Add listing</a>
+            <a href="prospects.html" class="chip"><i class="ri-user-add-line"></i> Add prospect</a>
+            <button class="chip" type="button" id="qaInvite"><i class="ri-mail-add-line"></i> Invite teammate</button>
+            <button class="chip" type="button" id="qaLoanProduct"><i class="ri-bank-card-2-line"></i> Create loan product</button>
+            <a href="org-settings.html" class="chip"><i class="ri-settings-3-line"></i> Open settings</a>
+          </div>
+        </div>
+
+        <!-- SETUP — checklist + side -->
+        <div class="ow-setup-grid">
+        <div class="ow-checklist">
+          <div class="ow-checklist-head">
+            <h2>Get your agency live</h2>
+            <span class="progress-text"><b id="checkProgressNum">0</b> / 5 complete · ~8 min</span>
+          </div>
+          <div class="ow-progress-bar"><div class="fill" id="checkFill"></div></div>
+          <ul class="ow-steps" id="owSteps">
+            <li class="ow-step" data-step="profile">
+              <span class="check"><i class="ri-check-line"></i></span>
+              <div class="step-body">
+                <div class="step-title">Set up your agency profile <span class="step-est">2 min</span></div>
+                <div class="step-desc">Logo, tagline, and where you operate — this is what customers see on listings.</div>
+              </div>
+              <span class="step-cta">Open <i class="ri-arrow-right-line"></i></span>
+            </li>
+            <li class="ow-step" data-step="business">
+              <span class="check"><i class="ri-check-line"></i></span>
+              <div class="step-body">
+                <div class="step-title">Add business details <span class="step-est">2 min</span></div>
+                <div class="step-desc">Registration number and head office — required before payouts can be enabled.</div>
+              </div>
+              <span class="step-cta">Open <i class="ri-arrow-right-line"></i></span>
+            </li>
+            <li class="ow-step" data-step="locale">
+              <span class="check"><i class="ri-check-line"></i></span>
+              <div class="step-body">
+                <div class="step-title">Pick currency &amp; locale <span class="step-est">1 min</span></div>
+                <div class="step-desc">Default currency, timezone, and language used across listings, loans, and statements.</div>
+              </div>
+              <span class="step-cta">Open <i class="ri-arrow-right-line"></i></span>
+            </li>
+            <li class="ow-step" data-step="loan">
+              <span class="check"><i class="ri-check-line"></i></span>
+              <div class="step-body">
+                <div class="step-title">Configure loan defaults <span class="step-est">2 min</span></div>
+                <div class="step-desc">Default interest, term, and max LTV applied to new financing offers — easy to override per deal.</div>
+              </div>
+              <span class="step-cta">Open <i class="ri-arrow-right-line"></i></span>
+            </li>
+            <li class="ow-step" data-step="invite">
+              <span class="check"><i class="ri-check-line"></i></span>
+              <div class="step-body">
+                <div class="step-title">Invite teammates <span class="step-est">1 min</span></div>
+                <div class="step-desc">Add agents, managers, or admins with role-scoped access. Everyone gets a personal invite link.</div>
+              </div>
+              <span class="step-cta">Open <i class="ri-arrow-right-line"></i></span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- SIDE: resources -->
+        <div>
+          <div class="ow-side-card">
+            <div class="side-head">
+              <h3><i class="ri-book-open-line"></i> Helpful resources</h3>
+            </div>
+            <div class="ow-res-list">
+              <a class="ow-res-item" href="#">
+                <span class="ic"><i class="ri-file-upload-line"></i></span>
+                <div><div class="ti">Importing listings from a spreadsheet</div><div class="sb">CSV template &amp; field-mapping guide · 4 min read</div></div>
+                <i class="arrow ri-arrow-right-s-line"></i>
+              </a>
+              <a class="ow-res-item" href="#">
+                <span class="ic"><i class="ri-percent-line"></i></span>
+                <div><div class="ti">Setting up loan defaults that scale</div><div class="sb">Rate, term, and down-payment rules · 6 min read</div></div>
+                <i class="arrow ri-arrow-right-s-line"></i>
+              </a>
+              <a class="ow-res-item" href="#">
+                <span class="ic"><i class="ri-team-line"></i></span>
+                <div><div class="ti">Inviting teammates &amp; choosing roles</div><div class="sb">Sales, follow-up, finance, admin · 3 min read</div></div>
+                <i class="arrow ri-arrow-right-s-line"></i>
+              </a>
+              <a class="ow-res-item" href="#">
+                <span class="ic" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-customer-service-2-line"></i></span>
+                <div><div class="ti">Book a 30-minute concierge call</div><div class="sb">A real human walks you through setup · free</div></div>
+                <i class="arrow ri-arrow-right-s-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- EMPTY SECTION CARDS -->
+        <div class="ow-grid">
+          <div class="ow-card">
+            <div class="ow-card-head">
+              <h3><i class="ri-building-line"></i> Listings</h3>
+            </div>
+            <div class="empty">
+              <div class="ill"><i class="ri-home-smile-2-line"></i></div>
+              <div class="ti">No listings yet</div>
+              <div class="sb">Add a house or land plot — or import a CSV — to start showing inventory to prospects.</div>
+              <a href="houses.html" class="ac"><i class="ri-add-line"></i> Add listing</a>
+            </div>
+          </div>
+          <div class="ow-card">
+            <div class="ow-card-head">
+              <h3><i class="ri-user-search-line"></i> Pipeline</h3>
+            </div>
+            <div class="empty">
+              <div class="ill"><i class="ri-user-add-line"></i></div>
+              <div class="ti">No prospects yet</div>
+              <div class="sb">Capture inquiries from your website, WhatsApp, or walk-ins to start the conversion pipeline.</div>
+              <a href="prospects.html" class="ac"><i class="ri-add-line"></i> Add prospect</a>
+            </div>
+          </div>
+          <div class="ow-card">
+            <div class="ow-card-head">
+              <h3><i class="ri-team-line"></i> Team</h3>
+            </div>
+            <div class="empty">
+              <div class="ill"><i class="ri-user-add-line"></i></div>
+              <div class="ti">Only you so far</div>
+              <div class="sb">Bring agents and managers on board. Each role gets a tailored view and permission set.</div>
+              <button class="ac" type="button" id="inviteFromCardBtn"><i class="ri-mail-add-line"></i> Invite teammate</button>
+            </div>
+          </div>
+          <div class="ow-card">
+            <div class="ow-card-head">
+              <h3><i class="ri-bank-card-line"></i> Financing</h3>
+            </div>
+            <div class="empty">
+              <div class="ill"><i class="ri-percent-line"></i></div>
+              <div class="ti">Loan defaults not set</div>
+              <div class="sb">Once you set defaults, every offer will start from sensible numbers your team can tweak.</div>
+              <button class="ac" type="button" data-jump="loan"><i class="ri-settings-3-line"></i> Configure defaults</button>
+            </div>
+          </div>
+          <div class="ow-card">
+            <div class="ow-card-head">
+              <h3><i class="ri-bank-card-2-line"></i> Loan products</h3>
+            </div>
+            <div class="empty">
+              <div class="ill"><i class="ri-price-tag-3-line"></i></div>
+              <div class="ti">No loan products yet</div>
+              <div class="sb">Define preset financing offers — terms, rates, and eligibility — so agents can quote with one click.</div>
+              <button class="ac" type="button" id="newLoanAccountBtn"><i class="ri-add-line"></i> Create loan product</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== ONBOARDING WIZARD ===================== -->
+<div class="wiz-overlay" id="wizOverlay" role="dialog" aria-modal="true" aria-labelledby="wizTitle">
+  <div class="wiz-shell">
+
+    <!-- Stepper rail -->
+    <aside class="wiz-rail">
+      <div class="wiz-rail-head">
+        <div class="eye">Setup</div>
+        <div class="ti">Get Golden Acres live</div>
+        <div class="sb">5 quick steps. Skip anything you'd rather come back to.</div>
+      </div>
+      <button class="wiz-step-row" type="button" data-step-link="0">
+        <span class="num">1</span>
+        <span><span class="lbl">Agency profile</span><span class="desc">Logo, name, country</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-step-link="1">
+        <span class="num">2</span>
+        <span><span class="lbl">Business details</span><span class="desc">Registration, head office</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-step-link="2">
+        <span class="num">3</span>
+        <span><span class="lbl">Currency &amp; locale</span><span class="desc">Defaults across the app</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-step-link="3">
+        <span class="num">4</span>
+        <span><span class="lbl">Loan defaults</span><span class="desc">Interest, term, LTV</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-step-link="4">
+        <span class="num">5</span>
+        <span><span class="lbl">Invite teammates</span><span class="desc">Optional — do later</span></span>
+      </button>
+    </aside>
+
+    <!-- Body -->
+    <div class="wiz-body">
+      <div class="wiz-head">
+        <div>
+          <div class="ti" id="wizTitle">Set up your agency profile</div>
+          <div class="sb" id="wizSub">This is what shows up on listings, statements, and customer messages.</div>
+        </div>
+        <button class="wiz-close" type="button" id="wizCloseBtn" aria-label="Close"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="wiz-scroll" id="wizScroll">
+
+        <!-- Step 0: Agency profile -->
+        <div class="wiz-pane" data-pane="0">
+          <div class="wiz-fields">
+            <div class="wiz-logo-up">
+              <div class="wiz-logo-preview" id="wizLogoPreview">G</div>
+              <div>
+                <div class="ti">Agency logo</div>
+                <div class="sb">Square PNG or SVG, 200×200 minimum. Used on customer-facing listings and PDFs.</div>
+                <button class="upload-btn" type="button"><i class="ri-upload-2-line"></i> Upload image</button>
+              </div>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Agency name</label>
+                <input class="wiz-input" type="text" value="Golden Acres Realty" />
+              </div>
+              <div class="wiz-f">
+                <label>Country</label>
+                <select class="wiz-select">
+                  <option>🇺🇸 United States</option>
+                </select>
+              </div>
+            </div>
+            <div class="wiz-f">
+              <label>Taglines <span style="color: var(--fg3); font-weight: 500;">— optional</span></label>
+              <div class="wiz-chips" id="wizTaglines">
+                <input id="wizTaglineInput" type="text" placeholder="Type a tagline and press Enter…" />
+              </div>
+              <span class="hint">Add as many as you like — one will be picked at random or rotated on your public page.</span>
+            </div>
+            <div class="wiz-f">
+              <label>Website URL <span style="color: var(--fg3); font-weight: 500;">— optional</span></label>
+              <div class="wiz-prefix">
+                <span class="pre">https://</span>
+                <input class="wiz-input" type="text" placeholder="goldenacres.com" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Business details -->
+        <div class="wiz-pane" data-pane="1" style="display: none;">
+          <div class="wiz-fields">
+
+            <div class="wiz-section-head">Registration</div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Business registration #</label>
+                <input class="wiz-input" type="text" placeholder="e.g. EIN 12-3456789" />
+              </div>
+              <div class="wiz-f">
+                <label>Tax ID / TIN <span style="color: var(--fg3); font-weight: 500;">— optional</span></label>
+                <input class="wiz-input" type="text" placeholder="00-0000000" />
+              </div>
+            </div>
+            <div class="wiz-f">
+              <label>Primary phone</label>
+              <div class="wiz-prefix">
+                <span class="pre">+1</span>
+                <input class="wiz-input" type="tel" placeholder="(415) 555-0142" />
+              </div>
+            </div>
+
+            <div class="wiz-section-head">Head office address</div>
+            <div class="wiz-f">
+              <label>Country</label>
+              <select class="wiz-select">
+                <option>🇺🇸 United States</option>
+              </select>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Street</label>
+                <input class="wiz-input" type="text" placeholder="1234 Market St" />
+              </div>
+              <div class="wiz-f">
+                <label>City</label>
+                <input class="wiz-input" type="text" placeholder="San Francisco" />
+              </div>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>State</label>
+                <select class="wiz-select">
+                  <option value="" disabled selected>Select state…</option>
+                  <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+                  <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+                  <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+                  <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+                  <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+                  <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+                  <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+                  <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+                  <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+                  <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+                  <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+                  <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+                  <option>WI</option><option>WY</option>
+                </select>
+              </div>
+              <div class="wiz-f">
+                <label>ZIP code</label>
+                <input class="wiz-input" type="text" placeholder="94103" inputmode="numeric" />
+              </div>
+            </div>
+            <div class="wiz-f">
+              <label>Note <span style="color: var(--fg3); font-weight: 500;">— optional</span></label>
+              <textarea class="wiz-textarea" placeholder="Suite number, building name, landmark, delivery instructions…"></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Step 2: Currency & locale -->
+        <div class="wiz-pane" data-pane="2" style="display: none;">
+          <div class="wiz-fields">
+            <div class="wiz-f">
+              <label>Default currency</label>
+              <div class="wiz-radio-grid" id="wizCurrencies" style="grid-template-columns: 1fr;">
+                <label class="active"><input type="radio" name="cur" value="USD" checked /><span class="rt">USD $</span><span class="rs">US Dollar — used across all listings, loans, and statements.</span></label>
+              </div>
+              <span class="hint">Ream is operating in USD only at this time.</span>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Timezone</label>
+                <select class="wiz-select">
+                  <option>(UTC−05:00) America / New York</option>
+                  <option>(UTC−06:00) America / Chicago</option>
+                  <option>(UTC−07:00) America / Denver</option>
+                  <option>(UTC−08:00) America / Los Angeles</option>
+                  <option>(UTC−09:00) America / Anchorage</option>
+                  <option>(UTC−10:00) Pacific / Honolulu</option>
+                </select>
+              </div>
+              <div class="wiz-f">
+                <label>Language</label>
+                <select class="wiz-select">
+                  <option>English</option>
+                  <option>Français</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Loan defaults -->
+        <div class="wiz-pane" data-pane="3" style="display: none;">
+          <div class="wiz-fields">
+
+            <div class="wiz-section-head">Terms</div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Annual interest rate</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" min="0" max="50" step="0.01" value="9.50" />
+                  <span class="suf">% APR</span>
+                </div>
+              </div>
+              <div class="wiz-f">
+                <label>Default term</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" min="1" max="360" step="1" value="120" />
+                  <span class="suf">months</span>
+                </div>
+              </div>
+            </div>
+            <div class="wiz-f">
+              <label>Default down payment</label>
+              <div class="wiz-suffix">
+                <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" value="7500.00" />
+                <span class="suf">USD</span>
+              </div>
+              <span class="hint">Flat amount applied to new offers. Override per deal as needed.</span>
+            </div>
+
+            <div class="wiz-section-head">Late policy</div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Late fee</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" value="35.00" />
+                  <span class="suf">USD</span>
+                </div>
+                <span class="hint">Flat amount charged after the grace period.</span>
+              </div>
+              <div class="wiz-f">
+                <label>Grace period</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" min="0" step="1" value="7" />
+                  <span class="suf">days</span>
+                </div>
+                <span class="hint">Days past due before the late fee applies.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Step 4: Invite teammates -->
+        <div class="wiz-pane" data-pane="4" style="display: none;">
+          <div class="wiz-fields">
+            <div class="wiz-f">
+              <label>Add by email</label>
+              <div class="wiz-invite-add" style="grid-template-columns: 1fr 130px 150px auto;">
+                <input class="wiz-input" id="wizInviteEmail" type="email" placeholder="teammate@goldenacres.com" />
+                <select class="wiz-select" id="wizInviteRole">
+                  <option value="AGENT">Agent</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+                <select class="wiz-select" id="wizInviteTeam">
+                  <option value="SALES">Sales</option>
+                  <option value="FOLLOW_UP">Follow up</option>
+                  <option value="FINANCE">Finance</option>
+                </select>
+                <button class="wiz-btn secondary" type="button" id="wizInviteAddBtn"><i class="ri-add-line"></i> Add</button>
+              </div>
+              <span class="hint" id="wizInviteHint">Agents and managers belong to a team. Admins have full agency access — no team needed.</span>
+            </div>
+            <ul class="wiz-invite-list" id="wizInviteList"></ul>
+          </div>
+        </div>
+
+        <!-- Step 5: Done -->
+        <div class="wiz-pane" data-pane="5" style="display: none;">
+          <div class="wiz-done">
+            <div class="check-big"><i class="ri-check-line"></i></div>
+            <h3>Golden Acres is live 🎉</h3>
+            <p>You're ready to add your first listing and bring on prospects. Anything you skipped is in <b>Settings</b> — you can finish it whenever.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="wiz-foot">
+        <span class="wiz-foot-progress" id="wizFootProgress">Step 1 of 5</span>
+        <div class="wiz-foot-actions">
+          <button class="wiz-btn ghost" type="button" id="wizSkipBtn">Skip for now</button>
+          <button class="wiz-btn secondary" type="button" id="wizBackBtn" style="display:none;"><i class="ri-arrow-left-line"></i> Back</button>
+          <button class="wiz-btn primary" type="button" id="wizNextBtn">Save &amp; continue <i class="ri-arrow-right-line"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SIMPLE INVITE DIALOG ===================== -->
+<div class="wiz-overlay" id="inviteOverlay" role="dialog" aria-modal="true" aria-labelledby="inviteTitle">
+  <div class="wiz-shell" style="max-width: 460px; height: auto; grid-template-columns: 1fr;">
+    <div class="wiz-body">
+      <div class="wiz-head">
+        <div>
+          <div class="ti" id="inviteTitle">Invite a teammate</div>
+          <div class="sb">We’ll send them a personal invite link to join Golden Acres.</div>
+        </div>
+        <button class="wiz-close" type="button" id="inviteClose" aria-label="Close"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="wiz-scroll">
+        <div class="wiz-fields">
+          <div class="wiz-f">
+            <label>Email address <span class="req">*</span></label>
+            <input class="wiz-input" type="email" id="inviteEmail" placeholder="name@company.com" autocomplete="off" />
+            <span class="hint">They’ll choose their own name and password when accepting.</span>
+          </div>
+        </div>
+      </div>
+      <div class="wiz-foot">
+        <span class="wiz-foot-progress">&nbsp;</span>
+        <div class="wiz-foot-actions">
+          <button class="wiz-btn ghost" type="button" id="inviteCancel">Cancel</button>
+          <button class="wiz-btn primary" type="button" id="inviteSend"><i class="ri-send-plane-line"></i> Send invite</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const ov = document.getElementById('inviteOverlay');
+  const inp = document.getElementById('inviteEmail');
+  function open() { ov.classList.add('open'); document.body.style.overflow='hidden'; setTimeout(()=>inp.focus(), 50); }
+  function close() { ov.classList.remove('open'); document.body.style.overflow=''; inp.value=''; }
+  window.openInviteDialog = open;
+  document.getElementById('inviteClose').addEventListener('click', close);
+  document.getElementById('inviteCancel').addEventListener('click', close);
+  document.getElementById('inviteSend').addEventListener('click', () => {
+    if (!inp.value.trim()) { inp.focus(); return; }
+    close(); alert('Invite sent.');
+  });
+  ov.addEventListener('click', (e) => { if (e.target === ov) close(); });
+})();
+</script>
+
+<!-- ===================== LOAN ACCOUNT WIZARD ===================== -->
+<div class="wiz-overlay" id="loanWizOverlay" role="dialog" aria-modal="true" aria-labelledby="loanWizTitle">
+  <div class="wiz-shell" style="max-width: 760px; height: min(640px, 90vh);">
+    <aside class="wiz-rail">
+      <div class="wiz-rail-head">
+        <div class="eye">New product</div>
+        <div class="ti">Create loan product</div>
+        <div class="sb">Define a reusable financing offer — terms, rates, and eligibility — your agents can quote with one click.</div>
+      </div>
+      <button class="wiz-step-row" type="button" data-loan-step-link="0">
+        <span class="num">1</span>
+        <span><span class="lbl">Borrower</span><span class="desc">Name, contact</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-loan-step-link="1">
+        <span class="num">2</span>
+        <span><span class="lbl">Property</span><span class="desc">What's being financed</span></span>
+      </button>
+      <button class="wiz-step-row" type="button" data-loan-step-link="2">
+        <span class="num">3</span>
+        <span><span class="lbl">Terms</span><span class="desc">Principal, rate, term</span></span>
+      </button>
+    </aside>
+
+    <div class="wiz-body">
+      <div class="wiz-head">
+        <div>
+          <div class="ti" id="loanWizTitle">Borrower details</div>
+          <div class="sb" id="loanWizSub">Who's the loan for? You can edit any of this later.</div>
+        </div>
+        <button class="wiz-close" type="button" id="loanWizCloseBtn" aria-label="Close"><i class="ri-close-line"></i></button>
+      </div>
+
+      <div class="wiz-scroll">
+
+        <!-- Step 0: Borrower -->
+        <div class="wiz-pane" data-loan-pane="0">
+          <div class="wiz-fields">
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>First name <span class="req">*</span></label>
+                <input class="wiz-input" type="text" placeholder="Kwame" />
+              </div>
+              <div class="wiz-f">
+                <label>Last name <span class="req">*</span></label>
+                <input class="wiz-input" type="text" placeholder="Asante" />
+              </div>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Email</label>
+                <input class="wiz-input" type="email" placeholder="kwame@example.com" />
+              </div>
+              <div class="wiz-f">
+                <label>Phone</label>
+                <div class="wiz-prefix">
+                  <input class="wiz-input" type="tel" placeholder="(415) 555-0142" />
+                  <span class="pre">+1</span>
+                </div>
+              </div>
+            </div>
+            <div class="wiz-f">
+              <label>National ID — optional</label>
+              <input class="wiz-input" type="text" placeholder="DL or SSN, last 4" />
+              <span class="hint">Stored encrypted. Required for KYC before the loan can be activated.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Property -->
+        <div class="wiz-pane" data-loan-pane="1" style="display: none;">
+          <div class="wiz-fields">
+            <div class="wiz-f">
+              <label>Property type</label>
+              <select class="wiz-select">
+                <option>House</option>
+                <option>Land plot</option>
+                <option>Commercial</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="wiz-f">
+              <label>Listing — optional</label>
+              <select class="wiz-select">
+                <option value="">Not linked to a listing</option>
+                <option>East Legon B-12 · 3-bed</option>
+                <option>Spintex Plot 14 · 0.5 acre</option>
+                <option>Tema Comm 25 · townhouse</option>
+              </select>
+              <span class="hint">Link to a listing later from the loan detail page.</span>
+            </div>
+            <div class="wiz-f">
+              <label>Property address</label>
+              <input class="wiz-input" type="text" placeholder="Street, city, state, ZIP" />
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Purchase price</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="125000.00" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="wiz-f">
+                <label>Appraised value — optional</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="130000.00" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Terms -->
+        <div class="wiz-pane" data-loan-pane="2" style="display: none;">
+          <div class="wiz-fields">
+            <div class="wiz-section-head">Loan amount</div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Principal</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" value="100000.00" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="wiz-f">
+                <label>Down payment</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" step="0.01" value="7500.00" />
+                  <span class="suf">USD</span>
+                </div>
+                <span class="hint">Pre-filled from agency defaults.</span>
+              </div>
+            </div>
+
+            <div class="wiz-section-head">Schedule</div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Annual interest rate</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" inputmode="decimal" min="0" max="50" step="0.01" value="9.50" />
+                  <span class="suf">% APR</span>
+                </div>
+              </div>
+              <div class="wiz-f">
+                <label>Term</label>
+                <div class="wiz-suffix">
+                  <input class="wiz-input" type="number" min="1" max="360" step="1" value="120" />
+                  <span class="suf">months</span>
+                </div>
+              </div>
+            </div>
+            <div class="wiz-row">
+              <div class="wiz-f">
+                <label>Payment frequency</label>
+                <select class="wiz-select">
+                  <option>Monthly</option>
+                  <option>Bi-weekly</option>
+                  <option>Weekly</option>
+                </select>
+              </div>
+              <div class="wiz-f">
+                <label>First payment date</label>
+                <input class="wiz-input" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="wiz-foot">
+        <span class="wiz-foot-progress" id="loanWizFootProgress">Step 1 of 3</span>
+        <div class="wiz-foot-actions">
+          <button class="wiz-btn ghost" type="button" id="loanWizCancelBtn">Cancel</button>
+          <button class="wiz-btn secondary" type="button" id="loanWizBackBtn" style="display:none;"><i class="ri-arrow-left-line"></i> Back</button>
+          <button class="wiz-btn primary" type="button" id="loanWizNextBtn">Next <i class="ri-arrow-right-line"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // -------- Wizard state --------
+  const overlay = document.getElementById('wizOverlay');
+  const titleEl = document.getElementById('wizTitle');
+  const subEl   = document.getElementById('wizSub');
+  const back    = document.getElementById('wizBackBtn');
+  const next    = document.getElementById('wizNextBtn');
+  const skip    = document.getElementById('wizSkipBtn');
+  const closeBtn = document.getElementById('wizCloseBtn');
+  const foot    = document.getElementById('wizFootProgress');
+  const railRows = [...document.querySelectorAll('.wiz-step-row')];
+  const panes = [...document.querySelectorAll('.wiz-pane')];
+
+  const STEPS = [
+    { ti: 'Set up your agency profile',  sb: 'This is what shows up on listings, statements, and customer messages.' },
+    { ti: 'Add business details',        sb: 'Required before your account can accept payouts.' },
+    { ti: 'Pick currency & locale',      sb: 'Defaults applied across listings, loans, and statements.' },
+    { ti: 'Configure loan defaults',     sb: 'Pre-fill values for every new financing offer. Easy to override per deal.' },
+    { ti: 'Invite teammates',            sb: 'Add agents, managers, or admins. Each gets a personal invite link.' },
+    { ti: "You're all set",              sb: 'Anything you skipped is available in Settings.' }
+  ];
+  // Map dashboard step ids → wizard step indices
+  const STEP_INDEX = { profile: 0, business: 1, locale: 2, loan: 3, invite: 4 };
+
+  // Track completion (rough: visiting + clicking next counts as done; skip leaves undone)
+  const done = [false, false, false, false, false];
+  let cur = 0;
+
+  function openWiz(stepIdx) {
+    cur = stepIdx ?? 0;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    render();
+  }
+  function closeWiz() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    syncDashboard();
+  }
+
+  function render() {
+    titleEl.textContent = STEPS[cur].ti;
+    subEl.textContent   = STEPS[cur].sb;
+    panes.forEach((p, i) => p.style.display = (i === cur) ? '' : 'none');
+    railRows.forEach((r, i) => {
+      r.classList.toggle('active', i === cur);
+      r.classList.toggle('done', done[i] === true);
+    });
+    if (cur === 5) {
+      foot.textContent = 'Setup complete';
+      back.style.display = 'none';
+      skip.style.display = 'none';
+      next.innerHTML = 'Go to dashboard';
+    } else {
+      foot.textContent = `Step ${cur + 1} of 5`;
+      back.style.display = (cur > 0) ? '' : 'none';
+      skip.style.display = '';
+      next.innerHTML = (cur === 4) ? 'Finish setup <i class="ri-check-line"></i>' : 'Save &amp; continue <i class="ri-arrow-right-line"></i>';
+    }
+  }
+
+  next.addEventListener('click', () => {
+    if (cur === 5) { closeWiz(); return; }
+    done[cur] = true;
+    if (cur < 5) cur += 1;
+    render();
+  });
+  back.addEventListener('click', () => {
+    if (cur > 0) { cur -= 1; render(); }
+  });
+  skip.addEventListener('click', () => {
+    if (cur < 5) cur += 1;
+    render();
+  });
+  closeBtn.addEventListener('click', closeWiz);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeWiz(); });
+  document.addEventListener('keydown', (e) => {
+    if (overlay.classList.contains('open') && e.key === 'Escape') closeWiz();
+  });
+  railRows.forEach(r => r.addEventListener('click', () => {
+    cur = parseInt(r.dataset.stepLink, 10);
+    render();
+  }));
+
+  // -------- Currency radio cards --------
+  document.querySelectorAll('#wizCurrencies label').forEach(l => {
+    l.addEventListener('click', () => {
+      document.querySelectorAll('#wizCurrencies label').forEach(x => x.classList.remove('active'));
+      l.classList.add('active');
+    });
+  });
+
+  // -------- Taglines (chip input) --------
+  (function () {
+    const wrap = document.getElementById('wizTaglines');
+    const inp = document.getElementById('wizTaglineInput');
+    function addTag(v) {
+      v = v.trim(); if (!v) return;
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = `<span></span><button type="button" aria-label="Remove"><i class="ri-close-line"></i></button>`;
+      chip.querySelector('span').textContent = v;
+      chip.querySelector('button').addEventListener('click', () => chip.remove());
+      wrap.insertBefore(chip, inp);
+    }
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(inp.value); inp.value = ''; }
+      else if (e.key === 'Backspace' && inp.value === '') {
+        const last = wrap.querySelector('.chip:last-of-type'); if (last) last.remove();
+      }
+    });
+    inp.addEventListener('blur', () => { if (inp.value.trim()) { addTag(inp.value); inp.value = ''; } });
+  })();
+
+  // -------- Invite teammates list --------
+  const invList = document.getElementById('wizInviteList');
+  const invEmail = document.getElementById('wizInviteEmail');
+  const invRole = document.getElementById('wizInviteRole');
+  const invTeam = document.getElementById('wizInviteTeam');
+  const invHint = document.getElementById('wizInviteHint');
+
+  // Role rules: ADMIN has no team, MANAGER & AGENT pick from all teams.
+  function applyRoleRule() {
+    if (invRole.value === 'ADMIN') {
+      invTeam.disabled = true;
+      invTeam.style.opacity = '0.5';
+      invTeam.style.cursor = 'not-allowed';
+      invHint.textContent = 'Admins have full agency-wide access — no team assignment.';
+    } else {
+      invTeam.disabled = false;
+      invTeam.style.opacity = '';
+      invTeam.style.cursor = '';
+      invHint.textContent = 'Agents and managers belong to a team. You can change this later.';
+    }
+  }
+  invRole.addEventListener('change', applyRoleRule);
+  applyRoleRule();
+
+  const TEAM_LABEL = { SALES: 'Sales', FOLLOW_UP: 'Follow up', FINANCE: 'Finance' };
+  const TEAM_ICON  = { SALES: 'ri-shopping-bag-3-line', FOLLOW_UP: 'ri-phone-line', FINANCE: 'ri-bank-card-line' };
+  const TEAM_CLASS = { SALES: 'team-sales', FOLLOW_UP: 'team-followup', FINANCE: 'team-finance' };
+  const ROLE_LABEL = { AGENT: 'Agent', MANAGER: 'Manager', ADMIN: 'Admin' };
+  const ROLE_ICON  = { AGENT: 'ri-user-line', MANAGER: 'ri-user-star-line', ADMIN: 'ri-shield-user-line' };
+  const ROLE_CLASS = { AGENT: 'role-agent', MANAGER: 'role-manager', ADMIN: 'role-admin' };
+
+  document.getElementById('wizInviteAddBtn').addEventListener('click', () => {
+    const v = invEmail.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { invEmail.focus(); return; }
+    const role = invRole.value;
+    const team = (role === 'ADMIN') ? null : invTeam.value;
+    const initial = v[0].toUpperCase();
+    const teamPill = team ? `<span class="role-pill team-pill ${TEAM_CLASS[team]}"><i class="${TEAM_ICON[team]}"></i>${TEAM_LABEL[team]}</span>` : '';
+    const li = document.createElement('li');
+    li.style.gridTemplateColumns = '32px 1fr auto auto auto';
+    li.innerHTML = `
+      <span class="av">${initial}</span>
+      <span class="em">${v}</span>
+      <span class="role-pill ${ROLE_CLASS[role]}"><i class="${ROLE_ICON[role]}"></i>${ROLE_LABEL[role]}</span>
+      ${teamPill}
+      <button class="rm" type="button" aria-label="Remove"><i class="ri-close-line"></i></button>`;
+    li.querySelector('.rm').addEventListener('click', () => li.remove());
+    invList.appendChild(li);
+    invEmail.value = '';
+    invEmail.focus();
+  });
+  invEmail.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('wizInviteAddBtn').click(); }
+  });
+
+  // -------- Dashboard ↔ wizard sync --------
+  function syncDashboard() {
+    const completedCount = done.filter(Boolean).length;
+    document.getElementById('checkProgressNum').textContent = completedCount;
+    document.getElementById('checkFill').style.width = (completedCount / 5 * 100) + '%';
+    document.getElementById('welcomePillText').textContent = `${completedCount} of 5 done`;
+    const ring = document.getElementById('welcomeRing');
+    ring.style.background = `conic-gradient(var(--color-brand-600) ${completedCount / 5 * 360}deg, var(--color-grey-200) 0deg)`;
+
+    Object.entries(STEP_INDEX).forEach(([id, idx]) => {
+      const li = document.querySelector(`.ow-step[data-step="${id}"]`);
+      if (li) li.classList.toggle('done', done[idx] === true);
+    });
+  }
+
+  // Wire dashboard checklist rows → open wizard at the right step
+  document.querySelectorAll('.ow-step').forEach(li => {
+    li.addEventListener('click', () => {
+      const id = li.dataset.step;
+      openWiz(STEP_INDEX[id] ?? 0);
+    });
+  });
+  document.querySelectorAll('[data-jump]').forEach(b => {
+    b.addEventListener('click', () => openWiz(STEP_INDEX[b.dataset.jump] ?? 0));
+  });
+  document.getElementById('inviteFromCardBtn').addEventListener('click', () => openInviteDialog());
+  const qaInvite = document.getElementById('qaInvite');
+  if (qaInvite) qaInvite.addEventListener('click', () => openInviteDialog());
+  const continueBtn = document.getElementById('continueSetupBtn');
+  if (continueBtn) continueBtn.addEventListener('click', () => openWiz(0));
+  const helpBtn = document.getElementById('helpConcierge');
+  if (helpBtn) helpBtn.addEventListener('click', () => alert('Concierge call booking — coming soon.'));
+
+  // Auto-launch on first visit (?welcome=1)
+  if (new URLSearchParams(location.search).get('welcome') === '1') {
+    setTimeout(() => openWiz(0), 250);
+  }
+
+  // Initial sync
+  syncDashboard();
+})();
+
+// -------- Loan account wizard --------
+(function () {
+  const overlay = document.getElementById('loanWizOverlay');
+  if (!overlay) return;
+  const titleEl = document.getElementById('loanWizTitle');
+  const subEl   = document.getElementById('loanWizSub');
+  const back    = document.getElementById('loanWizBackBtn');
+  const next    = document.getElementById('loanWizNextBtn');
+  const cancel  = document.getElementById('loanWizCancelBtn');
+  const closeBtn = document.getElementById('loanWizCloseBtn');
+  const foot    = document.getElementById('loanWizFootProgress');
+  const railRows = [...overlay.querySelectorAll('[data-loan-step-link]')];
+  const panes = [...overlay.querySelectorAll('[data-loan-pane]')];
+
+  const STEPS = [
+    { ti: 'Borrower details',  sb: "Who's the loan for? You can edit any of this later." },
+    { ti: 'Property',          sb: "What's being financed?" },
+    { ti: 'Loan terms',        sb: 'Principal, rate, and schedule. Pre-filled from agency defaults.' }
+  ];
+
+  let cur = 0;
+
+  function render() {
+    panes.forEach((p, i) => p.style.display = i === cur ? '' : 'none');
+    railRows.forEach((r, i) => {
+      r.classList.toggle('active', i === cur);
+      r.classList.toggle('done', i < cur);
+    });
+    titleEl.textContent = STEPS[cur].ti;
+    subEl.textContent   = STEPS[cur].sb;
+    foot.textContent    = `Step ${cur + 1} of ${STEPS.length}`;
+    back.style.display  = cur > 0 ? '' : 'none';
+    next.innerHTML = cur === STEPS.length - 1
+      ? '<i class="ri-check-line"></i> Create loan product'
+      : 'Next <i class="ri-arrow-right-line"></i>';
+  }
+
+  function open() {
+    cur = 0; render();
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('newLoanAccountBtn').addEventListener('click', open);
+  const qaBtn = document.getElementById('qaLoanProduct');
+  if (qaBtn) qaBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  cancel.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  back.addEventListener('click', () => { if (cur > 0) { cur--; render(); } });
+  next.addEventListener('click', () => {
+    if (cur < STEPS.length - 1) { cur++; render(); }
+    else {
+      next.innerHTML = '<i class="ri-loader-4-line" style="animation:orspin 1s linear infinite;"></i> Creating…';
+      next.disabled = true;
+      setTimeout(() => { location.href = 'loan-create-v2.html'; }, 700);
+    }
+  });
+  railRows.forEach((r, i) => r.addEventListener('click', () => { cur = i; render(); }));
+})();
+</script>
+
+</body>
+</html>

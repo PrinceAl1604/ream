@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sales · REAM operator manual</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="_shared.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  .tier-tabs { display: flex; gap: 4px; background: var(--color-grey-100); border-radius: 10px; padding: 4px; margin: 18px 0 8px; width: max-content; }
+  .tier-tabs button { background: transparent; border: 0; padding: 8px 16px; border-radius: 7px; font: 600 12.5px/1 var(--font-sans); color: var(--fg2); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .tier-tabs button.on { background: white; color: var(--color-grey-900); box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+  .tier-tabs button i { color: var(--color-brand-600); }
+  .tier-panel { display: none; }
+  .tier-panel.on { display: block; }
+  .tier-banner { background: var(--color-grey-900); color: white; padding: 12px 18px; border-radius: 10px 10px 0 0; font: 600 12px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px; }
+  .tier-banner .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-brand-400); }
+  .tier-card { background: white; border: 1px solid var(--border-default); border-top: 0; border-radius: 0 0 10px 10px; padding: 18px 22px; margin-bottom: 18px; }
+  .tier-card h4 { margin: 0 0 10px; }
+  .role-icon-strip { display: flex; gap: 12px; margin: 18px 0 6px; }
+  .role-icon-strip .ic { width: 56px; height: 56px; border-radius: 12px; background: var(--color-grey-900); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+</style>
+</head>
+<body>
+
+<header class="gd-topbar">
+  <div class="gd-topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>REAM <span class="sub">User guides</span></a>
+    <div class="spacer"></div>
+    <nav class="switcher">
+      <span class="grp">External</span>
+      <a href="public-visitor.html">Public</a>
+      <a href="prospect.html">Prospect</a>
+      <a href="customer.html">Customer</a>
+      <span class="sep"></span>
+      <span class="grp">Internal</span>
+      <a class="on" href="sales.html">Sales</a>
+      <a href="finance.html">Finance</a>
+      <a href="followup.html">Follow-up</a>
+      <a href="org-admin.html">Org admin</a>
+    </nav>
+    <div class="actions"><a href="../dashboards.html"><i class="ri-arrow-right-up-line"></i> Open app</a></div>
+  </div>
+</header>
+
+<div class="gd-shell internal">
+
+  <aside class="gd-toc">
+    <div class="lbl">Sales manual</div>
+    <ol>
+      <li><a href="#about" class="toc-link" data-toc>About the role</a></li>
+      <li><a href="#start" class="toc-link" data-toc>Onboarding</a></li>
+      <li><a href="#daily" class="toc-link" data-toc>Daily flows</a></li>
+      <li><a href="#cadence" class="toc-link" data-toc>Weekly cadence</a></li>
+      <li><a href="#screens" class="toc-link" data-toc>Screens</a></li>
+      <li><a href="#perms" class="toc-link" data-toc>Permissions</a></li>
+      <li><a href="#glossary" class="toc-link" data-toc>Glossary</a></li>
+      <li><a href="#faq" class="toc-link" data-toc>FAQ &amp; gotchas</a></li>
+      <li><a href="#escalation" class="toc-link" data-toc>Escalation</a></li>
+    </ol>
+  </aside>
+
+  <main class="gd-main">
+
+    <div class="gd-hero">
+      <div class="role-tag"><span class="dot"></span>Sales line · Internal</div>
+      <h1>Sales operator manual.</h1>
+      <p class="lede">Sales owns the relationship from first inbound interest through signed contract. This manual covers every tier — agent, manager, admin — and the daily, weekly, and monthly flows each one runs. When the contract is signed and the loan is booked, Sales hands the customer over to Follow-up.</p>
+      <div class="meta">
+        <span><i class="ri-time-line"></i> Read time <b>22 min</b></span>
+        <span><i class="ri-shield-user-line"></i> Three tiers <b>Agent · Manager · Admin</b></span>
+        <span><i class="ri-flow-chart"></i> Flows <b>7</b></span>
+        <span><i class="ri-calendar-line"></i> Updated <b>May 2026</b></span>
+      </div>
+    </div>
+
+    <div class="gd-video">
+      <div class="play"><i class="ri-play-circle-fill"></i><span>Sales tour<em>Pipeline, prospects, offers, signing</em></span></div>
+      <div class="caption">Video walkthrough · 6:42</div>
+    </div>
+
+    <!-- ============================================================ ABOUT -->
+    <section id="about" class="gd-section">
+      <span class="sec-num">01 · About the role</span>
+      <h2>Who Sales is, and what each tier owns.</h2>
+      <p class="lede-p">Sales is one of three internal lines. Every Sales user has a tier — Agent, Manager, or Admin — that scopes what they see and can change. Tiers are stackable in spirit: a manager sees everything an agent sees plus their team's view; an admin sees the whole org plus configuration.</p>
+
+      <div class="role-icon-strip">
+        <div class="ic"><i class="ri-user-3-line"></i></div>
+        <div class="ic"><i class="ri-team-line"></i></div>
+        <div class="ic"><i class="ri-building-line"></i></div>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Agent</div>
+      <div class="tier-card">
+        <h4>Sales agent</h4>
+        <p>Owns a <strong>portfolio of prospects</strong>. Works through today's tasks, hot leads, and quota progress. Logs every call, email, and visit on the prospect timeline. Builds offers from loan products. Walks signing day with the borrower.</p>
+        <p><strong>Owns:</strong> their portfolio. <strong>Sees:</strong> their pipeline, their dashboard, the inventory catalog, document templates, their own activity history.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Manager</div>
+      <div class="tier-card">
+        <h4>Sales manager</h4>
+        <p>Runs a <strong>team of agents</strong>. Sees the whole team's funnel, leaderboard, forecast, and coaching queue. Reassigns prospects when an agent is overloaded or on leave. Approves offer exceptions outside policy.</p>
+        <p><strong>Owns:</strong> the team's number. <strong>Sees:</strong> everything an agent sees + team rollup + agent-level breakdowns + reassignment tools + coaching notes.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Admin</div>
+      <div class="tier-card">
+        <h4>Sales admin</h4>
+        <p>Owns the <strong>whole sales surface</strong> — pipeline org-wide, lead-source mix, site demand, revenue-to-plan. Sets sales policies and templates. Defines stages, quotas, and routing rules.</p>
+        <p><strong>Owns:</strong> the function. <strong>Sees:</strong> all teams, all pipelines, all configuration. Cannot edit the loan ledger (that's Finance) or invite users (that's Org admin).</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ ONBOARDING -->
+    <section id="start" class="gd-section">
+      <span class="sec-num">02 · Onboarding</span>
+      <h2>Your first day on REAM.</h2>
+      <p class="lede-p">You'll be invited by your Org admin. The invite link takes you to a setup wizard that confirms your name, photo, line, tier, and timezone. Then your dashboard loads — what you see depends on your tier.</p>
+
+      <div class="gd-shot">
+        <div class="gd-shot-frame">
+          <div class="gd-shot-bar"><span class="dots"><span></span><span></span><span></span></span><span class="url"><i class="ri-lock-line"></i>app.ream.com/dashboard</span><a class="open" href="../dashboards.html" target="_blank">Open in app <i class="ri-arrow-right-up-line"></i></a></div>
+          <div class="gd-shot-stage">
+            <iframe src="../dashboards.html" title="Sales dashboard"></iframe>
+            <div class="gd-pins">
+              <div class="gd-pin" style="left:18%;top:18%;">1</div>
+              <div class="gd-pin" style="left:50%;top:32%;">2</div>
+              <div class="gd-pin" style="left:78%;top:22%;">3</div>
+              <div class="gd-pin" style="left:32%;top:68%;">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="gd-legend">
+          <ol>
+            <li><div><b>Your pipeline</b> — prospects you own, by stage.</div></li>
+            <li><div><b>Quota progress</b> — month-to-date against your target.</div></li>
+            <li><div><b>Today's tasks</b> — calls due, follow-ups overdue, documents waiting.</div></li>
+            <li><div><b>Hot leads</b> — prospects the system flags as high-likelihood-to-sign.</div></li>
+          </ol>
+        </div>
+      </div>
+
+      <ol class="gd-steps">
+        <li><div class="s-ttl">Accept your invite</div><div class="s-det">Email link from Org admin. Sets your password and finalizes profile.</div></li>
+        <li><div class="s-ttl">Check your dashboard</div><div class="s-det">The tier you were assigned determines the layout. If it looks wrong, ask your Org admin.</div></li>
+        <li><div class="s-ttl">Open Prospects</div><div class="s-det">If migrated, you should have an inherited portfolio. If not, ask your manager for an initial assignment.</div></li>
+        <li><div class="s-ttl">Review templates</div><div class="s-det">Browse email, activity, and document templates so you don't compose from scratch.</div></li>
+        <li><div class="s-ttl">Walk inventory</div><div class="s-det">Open the Sites / Houses / Lands catalog. Know what you're selling before your first call.</div></li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ DAILY FLOWS -->
+    <section id="daily" class="gd-section">
+      <span class="sec-num">03 · Daily flows</span>
+      <h2>What Sales does, end-to-end.</h2>
+      <p class="lede-p">Seven flows cover the full lifecycle from a new inbound prospect to a signed contract and handover to Follow-up.</p>
+
+      <!-- 01 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">01</div><div class="ttl">Work the pipeline (Agent)</div><div class="meta">Daily · 30 min</div></div>
+        <div class="gd-flow-body">
+          <p>The pipeline is your inbox. Open the Prospects list with the default "My pipeline" filter applied. Sort by stage, last activity, or due-date.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open Prospects</div><div class="s-det">Sidebar → Prospects. Filter chips at top: <code>Stage</code>, <code>Owner: me</code>, <code>Hot</code>, <code>Due today</code>.</div></li>
+            <li><div class="s-ttl">Clear the "Due today" queue</div><div class="s-det">Every prospect with a follow-up scheduled today shows here. Either complete the activity or reschedule with a reason.</div></li>
+            <li><div class="s-ttl">Triage new inbound</div><div class="s-det">Anything in the "New" stage with no owner — claim it or let Routing reassign.</div></li>
+            <li><div class="s-ttl">Move stale prospects</div><div class="s-det">Any prospect with no activity in 14 days needs a touch or a "Lost — reason" disposition.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- 02 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">02</div><div class="ttl">Log an activity</div><div class="meta">Every interaction · 1 min</div></div>
+        <div class="gd-flow-body">
+          <p>Everything goes on the timeline — calls, "no answer", emails, SMS, WhatsApp, notes. Sub-activities let you chain a follow-up call to the original email so the thread is visible in one place.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the prospect's detail page</div><div class="s-det">Click their name from any list. The timeline is on the right.</div></li>
+            <li><div class="s-ttl">Click <b>+ Activity</b></div><div class="s-det">Pick a type (call, email, SMS, note, visit). Activity templates pre-fill body.</div></li>
+            <li><div class="s-ttl">Set parent (optional)</div><div class="s-det">For follow-up calls, set "Sub-activity of…" pointing to the original email. The two now link both ways.</div></li>
+            <li><div class="s-ttl">Save</div><div class="s-det">It appears on the timeline immediately. Outcome ("Connected", "No answer", etc) is required for calls.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- 03 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">03</div><div class="ttl">Run a site visit</div><div class="meta">2–3 hours · Field</div></div>
+        <div class="gd-flow-body">
+          <p>Site visits are the single highest-converting touchpoint. Schedule one as soon as the prospect is qualified.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Schedule it</div><div class="s-det">From the prospect detail page → Activities → New site visit. Pick the site, time, attendees.</div></li>
+            <li><div class="s-ttl">Send confirmation</div><div class="s-det">Auto-email with location pin and your photo. SMS reminder 24h prior.</div></li>
+            <li><div class="s-ttl">On-site: log notes from mobile</div><div class="s-det">Open the prospect on phone. Quick voice-to-text notes; attach plot photos.</div></li>
+            <li><div class="s-ttl">Disposition</div><div class="s-det">Within 2 hours of leaving: Interested / Maybe / Lost. This auto-advances the stage.</div></li>
+            <li><div class="s-ttl">Schedule next touch</div><div class="s-det">Always leave the visit with a follow-up scheduled — never with "I'll get back to them".</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- 04 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">04</div><div class="ttl">Build an offer</div><div class="meta">10 min · After site visit</div></div>
+        <div class="gd-flow-body">
+          <p>Offers are computed from <strong>loan products</strong> — pre-defined templates with term, interest, deposit, and fee structure. The agent picks a product, customizes deposit and term, and the system computes the monthly installment.</p>
+          <div class="gd-shot short">
+            <div class="gd-shot-frame">
+              <div class="gd-shot-bar"><span class="dots"><span></span><span></span><span></span></span><span class="url"><i class="ri-lock-line"></i>app.ream.com/prospects/p123/offer</span><a class="open" href="../prospect-offer.html" target="_blank">Open in app <i class="ri-arrow-right-up-line"></i></a></div>
+              <div class="gd-shot-stage"><iframe src="../prospect-offer.html" title="Offer builder"></iframe></div>
+            </div>
+            <div class="gd-caption">The offer builder. Loan product on the left; computed terms on the right.</div>
+          </div>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the prospect → Offer tab</div><div class="s-det">Or click "Build offer" from the timeline.</div></li>
+            <li><div class="s-ttl">Pick the loan product</div><div class="s-det">Most orgs have 3–6. Standard / Premium / Land-only.</div></li>
+            <li><div class="s-ttl">Pick the property</div><div class="s-det">Search the inventory catalog. Price flows in automatically.</div></li>
+            <li><div class="s-ttl">Tune deposit and term</div><div class="s-det">Monthly installment recomputes live.</div></li>
+            <li><div class="s-ttl">Send to prospect</div><div class="s-det">PDF generated; emailed automatically; logged as an activity.</div></li>
+          </ol>
+          <div class="gd-callout warn"><div class="ttl"><i class="ri-error-warning-line"></i> Outside policy?</div><p>If the offer exceeds the agent-tier guardrails (deposit too low, term too long, interest discount), it goes to manager approval before it can be sent.</p></div>
+        </div>
+      </article>
+
+      <!-- 05 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">05</div><div class="ttl">Request documents</div><div class="meta">5 min</div></div>
+        <div class="gd-flow-body">
+          <p>To qualify a prospect for a loan, you need their ID, proof of income, bank statements, and any property-specific docs. Use Document requests — never email asks separately; they get lost.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Prospect → Documents tab</div><div class="s-det">Click <b>Request documents</b>. Pick from the standard bundle or add line items.</div></li>
+            <li><div class="s-ttl">Send</div><div class="s-det">Prospect gets an email + portal alert with the checklist.</div></li>
+            <li><div class="s-ttl">Track status</div><div class="s-det">Each line shows: Requested → Uploaded → Verified. You verify (or send back).</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- 06 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">06</div><div class="ttl">Signing day &amp; handover to Follow-up</div><div class="meta">90 min · The moment</div></div>
+        <div class="gd-flow-body">
+          <p>Signing converts a prospect into a customer. The application closes, a loan account opens, and the customer enters their first lifecycle state — usually <code>Current</code>. Sales walks them through it, then formally hands them to a follow-up agent.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Generate the contract</div><div class="s-det">From the offer page → "Generate contract". Document template fills in; review before sending.</div></li>
+            <li><div class="s-ttl">Schedule signing</div><div class="s-det">In-person or remote. Send a calendar invite.</div></li>
+            <li><div class="s-ttl">Capture signature</div><div class="s-det">Wet signature or e-sign. Confirm IDs match.</div></li>
+            <li><div class="s-ttl">Book the loan</div><div class="s-det">Click "Book loan" on the prospect detail. Application closes; loan account opens.</div></li>
+            <li><div class="s-ttl">Assign follow-up agent</div><div class="s-det">Pick from the team or accept the auto-suggestion. Send handover summary.</div></li>
+          </ol>
+          <div class="gd-callout ok"><div class="ttl"><i class="ri-check-double-line"></i> Don't skip the handover summary</div><p>Three lines on who this person is, what closed the deal, and what they're sensitive about. Saves the follow-up agent a week of pattern-matching.</p></div>
+        </div>
+      </article>
+
+      <!-- 07 -->
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">07</div><div class="ttl">Coach an agent (Manager)</div><div class="meta">Weekly · 30 min per agent</div></div>
+        <div class="gd-flow-body">
+          <p>Open your team rollup, drill into an agent. Coaching queue surfaces prospects stuck &gt; 14 days, calls with negative outcomes, or offers ignored by prospects.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Dashboard → Team</div><div class="s-det">Pick the agent.</div></li>
+            <li><div class="s-ttl">Coaching queue</div><div class="s-det">Listen to call recordings (if enabled), review timelines, leave a coaching note.</div></li>
+            <li><div class="s-ttl">Reassign if blocked</div><div class="s-det">Move prospects whose agent has gone cold. Two-click action.</div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============================================================ CADENCE -->
+    <section id="cadence" class="gd-section">
+      <span class="sec-num">04 · Cadence</span>
+      <h2>Weekly and monthly rhythm.</h2>
+      <ul>
+        <li><b>Daily (Agent)</b> — Pipeline review, "due today" queue, log activities as they happen.</li>
+        <li><b>Tuesday (Manager)</b> — Team standup. Walk the funnel. Identify stuck deals.</li>
+        <li><b>Weekly (Manager)</b> — 1:1 coaching with each agent. 30 min.</li>
+        <li><b>Friday (Manager)</b> — Reforecast for the month. Update commitments.</li>
+        <li><b>Monthly (Admin)</b> — Pipeline review with leadership. Lead-source mix. Site-by-site demand.</li>
+        <li><b>Monthly (Admin)</b> — Template hygiene: archive stale templates, write new ones for repeat asks.</li>
+        <li><b>Quarterly (Admin)</b> — Quota recalibration. Loan-product review with Finance admin.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ SCREENS -->
+    <section id="screens" class="gd-section">
+      <span class="sec-num">05 · Screens</span>
+      <h2>Every page Sales touches.</h2>
+      <div class="gd-screens">
+        <a class="gd-screen-card" href="../dashboards.html" target="_blank"><div class="head"><div class="ico"><i class="ri-dashboard-line"></i></div><h4>Dashboard</h4></div><span class="url">/dashboard</span><p>Layout varies by tier — agent / manager / admin each get their own view.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../prospects.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-search-line"></i></div><h4>Prospects</h4></div><span class="url">/prospects</span><p>Pipeline list. Filter by stage, owner, hot, due-today.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../prospect-detail.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-3-line"></i></div><h4>Prospect detail</h4></div><span class="url">/prospects/:id</span><p>One prospect: timeline, offer, documents, activity history.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../prospect-offer.html" target="_blank"><div class="head"><div class="ico"><i class="ri-file-list-3-line"></i></div><h4>Offer builder</h4></div><span class="url">/prospects/:id/offer</span><p>Pick a loan product, set deposit + term, compute installment.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../document-requests.html" target="_blank"><div class="head"><div class="ico"><i class="ri-file-search-line"></i></div><h4>Document requests</h4></div><span class="url">/document-requests</span><p>All outstanding doc asks across your portfolio.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../sites.html" target="_blank"><div class="head"><div class="ico"><i class="ri-community-line"></i></div><h4>Sites</h4></div><span class="url">/sites</span><p>Your development inventory. Contains plots and houses.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../houses.html" target="_blank"><div class="head"><div class="ico"><i class="ri-home-4-line"></i></div><h4>Houses</h4></div><span class="url">/houses</span><p>Finished homes for sale.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../lands.html" target="_blank"><div class="head"><div class="ico"><i class="ri-landscape-line"></i></div><h4>Plots</h4></div><span class="url">/lands</span><p>Individual land parcels inside a site.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../activity-templates.html" target="_blank"><div class="head"><div class="ico"><i class="ri-pencil-ruler-2-line"></i></div><h4>Activity templates</h4></div><span class="url">/activity-templates</span><p>Reusable call scripts and email drafts.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../reports.html" target="_blank"><div class="head"><div class="ico"><i class="ri-bar-chart-2-line"></i></div><h4>Reports</h4></div><span class="url">/reports</span><p>Funnel, forecast, lead source, win/loss reasons.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../agents.html" target="_blank"><div class="head"><div class="ico"><i class="ri-team-line"></i></div><h4>Team (Manager+)</h4></div><span class="url">/agents</span><p>Roster, leaderboard, coaching queue.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+      </div>
+    </section>
+
+    <!-- ============================================================ PERMISSIONS -->
+    <section id="perms" class="gd-section">
+      <span class="sec-num">06 · Permissions</span>
+      <h2>What each tier can do.</h2>
+      <table class="gd-perm">
+        <thead><tr><th>Action</th><th>Agent</th><th>Manager</th><th>Admin</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>View own pipeline</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>View team pipeline</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>View org-wide pipeline</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Create / edit a prospect</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Agent only on own portfolio</td></tr>
+          <tr><td>Reassign prospects</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Manager within team; admin org-wide</td></tr>
+          <tr><td>Build / send an offer</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Out-of-policy → manager approval</td></tr>
+          <tr><td>Approve out-of-policy offer</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Book a loan / sign</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Within policy</td></tr>
+          <tr><td>Edit a loan ledger</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="no">No</span></td><td>Finance only</td></tr>
+          <tr><td>Create / edit loan products</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="lim">Read-only</span></td><td>Finance admin owns</td></tr>
+          <tr><td>Edit pipeline stages / routing</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Edit document templates</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td>Coordinate with Org admin</td></tr>
+          <tr><td>Invite / remove users</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="no">No</span></td><td>Org admin only</td></tr>
+          <tr><td>Run reports</td><td><span class="lim">Own only</span></td><td><span class="yes">Team</span></td><td><span class="yes">Org</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============================================================ GLOSSARY -->
+    <section id="glossary" class="gd-section">
+      <span class="sec-num">07 · Glossary</span>
+      <h2>The vocabulary of REAM.</h2>
+      <p>The complete glossary every guide carries — terms a Sales user encounters are most relevant, but the full lexicon lives here for cross-reference.</p>
+      <div class="gd-glossary-search"><i class="ri-search-line"></i><input type="text" placeholder="Filter terms…" oninput="filterGlossary(this.value)" /></div>
+      <dl class="gd-glossary" id="glossary"></dl>
+    </section>
+
+    <!-- ============================================================ FAQ -->
+    <section id="faq" class="gd-section">
+      <span class="sec-num">08 · FAQ &amp; gotchas</span>
+      <h2>Things that trip people up.</h2>
+      <div class="gd-faq">
+        <details><summary>A prospect is asking me about their loan account — but they haven't signed.</summary><div class="a"><p>Until they sign, they don't have a loan account — only an application. Use the offer page to walk through projected terms. The "Loan account" only exists after Book loan runs.</p></div></details>
+        <details><summary>Why can't I see another agent's prospects?</summary><div class="a"><p>By default, agents see their own portfolio only. Managers see their team. If you need cross-team visibility, ask your Sales admin to enable a temporary view.</p></div></details>
+        <details><summary>My offer is getting flagged for manager approval. Why?</summary><div class="a"><p>Either your tier doesn't have authority for that deposit/term combination, or there's a discount on interest. Check the warning banner on the offer page — it tells you which guardrail fired.</p></div></details>
+        <details><summary>Can I send a contract before the prospect has uploaded docs?</summary><div class="a"><p>You can generate one — but signing is blocked until every required document has status <b>Verified</b>. Your Documents tab tells you what's outstanding.</p></div></details>
+        <details><summary>I booked a loan but the customer doesn't see their portal.</summary><div class="a"><p>Two reasons. (a) The account-creation email may be in spam — resend from the customer detail page. (b) If they were a prospect with a portal, it switches modes; old links still work.</p></div></details>
+        <details><summary>What if the prospect wants two properties?</summary><div class="a"><p>One application per loan. If they want two loans, duplicate the prospect for property #2 — link them with the "Related prospects" field.</p></div></details>
+        <details><summary>An agent left. What happens to their portfolio?</summary><div class="a"><p>Manager (or admin) reassigns in bulk — Prospects → filter <code>Owner: [name]</code> → select all → Reassign. Activities and history travel with the prospect.</p></div></details>
+      </div>
+    </section>
+
+    <!-- ============================================================ ESCALATION -->
+    <section id="escalation" class="gd-section">
+      <span class="sec-num">09 · Escalation</span>
+      <h2>Who to ask.</h2>
+      <div class="gd-esc">
+        <div class="gd-esc-row"><div class="ico"><i class="ri-user-3-line"></i></div><div class="who">Your Sales manager<small>Anything related to a specific deal, a policy exception, a portfolio change.</small></div><div class="contact">In app · DM<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-team-line"></i></div><div class="who">Your Sales admin<small>Pipeline stages, lead routing, templates, sales policy.</small></div><div class="contact">In app · DM<small>1–2 days</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-bank-card-2-line"></i></div><div class="who">Finance admin<small>Loan products, fee policies, interest model questions.</small></div><div class="contact">In app · DM<small>Cross-line</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-customer-service-2-line"></i></div><div class="who">Follow-up agent assigned<small>For handover questions on a specific signed customer.</small></div><div class="contact">Customer detail page<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-vip-crown-line"></i></div><div class="who">Org admin<small>Account, login, role/tier, invites, billing.</small></div><div class="contact">Org admin contact<small>Or main line</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-tools-line"></i></div><div class="who">REAM support<small>Platform issues — broken page, can't load a screen, integration outage.</small></div><div class="contact">support@ream.com<small>24h</small></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="gd-footer">
+  <span>Sales operator manual · v1 · May 2026</span>
+  <span><a href="index.html">← All role guides</a></span>
+</footer>
+
+<script src="_glossary.js"></script>
+<script>
+  renderGlossary();
+  (function(){var links=Array.from(document.querySelectorAll('.toc-link'));var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});function s(){var y=window.scrollY+140;var cur=sections[0];for(var i=0;i<sections.length;i++){if(sections[i]&&sections[i].offsetTop<=y)cur=sections[i];}links.forEach(function(a){a.classList.remove('on');});var m=links.find(function(a){return cur&&a.getAttribute('href')==='#'+cur.id;});if(m)m.classList.add('on');}window.addEventListener('scroll',s,{passive:true});s();})();
+</script>
+</body>
+</html>

@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream — New loan dialog (v2)</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--color-grey-100, #f1f3f6); font-family: var(--font-sans); color: var(--fg1, #1a1f2b); display: grid; place-items: center; padding: 24px; }
+
+  /* ---------- Dialog shell ---------- */
+  .lc-back { position: relative; }
+  .lc-dlg {
+    width: 980px; max-width: calc(100vw - 32px); height: 660px; max-height: calc(100vh - 48px);
+    background: #fff; border: 1px solid var(--border-default, #e3e6ec); border-radius: 16px;
+    box-shadow: 0 28px 70px rgba(15,23,42,.20);
+    display: grid; grid-template-columns: 248px 1fr; grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+  .lc-aside { grid-row: 1 / 3; background: var(--color-grey-25, #fafbfc); border-right: 1px solid var(--border-default, #e3e6ec); display: flex; flex-direction: column; }
+  .lc-main  { display: flex; flex-direction: column; min-width: 0; }
+  .lc-foot  { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border-top: 1px solid var(--border-default, #e3e6ec); background: #fff; }
+  .lc-foot-sp { flex: 1; }
+
+  /* ---------- Sidebar ---------- */
+  .lc-aside .brand { display:flex; align-items:center; gap: 8px; padding: 18px 20px 14px; }
+  .lc-aside .brand .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--color-brand-600, #2c63a8); color: #fff; display: grid; place-items: center; font-size: 15px; }
+  .lc-aside .brand .ttl { font: 600 13.5px var(--font-sans); color: var(--color-grey-900, #0f172a); letter-spacing: -0.01em; }
+  .lc-aside .brand .sub { font: 500 11px var(--font-sans); color: var(--fg3, #5b6577); margin-top: 1px; }
+  .lc-aside .brand .meta { line-height: 1.2; }
+
+  .lc-aside .x { position: absolute; top: 14px; right: 14px; background: transparent; border: 0; cursor: pointer; padding: 6px; border-radius: 6px; color: var(--fg3, #5b6577); }
+  .lc-aside .x:hover { background: var(--color-grey-100, #ebeef3); color: var(--color-grey-900); }
+
+  .lc-steps { padding: 6px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .lc-step {
+    position: relative; display: grid; grid-template-columns: 28px 1fr; align-items: start; gap: 10px;
+    padding: 8px 10px; border-radius: 8px; cursor: pointer; user-select: none;
+    color: var(--fg2, #2f3a4d); transition: background .15s ease;
+  }
+  .lc-step:hover { background: rgba(15,23,42,.04); }
+  .lc-step.active { background: var(--color-brand-50, #eef4fb); }
+  .lc-step.done .num { background: var(--color-brand-600, #2c63a8); color: #fff; border-color: var(--color-brand-600, #2c63a8); }
+  .lc-step.active .num { background: #fff; color: var(--color-brand-700, #1f4f8a); border-color: var(--color-brand-600, #2c63a8); box-shadow: 0 0 0 3px var(--color-brand-100, #d8e4f3); }
+  .lc-step.disabled { opacity: .45; pointer-events: none; }
+  .lc-step .num {
+    width: 24px; height: 24px; border-radius: 999px; border: 1.5px solid var(--color-grey-200, #d6dae2);
+    background: #fff; color: var(--fg3, #5b6577);
+    display: grid; place-items: center;
+    font: 600 11.5px var(--font-sans); font-variant-numeric: tabular-nums;
+    margin-top: 1px;
+  }
+  .lc-step.done .num i { font-size: 13px; }
+  .lc-step .lbl  { font: 500 13px var(--font-sans); color: var(--color-grey-900, #0f172a); line-height: 1.3; }
+  .lc-step .hint { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); line-height: 1.3; margin-top: 2px; min-height: 14px; }
+  .lc-step.active .lbl { color: var(--color-brand-800, #16385f); }
+
+  /* connector line */
+  .lc-step + .lc-step::before {
+    content: ""; position: absolute; left: 21px; top: -2px; width: 2px; height: 6px; background: var(--color-grey-200, #d6dae2); border-radius: 2px;
+  }
+  .lc-step.done + .lc-step::before { background: var(--color-brand-300, #abc4e3); }
+
+  .lc-aside .draft-bar { margin-top: auto; padding: 12px 18px; border-top: 1px solid var(--border-default, #e3e6ec); display: flex; align-items: center; gap: 8px; font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); }
+  .lc-aside .draft-bar i { color: var(--color-success-600, #1f8a5b); }
+
+  /* ---------- Main pane ---------- */
+  .lc-mhead { padding: 22px 28px 0; }
+  .lc-eyebrow { font: 600 11px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--color-brand-700, #1f4f8a); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .lc-eyebrow .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .lc-h { margin: 0 0 4px; font: 600 22px var(--font-sans); color: var(--color-grey-900, #0f172a); letter-spacing: -0.012em; }
+  .lc-p { margin: 0; font: 500 13.5px var(--font-sans); color: var(--fg2, #2f3a4d); line-height: 1.55; max-width: 60ch; }
+
+  .lc-body { flex: 1 1 auto; overflow-y: auto; padding: 18px 28px 22px; }
+  .lc-section { display: none; }
+  .lc-section.on { display: block; }
+
+  /* Form primitives */
+  .lc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .lc-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .lc-fld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .lc-fld.span2 { grid-column: 1 / -1; }
+  .lc-lbl { font: 500 12.5px var(--font-sans); color: var(--color-grey-800, #334155); display: flex; align-items: baseline; gap: 6px; }
+  .lc-lbl .req { color: var(--color-brand-600, #2c63a8); }
+  .lc-lbl .opt { font: 500 11px var(--font-sans); color: var(--fg3, #5b6577); }
+  .lc-input, .lc-select {
+    appearance: none; -webkit-appearance: none;
+    width: 100%; box-sizing: border-box; padding: 9px 12px;
+    background: #fff; border: 1.5px solid var(--color-grey-200, #d6dae2); border-radius: 8px;
+    font: 500 13.5px var(--font-sans); color: var(--color-grey-900, #0f172a);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .lc-input:focus, .lc-select:focus { outline: 0; border-color: var(--color-brand-600, #2c63a8); box-shadow: 0 0 0 3px var(--color-brand-100, #d8e4f3); }
+  .lc-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'%3E%3Cpath fill='%235b6577' d='M3 5l3 3 3-3z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .lc-help { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); line-height: 1.4; }
+  .lc-suffix { position: relative; }
+  .lc-suffix .lc-input { padding-right: 38px; }
+  .lc-suffix .suf { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font: 500 12px var(--font-sans); color: var(--fg3, #5b6577); pointer-events: none; }
+
+  /* Tiles */
+  .lc-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .lc-tile {
+    appearance: none; cursor: pointer; text-align: left; padding: 18px;
+    background: #fff; border: 1.5px solid var(--color-grey-200, #d6dae2); border-radius: 12px;
+    display: flex; flex-direction: column; gap: 8px; min-height: 132px;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .lc-tile:hover { border-color: var(--color-brand-400, #6e9ad2); background: var(--color-grey-25, #fafbfc); }
+  .lc-tile.on { border-color: var(--color-brand-600, #2c63a8); background: var(--color-brand-50, #eef4fb); }
+  .lc-tile .ic { width: 32px; height: 32px; border-radius: 9px; background: var(--color-grey-100, #ebeef3); color: var(--color-grey-700, #334155); display: grid; place-items: center; font-size: 17px; }
+  .lc-tile.on .ic { background: var(--color-brand-600, #2c63a8); color: #fff; }
+  .lc-tile .t-title { font: 600 14.5px var(--font-sans); color: var(--color-grey-900, #0f172a); }
+  .lc-tile .t-sub { font: 500 12.5px var(--font-sans); color: var(--fg2, #2f3a4d); line-height: 1.45; }
+  .lc-tile .t-tag { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 2px 8px; border-radius: 999px; background: var(--color-grey-100, #ebeef3); color: var(--fg2, #2f3a4d); font: 600 10.5px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; }
+  .lc-tile.on .t-tag { background: var(--color-brand-100, #d8e4f3); color: var(--color-brand-800, #16385f); }
+
+  /* Site cards */
+  .lc-sites { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lc-site {
+    appearance: none; text-align: left; cursor: pointer; padding: 12px 14px;
+    background: #fff; border: 1.5px solid var(--color-grey-200, #d6dae2); border-radius: 10px;
+    display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; align-items: center;
+  }
+  .lc-site:hover { border-color: var(--color-brand-400, #6e9ad2); }
+  .lc-site.on { border-color: var(--color-brand-600, #2c63a8); background: var(--color-brand-50, #eef4fb); }
+  .lc-site .swatch { width: 38px; height: 38px; border-radius: 8px; background-size: cover; background-position: center; }
+  .lc-site .nm { font: 600 13.5px var(--font-sans); color: var(--color-grey-900, #0f172a); }
+  .lc-site .ds { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); }
+  .lc-site .pr { font: 600 13px var(--font-sans); color: var(--color-grey-900, #0f172a); font-variant-numeric: tabular-nums; }
+
+  /* Two-column with summary preview */
+  .lc-2col { display: grid; grid-template-columns: 1fr 280px; gap: 22px; align-items: start; }
+  .lc-aside-card {
+    background: var(--color-grey-25, #fafbfc); border: 1px solid var(--border-default, #e3e6ec); border-radius: 12px; padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .lc-aside-card .ttl { font: 600 11.5px var(--font-sans); color: var(--fg3, #5b6577); letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .lc-aside-card .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px; }
+  .lc-aside-card .row .k { color: var(--fg3, #5b6577); }
+  .lc-aside-card .row .v { color: var(--color-grey-900, #0f172a); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .lc-aside-card .big { font: 600 22px var(--font-sans); color: var(--color-grey-900, #0f172a); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .lc-aside-card .lbl { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); margin-top: -4px; }
+
+  /* Projected installments */
+  .lc-proj { display: grid; grid-template-columns: 1fr 320px; gap: 22px; align-items: start; }
+  .lc-proj .headline {
+    background: linear-gradient(180deg, var(--color-brand-50, #eef4fb), #fff 70%);
+    border: 1px solid var(--color-brand-200, #b6cdea); border-radius: 14px; padding: 18px 20px;
+  }
+  .lc-proj .headline .row1 { display: flex; align-items: baseline; gap: 10px; }
+  .lc-proj .headline .amt { font: 600 32px var(--font-sans); color: var(--color-brand-800, #16385f); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .lc-proj .headline .per { font: 500 13px var(--font-sans); color: var(--fg2, #2f3a4d); }
+  .lc-proj .headline .lbl { font: 600 11px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--color-brand-700, #1f4f8a); margin-bottom: 4px; }
+  .lc-proj .breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+  .lc-proj .br {
+    background: #fff; border: 1px solid var(--border-default, #e3e6ec); border-radius: 10px; padding: 10px 12px;
+  }
+  .lc-proj .br .k { font: 500 11px var(--font-sans); color: var(--fg3, #5b6577); display: flex; align-items: center; gap: 6px; }
+  .lc-proj .br .k .swab { width: 8px; height: 8px; border-radius: 2px; }
+  .lc-proj .br .v { font: 600 14.5px var(--font-sans); color: var(--color-grey-900, #0f172a); font-variant-numeric: tabular-nums; margin-top: 4px; }
+
+  .lc-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; margin-top: 14px; background: var(--color-grey-100, #ebeef3); }
+  .lc-bar > span { display: block; height: 100%; }
+  .swab.princ { background: var(--color-brand-600, #2c63a8); }
+  .swab.intr  { background: var(--color-warning-500, #d97706); }
+  .swab.escr  { background: var(--color-success-500, #1f8a5b); }
+  .swab.fee   { background: var(--color-grey-400, #94a3b8); }
+
+  /* Schedule preview table */
+  .lc-sched {
+    margin-top: 18px;
+    background: #fff; border: 1px solid var(--border-default, #e3e6ec); border-radius: 12px; overflow: hidden;
+  }
+  .lc-sched .hdr { display: grid; grid-template-columns: 64px 1fr 100px 100px 100px 110px; gap: 8px; padding: 10px 14px; background: var(--color-grey-25, #fafbfc); font: 600 10.5px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--fg3, #5b6577); border-bottom: 1px solid var(--border-default, #e3e6ec); }
+  .lc-sched .hdr > .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .lc-sched .row { display: grid; grid-template-columns: 64px 1fr 100px 100px 100px 110px; gap: 8px; padding: 9px 14px; font: 500 12.5px var(--font-sans); color: var(--color-grey-800, #334155); align-items: center; }
+  .lc-sched .row + .row { border-top: 1px solid var(--color-grey-100, #ebeef3); }
+  .lc-sched .row .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .lc-sched .row .pill {
+    display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 999px;
+    background: var(--color-grey-100, #ebeef3); color: var(--fg2, #2f3a4d); font: 600 10.5px var(--font-sans);
+  }
+  .lc-sched .row .pill.first { background: var(--color-brand-100, #d8e4f3); color: var(--color-brand-800, #16385f); }
+  .lc-sched .row .pill.balloon { background: var(--color-warning-50, #fef3c7); color: var(--color-warning-700, #b45309); }
+  .lc-sched .row .pill.last { background: var(--color-success-50, #dcfce7); color: var(--color-success-700, #15803d); }
+  .lc-sched .footer { padding: 8px 14px; font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); background: var(--color-grey-25, #fafbfc); border-top: 1px solid var(--color-grey-100, #ebeef3); display: flex; justify-content: space-between; }
+  .lc-sched .footer a { color: var(--color-brand-600, #2c63a8); cursor: pointer; }
+
+  /* Aside metrics card */
+  .lc-metrics { display: flex; flex-direction: column; gap: 10px; }
+  .lc-metric {
+    background: #fff; border: 1px solid var(--border-default, #e3e6ec); border-radius: 12px; padding: 12px 14px;
+  }
+  .lc-metric .k { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); }
+  .lc-metric .v { font: 600 18px var(--font-sans); color: var(--color-grey-900, #0f172a); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .lc-metric .sub { font: 500 11.5px var(--font-sans); color: var(--fg3, #5b6577); margin-top: 2px; }
+
+  /* Review cards */
+  .lc-review { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lc-rcard { background: #fff; border: 1px solid var(--border-default, #e3e6ec); border-radius: 12px; padding: 14px; }
+  .lc-rcard.span2 { grid-column: 1 / -1; }
+  .lc-rcard .h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .lc-rcard .h .t { display: flex; align-items: center; gap: 8px; font: 600 12.5px var(--font-sans); color: var(--color-grey-900, #0f172a); }
+  .lc-rcard .h .t i { color: var(--color-brand-600, #2c63a8); }
+  .lc-rcard .h .ed { background: none; border: 0; color: var(--color-brand-600, #2c63a8); cursor: pointer; font: 500 12px var(--font-sans); display: inline-flex; align-items: center; gap: 4px; }
+  .lc-rcard .kv { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12.5px; }
+  .lc-rcard .kv + .kv { border-top: 1px dashed var(--color-grey-100, #ebeef3); }
+  .lc-rcard .kv .k { color: var(--fg3, #5b6577); }
+  .lc-rcard .kv .v { color: var(--color-grey-900, #0f172a); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* Buttons */
+  .btn-ic {
+    appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 8px; border: 1px solid transparent;
+    font: 500 13px var(--font-sans);
+  }
+  .btn-ic.primary { background: var(--color-brand-600, #2c63a8); color: #fff; }
+  .btn-ic.primary:hover { background: var(--color-brand-700, #1f4f8a); }
+  .btn-ic.secondary { background: #fff; color: var(--color-grey-800, #334155); border-color: var(--color-grey-200, #d6dae2); }
+  .btn-ic.secondary:hover { background: var(--color-grey-50, #f4f6f8); }
+  .btn-ic.ghost { background: transparent; color: var(--color-grey-700, #334155); }
+  .btn-ic.ghost:hover { background: var(--color-grey-100, #ebeef3); }
+  .btn-ic.danger { background: transparent; color: var(--color-error-700, #b91c1c); }
+  .btn-ic.danger:hover { background: var(--color-error-50, #fef2f2); }
+
+  /* Hint bar */
+  .lc-hint {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: var(--color-brand-50, #eef4fb); border: 1px solid var(--color-brand-200, #b6cdea); border-radius: 10px;
+    padding: 10px 12px; font: 500 12.5px var(--font-sans); color: var(--color-brand-800, #16385f);
+    margin-top: 12px;
+  }
+  .lc-hint i { color: var(--color-brand-600, #2c63a8); font-size: 15px; margin-top: 1px; }
+  .lc-hint b { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="lc-back">
+<div class="lc-dlg" data-screen-label="01 New Loan Wizard">
+  <!-- ASIDE -->
+  <aside class="lc-aside">
+    <div class="brand">
+      <div class="ic"><i class="ri-file-add-line"></i></div>
+      <div class="meta">
+        <div class="ttl">New loan</div>
+        <div class="sub">L-2295 · Brookfield</div>
+      </div>
+    </div>
+    <button class="x" id="lcClose" aria-label="Close"><i class="ri-close-line"></i></button>
+
+    <nav class="lc-steps" id="lcSteps"></nav>
+
+    <div class="draft-bar">
+      <i class="ri-shield-check-line"></i>
+      <span>Auto-saved · 2s ago</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <section class="lc-main">
+    <header class="lc-mhead">
+      <div class="lc-eyebrow"><span class="dot"></span><span id="lcEyebrow">Step 1 of 7 · Loan type</span></div>
+      <h1 class="lc-h" id="lcTitle">Is this a new loan, or one already in flight?</h1>
+      <p class="lc-p" id="lcDesc">Pick the path that matches reality. New originates a fresh contract; Existing onboards a loan already running outside Ream so the schedule reconciles from day one.</p>
+    </header>
+
+    <div class="lc-body">
+
+      <!-- STEP 1 — TYPE -->
+      <div class="lc-section" data-step="type">
+        <div class="lc-tiles">
+          <button type="button" class="lc-tile" data-type="new">
+            <div class="ic"><i class="ri-add-line"></i></div>
+            <div class="t-title">New loan</div>
+            <div class="t-sub">Originate from scratch. Pick land, borrower, terms — Ream generates the contract.</div>
+            <div class="t-tag"><i class="ri-flashlight-line"></i> Most common</div>
+          </button>
+          <button type="button" class="lc-tile on" data-type="existing">
+            <div class="ic"><i class="ri-history-line"></i></div>
+            <div class="t-title">Existing loan</div>
+            <div class="t-sub">Bring an in-flight loan into Ream. Capture what's been paid so balance and schedule match day one.</div>
+            <div class="t-tag"><i class="ri-arrow-up-line"></i> Migration</div>
+          </button>
+        </div>
+        <div class="lc-hint"><i class="ri-information-line"></i><span>Existing loans skip contract generation. They open with status <b>Active</b> once you confirm the current state.</span></div>
+      </div>
+
+      <!-- STEP 2 — LAND -->
+      <div class="lc-section" data-step="land">
+        <div class="lc-2col">
+          <div>
+            <div class="lc-fld">
+              <label class="lc-lbl">Site <span class="req">*</span></label>
+              <div class="lc-sites" id="lcSites">
+                <button type="button" class="lc-site on" data-site="brookfield" data-price="62167">
+                  <div class="swatch" style="background: linear-gradient(135deg,#7ba4d8,#3b6ca8);"></div>
+                  <div><div class="nm">Brookfield</div><div class="ds">98 parcels · Phase II</div></div>
+                  <div class="pr">$62,167</div>
+                </button>
+                <button type="button" class="lc-site" data-site="sunridge" data-price="58400">
+                  <div class="swatch" style="background: linear-gradient(135deg,#f0b667,#d97706);"></div>
+                  <div><div class="nm">Sunridge</div><div class="ds">56 parcels · Selling</div></div>
+                  <div class="pr">$58,400</div>
+                </button>
+                <button type="button" class="lc-site" data-site="riverbend" data-price="71250">
+                  <div class="swatch" style="background: linear-gradient(135deg,#7cc6a3,#1f8a5b);"></div>
+                  <div><div class="nm">Riverbend</div><div class="ds">42 parcels · Premium</div></div>
+                  <div class="pr">$71,250</div>
+                </button>
+                <button type="button" class="lc-site" data-site="tema" data-price="44900">
+                  <div class="swatch" style="background: linear-gradient(135deg,#c9a3e6,#7b3fb1);"></div>
+                  <div><div class="nm">Tema Heights</div><div class="ds">120 parcels · Selling</div></div>
+                  <div class="pr">$44,900</div>
+                </button>
+              </div>
+            </div>
+            <div class="lc-grid2" style="margin-top: 18px;">
+              <div class="lc-fld">
+                <label class="lc-lbl">Parcels <span class="req">*</span></label>
+                <input class="lc-input" type="number" min="1" max="20" id="lcParcels" value="1" />
+                <div class="lc-help">Each parcel uses the site's per-parcel price.</div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Down payment <span class="opt">(optional)</span></label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcDown" value="7500" />
+                  <span class="suf">USD</span>
+                </div>
+                <div class="lc-help">Subtracted from price to give the financed amount.</div>
+              </div>
+            </div>
+          </div>
+          <aside class="lc-aside-card">
+            <div class="ttl"><i class="ri-landscape-line"></i> Asset</div>
+            <div class="big" id="lcAssetTotal">$62,167</div>
+            <div class="lbl">Total price · 1 parcel</div>
+            <div class="row"><span class="k">Site</span><span class="v" id="lcAssetSite">Brookfield</span></div>
+            <div class="row"><span class="k">Parcels</span><span class="v" id="lcAssetParcels">1 × $62,167</span></div>
+            <div class="row"><span class="k">Down</span><span class="v" id="lcAssetDown">−$7,500</span></div>
+            <div class="row" style="border-top: 1px solid var(--border-default); padding-top: 8px; margin-top: 4px;"><span class="k">Financed</span><span class="v" id="lcAssetFin">$54,667</span></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 3 — BORROWER -->
+      <div class="lc-section" data-step="borrower">
+        <div class="lc-2col">
+          <div>
+            <div class="lc-fld">
+              <label class="lc-lbl">Borrower <span class="req">*</span></label>
+              <input class="lc-input" type="text" id="lcBorrower" value="Anna Thompson" />
+              <div class="lc-help">Existing customer matched by email or national ID. Type to create a new person.</div>
+            </div>
+            <div class="lc-grid2" style="margin-top: 14px;">
+              <div class="lc-fld">
+                <label class="lc-lbl">National ID</label>
+                <input class="lc-input" type="text" value="GHA-1992-08743" />
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Phone</label>
+                <input class="lc-input" type="tel" value="+233 24 555 7821" />
+              </div>
+              <div class="lc-fld span2">
+                <label class="lc-lbl">Email</label>
+                <input class="lc-input" type="email" value="anna.t@goldcrest-realty.gh" />
+              </div>
+            </div>
+            <div class="lc-hint"><i class="ri-user-search-line"></i><span><b>Existing customer</b> · matched 2 prior loans. Switching the borrower mid-flight is allowed.</span></div>
+          </div>
+          <aside class="lc-aside-card">
+            <div class="ttl"><i class="ri-user-3-line"></i> Borrower</div>
+            <div style="display:flex; align-items: center; gap: 10px;">
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#f0b667,#d97706); color: #fff; display:grid; place-items:center; font: 600 15px var(--font-sans);">AT</div>
+              <div style="line-height: 1.25;"><div style="font: 600 13px var(--font-sans); color: var(--color-grey-900);">Anna Thompson</div><div style="font: 500 11.5px var(--font-sans); color: var(--fg3);">Existing customer</div></div>
+            </div>
+            <div class="row"><span class="k">Loans</span><span class="v">2 active</span></div>
+            <div class="row"><span class="k">On-time</span><span class="v" style="color: var(--color-success-700);">100%</span></div>
+            <div class="row"><span class="k">Joined</span><span class="v">Mar 2024</span></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 4 — TERMS -->
+      <div class="lc-section" data-step="terms">
+        <div class="lc-2col">
+          <div>
+            <div class="lc-grid3">
+              <div class="lc-fld">
+                <label class="lc-lbl">Term <span class="req">*</span></label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="1" max="360" id="lcTerm" value="120" />
+                  <span class="suf">months</span>
+                </div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Interest rate <span class="req">*</span></label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" max="50" step="0.01" id="lcRate" value="9.50" />
+                  <span class="suf">% APR</span>
+                </div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Compounding</label>
+                <select class="lc-select" id="lcComp">
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="annual">Annual</option>
+                  <option value="simple">Simple</option>
+                </select>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Escrow / month <span class="opt">(taxes + ins.)</span></label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcEscrow" value="180.50" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Late fee</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" value="35" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Grace</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" max="60" value="30" />
+                  <span class="suf">days</span>
+                </div>
+              </div>
+            </div>
+            <div class="lc-hint"><i class="ri-calculator-line"></i><span>The next step previews exactly what the borrower will pay each month based on these terms.</span></div>
+          </div>
+          <aside class="lc-aside-card">
+            <div class="ttl"><i class="ri-percent-line"></i> Quick math</div>
+            <div class="row"><span class="k">Financed</span><span class="v" id="lcTermsFin">$54,667</span></div>
+            <div class="row"><span class="k">Term</span><span class="v" id="lcTermsTerm">120 mo (10 yr)</span></div>
+            <div class="row"><span class="k">Rate</span><span class="v" id="lcTermsRate">9.50%</span></div>
+            <div class="row" style="border-top: 1px solid var(--border-default); padding-top: 8px; margin-top: 4px;"><span class="k">Est. payment</span><span class="v" id="lcTermsEst" style="color: var(--color-brand-700);">$707.62</span></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 5 — SCHEDULE -->
+      <div class="lc-section" data-step="schedule">
+        <div class="lc-2col">
+          <div>
+            <div class="lc-grid2">
+              <div class="lc-fld">
+                <label class="lc-lbl">First payment <span class="req">*</span></label>
+                <input class="lc-input" type="date" id="lcFirst" value="2026-06-25" />
+                <div class="lc-help">When the borrower's first installment is due.</div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Payment day <span class="req">*</span></label>
+                <select class="lc-select" id="lcDay">
+                  <option value="1">1st of month</option>
+                  <option value="5">5th of month</option>
+                  <option value="10">10th of month</option>
+                  <option value="15">15th of month</option>
+                  <option value="20">20th of month</option>
+                  <option value="25" selected>25th of month</option>
+                  <option value="28">28th (last business day)</option>
+                </select>
+                <div class="lc-help">Recurring monthly due day after the first payment.</div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Frequency</label>
+                <select class="lc-select">
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="biweekly">Biweekly</option>
+                  <option value="quarterly">Quarterly</option>
+                </select>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Reminders</label>
+                <select class="lc-select">
+                  <option>3 days before · email</option>
+                  <option>5 days before · email + SMS</option>
+                  <option>None</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <aside class="lc-aside-card">
+            <div class="ttl"><i class="ri-calendar-event-line"></i> Schedule</div>
+            <div class="row"><span class="k">First due</span><span class="v">Jun 25, 2026</span></div>
+            <div class="row"><span class="k">Last due</span><span class="v">May 25, 2036</span></div>
+            <div class="row"><span class="k">Installments</span><span class="v">120</span></div>
+            <div class="row"><span class="k">Cycle</span><span class="v">Monthly · 25th</span></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 6 — STATE (existing only) -->
+      <div class="lc-section" data-step="state">
+        <div class="lc-2col">
+          <div>
+            <div class="lc-grid2">
+              <div class="lc-fld">
+                <label class="lc-lbl">Current installment number <span class="req">*</span></label>
+                <input class="lc-input" type="number" min="0" step="1" id="lcStInst" value="14" />
+                <div class="lc-help">Which installment is next due (e.g. 14 means 1–13 are paid).</div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Already paid in current installment</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcStCur" value="240.00" />
+                  <span class="suf">USD</span>
+                </div>
+                <div class="lc-help">Partial amount already collected toward the next-due installment.</div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Interest paid to date</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcStInt" value="5180.40" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="lc-fld">
+                <label class="lc-lbl">Escrow paid to date</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcStEsc" value="2346.50" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+              <div class="lc-fld span2">
+                <label class="lc-lbl">Late fee outstanding</label>
+                <div class="lc-suffix">
+                  <input class="lc-input" type="number" min="0" step="0.01" id="lcStLate" value="0" />
+                  <span class="suf">USD</span>
+                </div>
+              </div>
+            </div>
+            <div class="lc-hint"><i class="ri-arrow-right-line"></i><span>Next step shows the <b>projected installment</b> based on the financed balance after these payments.</span></div>
+          </div>
+          <aside class="lc-aside-card">
+            <div class="ttl"><i class="ri-history-line"></i> Reconciled state</div>
+            <div class="row"><span class="k">Paid installments</span><span class="v">13 of 120</span></div>
+            <div class="row"><span class="k">Principal repaid</span><span class="v">$3,061.20</span></div>
+            <div class="row"><span class="k">Outstanding</span><span class="v">$51,605.80</span></div>
+            <div class="row"><span class="k">Effective start</span><span class="v">Apr 25, 2025</span></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 7 — PROJECTED INSTALLMENTS (NEW) -->
+      <div class="lc-section" data-step="projected">
+        <div class="lc-proj">
+          <div>
+            <div class="headline">
+              <div class="lbl">Expected installment</div>
+              <div class="row1">
+                <div class="amt" id="lcProjAmt">$888.12</div>
+                <div class="per">due monthly · principal + interest + escrow</div>
+              </div>
+              <div class="lc-bar" id="lcProjBar">
+                <span style="width: 36%; background: var(--color-brand-600);"></span>
+                <span style="width: 44%; background: var(--color-warning-500);"></span>
+                <span style="width: 20%; background: var(--color-success-500);"></span>
+              </div>
+              <div class="breakdown">
+                <div class="br"><div class="k"><span class="swab princ"></span> Principal</div><div class="v" id="lcProjPrinc">$321.42</div></div>
+                <div class="br"><div class="k"><span class="swab intr"></span> Interest</div><div class="v" id="lcProjIntr">$386.20</div></div>
+                <div class="br"><div class="k"><span class="swab escr"></span> Escrow</div><div class="v" id="lcProjEscr">$180.50</div></div>
+                <div class="br"><div class="k"><span class="swab fee"></span> Fees</div><div class="v" id="lcProjFee">$0.00</div></div>
+              </div>
+            </div>
+
+            <div class="lc-sched">
+              <div class="hdr">
+                <div class="num">#</div>
+                <div>Due date</div>
+                <div class="num">Principal</div>
+                <div class="num">Interest</div>
+                <div class="num">Escrow</div>
+                <div class="num">Total</div>
+              </div>
+              <div class="row" id="lcSchedRows"></div>
+              <div class="footer">
+                <span>Showing first 4 + balloon. Schedule reconciles to balance after current state.</span>
+                <a>View all 107 →</a>
+              </div>
+            </div>
+          </div>
+
+          <aside class="lc-metrics">
+            <div class="lc-metric">
+              <div class="k">Total of payments</div>
+              <div class="v" id="lcProjTotal">$95,028.84</div>
+              <div class="sub">over 107 remaining installments</div>
+            </div>
+            <div class="lc-metric">
+              <div class="k">Total interest</div>
+              <div class="v" id="lcProjTotalInt" style="color: var(--color-warning-700);">$35,667.40</div>
+              <div class="sub">across the life of the loan</div>
+            </div>
+            <div class="lc-metric">
+              <div class="k">Outstanding now</div>
+              <div class="v">$51,605.80</div>
+              <div class="sub">principal · after current state</div>
+            </div>
+            <div class="lc-metric">
+              <div class="k">Payoff date</div>
+              <div class="v">May 25, 2036</div>
+              <div class="sub">if every installment is on time</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- STEP 8 — REVIEW -->
+      <div class="lc-section" data-step="review">
+        <div class="lc-review">
+          <div class="lc-rcard">
+            <div class="h"><div class="t"><i class="ri-landscape-line"></i> Asset</div><button class="ed">Edit <i class="ri-edit-line"></i></button></div>
+            <div class="kv"><span class="k">Site</span><span class="v">Brookfield · 1 parcel</span></div>
+            <div class="kv"><span class="k">Total price</span><span class="v">$62,167.00</span></div>
+            <div class="kv"><span class="k">Down</span><span class="v">$7,500.00</span></div>
+            <div class="kv"><span class="k">Financed</span><span class="v">$54,667.00</span></div>
+          </div>
+          <div class="lc-rcard">
+            <div class="h"><div class="t"><i class="ri-user-3-line"></i> Borrower</div><button class="ed">Change <i class="ri-edit-line"></i></button></div>
+            <div class="kv"><span class="k">Name</span><span class="v">Anna Thompson</span></div>
+            <div class="kv"><span class="k">Status</span><span class="v">Existing customer</span></div>
+            <div class="kv"><span class="k">National ID</span><span class="v">GHA-1992-08743</span></div>
+          </div>
+          <div class="lc-rcard">
+            <div class="h"><div class="t"><i class="ri-percent-line"></i> Terms</div><button class="ed">Edit <i class="ri-edit-line"></i></button></div>
+            <div class="kv"><span class="k">Term</span><span class="v">120 months</span></div>
+            <div class="kv"><span class="k">Rate</span><span class="v">9.50% APR</span></div>
+            <div class="kv"><span class="k">Escrow</span><span class="v">$180.50 / mo</span></div>
+            <div class="kv"><span class="k">Late fee</span><span class="v">$35 after 30d</span></div>
+          </div>
+          <div class="lc-rcard">
+            <div class="h"><div class="t"><i class="ri-calendar-event-line"></i> Schedule</div><button class="ed">Edit <i class="ri-edit-line"></i></button></div>
+            <div class="kv"><span class="k">First payment</span><span class="v">Jun 25, 2026</span></div>
+            <div class="kv"><span class="k">Day</span><span class="v">25th · monthly</span></div>
+            <div class="kv"><span class="k">Last payment</span><span class="v">May 25, 2036</span></div>
+          </div>
+          <div class="lc-rcard">
+            <div class="h"><div class="t"><i class="ri-history-line"></i> Current state</div><button class="ed">Edit <i class="ri-edit-line"></i></button></div>
+            <div class="kv"><span class="k">Installment #</span><span class="v">14 of 120</span></div>
+            <div class="kv"><span class="k">Already paid in #14</span><span class="v">$240.00</span></div>
+            <div class="kv"><span class="k">Interest to date</span><span class="v">$5,180.40</span></div>
+            <div class="kv"><span class="k">Escrow to date</span><span class="v">$2,346.50</span></div>
+            <div class="kv"><span class="k">Late fee outstanding</span><span class="v">$0.00</span></div>
+          </div>
+          <div class="lc-rcard" style="background: var(--color-brand-50); border-color: var(--color-brand-200);">
+            <div class="h"><div class="t" style="color: var(--color-brand-800);"><i class="ri-coins-line"></i> Projected installment</div></div>
+            <div class="kv"><span class="k">Monthly payment</span><span class="v" style="font-size: 16px; color: var(--color-brand-800);">$888.12</span></div>
+            <div class="kv"><span class="k">Total interest</span><span class="v">$35,667.40</span></div>
+            <div class="kv"><span class="k">Payoff</span><span class="v">May 25, 2036</span></div>
+          </div>
+        </div>
+        <div class="lc-hint" style="margin-top: 14px;"><i class="ri-shield-check-line"></i><span><b>Save as draft</b> creates the loan record without sending. <b>Activate loan</b> opens with status Active and begins reminder schedule from the next due date.</span></div>
+      </div>
+
+    </div>
+
+    <footer class="lc-foot">
+      <button class="btn-ic danger" id="lcDiscard"><i class="ri-delete-bin-6-line"></i> Discard</button>
+      <div class="lc-foot-sp"></div>
+      <button class="btn-ic ghost" id="lcBack"><i class="ri-arrow-left-line"></i> Back</button>
+      <button class="btn-ic secondary" id="lcDraft"><i class="ri-draft-line"></i> Save draft</button>
+      <button class="btn-ic primary" id="lcNext">Continue <i class="ri-arrow-right-line"></i></button>
+    </footer>
+  </section>
+</div>
+</div>
+
+<script>
+(function () {
+  const STEPS_NEW      = ['type','land','borrower','terms','schedule','projected','review'];
+  const STEPS_EXISTING = ['type','land','borrower','terms','schedule','state','projected','review'];
+
+  const META = {
+    type:      { lbl: 'Loan type',     hint: 'New or existing',          h: 'Is this a new loan, or one already in flight?',          d: 'Pick the path that matches reality. New originates a fresh contract; Existing onboards a loan already running outside Ream so the schedule reconciles from day one.' },
+    land:      { lbl: 'Land',          hint: 'Site & parcels',           h: 'Which land is the borrower buying?',                     d: 'Pick the site and parcel count. The financed balance is price minus down payment.' },
+    borrower:  { lbl: 'Borrower',      hint: 'Buyer details',            h: 'Who is the borrower?',                                   d: 'Pick an existing customer or attach a new person — they only become a saved customer once the contract is sent.' },
+    terms:     { lbl: 'Loan terms',    hint: 'Term, rate, escrow',       h: 'What are the loan terms?',                               d: 'Set the duration, interest rate, and any monthly add-ons. These drive the projected installment in the next step.' },
+    schedule:  { lbl: 'Schedule',      hint: 'First payment & cadence',  h: 'When does the borrower start paying?',                   d: 'First payment date, recurring day of month, and reminder cadence.' },
+    state:     { lbl: 'Current state', hint: 'For existing loans only',  h: 'What\u2019s already been paid?',                          d: 'Capture the running totals so the schedule reconciles from day one. Skip if this is a brand-new loan.' },
+    projected: { lbl: 'Projected installments', hint: 'What they\u2019ll pay', h: 'Here\u2019s what the borrower will pay each month.', d: 'Computed live from financed balance, term, rate, and escrow. The first 4 installments and the balloon are previewed below.' },
+    review:    { lbl: 'Review',        hint: 'Confirm & save',           h: 'Looks right?',                                           d: 'Click any card to jump back. Save as draft to come back later, or activate the loan now.' }
+  };
+
+  const state = { type: 'existing', idx: 0 };
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  function activeSteps() { return state.type === 'existing' ? STEPS_EXISTING : STEPS_NEW; }
+
+  function renderSidebar() {
+    const steps = activeSteps();
+    const html = steps.map((s, i) => {
+      const m = META[s];
+      const cls = i < state.idx ? 'done' : i === state.idx ? 'active' : '';
+      const num = i < state.idx ? '<i class="ri-check-line"></i>' : (i + 1);
+      return `<div class="lc-step ${cls}" data-step="${s}" data-idx="${i}">
+        <div class="num">${num}</div>
+        <div><div class="lbl">${m.lbl}</div><div class="hint">${m.hint}</div></div>
+      </div>`;
+    }).join('');
+    $('#lcSteps').innerHTML = html;
+    $$('#lcSteps .lc-step').forEach(el => {
+      el.addEventListener('click', () => {
+        const i = +el.dataset.idx;
+        if (i <= state.idx + 1) { state.idx = i; render(); }
+      });
+    });
+  }
+
+  function renderHeader() {
+    const steps = activeSteps();
+    const cur = steps[state.idx];
+    const m = META[cur];
+    $('#lcEyebrow').textContent = `Step ${state.idx + 1} of ${steps.length} · ${m.lbl}`;
+    $('#lcTitle').textContent = m.h;
+    $('#lcDesc').textContent = m.d;
+  }
+
+  function renderBody() {
+    const steps = activeSteps();
+    const cur = steps[state.idx];
+    $$('.lc-section').forEach(sec => sec.classList.toggle('on', sec.dataset.step === cur));
+    if (cur === 'projected') renderSchedule();
+  }
+
+  function renderFoot() {
+    const steps = activeSteps();
+    $('#lcBack').style.visibility = state.idx === 0 ? 'hidden' : 'visible';
+    $('#lcDraft').hidden = state.idx < 2;
+    const next = $('#lcNext');
+    if (state.idx === steps.length - 1) {
+      next.innerHTML = '<i class="ri-rocket-2-line"></i> Activate loan';
+    } else if (steps[state.idx + 1] === 'projected') {
+      next.innerHTML = 'Preview installments <i class="ri-arrow-right-line"></i>';
+    } else if (steps[state.idx] === 'projected') {
+      next.innerHTML = 'Continue to review <i class="ri-arrow-right-line"></i>';
+    } else {
+      next.innerHTML = 'Continue <i class="ri-arrow-right-line"></i>';
+    }
+  }
+
+  function renderSchedule() {
+    const fmt = n => '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const startInst = +$('#lcStInst').value || 1;
+    const principal = 51605.80;
+    const rate = (+$('#lcRate').value || 9.5) / 100 / 12;
+    const escrow = +$('#lcEscrow').value || 0;
+    let bal = principal;
+    const total = +$('#lcTerm').value || 120;
+    const remaining = total - (startInst - 1);
+    const pi = principal * (rate * Math.pow(1 + rate, remaining)) / (Math.pow(1 + rate, remaining) - 1);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const start = new Date(2026, 5, 25);
+    const rows = [];
+    for (let k = 0; k < 4; k++) {
+      const intr = bal * rate;
+      const princ = pi - intr;
+      bal -= princ;
+      const d = new Date(start.getFullYear(), start.getMonth() + k, 25);
+      const tag = k === 0 ? '<span class="pill first">First</span>' : '';
+      rows.push(`<div class="row">
+        <div class="num">#${startInst + k}</div>
+        <div>${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} ${tag}</div>
+        <div class="num">${fmt(princ)}</div>
+        <div class="num">${fmt(intr)}</div>
+        <div class="num">${fmt(escrow)}</div>
+        <div class="num"><b>${fmt(princ + intr + escrow)}</b></div>
+      </div>`);
+    }
+    rows.push(`<div class="row">
+      <div class="num">…</div><div style="color: var(--fg3); font-style: italic;">${remaining - 5} more installments</div>
+      <div class="num">…</div><div class="num">…</div><div class="num">…</div><div class="num">…</div>
+    </div>`);
+    const dLast = new Date(start.getFullYear(), start.getMonth() + remaining - 1, 25);
+    let bLast = principal;
+    for (let k = 0; k < remaining - 1; k++) { const intr = bLast * rate; bLast -= (pi - intr); }
+    const intrLast = bLast * rate;
+    const princLast = bLast;
+    rows.push(`<div class="row">
+      <div class="num">#${total}</div>
+      <div>${months[dLast.getMonth()]} ${dLast.getDate()}, ${dLast.getFullYear()} <span class="pill last">Final</span></div>
+      <div class="num">${fmt(princLast)}</div>
+      <div class="num">${fmt(intrLast)}</div>
+      <div class="num">${fmt(escrow)}</div>
+      <div class="num"><b>${fmt(princLast + intrLast + escrow)}</b></div>
+    </div>`);
+    $('#lcSchedRows').outerHTML = rows.join('');
+    // Re-attach because outerHTML replaced the placeholder; not needed for re-render path since we rebuild on each visit.
+
+    // Update headline numbers
+    const intr0 = principal * rate;
+    const princ0 = pi - intr0;
+    $('#lcProjAmt').textContent = fmt(pi + escrow);
+    $('#lcProjPrinc').textContent = fmt(princ0);
+    $('#lcProjIntr').textContent = fmt(intr0);
+    $('#lcProjEscr').textContent = fmt(escrow);
+    const totalPay = (pi + escrow) * remaining;
+    $('#lcProjTotal').textContent = fmt(totalPay);
+    $('#lcProjTotalInt').textContent = fmt(totalPay - principal - escrow * remaining);
+    // Bar widths
+    const sum = princ0 + intr0 + escrow;
+    const bar = document.querySelector('#lcProjBar');
+    if (bar) bar.innerHTML = `
+      <span style="width:${(princ0/sum*100).toFixed(1)}%; background: var(--color-brand-600, #2c63a8);"></span>
+      <span style="width:${(intr0/sum*100).toFixed(1)}%; background: var(--color-warning-500, #d97706);"></span>
+      <span style="width:${(escrow/sum*100).toFixed(1)}%; background: var(--color-success-500, #1f8a5b);"></span>`;
+  }
+
+  function render() { renderSidebar(); renderHeader(); renderBody(); renderFoot(); }
+
+  // Tile picks
+  document.querySelectorAll('.lc-tile').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.lc-tile').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    state.type = t.dataset.type;
+    render();
+  }));
+  document.querySelectorAll('.lc-site').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.lc-site').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+  }));
+
+  $('#lcBack').addEventListener('click', () => { if (state.idx > 0) { state.idx--; render(); } });
+  $('#lcNext').addEventListener('click', () => {
+    const steps = activeSteps();
+    if (state.idx < steps.length - 1) { state.idx++; render(); }
+  });
+  $('#lcDiscard').addEventListener('click', () => alert('Discarded (demo).'));
+  $('#lcDraft').addEventListener('click', () => alert('Draft saved (demo).'));
+  $('#lcClose').addEventListener('click', () => alert('Closed (demo).'));
+
+  render();
+})();
+</script>
+</body>
+</html>

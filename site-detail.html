@@ -1,0 +1,1751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Site detail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+<link rel="stylesheet" href="_detail.css" />
+<style>
+  /* Floating tweak panel for header design */
+  #siteTweaks {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9999;
+    background: white; border: 1px solid var(--color-grey-200);
+    border-radius: 12px; box-shadow: 0 16px 40px rgba(15,23,42,0.18);
+    width: 260px; font: 13px var(--font-sans); color: var(--color-grey-900);
+    transform: translateY(8px) scale(0.98); opacity: 0; pointer-events: none;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+  #siteTweaks.open { transform: none; opacity: 1; pointer-events: auto; }
+  #siteTweaks .hd {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; border-bottom: 1px solid var(--color-grey-100);
+    font-weight: 600;
+  }
+  #siteTweaks .hd i { color: var(--color-brand-600); }
+  #siteTweaks .hd button {
+    margin-left: auto; background: transparent; border: 0; cursor: pointer;
+    color: var(--fg3); width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #siteTweaks .hd button:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+  #siteTweaks .bd { padding: 12px 14px 14px; }
+  #siteTweaks .lbl {
+    font: 600 11px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  #siteTweaks .seg {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    background: var(--color-grey-50); border-radius: 9px; padding: 4px;
+    border: 1px solid var(--color-grey-200);
+  }
+  #siteTweaks .seg button {
+    background: transparent; border: 0; padding: 8px 6px; border-radius: 6px;
+    font: 500 12.5px var(--font-sans); color: var(--color-grey-700);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  #siteTweaks .seg button:hover { color: var(--color-grey-900); }
+  #siteTweaks .seg button.on {
+    background: white; color: var(--color-grey-900); font-weight: 600;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+  }
+  #siteTweaks .seg button i { font-size: 14px; color: var(--fg4); }
+  #siteTweaks .seg button.on i { color: var(--color-brand-600); }
+</style>
+</head>
+<body>
+<div data-screen-label="Site Detail">
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Sites/SR-001</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="sites"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <a href="sites.html">Sites</a>
+          <span class="sep">/</span>
+          <span class="current">Sunridge Estate</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search parcels…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ===================== HERO with GALLERY ===================== -->
+        <div class="dt-hero with-gallery" data-img="sunridge">
+          <div class="dt-photo"></div>
+          <div class="dt-gallery" id="gallery">
+            <div class="main" id="galMain" style="background-image: linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%);">
+              <span class="badge"><i class="ri-flashlight-line"></i> SELLING · PHASE 2</span>
+              <span class="count" id="galCount"><i class="ri-image-line"></i> 1 / 4</span>
+            </div>
+            <div class="dt-thumbs" id="galThumbs">
+              <div class="dt-thumb on" data-kind="image" data-bg="linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%)" data-cap="Aerial · sunset · Phase 2"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #134e4a 0%, #34d399 50%, #84cc16 100%)" data-cap="Phase 1 · finished landscaping"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #0c4a6e 0%, #38bdf8 45%, #fef3c7 100%)" data-cap="Main entrance · gatehouse"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #166534 0%, #86efac 50%, #fde047 100%)" data-cap="Central park · 1.2 ha"></div>
+              <div class="dt-thumb" data-kind="video" data-bg="linear-gradient(180deg, #1e293b 0%, #475569 100%)" data-cap="Drone tour · 2:34">
+                <span class="play"><i class="ri-play-circle-fill"></i></span>
+                <span class="label">Video tour</span>
+              </div>
+            </div>
+          </div>
+          <div class="dt-head">
+            <div class="eyebrow">SR-001 · ESTATE · LAND</div>
+            <h1>Sunridge Estate</h1>
+            <div class="loc"><i class="ri-map-pin-line"></i> Ridge Lane, Aburi-Accra Highway · Greater Accra</div>
+            <div class="pills">
+              <span class="pill" data-tone="brand"><i class="ri-stack-line"></i> Phase 2 of 3</span>
+              <span class="pill" data-tone="success"><i class="ri-shield-check-line"></i> All approvals secured</span>
+              <span class="pill"><i class="ri-ruler-2-line"></i> 14 ha · 34.6 ac</span>
+              <span class="pill"><i class="ri-route-line"></i> 800 m to N1 highway</span>
+              <span class="pill"><i class="ri-calendar-line"></i> Launched Aug 2022</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary"><i class="ri-add-line"></i> Add parcel</button>
+              <button class="btn btn-secondary" id="btnPlayTour"><i class="ri-play-circle-line"></i> Play tour</button>
+              <button class="btn btn-secondary"><i class="ri-share-line"></i> Share</button>
+              <button class="btn btn-secondary" id="btnHeaderEdit"><i class="ri-pencil-line"></i> Edit</button>
+              <div class="dt-kebab" id="heroKebab">
+                <button class="btn btn-secondary icon-only" aria-label="More" data-kebab-trigger><i class="ri-more-2-line"></i></button>
+                <div class="dt-kebab-menu" role="menu">
+                  <button role="menuitem" data-kebab="replace-media"><i class="ri-image-edit-line"></i> Replace cover photo &amp; gallery…</button>
+                  <button role="menuitem" data-kebab="video"><i class="ri-video-add-line"></i> Manage video tour…</button>
+                  <button role="menuitem" data-kebab="public"><i class="ri-external-link-line"></i> Open public listing</button>
+                  <button role="menuitem" data-kebab="export"><i class="ri-download-2-line"></i> Export site report (PDF)</button>
+                  <button role="menuitem" data-kebab="duplicate"><i class="ri-file-copy-line"></i> Duplicate site</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="phase"><i class="ri-stack-line"></i> Move to next phase</button>
+                  <button role="menuitem" data-kebab="hold"><i class="ri-pause-circle-line"></i> Pause sales</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="archive" data-tone="danger"><i class="ri-archive-line"></i> Archive site…</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== KPIs ===================== -->
+        <div class="dt-kpis">
+          <div class="card">
+            <div class="card-title">Total parcels</div>
+            <div class="card-value">48</div>
+            <div class="delta">Phase 2</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Sold</div>
+            <div class="card-value success">22</div>
+            <div class="delta up">46% sold-through</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Booked revenue</div>
+            <div class="card-value">$1.18M</div>
+            <div class="delta up">+$120K last 90d</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Active loans</div>
+            <div class="card-value">9</div>
+            <div class="delta">$420K outstanding</div>
+          </div>
+        </div>
+
+        <!-- ===================== TABS ===================== -->
+        <div class="dt-tabs" id="dtTabs">
+          <button class="dt-tab on" data-tab="overview"><i class="ri-information-line"></i> Overview</button>
+          <button class="dt-tab" data-tab="inventory"><i class="ri-grid-line"></i> Inventory <span class="cnt">48</span></button>
+          <button class="dt-tab" data-tab="documents"><i class="ri-file-text-line"></i> Documents <span class="cnt">9</span></button>
+          <button class="dt-tab" data-tab="activity"><i class="ri-pulse-line"></i> Activity <span class="cnt">14</span></button>
+          <button class="dt-tab" data-tab="history"><i class="ri-history-line"></i> History</button>
+        </div>
+
+        <!-- ===================== OVERVIEW ===================== -->
+        <div class="dt-pane" id="paneOverview">
+          <div class="dt-grid">
+            <section>
+
+              <!-- About -->
+              <div class="dt-panel" data-card="about">
+                <header>
+                  <h3><i class="ri-information-line lead"></i> About the estate</h3>
+                  <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                </header>
+                <div class="body body-view">
+                  <div class="dt-prose">
+                    <p>Goldcrest's flagship land development on the Aburi-Accra ridge. 14 hectares planned across three phases, with paved internal roads, gated security, underground utilities, and a 1.2 ha central park. Phase 1 is fully sold and titled; Phase 2 is mid-launch with 22 of 48 parcels sold; Phase 3 enters approval in Q1 2026.</p>
+                    <p>Master-planned for residential serviced plots, with sunset views over the western valley and direct access to the new N1 link road.</p>
+                  </div>
+                </div>
+                <div class="dt-edit-form body-edit">
+                  <div class="field">
+                    <label>Estate name</label>
+                    <input type="text" value="Sunridge Estate" />
+                  </div>
+                  <div class="field">
+                    <label>Description</label>
+                    <div class="dt-rte" data-rte>
+                      <div class="dt-rte-toolbar">
+                        <select data-rte-block>
+                          <option value="P">Paragraph</option>
+                          <option value="H3">Heading</option>
+                          <option value="H4">Subheading</option>
+                          <option value="BLOCKQUOTE">Quote</option>
+                        </select>
+                        <span class="grp">
+                          <button type="button" data-rte-cmd="bold" title="Bold (Ctrl+B)"><i class="ri-bold"></i></button>
+                          <button type="button" data-rte-cmd="italic" title="Italic (Ctrl+I)"><i class="ri-italic"></i></button>
+                          <button type="button" data-rte-cmd="underline" title="Underline (Ctrl+U)"><i class="ri-underline"></i></button>
+                          <button type="button" data-rte-cmd="strikeThrough" title="Strikethrough"><i class="ri-strikethrough"></i></button>
+                        </span>
+                        <span class="grp">
+                          <button type="button" data-rte-cmd="insertUnorderedList" title="Bulleted list"><i class="ri-list-unordered"></i></button>
+                          <button type="button" data-rte-cmd="insertOrderedList" title="Numbered list"><i class="ri-list-ordered"></i></button>
+                        </span>
+                        <span class="grp">
+                          <button type="button" data-rte-link title="Insert link"><i class="ri-link"></i></button>
+                          <button type="button" data-rte-cmd="removeFormat" title="Clear formatting"><i class="ri-format-clear"></i></button>
+                        </span>
+                      </div>
+                      <div class="dt-rte-content" contenteditable="true">
+                        <p>Goldcrest's flagship land development on the Aburi-Accra ridge. <b>14 hectares</b> planned across three phases, with paved internal roads, gated security, underground utilities, and a 1.2 ha central park.</p>
+                        <p>Phase 1 is fully sold and titled; Phase 2 is mid-launch with 22 of 48 parcels sold; Phase 3 enters approval in Q1 2026.</p>
+                        <p>Master-planned for residential serviced plots, with sunset views over the western valley and direct access to the new N1 link road.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                    <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Amenities -->
+              <div class="dt-panel" data-card="amenities">
+                <header>
+                  <h3><i class="ri-flashlight-line lead"></i> Site amenities</h3>
+                  <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                </header>
+                <div class="body body-view">
+                  <div class="dt-tags">
+                    <span class="tag"><i class="ri-shield-line"></i> 24/7 gated security</span>
+                    <span class="tag"><i class="ri-road-map-line"></i> Paved internal roads</span>
+                    <span class="tag"><i class="ri-flashlight-line"></i> Underground power</span>
+                    <span class="tag"><i class="ri-drop-line"></i> Mains water</span>
+                    <span class="tag"><i class="ri-cloud-line"></i> Storm drainage</span>
+                    <span class="tag"><i class="ri-wifi-line"></i> Fibre backbone</span>
+                    <span class="tag"><i class="ri-tree-line"></i> 1.2 ha central park</span>
+                    <span class="tag"><i class="ri-football-line"></i> Multi-purpose pitch</span>
+                    <span class="tag"><i class="ri-store-line"></i> Convenience plaza</span>
+                    <span class="tag"><i class="ri-parking-line"></i> Visitor parking</span>
+                  </div>
+                </div>
+                <div class="dt-edit-form body-edit">
+                  <div class="dt-amen-edit">
+                    <span class="chip"><i class="ri-shield-line lead"></i> <span contenteditable="true">24/7 gated security</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-road-map-line lead"></i> <span contenteditable="true">Paved internal roads</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-flashlight-line lead"></i> <span contenteditable="true">Underground power</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-drop-line lead"></i> <span contenteditable="true">Mains water</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-cloud-line lead"></i> <span contenteditable="true">Storm drainage</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-wifi-line lead"></i> <span contenteditable="true">Fibre backbone</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-tree-line lead"></i> <span contenteditable="true">1.2 ha central park</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-football-line lead"></i> <span contenteditable="true">Multi-purpose pitch</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-store-line lead"></i> <span contenteditable="true">Convenience plaza</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <span class="chip"><i class="ri-parking-line lead"></i> <span contenteditable="true">Visitor parking</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button></span>
+                    <button class="add-chip" data-add-amenity><i class="ri-add-line"></i> Add amenity</button>
+                  </div>
+                  <div class="actions">
+                    <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                    <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div class="dt-panel" data-card="location">
+                <header>
+                  <h3><i class="ri-map-pin-line lead"></i> Location</h3>
+                  <span class="meta">5°37'12"N · 0°11'20"W</span>
+                  <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                </header>
+                <div class="body body-view" style="padding: 14px;">
+                  <div class="dt-map"><div class="pin-pop">📍 Sunridge Estate · 14 ha</div></div>
+                </div>
+                <div class="dt-edit-form body-edit">
+                  <div class="field">
+                    <label>Address</label>
+                    <input type="text" value="Ridge Lane, Aburi-Accra Highway, Greater Accra" />
+                  </div>
+                  <div class="row">
+                    <div class="field">
+                      <label>Latitude</label>
+                      <input type="text" value="5.620" />
+                    </div>
+                    <div class="field">
+                      <label>Longitude</label>
+                      <input type="text" value="-0.189" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label>Map pin</label>
+                    <div class="dt-map" style="aspect-ratio: 16/8;"><div class="pin-pop">📍 Drag to reposition</div></div>
+                    <span class="help">Drop the pin or paste coordinates above.</span>
+                  </div>
+                  <div class="actions">
+                    <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                    <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                  </div>
+                </div>
+              </div>
+
+            </section>
+
+            <section>
+              <div class="dt-stack">
+
+                <!-- Site parcel details -->
+                <div class="dt-panel" data-card="parcel">
+                  <header>
+                    <h3><i class="ri-landscape-line lead"></i> Site parcel details</h3>
+                    <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                  </header>
+                  <div class="body body-view">
+                    <div class="dt-parcel-grid">
+                      <div class="cell">
+                        <div class="lab"><i class="ri-stack-line"></i> Total parcels</div>
+                        <div class="val">48</div>
+                        <div class="sb">on Phase 2</div>
+                      </div>
+                      <div class="cell">
+                        <div class="lab"><i class="ri-ruler-2-line"></i> Parcel area</div>
+                        <div class="val">540 m²</div>
+                        <div class="sb">≈ 0.13 ac</div>
+                      </div>
+                      <div class="cell">
+                        <div class="lab"><i class="ri-money-dollar-circle-line"></i> Parcel price</div>
+                        <div class="val">$54,200</div>
+                        <div class="sb">listed</div>
+                      </div>
+                      <div class="cell">
+                        <div class="lab"><i class="ri-pulse-line"></i> Availability</div>
+                        <div class="val"><span style="color:var(--color-grey-700);">16</span> / 22 / 10</div>
+                        <div class="sb">Free · Sold · Reserved</div>
+                      </div>
+                      <div class="cell full">
+                        <div class="progress">
+                          <div class="lab" style="display:flex;justify-content:space-between;font:12px var(--font-sans);color:var(--fg3);margin-bottom:4px;"><span>Sold</span><b style="color:var(--color-grey-900);font-variant-numeric:tabular-nums;">22 / 48 · 46%</b></div>
+                          <div class="bar"><span style="width:46%;"></span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dt-edit-form body-edit">
+                    <div class="field">
+                      <label>Total parcels on site</label>
+                      <input type="number" value="48" />
+                    </div>
+                    <div class="row">
+                      <div class="field">
+                        <label>Free parcels</label>
+                        <input type="number" value="16" />
+                      </div>
+                      <div class="field">
+                        <label>Sold parcels</label>
+                        <input type="number" value="22" />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="field">
+                        <label>Parcel area</label>
+                        <div class="input-with-unit"><input type="number" value="540" /><span class="unit">m²</span></div>
+                      </div>
+                      <div class="field">
+                        <label>Parcel price</label>
+                        <div class="input-with-unit"><input type="number" value="54200" /><span class="unit">USD</span></div>
+                      </div>
+                    </div>
+                    <div class="actions">
+                      <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                      <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Loan product attached -->
+                <div class="dt-panel" data-card="loan-product">
+                  <header>
+                    <h3><i class="ri-bank-line lead"></i> Loan product</h3>
+                    <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                  </header>
+                  <div class="body body-view">
+                    <div class="dt-loan-product">
+                      <div class="head">
+                        <span class="ic"><i class="ri-bank-line"></i></span>
+                        <div>
+                          <div class="nm">Standard Land · 12-yr fixed</div>
+                          <div class="sb">Default product for serviced parcels</div>
+                        </div>
+                      </div>
+                      <div class="terms">
+                        <div class="term">
+                          <span class="lab">Down payment</span>
+                          <span class="val">$5,000</span>
+                          <span class="sb">Fixed amount</span>
+                        </div>
+                        <div class="term">
+                          <span class="lab">Interest rate</span>
+                          <span class="val">9.50%</span>
+                          <span class="sb">APR · fixed</span>
+                        </div>
+                        <div class="term">
+                          <span class="lab">Default term</span>
+                          <span class="val">144 mo</span>
+                          <span class="sb">12 years</span>
+                        </div>
+                        <div class="term">
+                          <span class="lab">Late fee</span>
+                          <span class="val">$50</span>
+                          <span class="sb">After 30 days late</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dt-edit-form body-edit">
+                    <div class="dt-combo" id="loanCombo" data-open="false">
+                      <div class="selected" id="loanComboSelected">
+                        <span class="nm" id="loanComboNm">Standard Land · 12-yr fixed</span>
+                        <span class="meta" id="loanComboMeta">$5,000 down · 9.50% · 144 mo</span>
+                        <i class="ri-arrow-down-s-line caret"></i>
+                      </div>
+                      <div class="dropdown">
+                        <div class="search">
+                          <i class="ri-search-line"></i>
+                          <input type="search" id="loanComboSearch" placeholder="Search loan products…" />
+                        </div>
+                        <div class="options" id="loanComboOptions">
+                          <div class="option" aria-selected="true" data-id="std-12" data-nm="Standard Land · 12-yr fixed" data-meta="$5,000 down · 9.50% · 144 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Standard Land · 12-yr fixed</div><div class="sb">$5,000 down · 9.50% APR · 144 mo · $50 late fee</div></div>
+                          </div>
+                          <div class="option" data-id="std-15" data-nm="Standard Land · 15-yr fixed" data-meta="$5,000 down · 8.75% · 180 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Standard Land · 15-yr fixed</div><div class="sb">$5,000 down · 8.75% APR · 180 mo · $50 late fee</div></div>
+                          </div>
+                          <div class="option" data-id="prem-10" data-nm="Premium Land · 10-yr" data-meta="$10,000 down · 7.95% · 120 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Premium Land · 10-yr</div><div class="sb">$10,000 down · 7.95% APR · 120 mo · $75 late fee</div></div>
+                          </div>
+                          <div class="option" data-id="flex-7" data-nm="Flex Land · 7-yr" data-meta="$3,500 down · 10.50% · 84 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Flex Land · 7-yr</div><div class="sb">$3,500 down · 10.50% APR · 84 mo · $40 late fee</div></div>
+                          </div>
+                          <div class="option" data-id="quick-5" data-nm="Quick Land · 5-yr" data-meta="$7,500 down · 11.00% · 60 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Quick Land · 5-yr</div><div class="sb">$7,500 down · 11.00% APR · 60 mo · $50 late fee</div></div>
+                          </div>
+                          <div class="option" data-id="diaspora-12" data-nm="Diaspora · 12-yr USD" data-meta="$15,000 down · 8.25% · 144 mo">
+                            <i class="ri-check-line check"></i>
+                            <div><div class="nm">Diaspora · 12-yr USD</div><div class="sb">$15,000 down · 8.25% APR · 144 mo · $100 late fee</div></div>
+                          </div>
+                        </div>
+                        <button class="add-loan-product" id="btnNewLoanProductFromCombo" type="button">
+                          <i class="ri-add-line"></i> Create new loan product…
+                        </button>
+                      </div>
+                    </div>
+                    <span class="dt-help">Only one loan product can be attached at a time. Buyers will see this product's terms when financing a parcel.</span>
+                    <div class="actions">
+                      <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                      <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Site team — pre-opened in edit mode to demo -->
+                <div class="dt-panel editing" data-card="team">
+                  <header>
+                    <h3><i class="ri-user-star-line lead"></i> Site team</h3>
+                    <span class="demo-hint"><i class="ri-eye-line"></i> Edit preview</span>
+                    <button class="dt-edit-btn" aria-label="Edit"><i class="ri-pencil-line"></i></button>
+                  </header>
+                  <div class="body body-view" style="padding: 0;">
+                    <div class="dt-person">
+                      <span class="ava">KM</span>
+                      <div><div class="nm">Kevin Manga</div><div class="sb">Site lead · Goldcrest Realty</div></div>
+                      <button class="icon-btn" aria-label="Message"><i class="ri-message-3-line"></i></button>
+                    </div>
+                    <div class="dt-person" style="border-top:1px solid var(--border-subtle);">
+                      <span class="ava" data-color="green">JE</span>
+                      <div><div class="nm">Jordan Evans</div><div class="sb">Lead sales agent</div></div>
+                      <button class="icon-btn" aria-label="Message"><i class="ri-message-3-line"></i></button>
+                    </div>
+                    <div class="dt-person" style="border-top:1px solid var(--border-subtle);">
+                      <span class="ava" data-color="amber">MB</span>
+                      <div><div class="nm">Mensah Build Co.</div><div class="sb">Construction partner</div></div>
+                      <button class="icon-btn" aria-label="Open"><i class="ri-arrow-right-line"></i></button>
+                    </div>
+                  </div>
+                  <div class="body-edit">
+                    <div class="dt-team-edit">
+                      <div class="person-row">
+                        <span class="ava-sm">KM</span>
+                        <input type="text" value="Kevin Manga" />
+                        <select class="role-select">
+                          <option>Site lead</option>
+                          <option>Sales agent</option>
+                          <option>Construction partner</option>
+                          <option>Surveyor</option>
+                          <option>Legal</option>
+                        </select>
+                        <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button>
+                      </div>
+                      <div class="person-row">
+                        <span class="ava-sm" data-color="green">JE</span>
+                        <input type="text" value="Jordan Evans" />
+                        <select class="role-select">
+                          <option>Site lead</option>
+                          <option selected>Sales agent</option>
+                          <option>Construction partner</option>
+                          <option>Surveyor</option>
+                          <option>Legal</option>
+                        </select>
+                        <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button>
+                      </div>
+                      <div class="person-row">
+                        <span class="ava-sm" data-color="amber">MB</span>
+                        <input type="text" value="Mensah Build Co." />
+                        <select class="role-select">
+                          <option>Site lead</option>
+                          <option>Sales agent</option>
+                          <option selected>Construction partner</option>
+                          <option>Surveyor</option>
+                          <option>Legal</option>
+                        </select>
+                        <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button>
+                      </div>
+                      <button class="add-person"><i class="ri-user-add-line"></i> Add team member</button>
+                    </div>
+                    <div class="actions" style="padding: 12px 16px; margin: 0;">
+                      <button class="btn btn-text btn-sm" data-cancel>Cancel</button>
+                      <button class="btn btn-primary btn-sm" data-save><i class="ri-check-line"></i> Save</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== INVENTORY (parcel cards · filter · pagination) ===================== -->
+        <div class="dt-pane dt-bare" id="paneInventory" hidden>
+          <div class="dt-filter-row">
+            <label class="dt-search">
+              <i class="ri-search-line"></i>
+              <input type="search" id="invSearch" placeholder="Search parcels by plot, buyer, or section…" />
+            </label>
+            <button class="dt-chip-filter on" data-inv-filter="all">All <span class="cnt" data-cnt="all">12</span></button>
+            <button class="dt-chip-filter" data-inv-filter="draft">Draft <span class="cnt" data-cnt="draft">3</span></button>
+            <button class="dt-chip-filter" data-inv-filter="sent">Sent <span class="cnt" data-cnt="sent">1</span></button>
+            <button class="dt-chip-filter" data-inv-filter="signed">Signed <span class="cnt" data-cnt="signed">2</span></button>
+            <button class="dt-chip-filter" data-inv-filter="active">Active <span class="cnt" data-cnt="active">4</span></button>
+            <button class="dt-chip-filter" data-inv-filter="payoff">Payoff <span class="cnt" data-cnt="payoff">1</span></button>
+            <button class="dt-chip-filter" data-inv-filter="expired">Expired <span class="cnt" data-cnt="expired">1</span></button>
+            <span class="right">
+              <select class="dt-select" id="invSort">
+                <option value="plot">Sort: Plot #</option>
+                <option value="price-desc">Sort: Price ↓</option>
+                <option value="price-asc">Sort: Price ↑</option>
+                <option value="status">Sort: Status</option>
+              </select>
+            </span>
+          </div>
+
+          <div class="dt-parcel-cards" id="invGrid"></div>
+
+          <div class="dt-pager" id="invPager">
+            <div class="rng"></div>
+            <div class="ctrls"></div>
+          </div>
+        </div>
+
+        <!-- ===================== DOCUMENTS ===================== -->
+        <div class="dt-pane dt-bare" id="paneDocuments" hidden>
+          <label class="dt-upload" id="dropZone" for="docFileInput">
+            <span class="ic"><i class="ri-upload-cloud-2-line"></i></span>
+            <div class="text">
+              <div class="nm">Upload documents</div>
+              <div class="sb">Drag files here, or click to browse — PDF, DOC, DWG, PNG, JPG up to 25 MB</div>
+            </div>
+            <span class="btn btn-primary"><i class="ri-add-line"></i> Choose files</span>
+            <input type="file" id="docFileInput" multiple />
+          </label>
+
+          <div class="dt-filter-row" style="padding-top:14px;">
+            <label class="dt-search">
+              <i class="ri-search-line"></i>
+              <input type="search" id="docSearch" placeholder="Search documents…" />
+            </label>
+            <button class="dt-chip-filter on" data-doc-filter="all">All</button>
+            <button class="dt-chip-filter" data-doc-filter="registered">Registered</button>
+            <button class="dt-chip-filter" data-doc-filter="received">Active</button>
+            <button class="dt-chip-filter" data-doc-filter="awaiting">Awaiting</button>
+            <span class="right">
+              <select class="dt-select" id="docSort">
+                <option value="recent">Most recent</option>
+                <option value="name">Name (A→Z)</option>
+                <option value="size">Size (large→small)</option>
+              </select>
+            </span>
+          </div>
+
+          <div class="dt-docs" id="docsList">
+            <div class="doc with-actions"><i class="ri-government-line lead"></i><div><div class="nm">Master parcel registration</div><div class="sb">GHA-LT-2022-00001 · Lands Commission · 2.3 MB</div></div><span class="pill" data-state="registered">Registered</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-map-2-line lead"></i><div><div class="nm">Master plan (DWG + PDF)</div><div class="sb">Mensah Studio · rev 4 · 12 sheets · 18 MB</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-leaf-line lead"></i><div><div class="nm">EPA environmental permit</div><div class="sb">Renewed 2024 · expires 2027 · 1.1 MB</div></div><span class="pill" data-state="received">Active</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-government-line lead"></i><div><div class="nm">AMA planning approval · Phases 1 &amp; 2</div><div class="sb">Issued 2022 · combined · 4.6 MB</div></div><span class="pill" data-state="received">Active</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-flashlight-line lead"></i><div><div class="nm">ECG bulk-supply agreement</div><div class="sb">Underground 11 kV feed · 0.8 MB</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-drop-line lead"></i><div><div class="nm">GWCL water-supply agreement</div><div class="sb">200 mm trunk main · 0.6 MB</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-shield-check-line lead"></i><div><div class="nm">Site insurance binder</div><div class="sb">Vanguard · expires Dec 2025 · 0.4 MB</div></div><span class="pill" data-state="received">Active</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-image-2-line lead"></i><div><div class="nm">Drone aerials Q2 2025</div><div class="sb">42 images · 380 MB</div></div><span class="pill" data-state="received">Received</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+            <div class="doc with-actions"><i class="ri-building-2-line lead"></i><div><div class="nm">AMA approval · Phase 3</div><div class="sb">Pending submission</div></div><span class="pill" data-state="awaiting">Awaiting</span><button class="icon-btn" aria-label="Remind"><i class="ri-notification-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button></div>
+          </div>
+
+          <div class="dt-pager" id="docsPager">
+            <div class="rng"></div>
+            <div class="ctrls"></div>
+          </div>
+        </div>
+
+        <!-- ===================== ACTIVITY ===================== -->
+        <div class="dt-pane dt-bare" id="paneActivity" hidden>
+          <div class="dt-composer kind-note" id="dtComposer">
+            <div class="dt-comp-tabs" id="dtCompTabs">
+              <button class="dt-comp-tab on" data-comp="note"><i class="ri-sticky-note-line"></i> Note</button>
+              <button class="dt-comp-tab" data-comp="call"><i class="ri-phone-line"></i> Call</button>
+              <button class="dt-comp-tab" data-comp="email"><i class="ri-mail-send-line"></i> Email</button>
+              <button class="dt-comp-tab" data-comp="task"><i class="ri-task-line"></i> Task</button>
+              <button class="dt-comp-tab" data-comp="meeting"><i class="ri-calendar-event-line"></i> Site visit</button>
+              <button class="dt-comp-tab" data-comp="milestone"><i class="ri-flag-line"></i> Milestone</button>
+            </div>
+            <input id="compSubj" type="text" placeholder="Subject" hidden />
+            <textarea id="compText" placeholder="Add a note about Sunridge Estate…"></textarea>
+            <div class="dt-comp-foot">
+              <button class="ico" title="Attach"><i class="ri-attachment-2"></i></button>
+              <button class="ico" title="Mention"><i class="ri-at-line"></i></button>
+              <button class="ico" title="Tag a parcel"><i class="ri-price-tag-3-line"></i></button>
+              <span style="flex:1;"></span>
+              <button class="btn btn-text btn-sm" id="compDiscard">Discard</button>
+              <button class="btn btn-primary btn-sm" id="compPost"><span id="compPostLabel">Save note</span> <i class="ri-arrow-right-line"></i></button>
+            </div>
+          </div>
+
+          <div class="dt-filter-row" style="padding-top:14px;">
+            <select class="dt-select" id="actUser" aria-label="Filter by user">
+              <option value="all">All users</option>
+              <option value="Kevin Manga">Kevin Manga</option>
+              <option value="Jordan Evans">Jordan Evans</option>
+              <option value="Mae Chen">Mae Chen</option>
+              <option value="System">System</option>
+            </select>
+            <select class="dt-select" id="actType" aria-label="Filter by type">
+              <option value="all">All types</option>
+              <option value="sales">Sales</option>
+              <option value="construction">Construction</option>
+              <option value="approvals">Approvals</option>
+              <option value="visits">Site visits</option>
+              <option value="notes">Notes</option>
+            </select>
+            <span class="dt-daterange" aria-label="Date range">
+              <input type="date" id="actFrom" aria-label="From" />
+              <span class="sep">–</span>
+              <input type="date" id="actTo" aria-label="To" />
+            </span>
+            <button class="btn btn-text btn-sm" id="actClear" type="button">Clear</button>
+          </div>
+
+          <div class="dt-activity" id="actList"></div>
+          <div class="dt-act-loader" id="actLoader" hidden>
+            <i class="ri-loader-4-line ri-spin"></i> Loading more activity…
+          </div>
+        </div>
+
+        <!-- ===================== HISTORY (Jira-like, sort only) ===================== -->
+        <div class="dt-pane dt-bare" id="paneHistory" hidden>
+          <div class="dt-history-toolbar">
+            <span class="dt-history-count" id="histCount"></span>
+            <select class="dt-select" id="histSort" aria-label="Sort order">
+              <option value="desc">Newest first</option>
+              <option value="asc">Oldest first</option>
+            </select>
+          </div>
+          <ol class="dt-jira-history" id="histList"></ol>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== HERO MEDIA EDIT DIALOG ===================== -->
+<div class="dt-overlay" id="mediaDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog dt-dialog-lg">
+    <header>
+      <h3><i class="ri-image-edit-line"></i> <span id="mediaDialogTitle">Replace cover &amp; gallery</span></h3>
+      <button class="x" id="mediaDialogClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+      <div class="dt-media-tabs" id="mediaTabs">
+        <button class="on" data-mtab="photos"><i class="ri-image-line"></i> Photos <span class="cnt" id="mtPhotoCnt">4</span></button>
+        <button data-mtab="video"><i class="ri-video-line"></i> Video tour</button>
+      </div>
+      <!-- Photos tab -->
+      <div class="dt-mtab" data-mpane="photos">
+        <div class="dt-upload" id="mediaDrop">
+          <i class="ri-image-add-line"></i>
+          <div><b>Drop photos here</b> or <button class="btn-link" id="mediaPickBtn">browse</button></div>
+          <span class="sub">JPG, PNG, WEBP · up to 10 MB each · drag tiles below to reorder · the first photo is the cover</span>
+          <input type="file" id="mediaFileInput" accept="image/*" multiple hidden />
+        </div>
+        <div class="dt-media-grid" id="mediaGrid"></div>
+      </div>
+      <!-- Video tab -->
+      <div class="dt-mtab" data-mpane="video" hidden>
+        <div id="videoCurrent" class="dt-video-card">
+          <div class="thumb"><i class="ri-play-circle-fill"></i></div>
+          <div>
+            <div class="nm">Sunridge — drone tour</div>
+            <div class="sb">2:34 · uploaded May 10, 2025 · 28 MB</div>
+            <div class="row">
+              <button class="btn btn-text btn-sm" id="videoReplace"><i class="ri-upload-2-line"></i> Replace</button>
+              <button class="btn btn-text btn-sm" id="videoRemove" data-tone="danger"><i class="ri-delete-bin-line"></i> Remove</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Or paste a video URL <span class="help-inline">(YouTube, Vimeo, MP4 link)</span></label>
+          <input id="videoUrl" type="url" placeholder="https://youtube.com/watch?v=…" />
+        </div>
+        <div class="field">
+          <label>Caption</label>
+          <input id="videoCap" type="text" value="Drone tour · 2:34" />
+        </div>
+      </div>
+    </div>
+    <footer>
+      <button class="btn btn-text" id="mediaDialogCancel">Cancel</button>
+      <button class="btn btn-primary" id="mediaDialogSave"><i class="ri-check-line"></i> Save changes</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ===================== ARCHIVE / CONFIRM DIALOG ===================== -->
+<div class="dt-overlay" id="confirmDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog" style="max-width:440px;">
+    <header>
+      <h3><i class="ri-error-warning-line" id="confirmIcon"></i> <span id="confirmTitle">Are you sure?</span></h3>
+      <button class="x" id="confirmClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+      <p id="confirmBody" style="margin:0;font:14px var(--font-sans);color:var(--color-grey-700);line-height:1.5;"></p>
+    </div>
+    <footer>
+      <button class="btn btn-text" id="confirmCancel">Cancel</button>
+      <button class="btn btn-primary" id="confirmOk"><i class="ri-check-line"></i> <span id="confirmOkLabel">Confirm</span></button>
+    </footer>
+  </div>
+</div>
+
+<!-- ===================== LIGHTBOX ===================== -->
+<div class="dt-lightbox" id="lightbox" role="dialog" aria-modal="true">
+  <div class="stage" id="lbStage">
+    <button class="lb-close" id="lbClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    <button class="lb-nav prev" id="lbPrev" aria-label="Previous"><i class="ri-arrow-left-s-line"></i></button>
+    <button class="lb-nav next" id="lbNext" aria-label="Next"><i class="ri-arrow-right-s-line"></i></button>
+    <div class="lb-video" id="lbVideo" hidden>
+      <span class="play"><i class="ri-play-fill"></i></span>
+      <div class="meta">Drone tour · 2:34 · uploaded May 10, 2025</div>
+    </div>
+    <div class="lb-caption" id="lbCaption">Aerial · sunset · Phase 2</div>
+  </div>
+</div>
+
+<!-- ===================== DOCUMENT UPLOAD DIALOG ===================== -->
+<div class="dt-overlay" id="docDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog">
+    <header>
+      <h3><i class="ri-upload-cloud-2-line"></i> Upload document</h3>
+      <button class="x" id="docDialogClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+      <div class="dt-doc-stage" id="docStage"></div>
+      <div>
+        <label>Name <span class="req">*</span></label>
+        <input id="dfName" type="text" placeholder="e.g. Phase 2 master plan v4" />
+      </div>
+      <div>
+        <label>Description <span class="help-inline">(optional)</span></label>
+        <textarea id="dfDesc" rows="2" placeholder="A short note about what this document is, who it's for, version, etc."></textarea>
+      </div>
+      <div>
+        <label>Visibility <span class="req">*</span></label>
+        <select id="dfVis">
+          <option value="PRIVATE" selected>🔒 Private — only the site team can view</option>
+          <option value="PUBLIC">🌐 Public — visible to anyone with access to this site</option>
+        </select>
+      </div>
+    </div>
+    <footer>
+      <button class="btn btn-text" id="docDialogCancel">Cancel</button>
+      <button class="btn btn-primary" id="docDialogSave"><i class="ri-upload-2-line"></i> Upload</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ===================== LOAN PRODUCT CREATE DIALOG ===================== -->
+<div class="dt-overlay" id="loanDialog" role="dialog" aria-modal="true">
+  <div class="dt-dialog">
+    <header>
+      <h3><i class="ri-bank-line"></i> Create loan product</h3>
+      <button class="x" id="loanDialogClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="body">
+      <div>
+        <label>Product name</label>
+        <input id="lpName" type="text" placeholder="e.g. Standard Land · 12-yr fixed" value="" />
+      </div>
+      <div class="row">
+        <div>
+          <label>Down payment</label>
+          <div class="input-with-unit"><input id="lpDown" type="number" step="0.01" min="0" value="5000.00" /><span class="unit">USD</span></div>
+        </div>
+        <div>
+          <label>Annual interest rate</label>
+          <div class="input-with-unit"><input id="lpRate" type="number" step="0.01" min="0" value="9.50" /><span class="unit">%</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Default loan term</label>
+          <div class="input-with-unit"><input id="lpTerm" type="number" min="0" value="144" /><span class="unit">months</span></div>
+        </div>
+        <div>
+          <label>Late fee</label>
+          <div class="input-with-unit"><input id="lpLate" type="number" step="0.01" min="0" value="50.00" /><span class="unit">USD</span></div>
+        </div>
+      </div>
+      <div>
+        <label>Late fee grace period</label>
+        <div class="input-with-unit"><input id="lpGrace" type="number" min="0" value="30" /><span class="unit">days</span></div>
+        <span class="dt-help">Number of days after the due date before the late fee is applied. Use 0 to charge immediately.</span>
+      </div>
+    </div>
+    <footer>
+      <button class="btn btn-text" id="loanDialogCancel">Cancel</button>
+      <button class="btn btn-primary" id="loanDialogSave"><i class="ri-check-line"></i> Create &amp; attach</button>
+    </footer>
+  </div>
+</div>
+
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+
+(function(){
+  // -------- Tabs --------
+  var tabs = document.querySelectorAll('#dtTabs .dt-tab');
+  var panes = { overview: document.getElementById('paneOverview'),
+                inventory: document.getElementById('paneInventory'),
+                documents: document.getElementById('paneDocuments'),
+                activity: document.getElementById('paneActivity'),
+                history:  document.getElementById('paneHistory') };
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      Object.keys(panes).forEach(function(k){ panes[k].hidden = (k !== t.dataset.tab); });
+    });
+  });
+
+  // -------- In-place edit (every panel with .dt-edit-btn) --------
+  document.querySelectorAll('.dt-panel .dt-edit-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = btn.closest('.dt-panel');
+      panel.classList.toggle('editing');
+    });
+  });
+  document.querySelectorAll('.dt-panel [data-cancel], .dt-panel [data-save]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var panel = b.closest('.dt-panel');
+      panel.classList.remove('editing');
+      // Drop the demo hint after first save/cancel so it's not sticky
+      var hint = panel.querySelector('.demo-hint');
+      if (hint) hint.remove();
+      if (b.hasAttribute('data-save')) toast('Saved');
+    });
+  });
+
+  // -------- Loan-product searchable combobox --------
+  var combo = document.getElementById('loanCombo');
+  if (combo) {
+    var sel = document.getElementById('loanComboSelected');
+    var search = document.getElementById('loanComboSearch');
+    var options = document.getElementById('loanComboOptions');
+    var nm = document.getElementById('loanComboNm');
+    var meta = document.getElementById('loanComboMeta');
+
+    sel.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = combo.dataset.open === 'true';
+      combo.dataset.open = open ? 'false' : 'true';
+      if (!open) setTimeout(function(){ search.focus(); search.select(); }, 30);
+    });
+    document.addEventListener('click', function(e){
+      if (!combo.contains(e.target)) combo.dataset.open = 'false';
+    });
+    search.addEventListener('input', function(){
+      var q = search.value.trim().toLowerCase();
+      options.querySelectorAll('.option').forEach(function(o){
+        var t = o.textContent.toLowerCase();
+        o.style.display = (!q || t.indexOf(q) >= 0) ? '' : 'none';
+      });
+    });
+    options.addEventListener('click', function(e){
+      var o = e.target.closest('.option');
+      if (!o) return;
+      options.querySelectorAll('.option').forEach(function(x){ x.setAttribute('aria-selected', 'false'); });
+      o.setAttribute('aria-selected', 'true');
+      nm.textContent = o.dataset.nm;
+      meta.textContent = o.dataset.meta;
+      combo.dataset.open = 'false';
+    });
+  }
+
+  // -------- Amenity inline-edit chips (no wrapper) --------
+  document.querySelectorAll('.dt-amen-edit').forEach(function(box){
+    box.addEventListener('click', function(e){
+      var x = e.target.closest('.x');
+      if (x) { x.closest('.chip').remove(); return; }
+      var add = e.target.closest('[data-add-amenity]');
+      if (add) {
+        var chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = '<i class="ri-checkbox-blank-circle-line lead"></i> <span contenteditable="true">New amenity</span> <button class="x" aria-label="Remove"><i class="ri-close-line"></i></button>';
+        box.insertBefore(chip, add);
+        var ce = chip.querySelector('[contenteditable]');
+        ce.focus();
+        var r = document.createRange(); r.selectNodeContents(ce);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      }
+    });
+  });
+
+  // -------- Rich-text editor wiring --------
+  document.querySelectorAll('[data-rte]').forEach(function(rte){
+    var content = rte.querySelector('.dt-rte-content');
+    var blockSel = rte.querySelector('[data-rte-block]');
+    rte.querySelectorAll('[data-rte-cmd]').forEach(function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){
+        document.execCommand(b.dataset.rteCmd, false, null);
+        content.focus();
+        syncRteState();
+      });
+    });
+    if (blockSel) {
+      blockSel.addEventListener('change', function(){
+        document.execCommand('formatBlock', false, blockSel.value);
+        content.focus();
+      });
+    }
+    var linkBtn = rte.querySelector('[data-rte-link]');
+    if (linkBtn) {
+      linkBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      linkBtn.addEventListener('click', function(){
+        var url = prompt('Link URL', 'https://');
+        if (url) document.execCommand('createLink', false, url);
+        content.focus();
+      });
+    }
+    function syncRteState(){
+      ['bold','italic','underline','strikeThrough','insertUnorderedList','insertOrderedList'].forEach(function(cmd){
+        var b = rte.querySelector('[data-rte-cmd="'+cmd+'"]');
+        if (b) try { b.classList.toggle('on', document.queryCommandState(cmd)); } catch(e){}
+      });
+    }
+    content.addEventListener('keyup', syncRteState);
+    content.addEventListener('mouseup', syncRteState);
+  });
+
+  // -------- Team edit: remove rows + add --------
+  document.querySelectorAll('.dt-team-edit').forEach(function(box){
+    box.addEventListener('click', function(e){
+      var x = e.target.closest('.person-row .x');
+      if (x) { x.closest('.person-row').remove(); return; }
+      var add = e.target.closest('.add-person');
+      if (add) {
+        var row = document.createElement('div');
+        row.className = 'person-row';
+        row.innerHTML = '<span class="ava-sm">+</span><input type="text" placeholder="Name…" /><select class="role-select"><option>Site lead</option><option selected>Sales agent</option><option>Construction partner</option><option>Surveyor</option><option>Legal</option></select><button class="x" aria-label="Remove"><i class="ri-close-line"></i></button>';
+        box.insertBefore(row, add);
+        row.querySelector('input').focus();
+      }
+    });
+  });
+
+  // -------- Gallery + lightbox --------
+  var thumbs = document.querySelectorAll('#galThumbs .dt-thumb');
+  // Set thumbnail backgrounds from data
+  thumbs.forEach(function(t){ if (t.dataset.bg) t.style.backgroundImage = t.dataset.bg; });
+  var galMain = document.getElementById('galMain');
+  var galCount = document.getElementById('galCount');
+  var imageThumbs = Array.prototype.filter.call(thumbs, function(t){ return t.dataset.kind === 'image'; });
+  var lb = document.getElementById('lightbox');
+  var lbStage = document.getElementById('lbStage');
+  var lbVideo = document.getElementById('lbVideo');
+  var lbCaption = document.getElementById('lbCaption');
+  var lbClose = document.getElementById('lbClose');
+  var lbPrev = document.getElementById('lbPrev');
+  var lbNext = document.getElementById('lbNext');
+  var lbIndex = 0;
+
+  function setMain(t, idx){
+    galMain.style.backgroundImage = t.dataset.bg;
+    galCount.innerHTML = '<i class="ri-image-line"></i> ' + (idx + 1) + ' / ' + imageThumbs.length;
+    thumbs.forEach(function(x){ x.classList.remove('on'); });
+    t.classList.add('on');
+  }
+  thumbs.forEach(function(t){
+    t.addEventListener('click', function(){
+      if (t.dataset.kind === 'video') { openVideo(); return; }
+      setMain(t, imageThumbs.indexOf(t));
+    });
+  });
+  galMain.addEventListener('click', function(){
+    var current = document.querySelector('#galThumbs .dt-thumb.on');
+    if (!current || current.dataset.kind === 'video') return;
+    lbIndex = imageThumbs.indexOf(current);
+    showLb();
+  });
+  function showLb(){
+    var t = imageThumbs[lbIndex];
+    lbStage.style.backgroundImage = t.dataset.bg;
+    lbCaption.textContent = t.dataset.cap || '';
+    lbVideo.hidden = true;
+    lbPrev.style.display = '';
+    lbNext.style.display = '';
+    lb.classList.add('open');
+  }
+  function openVideo(){
+    lbStage.style.backgroundImage = 'linear-gradient(180deg, #1e293b 0%, #475569 100%)';
+    lbCaption.textContent = 'Sunridge Estate · drone tour';
+    lbVideo.hidden = false;
+    lbPrev.style.display = 'none';
+    lbNext.style.display = 'none';
+    lb.classList.add('open');
+  }
+  function closeLb(){ lb.classList.remove('open'); }
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLb();
+    else if (e.key === 'ArrowLeft' && !lbPrev.style.display) goLb(-1);
+    else if (e.key === 'ArrowRight' && !lbNext.style.display) goLb(1);
+  });
+  lbPrev.addEventListener('click', function(){ goLb(-1); });
+  lbNext.addEventListener('click', function(){ goLb(1); });
+  function goLb(d){
+    lbIndex = (lbIndex + d + imageThumbs.length) % imageThumbs.length;
+    showLb();
+    setMain(imageThumbs[lbIndex], lbIndex);
+  }
+  lbVideo.querySelector('.play').addEventListener('click', function(e){ e.stopPropagation(); toast('Video playback — coming soon'); });
+  document.getElementById('btnPlayTour').addEventListener('click', openVideo);
+
+  // -------- Hero kebab dropdown --------
+  var kebab = document.getElementById('heroKebab');
+  var kebabBtn = kebab.querySelector('[data-kebab-trigger]');
+  kebabBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    kebab.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e){ if (!kebab.contains(e.target)) kebab.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') kebab.classList.remove('open'); });
+  kebab.querySelectorAll('[data-kebab]').forEach(function(item){
+    item.addEventListener('click', function(){
+      kebab.classList.remove('open');
+      var act = item.dataset.kebab;
+      if (act === 'replace-media') openMediaDialog('photos');
+      else if (act === 'video') openMediaDialog('video');
+      else if (act === 'public') { toast('Opening public listing…'); }
+      else if (act === 'export') { toast('Generating PDF report…'); }
+      else if (act === 'duplicate') { toast('Duplicating site as draft…'); }
+      else if (act === 'phase') { toast('Move to Phase 3 — wizard coming soon'); }
+      else if (act === 'hold') {
+        openConfirm({ title:'Pause sales?', body:'Buyers won\u2019t be able to reserve or finance parcels in this site until you resume. Existing reservations and loans aren\u2019t affected.', okLabel:'Pause sales', icon:'ri-pause-circle-line', onOk:function(){ toast('Sales paused for Sunridge Estate'); } });
+      }
+      else if (act === 'archive') {
+        openConfirm({ title:'Archive Sunridge Estate?', body:'The site will be hidden from listings and removed from the sales report. You can restore it later from Archived sites.', okLabel:'Archive site', icon:'ri-archive-line', tone:'danger', onOk:function(){ toast('Sunridge Estate archived'); } });
+      }
+    });
+  });
+
+  // -------- Header edit pencil --------
+  document.getElementById('btnHeaderEdit').addEventListener('click', function(){
+    var aboutPanel = document.querySelector('.dt-panel[data-card="about"]');
+    // Switch to overview tab if not already
+    var overviewTab = document.querySelector('.dt-tab[data-tab="overview"]');
+    if (overviewTab && !overviewTab.classList.contains('on')) overviewTab.click();
+    aboutPanel.classList.add('editing');
+    aboutPanel.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(function(){
+      var input = aboutPanel.querySelector('input[type="text"]');
+      if (input) { input.focus(); input.select(); }
+    }, 350);
+  });
+
+  // -------- Confirm dialog --------
+  var confirmDialog = document.getElementById('confirmDialog');
+  var confirmCB = null;
+  function openConfirm(opts){
+    document.getElementById('confirmTitle').textContent = opts.title || 'Are you sure?';
+    document.getElementById('confirmBody').textContent = opts.body || '';
+    document.getElementById('confirmOkLabel').textContent = opts.okLabel || 'Confirm';
+    var icon = document.getElementById('confirmIcon');
+    icon.className = (opts.icon || 'ri-error-warning-line');
+    icon.style.color = opts.tone === 'danger' ? 'var(--color-warning-700)' : 'var(--color-brand-600)';
+    var ok = document.getElementById('confirmOk');
+    ok.classList.toggle('btn-danger', opts.tone === 'danger');
+    confirmCB = opts.onOk || null;
+    confirmDialog.classList.add('open');
+  }
+  function closeConfirm(){ confirmDialog.classList.remove('open'); confirmCB = null; }
+  document.getElementById('confirmClose').addEventListener('click', closeConfirm);
+  document.getElementById('confirmCancel').addEventListener('click', closeConfirm);
+  document.getElementById('confirmOk').addEventListener('click', function(){ var cb = confirmCB; closeConfirm(); if (cb) cb(); });
+  confirmDialog.addEventListener('click', function(e){ if (e.target === confirmDialog) closeConfirm(); });
+
+  // -------- Hero media (cover + gallery) edit dialog --------
+  var mediaDialog = document.getElementById('mediaDialog');
+  var mediaGrid = document.getElementById('mediaGrid');
+  var mediaFileInput = document.getElementById('mediaFileInput');
+  var mediaDrop = document.getElementById('mediaDrop');
+  var mediaUid = 1;
+
+  function snapshotPhotos(){
+    return Array.prototype.map.call(document.querySelectorAll('#galThumbs .dt-thumb[data-kind="image"]'), function(t){
+      return { id:'p'+(mediaUid++), bg:t.dataset.bg, cap:t.dataset.cap || '' };
+    });
+  }
+  function renderMediaGrid(items){
+    mediaGrid.innerHTML = items.map(function(it, i){
+      return '<div class="dt-media-tile" draggable="true" data-mid="'+it.id+'">' +
+        '<div class="thumb" style="background-image:'+it.bg+'">'+(i===0?'<span class="cover-tag"><i class="ri-star-fill"></i> Cover</span>':'')+'<button class="x" data-mremove aria-label="Remove"><i class="ri-close-line"></i></button></div>' +
+        '<input class="cap" type="text" value="'+(it.cap||'').replace(/"/g,'&quot;')+'" placeholder="Caption…" data-mcap />' +
+        '<div class="actions"><button data-mset-cover title="Set as cover"><i class="ri-star-line"></i></button><button data-mleft title="Move left"><i class="ri-arrow-left-s-line"></i></button><button data-mright title="Move right"><i class="ri-arrow-right-s-line"></i></button></div>' +
+      '</div>';
+    }).join('');
+    document.getElementById('mtPhotoCnt').textContent = items.length;
+  }
+  function getItems(){
+    return Array.prototype.map.call(mediaGrid.querySelectorAll('.dt-media-tile'), function(t){
+      return { id:t.dataset.mid, bg:t.querySelector('.thumb').style.backgroundImage, cap:t.querySelector('[data-mcap]').value };
+    });
+  }
+  function refresh(){ renderMediaGrid(getItems()); }
+
+  // tab switcher inside dialog
+  document.querySelectorAll('#mediaTabs button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#mediaTabs button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      document.querySelectorAll('.dt-mtab').forEach(function(p){ p.hidden = p.dataset.mpane !== b.dataset.mtab; });
+    });
+  });
+
+  function openMediaDialog(initialTab){
+    var items = snapshotPhotos();
+    renderMediaGrid(items);
+    var titleEl = document.getElementById('mediaDialogTitle');
+    titleEl.textContent = initialTab === 'video' ? 'Manage video tour' : 'Replace cover & gallery';
+    document.querySelectorAll('#mediaTabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.mtab === initialTab); });
+    document.querySelectorAll('.dt-mtab').forEach(function(p){ p.hidden = p.dataset.mpane !== initialTab; });
+    mediaDialog.classList.add('open');
+  }
+  function closeMediaDialog(){ mediaDialog.classList.remove('open'); }
+  document.getElementById('mediaDialogClose').addEventListener('click', closeMediaDialog);
+  document.getElementById('mediaDialogCancel').addEventListener('click', closeMediaDialog);
+  mediaDialog.addEventListener('click', function(e){ if (e.target === mediaDialog) closeMediaDialog(); });
+
+  document.getElementById('mediaPickBtn').addEventListener('click', function(){ mediaFileInput.click(); });
+  function pickRandomGradient(){
+    var palette = [
+      'linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%)',
+      'linear-gradient(180deg, #134e4a 0%, #34d399 50%, #84cc16 100%)',
+      'linear-gradient(180deg, #0c4a6e 0%, #38bdf8 45%, #fef3c7 100%)',
+      'linear-gradient(180deg, #166534 0%, #86efac 50%, #fde047 100%)',
+      'linear-gradient(180deg, #7c2d12 0%, #ea580c 45%, #fed7aa 100%)',
+      'linear-gradient(180deg, #312e81 0%, #818cf8 50%, #fbbf24 100%)'
+    ];
+    return palette[Math.floor(Math.random()*palette.length)];
+  }
+  function addPhotos(files){
+    var items = getItems();
+    Array.prototype.forEach.call(files || [], function(f){
+      items.push({ id:'p'+(mediaUid++), bg:pickRandomGradient(), cap:f.name.replace(/\.[^.]+$/,'') });
+    });
+    renderMediaGrid(items);
+  }
+  mediaFileInput.addEventListener('change', function(e){ addPhotos(e.target.files); mediaFileInput.value=''; });
+  ['dragenter','dragover'].forEach(function(ev){ mediaDrop.addEventListener(ev, function(e){ e.preventDefault(); mediaDrop.classList.add('drag'); }); });
+  ['dragleave','drop'].forEach(function(ev){ mediaDrop.addEventListener(ev, function(e){ e.preventDefault(); mediaDrop.classList.remove('drag'); }); });
+  mediaDrop.addEventListener('drop', function(e){ addPhotos(e.dataTransfer.files); });
+
+  mediaGrid.addEventListener('click', function(e){
+    var tile = e.target.closest('.dt-media-tile'); if (!tile) return;
+    var items = getItems();
+    var idx = items.findIndex(function(x){ return x.id === tile.dataset.mid; });
+    if (e.target.closest('[data-mremove]')) {
+      if (items.length <= 1) { toast('A site needs at least one photo'); return; }
+      items.splice(idx, 1);
+    } else if (e.target.closest('[data-mset-cover]')) {
+      var moved = items.splice(idx, 1)[0]; items.unshift(moved);
+    } else if (e.target.closest('[data-mleft]')) {
+      if (idx > 0) { var t = items[idx-1]; items[idx-1] = items[idx]; items[idx] = t; }
+    } else if (e.target.closest('[data-mright]')) {
+      if (idx < items.length-1) { var t2 = items[idx+1]; items[idx+1] = items[idx]; items[idx] = t2; }
+    } else { return; }
+    renderMediaGrid(items);
+  });
+  // Drag-reorder
+  var dragId = null;
+  mediaGrid.addEventListener('dragstart', function(e){ var t = e.target.closest('.dt-media-tile'); if (!t) return; dragId = t.dataset.mid; t.classList.add('dragging'); });
+  mediaGrid.addEventListener('dragend',  function(e){ var t = e.target.closest('.dt-media-tile'); if (t) t.classList.remove('dragging'); dragId = null; });
+  mediaGrid.addEventListener('dragover', function(e){ e.preventDefault(); });
+  mediaGrid.addEventListener('drop', function(e){
+    e.preventDefault();
+    var target = e.target.closest('.dt-media-tile'); if (!target || !dragId || target.dataset.mid === dragId) return;
+    var items = getItems();
+    var from = items.findIndex(function(x){ return x.id === dragId; });
+    var to = items.findIndex(function(x){ return x.id === target.dataset.mid; });
+    var moved = items.splice(from, 1)[0]; items.splice(to, 0, moved);
+    renderMediaGrid(items);
+  });
+
+  document.getElementById('videoRemove').addEventListener('click', function(){
+    document.getElementById('videoCurrent').innerHTML = '<div class="thumb empty"><i class="ri-video-add-line"></i></div><div><div class="nm">No video tour</div><div class="sb">Upload an MP4 or paste a video URL below</div></div>';
+  });
+  document.getElementById('videoReplace').addEventListener('click', function(){ toast('Pick a new video file…'); });
+
+  document.getElementById('mediaDialogSave').addEventListener('click', function(){
+    // Apply photos back to the gallery
+    var items = getItems();
+    if (!items.length) { toast('Add at least one photo'); return; }
+    var thumbsBox = document.getElementById('galThumbs');
+    var videoThumb = thumbsBox.querySelector('.dt-thumb[data-kind="video"]');
+    // Clear existing image thumbs
+    Array.prototype.forEach.call(thumbsBox.querySelectorAll('.dt-thumb[data-kind="image"]'), function(t){ t.remove(); });
+    items.forEach(function(it, i){
+      var d = document.createElement('div');
+      d.className = 'dt-thumb' + (i === 0 ? ' on' : '');
+      d.dataset.kind = 'image'; d.dataset.bg = it.bg; d.dataset.cap = it.cap;
+      d.style.backgroundImage = it.bg;
+      thumbsBox.insertBefore(d, videoThumb);
+    });
+    // Update main + count + rebind
+    galMain.style.backgroundImage = items[0].bg;
+    imageThumbs = Array.prototype.filter.call(thumbsBox.querySelectorAll('.dt-thumb'), function(t){ return t.dataset.kind === 'image'; });
+    thumbs = thumbsBox.querySelectorAll('.dt-thumb');
+    galCount.innerHTML = '<i class="ri-image-line"></i> 1 / ' + items.length;
+    thumbs.forEach(function(t){
+      t.addEventListener('click', function(){
+        if (t.dataset.kind === 'video') { openVideo(); return; }
+        setMain(t, imageThumbs.indexOf(t));
+      });
+    });
+    closeMediaDialog();
+    toast('Saved · ' + items.length + ' photo' + (items.length===1?'':'s'));
+  });
+
+  // -------- Composer --------
+  var compTabs = document.querySelectorAll('.dt-comp-tab');
+  var compText = document.getElementById('compText');
+  var compSubj = document.getElementById('compSubj');
+  var compPostLabel = document.getElementById('compPostLabel');
+  var composer = document.getElementById('dtComposer');
+  var placeholders = { note: 'Add a note about Sunridge Estate…', call: 'Log what was discussed on the call…', email: 'Body — email site stakeholders', task: 'New task description…', meeting: 'Site visit details — date, time, attendees…', milestone: 'Milestone — e.g. "Phase 2 paving complete"' };
+  var labels = { note: 'Save note', call: 'Log call', email: 'Send email', task: 'Create task', meeting: 'Schedule visit', milestone: 'Add milestone' };
+  function setMode(mode){
+    compTabs.forEach(function(t){ t.classList.toggle('on', t.dataset.comp === mode); });
+    compText.placeholder = placeholders[mode] || '';
+    compPostLabel.textContent = labels[mode] || 'Save';
+    if (composer) composer.className = 'dt-composer kind-' + mode;
+    compSubj.hidden = mode !== 'email';
+  }
+  compTabs.forEach(function(t){ t.addEventListener('click', function(){ setMode(t.dataset.comp); }); });
+  document.getElementById('compDiscard').addEventListener('click', function(){ compText.value = ''; compSubj.value = ''; });
+  document.getElementById('compPost').addEventListener('click', function(){
+    if (!compText.value.trim()) { toast('Add some content first'); return; }
+    toast('Activity saved'); compText.value = ''; compSubj.value = '';
+  });
+
+  // -------- Documents (upload + delete) --------
+  var fileInput = document.getElementById('docFileInput');
+  var dropZone = document.getElementById('dropZone');
+  var docsList = document.getElementById('docsList');
+  function fileIcon(name){
+    var ext = (name.split('.').pop() || '').toLowerCase();
+    if (['pdf'].indexOf(ext) >= 0) return 'ri-file-pdf-2-line';
+    if (['doc','docx','txt'].indexOf(ext) >= 0) return 'ri-file-text-line';
+    if (['png','jpg','jpeg','gif','webp'].indexOf(ext) >= 0) return 'ri-image-2-line';
+    if (['dwg','dxf'].indexOf(ext) >= 0) return 'ri-map-2-line';
+    if (['zip','rar','7z'].indexOf(ext) >= 0) return 'ri-archive-line';
+    return 'ri-file-line';
+  }
+  function fmtSize(b){ if (b<1024) return b+' B'; if (b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+  function addDoc(meta){
+    var row = document.createElement('div');
+    row.className = 'doc with-actions';
+    var visIcon = meta.visibility === 'PUBLIC' ? 'ri-global-line' : 'ri-lock-2-line';
+    var sb = (meta.desc ? meta.desc + ' · ' : '') + 'Uploaded just now · ' + fmtSize(meta.size);
+    row.innerHTML = '<i class="' + fileIcon(meta.fname) + ' lead"></i><div><div class="nm">' + meta.name + ' <span class="dt-vis-tag" data-vis="'+meta.visibility+'"><i class="'+visIcon+'"></i> '+meta.visibility+'</span></div><div class="sb">' + sb + '</div></div><span class="pill" data-state="received">New</span><button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button><button class="doc-del" aria-label="Delete" data-del><i class="ri-delete-bin-line"></i></button>';
+    docsList.insertBefore(row, docsList.firstChild);
+  }
+  // -------- Upload dialog --------
+  var docDialog = document.getElementById('docDialog');
+  var docStage = document.getElementById('docStage');
+  var dfName = document.getElementById('dfName');
+  var dfDesc = document.getElementById('dfDesc');
+  var stagedFiles = [];
+  function openDocDialog(files){
+    stagedFiles = files;
+    docStage.innerHTML = files.map(function(f){
+      return '<div class="dt-doc-staged"><i class="'+fileIcon(f.name)+'"></i><div><div class="nm">'+f.name+'</div><div class="sb">'+fmtSize(f.size)+'</div></div></div>';
+    }).join('');
+    dfName.value = files.length === 1 ? files[0].name.replace(/\.[^.]+$/, '') : files.length + ' files selected';
+    dfDesc.value = '';
+    document.getElementById('dfVis').value = 'PRIVATE';
+    docDialog.classList.add('open');
+    setTimeout(function(){ dfName.focus(); dfName.select(); }, 50);
+  }
+  function closeDocDialog(){ docDialog.classList.remove('open'); stagedFiles = []; }
+  document.getElementById('docDialogClose').addEventListener('click', closeDocDialog);
+  document.getElementById('docDialogCancel').addEventListener('click', closeDocDialog);
+  docDialog.addEventListener('click', function(e){ if (e.target === docDialog) closeDocDialog(); });
+  document.getElementById('docDialogSave').addEventListener('click', function(){
+    var name = dfName.value.trim();
+    if (!name) { dfName.focus(); toast('Name is required'); return; }
+    var desc = dfDesc.value.trim();
+    var vis  = document.getElementById('dfVis').value;
+    stagedFiles.forEach(function(f, i){
+      var n = stagedFiles.length === 1 ? name : (name + ' · ' + (i+1));
+      addDoc({ fname:f.name, name:n, desc:desc, visibility:vis, size:f.size });
+    });
+    toast(stagedFiles.length + ' file' + (stagedFiles.length>1?'s':'') + ' uploaded · ' + vis.toLowerCase());
+    closeDocDialog();
+    setTimeout(renderDocs, 50);
+  });
+  fileInput.addEventListener('change', function(e){
+    var files = Array.prototype.slice.call(e.target.files);
+    if (files.length) openDocDialog(files);
+    fileInput.value = '';
+  });
+  ['dragenter','dragover'].forEach(function(ev){ dropZone.addEventListener(ev, function(e){ e.preventDefault(); dropZone.classList.add('drag'); }); });
+  ['dragleave','drop'].forEach(function(ev){ dropZone.addEventListener(ev, function(e){ e.preventDefault(); dropZone.classList.remove('drag'); }); });
+  dropZone.addEventListener('drop', function(e){
+    var files = Array.prototype.slice.call(e.dataTransfer.files || []);
+    if (files.length) openDocDialog(files);
+  });
+  docsList.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-del]');
+    if (!btn) return;
+    var row = btn.closest('.doc'); if (!row) return;
+    var name = (row.querySelector('.nm') || {}).textContent || 'Document';
+    if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+    row.classList.add('removing');
+    setTimeout(function(){ row.remove(); toast('Deleted "' + name + '"'); }, 120);
+  });
+
+  // -------- Generic icon-btn toasts (topbar / person rows) --------
+  document.querySelectorAll('.topbar .icon-btn, .dt-person .icon-btn').forEach(function(b){
+    b.addEventListener('click', function(){ if(b.tagName==='A') return; toast('Action: ' + (b.getAttribute('aria-label')||'…')); });
+  });
+
+  // ============================================================
+  // INVENTORY — filter / sort / paginate
+  // ============================================================
+  var INVENTORY = [
+    { plot:'Garden · Plot 17',     section:'Garden',    state:'draft',   sb:'Available · 540 m² · corner',                price:54000, mo:420, bg:'linear-gradient(180deg, #166534 0%, #86efac 50%, #fde047 100%)',  pillIcon:'ri-draft-line',         pillLabel:'Draft' },
+    { plot:'Garden · Plot 18',     section:'Garden',    state:'sent',    sb:'Available · 520 m² · awaiting buyer signature', price:52500, mo:410, bg:'linear-gradient(180deg, #134e4a 0%, #2dd4bf 50%, #fde68a 100%)',  pillIcon:'ri-mail-send-line',     pillLabel:'Sent' },
+    { plot:'Hillside · Plot 09',   section:'Hillside',  state:'signed',  sb:'Reserved · Anna Thompson · 480 m²',           price:48500, mo:380, bg:'linear-gradient(180deg, #0e7490 0%, #67e8f9 45%, #fde68a 100%)',  pillIcon:'ri-quill-pen-line',     pillLabel:'Signed' },
+    { plot:'Riverbend · Plot 21',  section:'Riverbend', state:'active',  sb:'Sold · Marcus Doe · cash',                    price:54200, mo:0,   bg:'linear-gradient(180deg, #1e40af 0%, #60a5fa 50%, #d4d4d8 100%)',  pillIcon:'ri-shield-check-line',  pillLabel:'Active', meta:'Closed Jun 2025' },
+    { plot:'Eastview · Plot 24',   section:'Eastview',  state:'draft',   sb:'Available · 510 m² · sunset facing',          price:56800, mo:445, bg:'linear-gradient(180deg, #134e4a 0%, #34d399 50%, #84cc16 100%)',  pillIcon:'ri-draft-line',         pillLabel:'Draft' },
+    { plot:'Palm · Plot 28',       section:'Palm',      state:'active',  sb:'Sold · financed · L-2310',                    price:55400, mo:0,   bg:'linear-gradient(180deg, #064e3b 0%, #10b981 40%, #fef08a 100%)',  pillIcon:'ri-shield-check-line',  pillLabel:'Active', meta:'Closed Apr 2025' },
+    { plot:'Tema · Plot 31',       section:'Tema',      state:'signed',  sb:'Reserved · Lara Okafor · 30-day hold',        price:58200, mo:455, bg:'linear-gradient(180deg, #312e81 0%, #818cf8 50%, #fbbf24 100%)',  pillIcon:'ri-quill-pen-line',     pillLabel:'Signed' },
+    { plot:'Oakwood · Plot 33',    section:'Oakwood',   state:'payoff',  sb:'Loan paid in full · title transfer ready',    price:54000, mo:0,   bg:'linear-gradient(180deg, #14532d 0%, #4ade80 50%, #facc15 100%)',  pillIcon:'ri-medal-line',         pillLabel:'Payoff', meta:'Closed 2022' },
+    { plot:'Harbor · Plot 36',     section:'Harbor',    state:'active',  sb:'Sold · cash · diaspora buyer',                price:57000, mo:0,   bg:'linear-gradient(180deg, #0c4a6e 0%, #0ea5e9 50%, #fbbf24 100%)',  pillIcon:'ri-shield-check-line',  pillLabel:'Active', meta:'Closed Apr 2025' },
+    { plot:'Phoenix · Plot 39',    section:'Phoenix',   state:'expired', sb:'Reservation lapsed · ready to relist',        price:50800, mo:398, bg:'linear-gradient(180deg, #7c2d12 0%, #ea580c 45%, #fed7aa 100%)',  pillIcon:'ri-time-line',          pillLabel:'Expired' },
+    { plot:'Dakar · Plot 42',      section:'Dakar',     state:'active',  sb:'Sold · financed · L-2305',                    price:54000, mo:0,   bg:'linear-gradient(180deg, #134e4a 0%, #2dd4bf 50%, #fde68a 100%)',  pillIcon:'ri-shield-check-line',  pillLabel:'Active', meta:'Closed Apr 2025' },
+    { plot:'Northgate · Plot 45',  section:'Northgate', state:'draft',   sb:'Available · 530 m² · west-facing',            price:55500, mo:435, bg:'linear-gradient(180deg, #0c4a6e 0%, #38bdf8 45%, #fef3c7 100%)',  pillIcon:'ri-draft-line',         pillLabel:'Draft' }
+  ];
+  var invState = { filter:'all', sort:'plot', q:'', page:1, perPage:8 };
+  var invGrid = document.getElementById('invGrid');
+  var invPager = document.getElementById('invPager');
+  function fmtMoney(n){ return '$' + n.toLocaleString('en-US'); }
+  function invFiltered(){
+    var q = invState.q.toLowerCase();
+    var rows = INVENTORY.filter(function(r){
+      if (invState.filter !== 'all' && r.state !== invState.filter) return false;
+      if (q && (r.plot+' '+r.sb).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    if (invState.sort === 'price-desc') rows.sort(function(a,b){ return b.price - a.price; });
+    else if (invState.sort === 'price-asc') rows.sort(function(a,b){ return a.price - b.price; });
+    else if (invState.sort === 'status') rows.sort(function(a,b){ return a.state.localeCompare(b.state); });
+    return rows;
+  }
+  function renderInventory(){
+    var rows = invFiltered();
+    var total = rows.length;
+    var pages = Math.max(1, Math.ceil(total / invState.perPage));
+    if (invState.page > pages) invState.page = pages;
+    var start = (invState.page - 1) * invState.perPage;
+    var view = rows.slice(start, start + invState.perPage);
+    if (!view.length) {
+      invGrid.innerHTML = '<div class="dt-empty" style="grid-column:1/-1;"><i class="ri-search-line"></i>No parcels match these filters.</div>';
+    } else {
+      invGrid.innerHTML = view.map(function(r){
+        return '<a class="dt-parcel-card" href="land-detail.html">' +
+          '<div class="img" style="background-image:'+r.bg+'"><span class="badge">'+r.section+'</span></div>' +
+          '<div class="body">' +
+            '<div class="nm">'+r.plot.split(' · ')[1]+' <span class="contract-pill" data-state="'+r.state+'"><i class="'+r.pillIcon+'"></i> '+r.pillLabel+'</span></div>' +
+            '<div class="sb">'+r.sb+'</div>' +
+            '<div class="price-row"><span class="price">'+fmtMoney(r.price)+'</span><span class="price-sb">'+(r.meta || (r.mo ? 'or $'+r.mo+' / mo' : ''))+'</span></div>' +
+          '</div>' +
+        '</a>';
+      }).join('');
+    }
+    // pager
+    var rng = invPager.querySelector('.rng');
+    var ctrls = invPager.querySelector('.ctrls');
+    rng.innerHTML = total === 0 ? 'No results' : ('<b>'+(start+1)+'–'+Math.min(start+invState.perPage, total)+'</b> of <b>'+total+'</b> parcels');
+    var html = '<button id="invPrev" '+(invState.page<=1?'disabled':'')+'><i class="ri-arrow-left-s-line"></i></button>';
+    for (var i = 1; i <= pages; i++) html += '<button data-pg="'+i+'" class="'+(i===invState.page?'on':'')+'">'+i+'</button>';
+    html += '<button id="invNext" '+(invState.page>=pages?'disabled':'')+'><i class="ri-arrow-right-s-line"></i></button>';
+    ctrls.innerHTML = html;
+    ctrls.onclick = function(e){
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.id==='invPrev') invState.page--;
+      else if (b.id==='invNext') invState.page++;
+      else if (b.dataset.pg) invState.page = parseInt(b.dataset.pg, 10);
+      renderInventory();
+    };
+  }
+  // Update counts
+  ['all','draft','sent','signed','active','payoff','expired'].forEach(function(s){
+    var n = s==='all' ? INVENTORY.length : INVENTORY.filter(function(r){return r.state===s;}).length;
+    var el = document.querySelector('[data-cnt="'+s+'"]'); if (el) el.textContent = n;
+  });
+  document.querySelectorAll('[data-inv-filter]').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('[data-inv-filter]').forEach(function(x){ x.classList.remove('on'); });
+      c.classList.add('on');
+      invState.filter = c.dataset.invFilter; invState.page = 1; renderInventory();
+    });
+  });
+  document.getElementById('invSearch').addEventListener('input', function(e){
+    invState.q = e.target.value; invState.page = 1; renderInventory();
+  });
+  document.getElementById('invSort').addEventListener('change', function(e){
+    invState.sort = e.target.value; renderInventory();
+  });
+  renderInventory();
+
+  // ============================================================
+  // DOCUMENTS — filter / sort / paginate
+  // ============================================================
+  var docState = { filter:'all', sort:'recent', q:'', page:1, perPage:5 };
+  var docsPager = document.getElementById('docsPager');
+  function renderDocs(){
+    var allRows = Array.prototype.slice.call(docsList.querySelectorAll('.doc'));
+    // Reveal/hide based on filters
+    var matching = allRows.filter(function(row){
+      var pill = row.querySelector('.pill');
+      var st = pill ? pill.dataset.state : '';
+      var nm = (row.querySelector('.nm') || {}).textContent || '';
+      var sb = (row.querySelector('.sb') || {}).textContent || '';
+      if (docState.filter !== 'all' && st !== docState.filter) return false;
+      if (docState.q && (nm + ' ' + sb).toLowerCase().indexOf(docState.q.toLowerCase()) < 0) return false;
+      return true;
+    });
+    var total = matching.length;
+    var pages = Math.max(1, Math.ceil(total / docState.perPage));
+    if (docState.page > pages) docState.page = pages;
+    var start = (docState.page - 1) * docState.perPage;
+    var view = matching.slice(start, start + docState.perPage);
+    allRows.forEach(function(r){ r.style.display = 'none'; });
+    view.forEach(function(r){ r.style.display = ''; });
+    var rng = docsPager.querySelector('.rng');
+    var ctrls = docsPager.querySelector('.ctrls');
+    rng.innerHTML = total === 0 ? 'No documents' : ('<b>'+(start+1)+'–'+Math.min(start+docState.perPage, total)+'</b> of <b>'+total+'</b>');
+    var html = '<button id="docPrev" '+(docState.page<=1?'disabled':'')+'><i class="ri-arrow-left-s-line"></i></button>';
+    for (var i = 1; i <= pages; i++) html += '<button data-dpg="'+i+'" class="'+(i===docState.page?'on':'')+'">'+i+'</button>';
+    html += '<button id="docNext" '+(docState.page>=pages?'disabled':'')+'><i class="ri-arrow-right-s-line"></i></button>';
+    ctrls.innerHTML = html;
+    ctrls.onclick = function(e){
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.id==='docPrev') docState.page--;
+      else if (b.id==='docNext') docState.page++;
+      else if (b.dataset.dpg) docState.page = parseInt(b.dataset.dpg, 10);
+      renderDocs();
+    };
+  }
+  document.querySelectorAll('[data-doc-filter]').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('[data-doc-filter]').forEach(function(x){ x.classList.remove('on'); });
+      c.classList.add('on'); docState.filter = c.dataset.docFilter; docState.page = 1; renderDocs();
+    });
+  });
+  document.getElementById('docSearch').addEventListener('input', function(e){
+    docState.q = e.target.value; docState.page = 1; renderDocs();
+  });
+  // Re-render on upload + delete
+  var origInsert = docsList.insertBefore.bind(docsList);
+  fileInput.addEventListener('change', function(){ setTimeout(renderDocs, 50); });
+  dropZone.addEventListener('drop', function(){ setTimeout(renderDocs, 50); });
+  docsList.addEventListener('click', function(){ setTimeout(renderDocs, 200); });
+  renderDocs();
+
+  // ============================================================
+  // ACTIVITY — filter (user, type, date range) + infinite scroll
+  // ============================================================
+  var ACT_TONES = { sales:'success', construction:'', approvals:'brand', visits:'', notes:'' };
+  var ACTIVITY = [
+    { kind:'sales',        ic:'ri-check-line',       tone:'success', who:'Jordan Evans', date:'2025-06-18', ti:'Plot 21 sold — $54,200',                 sb:'Cash sale · Marcus Doe',                       when:'Jun 18 2025' },
+    { kind:'sales',        ic:'ri-bank-line',        tone:'brand',   who:'Kevin Manga',  date:'2025-06-12', ti:'Loan L-2310 originated on Plot 28',       sb:'Lara Okafor · 12-yr term · $50K financed',     when:'Jun 12 2025' },
+    { kind:'sales',        ic:'ri-time-line',        tone:'brand',   who:'Jordan Evans', date:'2025-05-22', ti:'Hillside · Plot 09 reserved',             sb:'Anna Thompson · 60-day hold',                  when:'May 22 2025' },
+    { kind:'construction', ic:'ri-tools-line',       tone:'',        who:'System',       date:'2025-05-16', ti:'Phase 2 site works — 74% complete',       sb:'Roads + utilities trenching · weekly update',  when:'May 16 2025' },
+    { kind:'notes',        ic:'ri-camera-line',      tone:'',        who:'Mae Chen',     date:'2025-05-10', ti:'Drone aerials uploaded',                  sb:'Q2 progress shoot · 42 images',                when:'May 10 2025' },
+    { kind:'approvals',    ic:'ri-alert-line',       tone:'warn',    who:'Kevin Manga',  date:'2025-05-06', ti:'Phase 3 approval flagged for follow-up',  sb:'Submission still pending with AMA',            when:'May 06 2025' },
+    { kind:'sales',        ic:'ri-check-line',       tone:'success', who:'Jordan Evans', date:'2025-04-28', ti:'Plot 17 sold — $54,000',                 sb:'Financed · Pierre Roux · L-2305',              when:'Apr 28 2025' },
+    { kind:'construction', ic:'ri-flashlight-line',  tone:'',        who:'System',       date:'2025-04-22', ti:'Phase 2 fibre backbone live',             sb:'10 Gbps trunk activated',                      when:'Apr 22 2025' },
+    { kind:'sales',        ic:'ri-check-line',       tone:'success', who:'Jordan Evans', date:'2025-04-12', ti:'Plot 36 sold — $57,000',                 sb:'Cash sale · diaspora buyer',                   when:'Apr 12 2025' },
+    { kind:'approvals',    ic:'ri-government-line',  tone:'',        who:'Kevin Manga',  date:'2025-03-30', ti:'EPA permit renewal received',             sb:'Valid through 2027',                           when:'Mar 30 2025' },
+    { kind:'visits',       ic:'ri-walk-line',        tone:'',        who:'Jordan Evans', date:'2025-03-18', ti:'Investor site visit — 6 prospects',       sb:'Hosted by Jordan Evans',                       when:'Mar 18 2025' },
+    { kind:'construction', ic:'ri-tools-line',       tone:'',        who:'System',       date:'2024-12-10', ti:'Phase 2 utilities trenched',              sb:'Power · water · fibre',                        when:'Dec 2024' },
+    { kind:'construction', ic:'ri-tools-line',       tone:'',        who:'System',       date:'2024-10-08', ti:'Phase 2 internal roads paved',            sb:'1.4 km of asphalt',                            when:'Oct 2024' },
+    { kind:'sales',        ic:'ri-rocket-2-line',    tone:'brand',   who:'Mae Chen',     date:'2024-04-04', ti:'Phase 2 launched',                        sb:'48 parcels onto market',                       when:'Apr 2024' },
+    { kind:'visits',       ic:'ri-walk-line',        tone:'',        who:'Jordan Evans', date:'2024-03-06', ti:'Broker walk-through — Goldman Realty',     sb:'Hosted by Jordan Evans · 4 brokers',           when:'Mar 06 2024' },
+    { kind:'notes',        ic:'ri-sticky-note-line', tone:'',        who:'Kevin Manga',  date:'2024-02-28', ti:'Note: trim hedges before Mar showings',    sb:'Kevin Manga',                                  when:'Feb 28 2024' },
+    { kind:'approvals',    ic:'ri-government-line',  tone:'',        who:'Kevin Manga',  date:'2024-02-12', ti:'Phase 1 final cert of completion',         sb:'AMA · Lands Commission',                       when:'Feb 12 2024' },
+    { kind:'sales',        ic:'ri-check-line',       tone:'success', who:'Jordan Evans', date:'2024-01-30', ti:'Plot 12 sold — $52,000',                 sb:'Cash · Adwoa Mensah',                          when:'Jan 30 2024' },
+    { kind:'visits',       ic:'ri-walk-line',        tone:'',        who:'Kevin Manga',  date:'2024-01-18', ti:'VIP investor site walk',                  sb:'Hosted by Kevin Manga · 2 visitors',           when:'Jan 18 2024' },
+    { kind:'construction', ic:'ri-tools-line',       tone:'',        who:'System',       date:'2023-12-12', ti:'Site fence raised — Phase 2 perimeter',   sb:'1.6 km galvanized steel',                      when:'Dec 12 2023' },
+    { kind:'sales',        ic:'ri-check-line',       tone:'success', who:'Jordan Evans', date:'2023-11-22', ti:'Plot 08 sold — $51,500',                 sb:'Financed · L-1898',                            when:'Nov 22 2023' },
+    { kind:'notes',        ic:'ri-sticky-note-line', tone:'',        who:'Mae Chen',     date:'2023-11-04', ti:'Note: marketing video re-shoot booked',    sb:'Jordan Evans',                                 when:'Nov 04 2023' }
+  ];
+  var actState = { user:'all', type:'all', from:'', to:'', loaded:8 };
+  var actList = document.getElementById('actList');
+  var actLoader = document.getElementById('actLoader');
+  function actFiltered(){
+    return ACTIVITY.filter(function(a){
+      if (actState.user !== 'all' && a.who !== actState.user) return false;
+      if (actState.type !== 'all' && a.kind !== actState.type) return false;
+      if (actState.from && a.date < actState.from) return false;
+      if (actState.to && a.date > actState.to) return false;
+      return true;
+    });
+  }
+  function renderActivity(){
+    var rows = actFiltered();
+    var view = rows.slice(0, actState.loaded);
+    if (!view.length) { actList.innerHTML = '<div class="dt-empty"><i class="ri-pulse-line"></i>No activity matches these filters.</div>'; actLoader.hidden = true; return; }
+    actList.innerHTML = view.map(function(a){
+      return '<div class="item"><span class="ic"'+(a.tone?' data-tone="'+a.tone+'"':'')+'><i class="'+a.ic+'"></i></span>' +
+        '<div><div class="ti">'+a.ti+'</div><div class="sb">'+a.sb+' · '+a.who+'</div></div>' +
+        '<span class="when">'+a.when+'</span></div>';
+    }).join('');
+    actLoader.hidden = view.length >= rows.length;
+  }
+  document.getElementById('actUser').addEventListener('change', function(e){ actState.user = e.target.value; actState.loaded = 8; renderActivity(); });
+  document.getElementById('actType').addEventListener('change', function(e){ actState.type = e.target.value; actState.loaded = 8; renderActivity(); });
+  document.getElementById('actFrom').addEventListener('change', function(e){ actState.from = e.target.value; actState.loaded = 8; renderActivity(); });
+  document.getElementById('actTo').addEventListener('change',   function(e){ actState.to   = e.target.value; actState.loaded = 8; renderActivity(); });
+  document.getElementById('actClear').addEventListener('click', function(){
+    actState = { user:'all', type:'all', from:'', to:'', loaded:8 };
+    document.getElementById('actUser').value='all';
+    document.getElementById('actType').value='all';
+    document.getElementById('actFrom').value='';
+    document.getElementById('actTo').value='';
+    renderActivity();
+  });
+  // Infinite scroll within content area
+  var contentEl = document.querySelector('.main .content');
+  if (contentEl) {
+    contentEl.addEventListener('scroll', function(){
+      if (panes.activity.hidden) return;
+      var nearBottom = contentEl.scrollTop + contentEl.clientHeight >= contentEl.scrollHeight - 220;
+      if (nearBottom && !actLoader.hidden) {
+        actLoader.hidden = false;
+        setTimeout(function(){ actState.loaded += 6; renderActivity(); }, 350);
+      }
+    });
+  }
+  renderActivity();
+
+  // ============================================================
+  // HISTORY — Jira-like, sort only
+  // ============================================================
+  var HISTORY = [
+    { day:'Today', kind:'edit',   ic:'ri-pencil-line', tone:'brand', who:'Kevin Manga',   wc:'',       ti:'Updated <b>Description</b> on About the estate', when:'10:42' },
+    { day:'Today', kind:'parcel', ic:'ri-add-line',    tone:'success', who:'Jordan Evans', wc:'green',  ti:'Created parcel <b>Northgate · Plot 45</b>', when:'09:17' },
+    { day:'Today', kind:'doc',    ic:'ri-upload-2-line', tone:'', who:'Jordan Evans', wc:'green', ti:'Uploaded document <b>Drone aerials Q2 2025</b>', when:'08:55' },
+    { day:'Yesterday', kind:'loan', ic:'ri-bank-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Changed <b>Loan product</b>', diff:{from:'Standard Land · 10-yr fixed', to:'Standard Land · 12-yr fixed'}, when:'17:08' },
+    { day:'Yesterday', kind:'edit', ic:'ri-pencil-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Updated <b>Parcel price</b>', diff:{from:'$52,800', to:'$54,200'}, when:'14:33' },
+    { day:'Yesterday', kind:'status', ic:'ri-shield-check-line', tone:'success', who:'Jordan Evans', wc:'green', ti:'Plot 21 contract <b>Active</b>', diff:{from:'Signed by customer', to:'Active'}, when:'11:21' },
+    { day:'Yesterday', kind:'team', ic:'ri-user-add-line', tone:'', who:'Mae Chen', wc:'purple', ti:'Added <b>Mensah Build Co.</b> to site team', when:'09:48' },
+    { day:'2 days ago', kind:'parcel', ic:'ri-add-line', tone:'success', who:'Jordan Evans', wc:'green', ti:'Created parcel <b>Phoenix · Plot 39</b>', when:'16:14' },
+    { day:'2 days ago', kind:'edit', ic:'ri-pencil-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Updated <b>Site amenities</b> · added Convenience plaza, Visitor parking', when:'13:02' },
+    { day:'2 days ago', kind:'doc', ic:'ri-delete-bin-line', tone:'danger', who:'Mae Chen', wc:'purple', ti:'Deleted document <b>Master plan v3 (superseded)</b>', when:'11:35' },
+    { day:'Last week', kind:'edit', ic:'ri-map-pin-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Updated <b>Location coordinates</b>', diff:{from:'5.621, -0.190', to:'5.620, -0.189'}, when:'Mon 14:20' },
+    { day:'Last week', kind:'status', ic:'ri-medal-line', tone:'success', who:'System', wc:'amber', ti:'Plot 33 contract <b>Payoff</b>', diff:{from:'Active', to:'Payoff'}, when:'Mon 09:00' },
+    { day:'Last week', kind:'doc', ic:'ri-upload-2-line', tone:'', who:'Jordan Evans', wc:'green', ti:'Uploaded document <b>EPA environmental permit</b>', when:'Sun 17:48' },
+    { day:'Last week', kind:'team', ic:'ri-edit-line', tone:'', who:'Kevin Manga', wc:'', ti:'Changed <b>Jordan Evans</b> role', diff:{from:'Site lead', to:'Sales agent'}, when:'Sun 12:10' },
+    { day:'Earlier', kind:'edit', ic:'ri-landscape-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Updated <b>Parcel area</b>', diff:{from:'520 m²', to:'540 m²'}, when:'Mar 12 2026' },
+    { day:'Earlier', kind:'parcel', ic:'ri-add-line', tone:'success', who:'Mae Chen', wc:'purple', ti:'Created parcel <b>Garden · Plot 17</b>', when:'Mar 02 2026' },
+    { day:'Earlier', kind:'loan', ic:'ri-bank-line', tone:'brand', who:'Kevin Manga', wc:'', ti:'Attached <b>Loan product</b> for the first time', diff:{from:'None', to:'Standard Land · 10-yr fixed'}, when:'Feb 18 2026' },
+    { day:'Earlier', kind:'edit', ic:'ri-pencil-line', tone:'brand', who:'Mae Chen', wc:'purple', ti:'Created site <b>Sunridge Estate</b>', when:'Feb 04 2026' }
+  ];
+  var histState = { sort:'desc' };
+  var histList = document.getElementById('histList');
+  var histCount = document.getElementById('histCount');
+  function renderHistory(){
+    var rows = HISTORY.slice();
+    if (histState.sort === 'asc') rows.reverse();
+    if (!rows.length) { histList.innerHTML = '<div class="dt-empty"><i class="ri-history-line"></i>No history yet.</div>'; return; }
+    histCount.textContent = rows.length + ' change' + (rows.length===1?'':'s');
+    histList.innerHTML = rows.map(function(h){
+      var initials = h.who.split(' ').map(function(s){return s[0];}).slice(0,2).join('');
+      var diff = h.diff ? '<div class="jh-diff"><span class="from">'+h.diff.from+'</span><i class="ri-arrow-right-line arr"></i><span class="to">'+h.diff.to+'</span></div>' : '';
+      return '<li class="jh-item">' +
+        '<span class="jh-ava"'+(h.wc?' data-color="'+h.wc+'"':'')+'>'+initials+'</span>' +
+        '<div class="jh-body">' +
+          '<div class="jh-line"><b>'+h.who+'</b> <span class="jh-action">'+h.ti.replace(/<b>/g,'“<i>').replace(/<\/b>/g,'</i>”')+'</span></div>' +
+          diff +
+          '<div class="jh-when"><i class="ri-time-line"></i> '+h.when+(h.day&&h.day!=='Today'&&h.day!=='Yesterday'?' · '+h.day:'')+'</div>' +
+        '</div>' +
+      '</li>';
+    }).join('');
+  }
+  document.getElementById('histSort').addEventListener('change', function(e){
+    histState.sort = e.target.value; renderHistory();
+  });
+  renderHistory();
+
+  // ============================================================
+  // LOAN PRODUCT — create dialog
+  // ============================================================
+  var loanDialog = document.getElementById('loanDialog');
+  function openLoanDialog(){ loanDialog.classList.add('open'); setTimeout(function(){ document.getElementById('lpName').focus(); }, 50); }
+  function closeLoanDialog(){ loanDialog.classList.remove('open'); }
+  document.getElementById('btnNewLoanProductFromCombo').addEventListener('click', function(e){ e.stopPropagation(); combo.dataset.open = 'false'; openLoanDialog(); });
+  document.getElementById('loanDialogClose').addEventListener('click', closeLoanDialog);
+  document.getElementById('loanDialogCancel').addEventListener('click', closeLoanDialog);
+  loanDialog.addEventListener('click', function(e){ if (e.target === loanDialog) closeLoanDialog(); });
+  document.getElementById('loanDialogSave').addEventListener('click', function(){
+    var name = document.getElementById('lpName').value.trim() || 'New loan product';
+    var down = parseFloat(document.getElementById('lpDown').value) || 0;
+    var rate = parseFloat(document.getElementById('lpRate').value) || 0;
+    var term = parseInt(document.getElementById('lpTerm').value, 10) || 0;
+    var meta = '$'+down.toLocaleString()+' down · '+rate.toFixed(2)+'% · '+term+' mo';
+    // append to combo
+    var opt = document.createElement('div');
+    opt.className = 'option'; opt.dataset.id = 'new-'+Date.now();
+    opt.dataset.nm = name; opt.dataset.meta = meta;
+    opt.innerHTML = '<i class="ri-check-line check"></i><div><div class="nm">'+name+'</div><div class="sb">'+meta+'</div></div>';
+    document.getElementById('loanComboOptions').appendChild(opt);
+    // select it
+    document.getElementById('loanComboNm').textContent = name;
+    document.getElementById('loanComboMeta').textContent = meta;
+    document.querySelectorAll('#loanComboOptions .option').forEach(function(x){ x.setAttribute('aria-selected','false'); });
+    opt.setAttribute('aria-selected','true');
+    closeLoanDialog();
+    toast('Loan product "'+name+'" created and attached');
+  });
+
+  // ============================================================
+  // HEADER LAYOUT TWEAK — toggle Split / Cinematic
+  // ============================================================
+  var TWEAKS = /*EDITMODE-BEGIN*/{
+    "headerLayout": "split"
+  }/*EDITMODE-END*/;
+  var hero = document.querySelector('.dt-hero');
+  function applyHeaderLayout(v){
+    if (v === 'cinematic') hero.setAttribute('data-layout','cinematic');
+    else hero.removeAttribute('data-layout');
+  }
+  applyHeaderLayout(TWEAKS.headerLayout);
+
+  // Floating tweak panel
+  var panel = document.createElement('div');
+  panel.id = 'siteTweaks';
+  panel.innerHTML =
+    '<div class="hd"><i class="ri-magic-line"></i> Tweaks <button id="tweakClose" aria-label="Close"><i class="ri-close-line"></i></button></div>' +
+    '<div class="bd">' +
+      '<div class="lbl">Header design</div>' +
+      '<div class="seg">' +
+        '<button data-hl="split"     class="' + (TWEAKS.headerLayout==='split'?'on':'') + '"><i class="ri-layout-left-line"></i> Split</button>' +
+        '<button data-hl="cinematic" class="' + (TWEAKS.headerLayout==='cinematic'?'on':'') + '"><i class="ri-fullscreen-line"></i> Cinematic</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(panel);
+
+  // Listen for toolbar tweaks toggle
+  var tweaksOn = false;
+  function showPanel(){ tweaksOn = true; panel.classList.add('open'); }
+  function hidePanel(){ tweaksOn = false; panel.classList.remove('open'); }
+  window.addEventListener('message', function(e){
+    if (!e.data) return;
+    if (e.data.type === '__activate_edit_mode')   showPanel();
+    if (e.data.type === '__deactivate_edit_mode') hidePanel();
+  });
+  try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch (_) {}
+
+  document.getElementById('tweakClose').onclick = function(){
+    hidePanel();
+    try { window.parent.postMessage({type:'__edit_mode_dismissed'}, '*'); } catch (_) {}
+  };
+  panel.querySelectorAll('[data-hl]').forEach(function(b){
+    b.onclick = function(){
+      var v = b.dataset.hl;
+      panel.querySelectorAll('[data-hl]').forEach(function(x){ x.classList.toggle('on', x === b); });
+      applyHeaderLayout(v);
+      try { window.parent.postMessage({type:'__edit_mode_set_keys', edits:{headerLayout: v}}, '*'); } catch (_) {}
+      toast('Header switched to ' + (v==='split' ? 'Split' : 'Cinematic'));
+    };
+  });
+})();
+</script>
+</body>
+</html>

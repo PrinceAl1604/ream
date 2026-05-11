@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Email catalog</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f3f2ef; padding: 32px;
+    font: 14px/1.5 var(--font-sans);
+    color: var(--color-grey-900);
+  }
+  .page { max-width: 1320px; margin: 0 auto; }
+
+  /* Page head */
+  header.page-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 24px; margin-bottom: 24px; padding-bottom: 18px;
+    border-bottom: 1px solid var(--color-grey-200);
+  }
+  header.page-head h1 {
+    margin: 0 0 6px; font-size: 26px; letter-spacing: -0.02em; font-weight: 700;
+  }
+  header.page-head p { margin: 0; color: var(--color-grey-600); font-size: 14px; max-width: 580px; }
+  .head-stats {
+    display: flex; gap: 24px;
+    font: 500 12px var(--font-sans);
+    color: var(--color-grey-600);
+  }
+  .head-stats strong { display: block; font: 700 22px var(--font-sans); color: var(--color-grey-900); margin-bottom: 2px; }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .filter-bar button {
+    background: white; border: 1px solid var(--color-grey-200);
+    border-radius: 999px; padding: 7px 14px;
+    font: 500 13px var(--font-sans); color: var(--color-grey-700);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .filter-bar button.on {
+    background: var(--color-grey-900); color: white; border-color: var(--color-grey-900);
+  }
+  .filter-bar button:hover:not(.on) { color: var(--color-grey-900); border-color: var(--color-grey-400); }
+
+  /* Section */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section-head {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .section-head h2 {
+    margin: 0; font-size: 18px; font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .section-head .count {
+    font: 500 12px var(--font-sans);
+    color: var(--color-grey-500);
+  }
+  .section-head .desc {
+    margin-left: auto;
+    font: 13px var(--font-sans);
+    color: var(--color-grey-600);
+  }
+
+  /* Email card */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px)  { .grid { grid-template-columns: 1fr; } }
+
+  .email-card {
+    background: white;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .email-card:hover {
+    border-color: var(--color-grey-300);
+    box-shadow: 0 4px 16px rgba(20,12,60,0.06);
+  }
+
+  .email-card .top {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .email-card .icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .icon.acct { background: var(--color-grey-100); color: var(--color-grey-700); }
+  .icon.lead { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .icon.prop { background: #dbeafe; color: #1e40af; }
+  .icon.deal { background: #fef3c7; color: #92400e; }
+  .icon.fin  { background: #fee2e2; color: #991b1b; }
+  .icon.serv { background: #d1fae5; color: #047857; }
+  .icon.team { background: #ede9fe; color: #5b21b6; }
+  .icon.eng  { background: #ffe4e6; color: #be123c; }
+
+  .email-card .meta {
+    flex: 1; min-width: 0;
+  }
+  .email-card .id {
+    font: 500 10.5px ui-monospace, 'SF Mono', monospace;
+    color: var(--color-grey-500);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .email-card h3 {
+    margin: 0; font-size: 14px; font-weight: 600;
+    line-height: 1.25; color: var(--color-grey-900);
+    letter-spacing: -0.005em;
+  }
+
+  .email-card .tags {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .tag {
+    font: 500 10.5px var(--font-sans);
+    padding: 2px 8px; border-radius: 999px;
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    text-transform: lowercase;
+  }
+  .tag.transactional { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .tag.marketing { background: #fce7f3; color: #be185d; }
+  .tag.notification { background: #f0f9ff; color: #0369a1; }
+  .tag.required { background: #fef3c7; color: #92400e; }
+
+  .email-card .subject {
+    font: 13.5px var(--font-sans);
+    color: var(--color-grey-800);
+    line-height: 1.45;
+    padding: 8px 10px;
+    background: var(--color-grey-50, #fafaf8);
+    border-left: 3px solid var(--color-grey-300);
+    border-radius: 0 4px 4px 0;
+  }
+  .email-card .subject .label {
+    display: block;
+    font: 600 9px var(--font-sans);
+    color: var(--color-grey-500);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .email-card .body {
+    font: 12.5px var(--font-sans);
+    color: var(--color-grey-600);
+    line-height: 1.5;
+  }
+
+  .email-card .footer-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-grey-100);
+    font: 11.5px var(--font-sans);
+    color: var(--color-grey-500);
+  }
+  .email-card .footer-row .trigger {
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .email-card .footer-row .trigger code {
+    background: var(--color-grey-100); color: var(--color-grey-800);
+    padding: 1px 5px; border-radius: 3px;
+    font: 11px ui-monospace, 'SF Mono', monospace;
+  }
+  .email-card .footer-row .timing {
+    color: var(--color-grey-500);
+    font-weight: 500;
+  }
+
+  /* Section color accents */
+  .section.acct h2::before { content: ''; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Email catalog</h1>
+      <p>Every transactional, notification, and engagement email Ream sends — across the prospect, customer, and team-member lifecycle.</p>
+    </div>
+    <div class="head-stats">
+      <div><strong>38</strong>email types</div>
+      <div><strong>8</strong>categories</div>
+      <div><strong>26</strong>required for compliance</div>
+    </div>
+  </header>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <button class="on">All categories</button>
+    <button>Account &amp; security</button>
+    <button>Lead &amp; prospect</button>
+    <button>Property</button>
+    <button>Deal &amp; contract</button>
+    <button>Financing</button>
+    <button>Servicing</button>
+    <button>Team</button>
+    <button>Engagement</button>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ACCOUNT & SECURITY                             -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Account &amp; security</h2>
+      <span class="count">5 emails</span>
+      <span class="desc">Auth, identity, and security-event notifications.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon acct"><i class="ri-mail-check-line"></i></div>
+          <div class="meta">
+            <div class="id">ACCT-001</div>
+            <h3>Verify your email</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Confirm your email to finish creating your Ream account</div>
+        <div class="body">Sent immediately after signup. Contains a single-use verification link valid for 24 hours.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>user.created</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon acct"><i class="ri-lock-2-line"></i></div>
+          <div class="meta">
+            <div class="id">ACCT-002</div>
+            <h3>Reset your password</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Password reset instructions for your Ream account</div>
+        <div class="body">Single-use reset link valid for 1 hour. Includes the requesting IP and rough geography.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>auth.password_reset_requested</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon acct"><i class="ri-shield-keyhole-line"></i></div>
+          <div class="meta">
+            <div class="id">ACCT-003</div>
+            <h3>Two-factor code</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Your Ream verification code: 845 102</div>
+        <div class="body">6-digit code, expires in 10 minutes. Fallback when authenticator app is not used.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>auth.2fa_requested</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon acct"><i class="ri-error-warning-line"></i></div>
+          <div class="meta">
+            <div class="id">ACCT-004</div>
+            <h3>New sign-in detected</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>New sign-in to your Ream account from Dallas, TX</div>
+        <div class="body">Sent when a sign-in happens from a new device or country. Includes a "Wasn't me" button that locks the session.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>auth.new_device_signin</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon acct"><i class="ri-user-settings-line"></i></div>
+          <div class="meta">
+            <div class="id">ACCT-005</div>
+            <h3>Sensitive change confirmation</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>Your bank account on Ream was updated</div>
+        <div class="body">Sent when payout, payment method, email address, or 2FA setting changes. 24-hour window to revert.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>account.sensitive_change</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- LEAD & PROSPECT                                -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Lead &amp; prospect</h2>
+      <span class="count">5 emails</span>
+      <span class="desc">Pre-qualification, KYC, and advisor assignment.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon lead"><i class="ri-magic-line"></i></div>
+          <div class="meta">
+            <div class="id">LEAD-001</div>
+            <h3>Pre-qualification received</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>We've received your pre-qualification — what happens next</div>
+        <div class="body">Confirmation with a summary of submitted info, timeline expectations (3–5 business days), and an advisor preview.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.submitted</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon lead"><i class="ri-id-card-line"></i></div>
+          <div class="meta">
+            <div class="id">LEAD-002</div>
+            <h3>KYC documents needed</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Action needed: upload your ID &amp; proof of income</div>
+        <div class="body">Personalized list of missing documents. Direct upload link that bypasses login. Reminders on day 3 and day 7.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.kyc_pending</code></span>
+          <span class="timing">+5 min after submission</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon lead"><i class="ri-checkbox-circle-line"></i></div>
+          <div class="meta">
+            <div class="id">LEAD-003</div>
+            <h3>Pre-qualification approved</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>You're pre-qualified — up to $245,000</div>
+        <div class="body">Approved budget, max monthly payment, suggested deposit, and a CTA into matched listings.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.approved</code></span>
+          <span class="timing">on decision</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon lead"><i class="ri-close-circle-line"></i></div>
+          <div class="meta">
+            <div class="id">LEAD-004</div>
+            <h3>Pre-qualification declined</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Update on your Ream pre-qualification request</div>
+        <div class="body">Adverse-action notice (legally required in TX). Reasons, credit bureau used, right to dispute, 60-day reapply window.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.declined</code></span>
+          <span class="timing">on decision</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon lead"><i class="ri-user-star-line"></i></div>
+          <div class="meta">
+            <div class="id">LEAD-005</div>
+            <h3>Your advisor is assigned</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Maria Lopez is your Ream advisor — book a call</div>
+        <div class="body">Advisor's photo, bio, phone, and a calendar-booking widget. Includes the advisor's region of expertise.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.advisor_assigned</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- PROPERTY                                       -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Property</h2>
+      <span class="count">4 emails</span>
+      <span class="desc">Match alerts, saved searches, price changes.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon prop"><i class="ri-bookmark-line"></i></div>
+          <div class="meta">
+            <div class="id">PROP-001</div>
+            <h3>Property saved confirmation</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>You saved Brookfield Plot — we'll keep you posted</div>
+        <div class="body">Confirms the favorite, summarizes monthly cost, and explains what alerts they'll receive.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>listing.favorited</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon prop"><i class="ri-arrow-down-circle-line"></i></div>
+          <div class="meta">
+            <div class="id">PROP-002</div>
+            <h3>Price drop on a saved listing</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>Price dropped 8% on Brookfield Plot — now $172k</div>
+        <div class="body">Old price, new price, monthly delta, and how long the listing has been on market.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>listing.price_changed</code></span>
+          <span class="timing">within 1h</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon prop"><i class="ri-search-eye-line"></i></div>
+          <div class="meta">
+            <div class="id">PROP-003</div>
+            <h3>New matches for your saved search</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>3 new lots match "Dallas · land · ¼–½ acre"</div>
+        <div class="body">Up to 5 new matches with photo, price, monthly. Daily digest at 8am local. User can unsubscribe per saved search.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>saved_search.matches_found</code></span>
+          <span class="timing">daily 8am</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon prop"><i class="ri-time-line"></i></div>
+          <div class="meta">
+            <div class="id">PROP-004</div>
+            <h3>Listing about to go off-market</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>Brookfield Plot is reserved — last day to enquire</div>
+        <div class="body">Heads-up when a saved or recently-viewed listing moves to reserved/sold status. Suggests similar plots.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>listing.status_changed</code></span>
+          <span class="timing">on status change</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- DEAL & CONTRACT                                -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Deal &amp; contract</h2>
+      <span class="count">6 emails</span>
+      <span class="desc">From offer to title transfer.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-handshake-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-001</div>
+            <h3>Offer received</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Your offer on Brookfield Plot was submitted to the seller</div>
+        <div class="body">Confirms the offer terms (price, deposit, financing). Tells buyer typical seller response time.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>offer.submitted</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-arrow-left-right-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-002</div>
+            <h3>Counter-offer from seller</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Seller countered at $189k — your move</div>
+        <div class="body">Diff view: original vs counter. Buttons to accept, counter again, or walk away. 72-hour expiry.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>offer.countered</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-shield-check-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-003</div>
+            <h3>Title verification complete</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Title check passed — your deal can proceed</div>
+        <div class="body">Survey results, encumbrance check outcome, and the title-insurance policy summary as a PDF attachment.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>title.verified</code></span>
+          <span class="timing">on completion</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-file-edit-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-004</div>
+            <h3>Contract ready to sign</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject">Sign your purchase contract for Brookfield Plot</div>
+        <div class="body">e-Sign link, 7-day window. PDF preview attached. Includes 3-day right-of-rescission notice.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>contract.ready_for_signature</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-alarm-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-005</div>
+            <h3>e-Sign reminder</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Reminder: your Brookfield Plot contract expires in 48h</div>
+        <div class="body">Sent at +48h and +24h before the e-sign window closes. One-click resume into the document.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>contract.signing_reminder</code></span>
+          <span class="timing">+48h, +24h</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon deal"><i class="ri-key-2-line"></i></div>
+          <div class="meta">
+            <div class="id">DEAL-006</div>
+            <h3>Contract signed &amp; closing scheduled</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Signed! Closing on Brookfield Plot is set for March 14</div>
+        <div class="body">Closing date, escrow agent contact, deposit instructions, signed contract PDF, what to bring.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>contract.fully_executed</code></span>
+          <span class="timing">on signature</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- FINANCING                                      -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Financing</h2>
+      <span class="count">4 emails</span>
+      <span class="desc">Loan origination, deposit, disbursement.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon fin"><i class="ri-bank-card-line"></i></div>
+          <div class="meta">
+            <div class="id">FIN-001</div>
+            <h3>Deposit received</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>We've received your $18,650 deposit — held in escrow</div>
+        <div class="body">Receipt with reference number, escrow agent details, and what comes next on the timeline.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>payment.deposit_received</code></span>
+          <span class="timing">on settlement</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon fin"><i class="ri-file-list-3-line"></i></div>
+          <div class="meta">
+            <div class="id">FIN-002</div>
+            <h3>Loan terms ready for review</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Your loan terms — APR, monthly, total cost</div>
+        <div class="body">TILA-compliant disclosure: APR, finance charge, total of payments, payment schedule. PDF attached.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.terms_issued</code></span>
+          <span class="timing">on terms ready</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon fin"><i class="ri-check-double-line"></i></div>
+          <div class="meta">
+            <div class="id">FIN-003</div>
+            <h3>Loan funded</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Your Ream loan is funded — welcome to ownership</div>
+        <div class="body">Loan #, disbursement amount, first payment date, autopay setup CTA, customer-portal link.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.disbursed</code></span>
+          <span class="timing">on funding</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon fin"><i class="ri-home-smile-line"></i></div>
+          <div class="meta">
+            <div class="id">FIN-004</div>
+            <h3>Title transferred — you own it</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Title transferred to your name — congratulations</div>
+        <div class="body">Recorded deed, county filing reference, lien details (if financed), and a digital deed certificate.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>title.transferred</code></span>
+          <span class="timing">on recording</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- SERVICING                                      -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Loan servicing</h2>
+      <span class="count">8 emails</span>
+      <span class="desc">Monthly billing, payments, arrears, payoff.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-calendar-check-line"></i></div>
+          <div class="meta">
+            <div class="id">SERV-001</div>
+            <h3>Monthly statement available</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Your March statement is ready — $1,420 due April 1</div>
+        <div class="body">Principal, interest, balance breakdown. PDF attached. Required monthly under Reg Z.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.statement_generated</code></span>
+          <span class="timing">monthly · 1st</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-notification-3-line"></i></div>
+          <div class="meta">
+            <div class="id">SERV-002</div>
+            <h3>Payment due soon</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>Reminder: $1,420 due in 5 days</div>
+        <div class="body">Pre-due nudge with one-click pay button. Also fires at T-1 for non-autopay accounts.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>payment.due_soon</code></span>
+          <span class="timing">T-5, T-1</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-checkbox-circle-fill"></i></div>
+          <div class="meta">
+            <div class="id">SERV-003</div>
+            <h3>Payment received</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Thanks — your $1,420 payment posted</div>
+        <div class="body">Receipt with confirmation #, new balance, and next payment date. Required for ACH receipt under NACHA.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>payment.received</code></span>
+          <span class="timing">on settlement</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-error-warning-fill"></i></div>
+          <div class="meta">
+            <div class="id">SERV-004</div>
+            <h3>Payment failed</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Your March payment didn't go through</div>
+        <div class="body">Reason code (NSF, account closed, etc.). Retry CTA, alternative payment options. Avoids any late-fee language until grace period.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>payment.failed</code></span>
+          <span class="timing">on failure</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-time-fill"></i></div>
+          <div class="meta">
+            <div class="id">SERV-005</div>
+            <h3>Late notice — 15 days past due</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Important: your loan is 15 days past due</div>
+        <div class="body">Late fee disclosure (per state cap), how to cure, who to call. Tone: helpful, not punitive.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.delinquent_15d</code></span>
+          <span class="timing">+15 days</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-alert-line"></i></div>
+          <div class="meta">
+            <div class="id">SERV-006</div>
+            <h3>30-day delinquency notice</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>30-day notice — please contact us about your loan</div>
+        <div class="body">Triggers credit-bureau reporting next cycle. Offers hardship application. Required loss-mitigation language under Reg X.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.delinquent_30d</code></span>
+          <span class="timing">+30 days</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-pie-chart-line"></i></div>
+          <div class="meta">
+            <div class="id">SERV-007</div>
+            <h3>Annual escrow analysis</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Your 2026 escrow analysis — payment changing by $12</div>
+        <div class="body">RESPA-required annual statement. Tax/insurance forecast, shortage or surplus, new monthly amount.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.escrow_analyzed</code></span>
+          <span class="timing">annually</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon serv"><i class="ri-flag-line"></i></div>
+          <div class="meta">
+            <div class="id">SERV-008</div>
+            <h3>Payoff statement ready</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span><span class="tag required">required</span></div>
+        <div class="subject"><span class="label">Subject</span>Your payoff statement — good through April 30</div>
+        <div class="body">Total payoff including per-diem interest, wire instructions, lien-release timeline. PDF attached.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>loan.payoff_requested</code></span>
+          <span class="timing">on request</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- TEAM                                           -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Team</h2>
+      <span class="count">3 emails</span>
+      <span class="desc">Internal — invites, role changes, mentions.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon team"><i class="ri-user-add-line"></i></div>
+          <div class="meta">
+            <div class="id">TEAM-001</div>
+            <h3>You've been invited to join Ream</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Maria Lopez invited you to Ream as a Sales agent</div>
+        <div class="body">Inviting admin's name, role granted, single-use accept link. Expires per admin's setting (1/7/30 days).</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>invite.created</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon team"><i class="ri-user-star-line"></i></div>
+          <div class="meta">
+            <div class="id">TEAM-002</div>
+            <h3>Your role was updated</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>Your Ream role is now Manager — Sales</div>
+        <div class="body">Old role, new role, who changed it, when. Audit-trail email — cannot be unsubscribed.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>user.role_changed</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon team"><i class="ri-at-line"></i></div>
+          <div class="meta">
+            <div class="id">TEAM-003</div>
+            <h3>You were assigned a prospect</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag notification">notification</span></div>
+        <div class="subject"><span class="label">Subject</span>New prospect for you: Jordan E. — pre-qualified</div>
+        <div class="body">Prospect summary, pre-qual budget, urgency tag. Direct deep-link into the prospect detail.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>prospect.assigned</code></span>
+          <span class="timing">immediate</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- ENGAGEMENT                                     -->
+  <!-- ============================================== -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Engagement</h2>
+      <span class="count">3 emails</span>
+      <span class="desc">Marketing &amp; relationship — opt-out respected.</span>
+    </div>
+    <div class="grid">
+      <article class="email-card">
+        <div class="top">
+          <div class="icon eng"><i class="ri-mail-star-line"></i></div>
+          <div class="meta">
+            <div class="id">ENG-001</div>
+            <h3>Welcome to Ream</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag transactional">transactional</span></div>
+        <div class="subject"><span class="label">Subject</span>Welcome to Ream — here's how to find your place</div>
+        <div class="body">First-touch email after email-verification. 3 next-step CTAs: browse, pre-qualify, talk to advisor.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>user.email_verified</code></span>
+          <span class="timing">+5 min</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon eng"><i class="ri-cake-3-line"></i></div>
+          <div class="meta">
+            <div class="id">ENG-002</div>
+            <h3>Anniversary &amp; milestones</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag marketing">marketing</span></div>
+        <div class="subject"><span class="label">Subject</span>One year as a Ream owner — here's your equity update</div>
+        <div class="body">Celebrate ownership milestones (1y, 5y, 50% paid, paid-off). Equity built, value-trend snapshot.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>customer.milestone</code></span>
+          <span class="timing">on milestone</span>
+        </div>
+      </article>
+
+      <article class="email-card">
+        <div class="top">
+          <div class="icon eng"><i class="ri-share-forward-line"></i></div>
+          <div class="meta">
+            <div class="id">ENG-003</div>
+            <h3>Refer a friend</h3>
+          </div>
+        </div>
+        <div class="tags"><span class="tag marketing">marketing</span></div>
+        <div class="subject"><span class="label">Subject</span>Get $250 when a friend joins Ream</div>
+        <div class="body">Personal referral link, terms, current referral count. Suppressed for delinquent accounts.</div>
+        <div class="footer-row">
+          <span class="trigger">Trigger · <code>customer.engagement_window</code></span>
+          <span class="timing">quarterly</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Filter bar (visual only)
+  document.querySelectorAll('.filter-bar button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>

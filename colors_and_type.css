@@ -1,0 +1,389 @@
+/* ============================================================
+   REAM — Design Tokens
+   Reconstructed on a shadcn/ui foundation (HSL primitives + light/dark)
+   with a full Untitled-UI–style scale layer on top so existing
+   screens keep working without rewrites.
+
+   Layers, top to bottom:
+     1. Fonts (web fonts + family stacks)
+     2. shadcn semantic primitives (HSL, --background / --primary / etc.)
+     3. Untitled-UI scale aliases (--color-brand-50 … --color-grey-900)
+     4. Foreground / surface / border roles (--fg1, --bg-canvas, --border-*)
+     5. Typography presets (--text-body)
+     6. Radius + shadow tokens
+     7. Namespaced palettes used by specific sections
+          --pub-*  (public / marketing pages)
+          --v2-*   (v2 component refresh)
+          --adm-*  (admin console)
+          --brand-*, --chip-*, --rh-*, --seal-*, --il-*, --rail-*
+     8. Dark theme overrides (opt-in via [data-theme="dark"] or .dark)
+
+   Brand: Violet 600 (#7c3aed) — preserves the original purple identity.
+   Neutral: Slate.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* =========================================================
+   1. shadcn semantic primitives — light theme defaults
+   Values use the HSL "H S% L%" form so colors can be composed
+   with `hsl(var(--primary) / 0.5)`.
+   ========================================================= */
+:root {
+  /* shadcn core */
+  --background:            0 0% 100%;
+  --foreground:            222 47% 11%;
+
+  --card:                  0 0% 100%;
+  --card-foreground:       222 47% 11%;
+  --popover:               0 0% 100%;
+  --popover-foreground:    222 47% 11%;
+
+  --primary:               262 83% 58%;   /* violet-600  #7c3aed */
+  --primary-foreground:    0 0% 100%;
+
+  --secondary:             210 40% 96%;
+  --secondary-foreground:  222 47% 11%;
+
+  --muted:                 210 40% 96%;
+  --muted-foreground:      215 16% 47%;
+
+  --accent:                210 40% 96%;
+  --accent-foreground:     222 47% 11%;
+
+  --destructive:           0 84% 60%;
+  --destructive-foreground:0 0% 100%;
+
+  --success:               142 71% 45%;
+  --success-foreground:    0 0% 100%;
+  --warning:               38 92% 50%;
+  --warning-foreground:    222 47% 11%;
+  --info:                  217 91% 60%;
+  --info-foreground:       0 0% 100%;
+
+  --border:                214 32% 91%;
+  --input:                 214 32% 91%;
+  --ring:                  262 83% 58%;
+
+  --radius: 0.5rem;
+
+  /* =========================================================
+     2. Fonts
+     ========================================================= */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif:   'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-button:  var(--font-sans);
+  --font:         var(--font-sans);
+
+  /* =========================================================
+     3. Untitled-UI scale aliases — Brand (Violet)
+     Anchored on Tailwind Violet so visual intent matches the
+     original purple identity. All 25 → 950 stops included.
+     ========================================================= */
+  --color-base-white:  #ffffff;
+
+  --color-brand-25:   #fbfaff;
+  --color-brand-50:   #f5f3ff;
+  --color-brand-100:  #ede9fe;
+  --color-brand-200:  #ddd6fe;
+  --color-brand-300:  #c4b5fd;
+  --color-brand-400:  #a78bfa;
+  --color-brand-500:  #8b5cf6;
+  --color-brand-600:  #7c3aed;
+  --color-brand-700:  #6d28d9;
+  --color-brand-800:  #5b21b6;
+  --color-brand-900:  #4c1d95;
+  --color-brand-950:  #2e1065;
+  --color-brand-deep: #1d0a4f;
+
+  /* Grey (Slate) — 25 → 900 */
+  --color-grey-25:   #fcfcfd;
+  --color-grey-50:   #f9fafb;
+  --color-grey-100:  #f3f4f6;
+  --color-grey-200:  #e5e7eb;
+  --color-grey-300:  #d1d5db;
+  --color-grey-400:  #9ca3af;
+  --color-grey-500:  #6b7280;
+  --color-grey-600:  #4b5563;
+  --color-grey-700:  #374151;
+  --color-grey-800:  #1f2937;
+  --color-grey-900:  #111827;
+
+  /* Success (Emerald) */
+  --color-success-50:   #ecfdf5;
+  --color-success-100:  #d1fae5;
+  --color-success-200:  #a7f3d0;
+  --color-success-300:  #6ee7b7;
+  --color-success-400:  #34d399;
+  --color-success-500:  #10b981;
+  --color-success-600:  #059669;
+  --color-success-700:  #047857;
+  --color-success-800:  #065f46;
+  --color-success-900:  #064e3b;
+
+  /* Warning (Amber) */
+  --color-warning-50:   #fffbeb;
+  --color-warning-100:  #fef3c7;
+  --color-warning-200:  #fde68a;
+  --color-warning-300:  #fcd34d;
+  --color-warning-400:  #fbbf24;
+  --color-warning-500:  #f59e0b;
+  --color-warning-600:  #d97706;
+  --color-warning-700:  #b45309;
+  --color-warning-800:  #92400e;
+  --color-warning-900:  #78350f;
+
+  /* Error (Red) */
+  --color-error-50:   #fef2f2;
+  --color-error-100:  #fee2e2;
+  --color-error-200:  #fecaca;
+  --color-error-300:  #fca5a5;
+  --color-error-400:  #f87171;
+  --color-error-500:  #ef4444;
+  --color-error-600:  #dc2626;
+  --color-error-700:  #b91c1c;
+  --color-error-800:  #991b1b;
+  --color-error-900:  #7f1d1d;
+
+  /* Danger = Error aliases */
+  --color-danger-50:   var(--color-error-50);
+  --color-danger-200:  var(--color-error-200);
+  --color-danger-700:  var(--color-error-700);
+
+  /* Blue */
+  --color-blue-50:   #eff6ff;
+  --color-blue-100:  #dbeafe;
+  --color-blue-200:  #bfdbfe;
+  --color-blue-300:  #93c5fd;
+  --color-blue-500:  #3b82f6;
+  --color-blue-600:  #2563eb;
+  --color-blue-700:  #1d4ed8;
+  --color-blue-800:  #1e40af;
+
+  /* Orange */
+  --color-orange-50:   #fff7ed;
+  --color-orange-100:  #ffedd5;
+  --color-orange-600:  #ea580c;
+  --color-orange-700:  #c2410c;
+
+  /* Pink + Purple accents */
+  --color-pink-600:   #db2777;
+  --color-pink-700:   #be185d;
+  --color-purple-700: #6d28d9;
+
+  /* =========================================================
+     4. Foreground / surface / border roles
+     ========================================================= */
+  --fg0: var(--color-grey-900);
+  --fg1: var(--color-grey-800);
+  --fg2: var(--color-grey-700);
+  --fg3: var(--color-grey-500);
+  --fg4: var(--color-grey-400);
+
+  --ink-1: var(--color-grey-900);
+  --ink-2: var(--color-grey-700);
+  --ink-3: var(--color-grey-500);
+  --ink-4: var(--color-grey-400);
+
+  --bg-canvas: var(--color-grey-50);
+  --bg2:       var(--color-grey-100);
+  --canvas:    var(--color-grey-50);
+  --canvas-2:  var(--color-grey-100);
+  --paper:     var(--color-base-white);
+
+  --border-default: var(--color-grey-200);
+  --border-subtle:  var(--color-grey-100);
+  --line:           var(--color-grey-200);
+  --line-soft:      var(--color-grey-100);
+
+  /* =========================================================
+     5. Typography presets
+     ========================================================= */
+  --text-body: 400 14px/1.5 var(--font-sans);
+
+  /* =========================================================
+     6. Radius + shadow
+     ========================================================= */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-full: 999px;
+
+  --shadow-xs:           0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-md:           0 4px 8px -2px rgba(16, 24, 40, 0.10), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-xl:           0 20px 24px -4px rgba(16, 24, 40, 0.08), 0 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-card:         0 1px 3px 0 rgba(16, 24, 40, 0.06), 0 1px 2px 0 rgba(16, 24, 40, 0.04);
+  --shadow-card-hover:   0 8px 20px -8px rgba(82, 49, 200, 0.18), 0 2px 4px -2px rgba(16, 24, 40, 0.05);
+  --shadow-pop:          0 12px 30px -8px rgba(16, 24, 40, 0.15);
+  --shadow-focus-brand:  0 0 0 4px rgba(124, 58, 237, 0.18);
+
+  /* =========================================================
+     7. Namespaced palettes
+     ========================================================= */
+
+  /* Alt brand naming used by some components */
+  --brand:      var(--color-brand-600);
+  --brand-2:    var(--color-brand-700);
+  --brand-fg:   var(--color-base-white);
+  --brand-soft: var(--color-brand-50);
+
+  /* Public / marketing pages — warmer, magazine-feel surface */
+  --pub-brand:      var(--color-brand-700);
+  --pub-brand-2:    var(--color-brand-900);
+  --pub-brand-soft: var(--color-brand-50);
+  --pub-canvas:     #fbfaf7;
+  --pub-canvas-2:   #f3efe7;
+  --pub-paper:      #ffffff;
+  --pub-ink-1:      #1a1714;
+  --pub-ink-2:      #3a342e;
+  --pub-ink-3:      #6a635a;
+  --pub-ink-4:      #a39c93;
+  --pub-line:       #e6e1d6;
+  --pub-line-soft:  #efeae0;
+  --pub-success:    var(--color-success-600);
+  --pub-warm:       #d4a574;
+  --pub-warm-2:     #b8854a;
+  --pub-max:        1200px;
+  --pub-pad:        24px;
+
+  /* v2 component palette — used by browse-v2, prospect-detail-v2, etc. */
+  --v2-canvas:        var(--color-grey-50);
+  --v2-paper:         var(--color-base-white);
+  --v2-fg:            var(--color-grey-900);
+  --v2-fg-muted:      var(--color-grey-600);
+  --v2-fg-soft:       var(--color-grey-500);
+  --v2-line:          var(--color-grey-200);
+  --v2-line-strong:   var(--color-grey-300);
+  --v2-accent:        var(--color-brand-600);
+  --v2-accent-soft:   var(--color-brand-50);
+  --v2-accent-strong: var(--color-brand-700);
+  --v2-rose:          #fb7185;
+  --v2-rose-strong:   #e11d48;
+  --v2-success:       var(--color-success-600);
+  --v2-radius:        8px;
+  --v2-radius-lg:     12px;
+  --v2-shadow:        var(--shadow-card);
+  --v2-shadow-soft:   var(--shadow-xs);
+
+  /* Admin console palette */
+  --adm-bg:         var(--color-grey-50);
+  --adm-bg-2:       var(--color-grey-100);
+  --adm-surface:    var(--color-base-white);
+  --adm-sidebar:    var(--color-grey-900);
+  --adm-stripe:     var(--color-grey-50);
+  --adm-border:     var(--color-grey-200);
+  --adm-border-2:   var(--color-grey-300);
+  --adm-text-1:     var(--color-grey-900);
+  --adm-text-2:     var(--color-grey-700);
+  --adm-text-3:     var(--color-grey-500);
+  --adm-text-4:     var(--color-grey-400);
+  --adm-accent-50:  var(--color-brand-50);
+  --adm-accent-200: var(--color-brand-200);
+  --adm-accent-700: var(--color-brand-700);
+  --adm-ok:         var(--color-success-600);
+  --adm-ok-50:      var(--color-success-50);
+  --adm-ok-700:     var(--color-success-700);
+  --adm-warn:       var(--color-warning-600);
+  --adm-warn-50:    var(--color-warning-50);
+  --adm-warn-700:   var(--color-warning-700);
+  --adm-danger:     var(--color-error-600);
+  --adm-danger-50:  var(--color-error-50);
+  --adm-danger-700: var(--color-error-700);
+
+  /* Chip component */
+  --chip-bg:        var(--color-grey-100);
+  --chip-bg-hover:  var(--color-grey-200);
+  --chip-bd:        var(--color-grey-200);
+  --chip-fg:        var(--color-grey-700);
+  --chip-chev:      var(--color-grey-500);
+  --chip-when:      var(--color-grey-500);
+  --chip-ring-bg:   var(--color-brand-50);
+  --chip-ring-bd:   var(--color-brand-200);
+  --chip-ring-fg:   var(--color-brand-700);
+
+  /* Row-hero / seal / il / rail */
+  --rh-bg-1:    var(--color-grey-50);
+  --rh-ico-bg:  var(--color-brand-50);
+  --rh-ico-fg:  var(--color-brand-700);
+  --rh-tag-fg:  var(--color-grey-600);
+
+  --seal-bg:    var(--color-warning-50);
+  --seal-fg:    var(--color-warning-700);
+  --seal-ring:  var(--color-warning-200);
+
+  --il-pad-x:   16px;
+  --il-pad-y:   12px;
+  --il-rail-w:  280px;
+
+  --rail-w:     240px;
+  --rail-gap:   16px;
+
+  /* Layout / misc */
+  --main:    var(--color-base-white);
+  --side:    var(--color-grey-50);
+  --max:     1440px;
+  --pad-x:   24px;
+  --container: 1200px;
+  --steps:   var(--color-grey-200);
+  --score:   var(--color-success-600);
+  --ang:     135deg;
+  --bold-grad: linear-gradient(135deg, var(--color-brand-700), var(--color-brand-500));
+
+  /* Plain shorthands */
+  --c1:      var(--color-grey-900);
+  --c2:      var(--color-grey-600);
+
+  /* Design canvas */
+  --dc-inv-zoom: 1;
+}
+
+/* =========================================================
+   8. Dark theme — opt-in via [data-theme="dark"] or .dark
+   Existing pages don't ship a global toggle, but the tokens
+   are here for the settings preview and any future toggle.
+   ========================================================= */
+:root[data-theme="dark"],
+.dark {
+  --background:            222 47% 6%;
+  --foreground:            210 40% 98%;
+  --card:                  222 47% 9%;
+  --card-foreground:       210 40% 98%;
+  --popover:               222 47% 9%;
+  --popover-foreground:    210 40% 98%;
+
+  --primary:               262 83% 68%;
+  --primary-foreground:    222 47% 11%;
+  --secondary:             217 33% 17%;
+  --secondary-foreground:  210 40% 98%;
+  --muted:                 217 33% 17%;
+  --muted-foreground:      215 20% 65%;
+  --accent:                217 33% 17%;
+  --accent-foreground:     210 40% 98%;
+
+  --destructive:           0 63% 50%;
+  --destructive-foreground:210 40% 98%;
+
+  --border:                217 33% 17%;
+  --input:                 217 33% 17%;
+  --ring:                  262 83% 68%;
+
+  --fg0: #f9fafb;
+  --fg1: #e5e7eb;
+  --fg2: #d1d5db;
+  --fg3: #9ca3af;
+  --fg4: #6b7280;
+
+  --bg-canvas: #0b1020;
+  --bg2:       #11172a;
+  --canvas:    #0b1020;
+  --canvas-2:  #11172a;
+  --paper:     #131a2e;
+
+  --border-default: #1f2937;
+  --border-subtle:  #1a2335;
+  --line:           #1f2937;
+  --line-soft:      #1a2335;
+}

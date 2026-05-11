@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Customer detail</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<style>
+  /* Hero */
+  .cd-hero {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 20px; align-items: center;
+    padding-bottom: 18px; border-bottom: 1px solid var(--border-default);
+  }
+  .cd-hero .ava {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font: 700 22px var(--font-sans);
+    background: var(--color-brand-700);
+  }
+  .cd-hero h1 { margin: 0; font: 600 22px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .cd-hero .meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; font: 12.5px var(--font-sans); color: var(--fg3); }
+  .cd-hero .meta i { font-size: 14px; margin-right: 4px; vertical-align: -2px; color: var(--fg4); }
+  .cd-hero .actions { display: flex; gap: 8px; }
+  .cd-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 11px var(--font-sans);
+    padding: 3px 9px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--color-success-50); color: var(--color-success-700);
+  }
+  .cd-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* KPIs */
+  .cd-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .cd-kpis .card { padding: 14px 16px; }
+  .cd-kpis .card-title { font-size: 12px; margin-bottom: 4px; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+  .cd-kpis .card-value { font-size: 22px; font-weight: 700; color: var(--color-grey-900); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .cd-kpis .delta { font-size: 11px; margin-top: 4px; }
+  .cd-kpis .delta.up   { color: var(--color-success-600); }
+  .cd-kpis .delta.muted{ color: var(--fg3); }
+
+  /* Tabs */
+  .cd-tabs { display: flex; gap: 2px; margin-top: 18px; border-bottom: 1px solid var(--border-default); padding: 0 0 0 0; }
+  .cd-tab {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 10px 14px; font: 500 13px var(--font-sans); color: var(--fg3);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cd-tab i { font-size: 15px; }
+  .cd-tab:hover { color: var(--color-grey-900); }
+  .cd-tab.on { color: var(--color-brand-700); border-bottom-color: var(--color-brand-700); font-weight: 600; }
+  .cd-tab .cnt {
+    font: 600 10.5px var(--font-sans);
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    padding: 1px 7px; border-radius: 999px; margin-left: 2px;
+  }
+  .cd-tab.on .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+  .cd-pane[hidden] { display: none; }
+  .cd-pane { padding-top: 18px; }
+  .cd-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
+  .cd-grid > section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .cd-stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Collapsible panel */
+  .cd-panel { background: white; border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden; }
+  .cd-panel > header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer; user-select: none;
+  }
+  .cd-panel > header:hover { background: var(--color-grey-50); }
+  .cd-panel > header h3 { margin: 0; flex: 1; font: 600 13px var(--font-sans); color: var(--color-grey-900); display: inline-flex; align-items: center; gap: 8px; }
+  .cd-panel > header h3 i.lead { color: var(--fg3); font-size: 15px; }
+  .cd-panel > header .meta { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+  .cd-panel > header .meta a { color: var(--color-brand-600); text-decoration: none; }
+  .cd-panel > header .meta a:hover { text-decoration: underline; }
+  .cd-panel > header .chev {
+    color: var(--fg4); font-size: 16px; transition: transform .18s ease;
+  }
+  .cd-panel.collapsed > header { border-bottom: 0; }
+  .cd-panel.collapsed > header .chev { transform: rotate(-90deg); }
+  .cd-panel.collapsed > .body { display: none; }
+  .cd-panel > .body { padding: 14px 16px; }
+  .cd-panel > .body.flush { padding: 0; }
+
+  /* KV */
+  .cd-kv { display: grid; grid-template-columns: 130px 1fr; gap: 10px 16px; font: 13px var(--font-sans); }
+  .cd-kv dt { color: var(--fg3); font-weight: 500; }
+  .cd-kv dd { margin: 0; color: var(--color-grey-900); }
+  .cd-kv dd a { color: var(--color-brand-600); text-decoration: none; }
+  .cd-kv dd a:hover { text-decoration: underline; }
+  .cd-pill-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cd-pill-list .pill { font: 500 11.5px var(--font-sans); background: var(--color-grey-100); color: var(--color-grey-800); padding: 3px 9px; border-radius: 999px; }
+
+  /* Activity */
+  .cd-activity { display: flex; flex-direction: column; }
+  .cd-activity .item { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .cd-activity .item:last-child { border-bottom: 0; }
+  .cd-activity .ic { width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; background: var(--color-grey-100); color: var(--color-grey-700); }
+  .cd-activity .ic[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .cd-activity .ic[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .cd-activity .ic[data-tone="brand"]   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .cd-activity .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); line-height: 1.3; }
+  .cd-activity .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.35; }
+  .cd-activity .when { font: 500 11.5px var(--font-sans); color: var(--fg3); white-space: nowrap; }
+
+  /* Property cards (image-led) */
+  .cd-props { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .cd-prop {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    transition: box-shadow .15s, transform .15s;
+  }
+  .cd-prop:hover { box-shadow: 0 6px 18px rgba(15,23,42,.08); transform: translateY(-1px); }
+  .cd-prop .img {
+    aspect-ratio: 4 / 3; position: relative; overflow: hidden;
+    background-position: center; background-size: cover;
+  }
+  .cd-prop[data-img="sunridge"] .img { background: linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%); }
+  .cd-prop[data-img="eastview"] .img { background: linear-gradient(180deg, #134e4a 0%, #34d399 50%, #84cc16 100%); }
+  .cd-prop[data-img="hillside"] .img { background: linear-gradient(180deg, #0e7490 0%, #67e8f9 45%, #fde68a 100%); }
+  .cd-prop .img::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(120% 60% at 50% 100%, rgba(0,0,0,.18), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' preserveAspectRatio='none'><path d='M0,420 C120,360 240,460 380,420 C520,380 640,440 800,400 L800,600 L0,600 Z' fill='%23000' fill-opacity='0.18'/><path d='M0,470 C160,430 280,500 420,470 C560,440 680,490 800,460 L800,600 L0,600 Z' fill='%23000' fill-opacity='0.22'/></svg>");
+    background-size: cover;
+  }
+  .cd-prop .badge {
+    position: absolute; top: 12px; left: 12px; z-index: 1;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; padding: 6px 12px; border-radius: 999px;
+    font: 700 11px var(--font-sans); letter-spacing: 0.06em;
+    color: var(--color-grey-900); box-shadow: 0 2px 6px rgba(15,23,42,.10);
+  }
+  .cd-prop .badge i { font-size: 14px; color: var(--color-success-600); }
+  .cd-prop .badge[data-tone="financed"] i { color: var(--color-brand-600); }
+  .cd-prop .badge[data-tone="reserved"] i { color: var(--color-warning-700); }
+  .cd-prop .body { padding: 18px 20px 4px; display: flex; flex-direction: column; gap: 10px; }
+  .cd-prop .eyebrow { font: 600 11.5px var(--font-sans); color: var(--fg3); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cd-prop h4 { margin: 0; font: 700 19px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; line-height: 1.2; }
+  .cd-prop .loc { display: inline-flex; align-items: center; gap: 6px; font: 14px var(--font-sans); color: var(--color-grey-700); }
+  .cd-prop .loc i { color: var(--fg4); font-size: 16px; }
+  .cd-prop .specs { display: inline-flex; flex-wrap: wrap; gap: 4px 16px; font: 14px var(--font-sans); margin-top: 2px; }
+  .cd-prop .specs .num { color: var(--color-grey-900); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .cd-prop .specs .lab { color: var(--fg3); margin-left: 4px; }
+  .cd-prop .specs .tag { color: var(--color-grey-900); font-weight: 600; }
+  .cd-prop .divider { height: 1px; background: var(--border-subtle); margin: 10px 20px 0; }
+  .cd-prop .price-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 14px 20px 18px; gap: 12px;
+  }
+  .cd-prop .price { font: 700 26px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .cd-prop .price-meta { text-align: right; font: 14px var(--font-sans); color: var(--color-grey-700); line-height: 1.5; }
+  .cd-prop .price-meta b { color: var(--color-grey-900); font-weight: 700; }
+
+  /* Financing strip — appears on cards with an active loan or deposit */
+  .cd-prop .fin {
+    margin: 0 20px 18px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--color-grey-50);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .cd-prop .fin-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font: 600 11.5px var(--font-sans); color: var(--fg3);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .cd-prop .fin-head a { color: var(--color-brand-600); text-decoration: none; font-weight: 600; letter-spacing: 0; text-transform: none; font-size: 12px; }
+  .cd-prop .fin-head a:hover { text-decoration: underline; }
+  .cd-prop .fin-bar { height: 6px; border-radius: 3px; background: var(--color-grey-200); overflow: hidden; }
+  .cd-prop .fin-bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--color-brand-500, #3b82f6), var(--color-brand-700, #1d4ed8)); border-radius: 3px; }
+  .cd-prop .fin[data-tone="reserved"] .fin-bar > span { background: linear-gradient(90deg, var(--color-warning-500, #f59e0b), var(--color-warning-700, #b45309)); }
+  .cd-prop .fin-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 14px;
+    font: 12.5px var(--font-sans);
+  }
+  .cd-prop .fin-grid .k { color: var(--fg3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+  .cd-prop .fin-grid .v { color: var(--color-grey-900); font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 1px; }
+  .cd-prop .fin-grid .v.warn { color: var(--color-warning-700); }
+  .cd-prop .fin-grid .v.err { color: #991b1b; }
+  .cd-prop .fin-grid .v.ok { color: var(--color-success-700); }
+  .cd-prop .fin-flag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 11px var(--font-sans);
+    padding: 4px 9px; border-radius: 999px;
+    background: #fee2e2; color: #991b1b;
+  }
+  .cd-prop .fin-flag i { font-size: 12px; }
+
+  /* Documents */
+  .cd-docs { display: flex; flex-direction: column; }
+  .cd-docs .doc { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .cd-docs .doc:last-child { border-bottom: 0; }
+  .cd-docs .doc i.lead { font-size: 16px; color: var(--fg3); }
+  .cd-docs .doc .nm { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+  .cd-docs .doc .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .cd-docs .pill { font: 600 10.5px var(--font-sans); padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cd-docs .pill[data-state="received"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .cd-docs .pill[data-state="awaiting"] { background: var(--color-warning-50); color: var(--color-warning-700); }
+
+  /* Quick-add note popover */
+  .cd-note-pop {
+    position: absolute; top: calc(100% + 6px); right: 0; width: 360px; z-index: 30;
+    background: white; border: 1px solid var(--border-default); border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15,23,42,.16); padding: 12px;
+  }
+  .cd-note-pop[hidden] { display: none; }
+  .cd-note-pop textarea {
+    width: 100%; min-height: 88px; resize: vertical; box-sizing: border-box;
+    border: 1px solid var(--color-grey-200); border-radius: 8px;
+    padding: 10px 12px; font: 13px var(--font-sans); color: var(--color-grey-900); outline: none;
+  }
+  .cd-note-pop textarea:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .cd-note-pop .row { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+  .cd-note-pop .row .grow { flex: 1; }
+  .cd-note-pop .lab { font: 600 12px var(--font-sans); color: var(--color-grey-900); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .cd-note-pop .lab i { color: var(--color-brand-600); }
+  .cd-hero .actions { position: relative; }
+
+  /* Wrapper-less section header */
+  .cd-act-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .cd-act-head h3 { margin: 0; font: 600 14px var(--font-sans); color: var(--color-grey-900); display: inline-flex; align-items: center; gap: 8px; }
+  .cd-act-head h3 i { color: var(--fg3); font-size: 16px; }
+  .cd-act-head h3 .sub { font: 500 12px var(--font-sans); color: var(--fg3); margin-left: 4px; }
+  .cd-act-head .meta { font: 500 12px var(--font-sans); color: var(--fg3); display: inline-flex; align-items: center; }
+  .cd-act-head .meta a { color: var(--color-brand-600); text-decoration: none; }
+
+  /* Wrapper-less docs/activity */
+  .cd-pane > .cd-activity, .cd-pane > .cd-docs, .cd-activity-bare > .cd-activity {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden;
+  }
+  /* Wrapper-less variant: no border, rows divide on a single hairline */
+  .cd-pane > .cd-docs.cd-docs--bare {
+    background: transparent; border: 0; border-radius: 0; overflow: visible;
+  }
+  .cd-docs.cd-docs--bare .doc { padding: 12px 4px; border-bottom: 1px solid var(--border-subtle); }
+  .cd-docs.cd-docs--bare .doc:last-child { border-bottom: 0; }
+  .cd-activity-bare { margin-top: 18px; }
+
+  /* Composer */
+  .cd-composer {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 10px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .cd-comp-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border-subtle); margin: -4px -4px 0; padding: 0 4px; }
+  .cd-comp-tab {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 8px 12px; font: 500 12.5px var(--font-sans); color: var(--fg3);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cd-comp-tab i { font-size: 14px; }
+  .cd-comp-tab:hover { color: var(--color-grey-900); }
+  .cd-comp-tab.on { color: var(--color-brand-700); border-bottom-color: var(--color-brand-700); font-weight: 600; }
+  .cd-composer textarea {
+    width: 100%; min-height: 72px; resize: vertical; box-sizing: border-box;
+    border: 1px solid var(--color-grey-200); border-radius: 8px;
+    padding: 10px 12px; font: 13px var(--font-sans); color: var(--color-grey-900);
+    background: white; outline: none;
+  }
+  .cd-composer textarea:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .cd-comp-foot { display: flex; align-items: center; gap: 6px; }
+  .cd-comp-foot .ico {
+    background: transparent; border: 1px solid var(--border-default); border-radius: 6px;
+    width: 30px; height: 30px; cursor: pointer; color: var(--fg3); font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .cd-comp-foot .ico:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+
+  /* Dependents block on the profile card (mirrors prospect-detail .pf-deps) */
+  .pf-deps { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-subtle); display: flex; flex-direction: column; gap: 8px; }
+  .pf-deps-head { display: flex; align-items: center; justify-content: space-between; }
+  .pf-deps-title { display: inline-flex; align-items: center; gap: 6px; font: 600 11px var(--font-sans); text-transform: uppercase; letter-spacing: .04em; color: var(--fg3); }
+  .pf-deps-title i { font-size: 13px; color: var(--fg4); }
+  .pf-deps-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--color-grey-100); color: var(--color-grey-700); font: 600 10px var(--font-sans); letter-spacing: 0; text-transform: none; }
+  .pf-deps-add { width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border-default); background: var(--color-grey-25, #fafafa); color: var(--fg3); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .pf-deps-add:hover { background: var(--color-brand-50); color: var(--color-brand-700); border-color: var(--color-brand-200); }
+  .pf-deps-add i { font-size: 13px; }
+  .pf-deps-list { display: flex; flex-direction: column; gap: 6px; }
+  .pf-dep { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 8px 8px 8px 6px; border-radius: 8px; transition: background 120ms ease; }
+  .pf-dep:hover { background: var(--color-grey-25, #fafafa); }
+  .pf-dep-ava { width: 28px; height: 28px; border-radius: 50%; color: white; display: inline-flex; align-items: center; justify-content: center; font: 600 11px var(--font-sans); flex: 0 0 auto; }
+  .pf-dep-meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .pf-dep-line1 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .pf-dep-name { font: 500 13px var(--font-sans); color: var(--color-grey-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pf-dep-rel { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 4px; background: var(--color-grey-100); color: var(--color-grey-700); font: 500 10px var(--font-sans); flex: 0 0 auto; }
+  .pf-dep-line2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--fg3); min-width: 0; }
+  .pf-dep-line2 a { color: var(--color-brand-600); text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+  .pf-dep-line2 a:hover { text-decoration: underline; }
+  .pf-dep-line2 .pf-dep-phone { display: inline-flex; align-items: center; gap: 3px; color: var(--color-grey-800); }
+  .pf-dep-line2 i { font-size: 11px; color: var(--fg4); }
+  .pf-dep-line2 .pf-dep-dot { color: var(--fg4); }
+  .pf-dep-line2 .pf-dep-empty { color: var(--fg4); font-style: italic; }
+  .pf-dep-edit { width: 24px; height: 24px; border-radius: 5px; background: transparent; border: 1px solid transparent; color: var(--fg4); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 120ms ease, background 120ms ease, color 120ms ease; }
+  .pf-dep:hover .pf-dep-edit { opacity: 1; }
+  .pf-dep-edit:hover { background: var(--color-grey-50); color: var(--color-grey-800); border-color: var(--border-subtle); }
+  .pf-dep-edit i { font-size: 13px; }
+
+  .pf-dep-editor { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--color-brand-300); border-radius: 8px; background: var(--color-brand-25, #faf7ff); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .pf-dep-editor .pf-de-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pf-dep-editor label { font: 500 10px var(--font-sans); color: var(--fg3); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .03em; }
+  .pf-dep-editor input, .pf-dep-editor select { width: 100%; box-sizing: border-box; border: 1px solid var(--border-default); border-radius: 6px; padding: 6px 8px; font: 13px var(--font-sans); color: var(--color-grey-800); background: white; }
+  .pf-dep-editor input:focus, .pf-dep-editor select:focus { outline: none; border-color: var(--color-brand-600); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .pf-dep-editor input.bad { border-color: var(--color-error-500, #e1483a); }
+  .pf-dep-editor .pf-de-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
+  .pf-dep-editor .pf-de-actions .left, .pf-dep-editor .pf-de-actions .right { display: inline-flex; gap: 6px; }
+  .pf-dep-editor button { font: 500 12px var(--font-sans); padding: 5px 10px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
+  .pf-dep-editor .pf-de-save { background: var(--color-brand-600); color: white; border-color: var(--color-brand-600); }
+  .pf-dep-editor .pf-de-save:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .pf-dep-editor .pf-de-cancel { background: white; color: var(--color-grey-700); border-color: var(--border-default); }
+  .pf-dep-editor .pf-de-cancel:hover { background: var(--color-grey-50); }
+  .pf-dep-editor .pf-de-delete { background: white; color: var(--color-error-700, #b42318); border-color: var(--color-error-200, #fecdca); }
+  .pf-dep-editor .pf-de-delete:hover { background: #fef3f2; }
+</style>
+</head>
+<body>
+<div data-screen-label="Customer Detail">
+  <div class="app">
+
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta"><span class="org-name">Goldcrest Realty</span><span class="org-plan">Growth · Accra</span></span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+        </div>
+      </div>
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item active" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-text-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+      <button type="button" class="user with-menu"><span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span><span class="meta"><span class="name">Kevin Manga</span><span class="role-row"><span class="role-chip">Admin / Owner</span></span></span><i class="ri-expand-up-down-line more"></i></button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a><span class="sep">/</span>
+          <a href="customers.html">Customers</a><span class="sep">/</span>
+          <span class="current">Anna Thompson</span>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- Hero -->
+        <div class="cd-hero">
+          <span class="ava">AT</span>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h1>Anna Thompson</h1>
+              <span class="cd-status"><span class="dot"></span> On track</span>
+            </div>
+            <div class="meta">
+              <span><i class="ri-mail-line"></i> anna.t@example.com</span>
+              <span><i class="ri-phone-line"></i> +233 24 555 0118</span>
+              <span><i class="ri-map-pin-line"></i> Sunridge · Lot 14B</span>
+              <span><i class="ri-user-star-line"></i> Agent: Jordan Evans</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnRequestDoc"><i class="ri-file-add-line"></i> Request document</button>
+            <button class="btn btn-primary" id="btnAddActivity"><i class="ri-add-line"></i> Add activity</button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="cd-kpis">
+          <div class="card"><div class="card-title">Properties</div><div class="card-value">3</div><div class="delta muted">2 land · 1 house</div></div>
+          <div class="card"><div class="card-title">Total value</div><div class="card-value">$148,500</div><div class="delta up">+$8.4k YoY</div></div>
+          <div class="card"><div class="card-title">Outstanding</div><div class="card-value">$48,200</div><div class="delta muted">across 1 active loan</div></div>
+          <div class="card"><div class="card-title">On-time rate</div><div class="card-value">100%</div><div class="delta up">12 of 12 payments</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="cd-tabs" role="tablist" id="cdTabs">
+          <button class="cd-tab on" data-tab="overview"><i class="ri-layout-line"></i> Overview</button>
+          <button class="cd-tab" data-tab="properties"><i class="ri-landscape-line"></i> Properties <span class="cnt">3</span></button>
+          <button class="cd-tab" data-tab="activity"><i class="ri-pulse-line"></i> Activity <span class="cnt">12</span></button>
+          <button class="cd-tab" data-tab="documents"><i class="ri-file-text-line"></i> Documents <span class="cnt">4</span></button>
+        </div>
+
+        <!-- ===== OVERVIEW ===== -->
+        <div class="cd-pane" data-pane="overview">
+          <div class="cd-grid">
+            <section>
+              <div class="cd-panel" data-card="profile">
+                <header><h3><i class="ri-user-line lead"></i> Profile</h3><span class="meta"><a href="#" onclick="event.stopPropagation();">Edit</a></span><i class="ri-arrow-down-s-line chev"></i></header>
+                <div class="body">
+                  <dl class="cd-kv">
+                    <dt>Email</dt>    <dd><a href="mailto:anna.t@example.com">anna.t@example.com</a></dd>
+                    <dt>Phone</dt>    <dd>+233 24 555 0118</dd>
+                    <dt>WhatsApp</dt> <dd>+233 24 555 0118</dd>
+                    <dt>Address</dt>  <dd>14 Ridge Lane, Accra</dd>
+                    <dt>National ID</dt><dd>GHA-2018-447128</dd>
+                    <dt>Customer since</dt><dd>Apr 12, 2024</dd>
+                  </dl>
+                  <div class="cd-pill-list" style="margin-top: 12px;">
+                    <span class="pill">Auto-debit enrolled</span>
+                    <span class="pill">SMS opt-in</span>
+                    <span class="pill">First-time buyer</span>
+                  </div>
+
+                  <div class="pf-deps" id="profileDeps" data-pf-section="dependents">
+                    <div class="pf-deps-head">
+                      <span class="pf-deps-title"><i class="ri-team-line"></i> Dependents <span class="pf-deps-count" data-pf-deps-count>1</span></span>
+                      <button type="button" class="pf-deps-add" id="profileDepAdd" aria-label="Add dependent" title="Add dependent"><i class="ri-add-line"></i></button>
+                    </div>
+                    <div class="pf-deps-list" id="profileDepsList">
+                      <div class="pf-dep" data-dep-id="d1" data-dep-first="Daniel" data-dep-last="Thompson" data-dep-rel="Spouse" data-dep-email="daniel.t@example.com" data-dep-phone="+233 24 555 0119">
+                        <div class="pf-dep-ava" style="background:#7c3aed;">DT</div>
+                        <div class="pf-dep-meta">
+                          <div class="pf-dep-line1"><span class="pf-dep-name">Daniel Thompson</span><span class="pf-dep-rel">Spouse</span></div>
+                          <div class="pf-dep-line2">
+                            <a href="mailto:daniel.t@example.com" onclick="event.preventDefault();"><i class="ri-mail-line"></i>daniel.t@example.com</a>
+                            <span class="pf-dep-dot">·</span>
+                            <span class="pf-dep-phone"><i class="ri-phone-line"></i>+233 24 555 0119</span>
+                          </div>
+                        </div>
+                        <button type="button" class="pf-dep-edit" aria-label="Edit dependent" title="Edit"><i class="ri-edit-line"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cd-panel" data-card="recentActivity">
+                <header><h3><i class="ri-history-line lead"></i> Recent activity</h3><span class="meta"><a href="#" onclick="event.stopPropagation(); document.querySelector('[data-tab=activity]').click();">All activity →</a></span><i class="ri-arrow-down-s-line chev"></i></header>
+                <div class="body flush cd-activity">
+                  <div class="item">
+                    <span class="ic" data-tone="success"><i class="ri-check-line"></i></span>
+                    <div><div class="ti">Payment of $1,420.00 received</div><div class="sb">Auto-debit · Bank ending 4471</div></div>
+                    <span class="when">Jun 1</span>
+                  </div>
+                  <div class="item">
+                    <span class="ic" data-tone="brand"><i class="ri-mail-send-line"></i></span>
+                    <div><div class="ti">Reminder email sent</div><div class="sb">"Your June 25 payment is on schedule"</div></div>
+                    <span class="when">May 28</span>
+                  </div>
+                  <div class="item">
+                    <span class="ic"><i class="ri-phone-line"></i></span>
+                    <div><div class="ti">Outbound call · 4m 12s</div><div class="sb">Confirmed change of phone number · Jordan Evans</div></div>
+                    <span class="when">May 14</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div class="cd-panel" data-card="team">
+                <header><h3><i class="ri-team-line lead"></i> Assigned team</h3><i class="ri-arrow-down-s-line chev"></i></header>
+                <div class="body">
+                  <dl class="cd-kv">
+                    <dt>Sales agent</dt>      <dd>Jordan Evans</dd>
+                    <dt>Follow-up agent</dt>  <dd>Aïssa Diallo</dd>
+                    <dt>Finance manager</dt>  <dd>Nora Achebe</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="cd-panel" data-card="propertiesSummary">
+                <header><h3><i class="ri-landscape-line lead"></i> Properties</h3><span class="meta"><a href="#" onclick="event.stopPropagation(); document.querySelector('[data-tab=properties]').click();">View all →</a></span><i class="ri-arrow-down-s-line chev"></i></header>
+                <div class="body">
+                  <dl class="cd-kv">
+                    <dt>Land</dt>   <dd>2 plots · $96,500 combined</dd>
+                    <dt>Houses</dt> <dd>1 · Sunridge Lot 14B</dd>
+                    <dt>Active</dt> <dd>1 with financing</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="cd-panel" data-card="docsSummary">
+                <header><h3><i class="ri-file-text-line lead"></i> Documents</h3><span class="meta"><a href="#" onclick="event.stopPropagation(); document.querySelector('[data-tab=documents]').click();">Manage →</a></span><i class="ri-arrow-down-s-line chev"></i></header>
+                <div class="body">
+                  <dl class="cd-kv">
+                    <dt>Received</dt> <dd>3 of 4</dd>
+                    <dt>Upcoming</dt> <dd>Annual income verification · Sep 30</dd>
+                  </dl>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===== PROPERTIES ===== -->
+        <div class="cd-pane" data-pane="properties" hidden>
+          <div class="cd-props">
+
+            <a class="cd-prop" data-kind="house" data-img="sunridge" href="site-detail.html" style="text-decoration:none;">
+              <div class="img"><span class="badge" data-tone="financed"><i class="ri-bank-line"></i> FINANCED</span></div>
+              <div class="body">
+                <div class="eyebrow">SR-14B · HOUSE</div>
+                <h4>Sunridge · Lot 14B</h4>
+                <div class="loc"><i class="ri-map-pin-line"></i> 14 Ridge Lane, Accra</div>
+                <div class="specs">
+                  <span><span class="num">3</span><span class="lab">bed</span></span>
+                  <span><span class="num">2</span><span class="lab">bath</span></span>
+                  <span class="tag">Detached</span>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="price-row">
+                <div class="price">$75,000</div>
+                <div class="price-meta">$26,800 <b>paid</b><br/>of $75,000 · 36% complete</div>
+              </div>
+              <div class="fin" data-tone="financed">
+                <div class="fin-head">
+                  <span><i class="ri-bank-line" style="vertical-align:-2px;"></i> Loan #L-00211 · active</span>
+                  <a onclick="event.preventDefault(); event.stopPropagation(); window.location='loan-detail-admin.html';" href="loan-detail-admin.html">View loan →</a>
+                </div>
+                <div class="fin-bar"><span style="width:36%;"></span></div>
+                <div class="fin-grid">
+                  <div><div class="k">Outstanding</div><div class="v">$48,200</div></div>
+                  <div><div class="k">Monthly payment</div><div class="v">$642 / mo</div></div>
+                  <div><div class="k">Rate · term</div><div class="v">9.5% · 15 yr</div></div>
+                  <div><div class="k">Next due</div><div class="v err">Jun 15 · 2 d late</div></div>
+                </div>
+                <span class="fin-flag"><i class="ri-alert-line"></i> 1 payment overdue</span>
+              </div>
+            </a>
+
+            <a class="cd-prop" data-kind="land" data-img="eastview" href="site-detail.html" style="text-decoration:none;">
+              <div class="img"><span class="badge"><i class="ri-shield-check-line"></i> OWNED</span></div>
+              <div class="body">
+                <div class="eyebrow">EV-027 · LAND</div>
+                <h4>Eastview · Plot 27</h4>
+                <div class="loc"><i class="ri-map-pin-line"></i> Eastview Estate, Accra</div>
+                <div class="specs">
+                  <span><span class="num">600</span><span class="lab">m²</span></span>
+                  <span class="tag">Residential</span>
+                  <span class="tag">Title registered</span>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="price-row">
+                <div class="price">$48,000</div>
+                <div class="price-meta">Acquired<br/><b>Nov 3, 2024</b></div>
+              </div>
+            </a>
+
+            <a class="cd-prop" data-kind="land" data-img="hillside" href="site-detail.html" style="text-decoration:none;">
+              <div class="img"><span class="badge" data-tone="reserved"><i class="ri-time-line"></i> RESERVED</span></div>
+              <div class="body">
+                <div class="eyebrow">HL-009 · LAND</div>
+                <h4>Hillside · Plot 09</h4>
+                <div class="loc"><i class="ri-map-pin-line"></i> Hillside Phase II, Accra</div>
+                <div class="specs">
+                  <span><span class="num">480</span><span class="lab">m²</span></span>
+                  <span class="tag">Residential</span>
+                  <span class="tag">Hilltop</span>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="price-row">
+                <div class="price">$48,500</div>
+                <div class="price-meta">$4,850 <b>deposit paid</b><br/>Reserved <b>May 22</b></div>
+              </div>
+              <div class="fin" data-tone="reserved">
+                <div class="fin-head">
+                  <span><i class="ri-time-line" style="vertical-align:-2px;"></i> Reservation · deposit only</span>
+                  <a onclick="event.preventDefault(); event.stopPropagation();" href="#">Convert to loan →</a>
+                </div>
+                <div class="fin-bar"><span style="width:10%;"></span></div>
+                <div class="fin-grid">
+                  <div><div class="k">Deposit paid</div><div class="v ok">$4,850 · 10%</div></div>
+                  <div><div class="k">Balance due</div><div class="v">$43,650</div></div>
+                  <div><div class="k">Hold expires</div><div class="v warn">Jul 22 · 44 d left</div></div>
+                  <div><div class="k">Financing</div><div class="v">Not yet selected</div></div>
+                </div>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- ===== ACTIVITY ===== -->
+        <div class="cd-pane" data-pane="activity" hidden>
+          <!-- Composer -->
+          <div class="cd-composer kind-note" id="cdComposer">
+            <div class="cd-comp-tabs" id="cdCompTabs">
+              <button class="cd-comp-tab on" data-comp="note"><i class="ri-sticky-note-line"></i> Note</button>
+              <button class="cd-comp-tab" data-comp="call"><i class="ri-phone-line"></i> Call</button>
+              <button class="cd-comp-tab" data-comp="email"><i class="ri-mail-send-line"></i> Email</button>
+              <button class="cd-comp-tab" data-comp="sms"><i class="ri-message-3-line"></i> SMS</button>
+              <button class="cd-comp-tab" data-comp="task"><i class="ri-task-line"></i> Task</button>
+              <button class="cd-comp-tab" data-comp="meeting"><i class="ri-calendar-event-line"></i> Meeting</button>
+              <button class="cd-comp-tab" data-comp="request"><i class="ri-upload-cloud-2-line"></i> Request</button>
+            </div>
+            <textarea id="compText" placeholder="Add a note about Anna…"></textarea>
+            <div class="cd-comp-foot">
+              <button class="ico" title="Attach"><i class="ri-attachment-2"></i></button>
+              <button class="ico" title="Mention"><i class="ri-at-line"></i></button>
+              <button class="ico" title="Insert template"><i class="ri-file-list-3-line"></i></button>
+              <span style="flex:1;"></span>
+              <button class="btn btn-text btn-sm" id="compDiscard">Discard</button>
+              <button class="btn btn-primary btn-sm" id="compPost"><span id="compPostLabel">Save note</span> <i class="ri-arrow-right-line"></i></button>
+            </div>
+          </div>
+
+          <!-- Activity feed (no panel wrapper) -->
+          <div class="cd-activity-bare">
+            <div class="cd-act-head">
+              <h3><i class="ri-pulse-line"></i> All activity <span class="sub">12 events</span></h3>
+              <span class="meta">Most recent first</span>
+            </div>
+            <div class="cd-activity">
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-check-line"></i></span><div><div class="ti">Payment of $1,420.00 received</div><div class="sb">Auto-debit · Bank ending 4471 · cleared 2h later</div></div><span class="when">Jun 1</span></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-mail-send-line"></i></span><div><div class="ti">Reminder email sent</div><div class="sb">"Your June 25 payment is on schedule"</div></div><span class="when">May 28</span></div>
+              <div class="item"><span class="ic"><i class="ri-sticky-note-line"></i></span><div><div class="ti">Note added by Jordan Evans</div><div class="sb">Plans to visit branch in July to discuss prepayment</div></div><span class="when">May 22</span></div>
+              <div class="item"><span class="ic"><i class="ri-phone-line"></i></span><div><div class="ti">Outbound call · 4m 12s</div><div class="sb">Confirmed change of phone number · Jordan Evans</div></div><span class="when">May 14</span></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-file-check-line"></i></span><div><div class="ti">Bank statement received</div><div class="sb">Q1 2025 · 14 pages · auto-verified</div></div><span class="when">Apr 22</span></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-check-line"></i></span><div><div class="ti">Payment of $1,420.00 received</div><div class="sb">Auto-debit · Bank ending 4471</div></div><span class="when">Apr 1</span></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-landscape-line"></i></span><div><div class="ti">Hillside · Plot 09 reserved</div><div class="sb">Deposit of $4,850 received</div></div><span class="when">Mar 22</span></div>
+              <div class="item"><span class="ic"><i class="ri-message-3-line"></i></span><div><div class="ti">WhatsApp conversation · 8 messages</div><div class="sb">Aïssa Diallo · about land deed timing</div></div><span class="when">Mar 18</span></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-check-line"></i></span><div><div class="ti">Payment of $1,420.00 received</div><div class="sb">Auto-debit · Bank ending 4471</div></div><span class="when">Mar 1</span></div>
+              <div class="item"><span class="ic" data-tone="warn"><i class="ri-mail-line"></i></span><div><div class="ti">Pre-payment confirmation sent</div><div class="sb">Customer enrolled in auto-debit</div></div><span class="when">Feb 14</span></div>
+              <div class="item"><span class="ic"><i class="ri-user-add-line"></i></span><div><div class="ti">Customer onboarded</div><div class="sb">Created from prospect by Jordan Evans</div></div><span class="when">Apr 12, 2024</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DOCUMENTS ===== -->
+        <div class="cd-pane" data-pane="documents" hidden>
+          <div class="cd-act-head">
+            <h3><i class="ri-file-text-line"></i> Documents <span class="sub">3 received · 1 upcoming</span></h3>
+            <span class="meta">
+              <button class="btn btn-secondary btn-sm" id="btnRequestDoc2"><i class="ri-file-add-line"></i> Request document</button>
+            </span>
+          </div>
+          <div class="cd-docs cd-docs--bare">
+            <div class="doc"><i class="ri-id-card-line lead"></i><div><div class="nm">National ID</div><div class="sb">Verified · Apr 14, 2024</div></div><span class="pill" data-state="received">Received</span></div>
+            <div class="doc"><i class="ri-bank-line lead"></i><div><div class="nm">Bank statement · Q1 2025</div><div class="sb">14 pages · auto-verified</div></div><span class="pill" data-state="received">Received</span></div>
+            <div class="doc"><i class="ri-file-text-line lead"></i><div><div class="nm">Pay stubs · 2025 H1</div><div class="sb">Submitted Mar 8 · 6 of 6</div></div><span class="pill" data-state="received">Received</span></div>
+            <div class="doc"><i class="ri-shield-check-line lead"></i><div><div class="nm">Annual income verification</div><div class="sb">Due Sep 30, 2025</div></div><span class="pill" data-state="awaiting">Upcoming</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_TABS = 'cd:activeTab';
+  const STORAGE_CARDS = 'cd:cardCollapsed';
+  const customerId = 'anna-thompson';
+
+  function readPrefs() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_CARDS) || '{}'); } catch (e) { return {}; }
+  }
+  function writePrefs(prefs) {
+    try { localStorage.setItem(STORAGE_CARDS, JSON.stringify(prefs)); } catch (e) {}
+  }
+
+  // Toast
+  function toast(msg, kind) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:' + (kind==='success'?'#065f46':'#1f2937') + ';color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s';
+    document.body.appendChild(t); requestAnimationFrame(()=>t.style.opacity='1');
+    setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2200);
+  }
+
+  // -------- Collapsible cards (persisted) --------
+  const prefs = readPrefs();
+  document.querySelectorAll('.cd-panel[data-card]').forEach(p => {
+    const key = customerId + ':' + p.dataset.card;
+    if (prefs[key]) p.classList.add('collapsed');
+    p.querySelector('header')?.addEventListener('click', (e) => {
+      // Don't collapse when clicking on links inside header
+      if (e.target.closest('a, button')) return;
+      p.classList.toggle('collapsed');
+      const cur = readPrefs();
+      cur[key] = p.classList.contains('collapsed');
+      writePrefs(cur);
+    });
+  });
+
+  // -------- Tabs --------
+  const tabs = document.querySelectorAll('#cdTabs .cd-tab');
+  const panes = document.querySelectorAll('.cd-pane');
+  function showTab(name) {
+    tabs.forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+    panes.forEach(p => p.toggleAttribute('hidden', p.dataset.pane !== name));
+    try { localStorage.setItem(STORAGE_TABS, name); } catch (e) {}
+  }
+  tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  const saved = localStorage.getItem(STORAGE_TABS);
+  if (saved && [...tabs].some(t => t.dataset.tab === saved)) showTab(saved);
+
+  // -------- Add activity: jump to composer --------
+  document.getElementById('btnAddActivity')?.addEventListener('click', () => {
+    showTab('activity');
+    setTimeout(() => {
+      document.querySelector('.cd-comp-tab[data-comp="note"]')?.click();
+      document.getElementById('compText')?.focus();
+    }, 60);
+  });
+  // Documents tab + hero button: jump to composer on "Request" kind
+  function openRequestComposer() {
+    showTab('activity');
+    setTimeout(() => {
+      document.querySelector('.cd-comp-tab[data-comp="request"]')?.click();
+      document.getElementById('compText')?.focus();
+    }, 60);
+  }
+  document.getElementById('btnRequestDoc')?.addEventListener('click', openRequestComposer);
+  document.getElementById('btnRequestDoc2')?.addEventListener('click', openRequestComposer);
+
+  // -------- Composer (activity tab) --------
+  const compTabs = document.querySelectorAll('.cd-comp-tab');
+  const compText = document.getElementById('compText');
+  const compPostLabel = document.getElementById('compPostLabel');
+  const composer = document.getElementById('cdComposer');
+  const placeholders = { note: 'Add a note about Anna…', call: 'Log what was discussed on the call…', email: 'Subject + body — sent to anna.t@example.com', sms: 'Type a quick SMS to +233 24 555 0118…', task: 'Describe the task and who it is for…', meeting: 'Meeting agenda or notes…', request: 'What document would you like to request from Anna?' };
+  const _placeholders_old = { note: 'Add a note about Anna…', email: 'Subject + body — sent to anna.t@example.com', call: 'Log what was discussed on the call…', sms: 'Type a quick SMS to +233 24 555 0118…' };
+  const labels = { note: 'Save note', call: 'Log call', email: 'Send email', sms: 'Send SMS', task: 'Create task', meeting: 'Schedule meeting', request: 'Send request' };
+  let compMode = 'note';
+  compTabs.forEach(t => t.addEventListener('click', () => {
+    compTabs.forEach(o => o.classList.toggle('on', o === t));
+    compMode = t.dataset.comp;
+    compText.placeholder = placeholders[compMode] || '';
+    compPostLabel.textContent = labels[compMode] || 'Save';
+    if (composer) composer.className = 'cd-composer kind-' + compMode;
+  }));
+  document.getElementById('compDiscard')?.addEventListener('click', () => {
+    compText.value = '';
+    document.querySelector('.cd-comp-tab[data-comp="note"]')?.click();
+  });
+  document.getElementById('compPost')?.addEventListener('click', () => {
+    if (!compText.value.trim()) { toast('Type something first'); return; }
+    compText.value = ''; toast(labels[compMode] + ' — done', 'success');
+  });
+})();
+
+// Dependents: inline add + edit
+(function wireDependents(){
+  const list = document.getElementById('profileDepsList');
+  const addBtn = document.getElementById('profileDepAdd');
+  const countEl = document.querySelector('[data-pf-deps-count]');
+  if (!list || !addBtn) return;
+  const REL = ['Spouse','Son','Daughter','Parent','Sibling','Other'];
+  const COLORS = ['#db2777','#0891b2','#7c3aed','#059669','#d97706','#0ea5e9','#dc2626','#65a30d'];
+  const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const initials = (a, b) => (((a||'').trim()[0]||'') + ((b||'').trim()[0]||'')).toUpperCase() || '?';
+  function color(seed){ let h=0; for (let i=0;i<seed.length;i++) h=(h*31+seed.charCodeAt(i))>>>0; return COLORS[h%COLORS.length]; }
+  function updateCount(){ if (countEl) countEl.textContent = String(list.querySelectorAll('.pf-dep').length); }
+  function rowFromData(d){
+    const row = document.createElement('div'); row.className='pf-dep';
+    Object.assign(row.dataset, {depId:d.id, depFirst:d.first||'', depLast:d.last||'', depRel:d.rel||'', depEmail:d.email||'', depPhone:d.phone||''});
+    const name = ((d.first||'') + ' ' + (d.last||'')).trim() || 'Unnamed';
+    const c = d.color || color(d.id);
+    const emailHtml = d.email ? `<a href="mailto:${esc(d.email)}" onclick="event.preventDefault();"><i class="ri-mail-line"></i>${esc(d.email)}</a>` : '';
+    const phoneHtml = d.phone ? `<span class="pf-dep-phone"><i class="ri-phone-line"></i>${esc(d.phone)}</span>` : '';
+    let line2;
+    if (emailHtml && phoneHtml) line2 = emailHtml + '<span class="pf-dep-dot">·</span>' + phoneHtml;
+    else if (emailHtml || phoneHtml) line2 = emailHtml + phoneHtml;
+    else line2 = '<span class="pf-dep-empty">No contact on file</span>';
+    row.innerHTML = `<div class="pf-dep-ava" style="background:${c};">${initials(d.first,d.last)}</div><div class="pf-dep-meta"><div class="pf-dep-line1"><span class="pf-dep-name">${esc(name)}</span><span class="pf-dep-rel">${esc(d.rel||'Other')}</span></div><div class="pf-dep-line2">${line2}</div></div><button type="button" class="pf-dep-edit" aria-label="Edit dependent" title="Edit"><i class="ri-edit-line"></i></button>`;
+    return row;
+  }
+  function readRow(row){
+    const ava = row.querySelector('.pf-dep-ava');
+    return { id:row.dataset.depId, first:row.dataset.depFirst, last:row.dataset.depLast, rel:row.dataset.depRel, email:row.dataset.depEmail, phone:row.dataset.depPhone, color: ava ? ava.style.background : '' };
+  }
+  function buildEditor(d, opts){
+    const wrap = document.createElement('div'); wrap.className='pf-dep-editor';
+    wrap.innerHTML = `<div class="pf-de-grid"><div><label>First name</label><input type="text" data-de="first" value="${esc(d.first||'')}"></div><div><label>Last name</label><input type="text" data-de="last" value="${esc(d.last||'')}"></div></div><div class="pf-de-grid"><div><label>Relationship</label><select data-de="rel">${REL.map(o=>`<option${(d.rel||'Other')===o?' selected':''}>${o}</option>`).join('')}</select></div><div><label>Phone</label><input type="tel" data-de="phone" value="${esc(d.phone||'')}" placeholder="+233 …"></div></div><div><label>Email</label><input type="email" data-de="email" value="${esc(d.email||'')}" placeholder="name@example.com"></div><div class="pf-de-actions"><div class="left">${opts.isNew?'':'<button type="button" class="pf-de-delete">Delete</button>'}</div><div class="right"><button type="button" class="pf-de-cancel">Cancel</button><button type="button" class="pf-de-save">${opts.isNew?'Add dependent':'Save'}</button></div></div>`;
+    const firstInput = wrap.querySelector('input[data-de="first"]');
+    const emailInput = wrap.querySelector('input[data-de="email"]');
+    setTimeout(()=>firstInput && firstInput.focus(), 0);
+    function commit(){
+      const next = { id:d.id||('d'+Date.now().toString(36)), first:wrap.querySelector('input[data-de="first"]').value.trim(), last:wrap.querySelector('input[data-de="last"]').value.trim(), rel:wrap.querySelector('select[data-de="rel"]').value, email:wrap.querySelector('input[data-de="email"]').value.trim(), phone:wrap.querySelector('input[data-de="phone"]').value.trim(), color:d.color||'' };
+      if (!next.first && !next.last) { firstInput.classList.add('bad'); firstInput.focus(); return; }
+      if (next.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.email)) { emailInput.classList.add('bad'); emailInput.focus(); return; }
+      wrap.replaceWith(rowFromData(next)); updateCount();
+    }
+    function cancel(){ if (opts.isNew) wrap.remove(); else wrap.replaceWith(rowFromData(d)); }
+    wrap.querySelector('.pf-de-save').addEventListener('click', commit);
+    wrap.querySelector('.pf-de-cancel').addEventListener('click', cancel);
+    const del = wrap.querySelector('.pf-de-delete'); if (del) del.addEventListener('click', ()=>{ wrap.remove(); updateCount(); });
+    wrap.addEventListener('keydown', e => { if (e.key==='Enter' && e.target.tagName!=='TEXTAREA'){ e.preventDefault(); commit(); } else if (e.key==='Escape'){ e.preventDefault(); cancel(); } });
+    [firstInput, emailInput].forEach(inp => inp && inp.addEventListener('input', ()=>inp.classList.remove('bad')));
+    return wrap;
+  }
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('.pf-dep-edit'); if (!btn) return;
+    const row = btn.closest('.pf-dep'); if (!row) return;
+    if (list.querySelector('.pf-dep-editor')) return;
+    row.replaceWith(buildEditor(readRow(row), { isNew:false }));
+  });
+  addBtn.addEventListener('click', () => {
+    if (list.querySelector('.pf-dep-editor')) return;
+    list.insertBefore(buildEditor({ id:'d'+Date.now().toString(36), first:'', last:'', rel:'Other', email:'', phone:'' }, { isNew:true }), list.firstChild);
+  });
+})();
+</script>
+</body>
+</html>

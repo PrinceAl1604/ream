@@ -1,0 +1,310 @@
+/* =================================================================
+   Ream · Prospect-portal shared styles
+   Used by every prospect-* portal page (logged-in applicant area):
+     - prospect-portal.html       (overview / dashboard)
+     - prospect-documents.html    (full document manager)
+     - prospect-messages.html     (advisor inbox)
+     - prospect-offer.html        (binding offer review + conversion)
+     - prospect-account.html      (profile / settings)
+     - prospect-schedule.html     (calls + visits)
+   Builds on public-shell.css (topbar/footer/colors).
+   ================================================================= */
+
+/* ---------- Logged-in user pill ---------- */
+.pp-user {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 6px 12px 6px 6px;
+  border: 1px solid var(--pub-line);
+  border-radius: 999px;
+  background: var(--pub-paper);
+  cursor: pointer;
+  font: 600 13px var(--font-sans);
+  color: var(--pub-ink-1);
+  text-decoration: none;
+}
+.pp-user:hover { border-color: var(--pub-ink-3); }
+.pp-user .av {
+  width: 28px; height: 28px; border-radius: 50%;
+  background-size: cover; background-position: center;
+  border: 1px solid var(--pub-paper);
+  box-shadow: 0 0 0 1px var(--pub-line);
+}
+.pp-user .nm { line-height: 1; }
+.pp-user .nm small { display: block; color: var(--pub-ink-4); font-weight: 500; font-size: 11px; margin-top: 2px; }
+.pp-user i { color: var(--pub-ink-4); font-size: 16px; }
+
+/* ---------- Portal sub-nav (shows under main topbar on portal pages) ---------- */
+.pp-subnav {
+  background: var(--pub-paper);
+  border-bottom: 1px solid var(--pub-line);
+  position: sticky; top: 60px; z-index: 40;
+}
+.pp-subnav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 4px;
+  overflow-x: auto;
+}
+.pp-subnav a {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 14px 14px 12px;
+  font: 500 13.5px var(--font-sans);
+  color: var(--pub-ink-3);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+}
+.pp-subnav a:hover { color: var(--pub-ink-1); }
+.pp-subnav a.on {
+  color: var(--pub-ink-1);
+  font-weight: 600;
+  border-bottom-color: var(--pub-brand);
+}
+.pp-subnav a .nb {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px;
+  border-radius: 9px;
+  background: var(--pub-canvas-2);
+  color: var(--pub-ink-3);
+  font: 600 10.5px var(--font-sans);
+  padding: 0 6px;
+  margin-left: 2px;
+}
+.pp-subnav a.on .nb { background: var(--pub-brand-soft); color: var(--pub-brand-2); }
+.pp-subnav a .nb.urgent { background: #fef3c7; color: #92400e; }
+.pp-subnav a .nb.live   { background: var(--pub-brand); color: #fff; }
+.pp-subnav .ref-pill {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 11.5px ui-monospace, monospace;
+  color: var(--pub-ink-4);
+  background: var(--pub-canvas-2);
+  padding: 4px 10px; border-radius: 999px;
+  flex-shrink: 0;
+}
+
+/* ---------- Page shell ---------- */
+.pp-shell { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; }
+.pp-shell.narrow { max-width: 920px; }
+
+/* ---------- Page header ---------- */
+.pp-page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.pp-page-head .ti .eyebrow {
+  font: 600 11px var(--font-sans);
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--pub-brand);
+  margin-bottom: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.pp-page-head .ti h1 {
+  margin: 0 0 6px; font: 700 30px var(--font-sans);
+  color: var(--pub-ink-1); letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.pp-page-head .ti p {
+  margin: 0; font: 14.5px var(--font-sans);
+  color: var(--pub-ink-3); line-height: 1.55;
+  max-width: 560px;
+}
+.pp-page-head .actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ---------- Card primitives ---------- */
+.pp-card {
+  background: var(--pub-paper);
+  border: 1px solid var(--pub-line);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+.pp-card.flush { padding: 0; overflow: hidden; }
+.pp-card-head {
+  display: flex; align-items: center; gap: 10px; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.pp-card-head h2 {
+  margin: 0; font: 600 15px var(--font-sans);
+  color: var(--pub-ink-1); letter-spacing: -0.01em;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.pp-card-head h2 i { color: var(--pub-ink-4); font-size: 16px; }
+.pp-card-head .meta {
+  font: 12px var(--font-sans); color: var(--pub-ink-4);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pp-card-head a, .pp-card-head .lnk {
+  font: 600 12px var(--font-sans); color: var(--pub-brand-2);
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+  cursor: pointer;
+  background: none; border: 0;
+}
+.pp-card-head a:hover, .pp-card-head .lnk:hover { color: var(--pub-ink-1); }
+
+/* ---------- Boundaries banner — what portal can / can't do ---------- */
+.pp-bounds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  background: linear-gradient(180deg, #fdfaf2 0%, var(--pub-paper) 100%);
+  border: 1px solid #f3e9c8;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+}
+.pp-bounds-col h4 {
+  margin: 0 0 8px;
+  font: 600 11px var(--font-sans);
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--pub-ink-2);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pp-bounds-col h4 i { font-size: 13px; }
+.pp-bounds-col.allow h4 i { color: var(--pub-success); }
+.pp-bounds-col.gate  h4 i { color: var(--pub-warm-2); }
+.pp-bounds-col ul {
+  margin: 0; padding: 0; list-style: none;
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+}
+.pp-bounds-col li {
+  font: 13px var(--font-sans);
+  color: var(--pub-ink-2);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pp-bounds-col.allow li::before {
+  content: "\eb7b"; /* ri-check-line */
+  font-family: "remixicon";
+  color: var(--pub-success);
+  font-size: 13px;
+}
+.pp-bounds-col.gate li::before {
+  content: "\f02c0"; /* ri-lock-line */
+  font-family: "remixicon";
+  color: var(--pub-warm-2);
+  font-size: 13px;
+}
+@media (max-width: 720px) {
+  .pp-bounds { grid-template-columns: 1fr; }
+}
+
+/* ---------- "Become a customer" upsell strip ---------- */
+.pp-upsell {
+  background: linear-gradient(135deg, var(--pub-brand-2) 0%, #1A3868 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px;
+}
+.pp-upsell .ic {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(212,168,88,0.20); color: var(--pub-warm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.pp-upsell .body { flex: 1; min-width: 0; }
+.pp-upsell .h { font: 600 15px var(--font-sans); margin-bottom: 3px; }
+.pp-upsell p {
+  margin: 0; font: 13px var(--font-sans);
+  color: rgba(255,255,255,0.72); line-height: 1.5;
+}
+.pp-upsell .pub-btn-warm { flex-shrink: 0; }
+
+/* ---------- Generic chip ---------- */
+.pp-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: 600 11px var(--font-sans);
+  padding: 3px 9px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.pp-chip[data-tone="brand"]  { background: var(--pub-brand-soft); color: var(--pub-brand-2); }
+.pp-chip[data-tone="green"]  { background: #dcfce7; color: #15803d; }
+.pp-chip[data-tone="amber"]  { background: #fef3c7; color: #92400e; }
+.pp-chip[data-tone="red"]    { background: #fee2e2; color: #b91c1c; }
+.pp-chip[data-tone="ink"]    { background: var(--pub-canvas-2); color: var(--pub-ink-2); }
+
+/* ---------- Empty state ---------- */
+.pp-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--pub-ink-4);
+}
+.pp-empty i {
+  font-size: 32px;
+  color: var(--pub-ink-4);
+  opacity: 0.5;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+.pp-empty .h {
+  font: 600 15px var(--font-sans);
+  color: var(--pub-ink-2);
+  margin-bottom: 4px;
+}
+.pp-empty p { margin: 0; font: 13.5px var(--font-sans); line-height: 1.5; max-width: 360px; margin: 0 auto; }
+
+/* ---------- Buttons (portal-flavoured) ---------- */
+.pp-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 14px; border-radius: 9px;
+  font: 600 13px var(--font-sans); cursor: pointer;
+  text-decoration: none; border: 1px solid transparent;
+  transition: background .15s, color .15s, border-color .15s;
+  background: var(--pub-paper); color: var(--pub-ink-1); border-color: var(--pub-line);
+}
+.pp-btn:hover { border-color: var(--pub-ink-3); }
+.pp-btn.primary { background: var(--pub-brand-2); color: #fff; border-color: var(--pub-brand-2); }
+.pp-btn.primary:hover { background: var(--pub-ink-1); border-color: var(--pub-ink-1); }
+.pp-btn.warm { background: var(--pub-warm); color: var(--pub-ink-1); border-color: var(--pub-warm); }
+.pp-btn.warm:hover { background: #f0bf6f; border-color: #f0bf6f; }
+.pp-btn.ghost { background: transparent; border-color: transparent; }
+.pp-btn.ghost:hover { background: var(--pub-canvas-2); border-color: transparent; }
+.pp-btn.danger { background: #fff; color: #b91c1c; border-color: #fecaca; }
+.pp-btn.danger:hover { background: #fef2f2; border-color: #fca5a5; }
+
+/* ---------- Form primitives ---------- */
+.pp-field {
+  display: flex; flex-direction: column; gap: 6px;
+  font: 13px var(--font-sans);
+}
+.pp-field label {
+  font: 600 12px var(--font-sans);
+  color: var(--pub-ink-2);
+  letter-spacing: 0.01em;
+}
+.pp-field label .req { color: #b91c1c; margin-left: 2px; }
+.pp-field label .hint { font-weight: 400; color: var(--pub-ink-4); margin-left: 6px; }
+.pp-field input[type="text"],
+.pp-field input[type="email"],
+.pp-field input[type="tel"],
+.pp-field input[type="date"],
+.pp-field input[type="number"],
+.pp-field select,
+.pp-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--pub-line);
+  border-radius: 8px;
+  font: 13.5px var(--font-sans);
+  color: var(--pub-ink-1);
+  background: var(--pub-paper);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.pp-field input:focus, .pp-field select:focus, .pp-field textarea:focus {
+  border-color: var(--pub-brand);
+  box-shadow: 0 0 0 3px rgba(30,65,128,0.10);
+}
+.pp-field textarea { resize: vertical; min-height: 92px; line-height: 1.55; }
+
+/* ---------- Mobile shell ---------- */
+@media (max-width: 980px) {
+  .pp-shell { padding: 24px 20px 56px; }
+  .pp-page-head h1 { font-size: 24px !important; }
+  .pp-subnav-inner { padding: 0 20px; }
+}

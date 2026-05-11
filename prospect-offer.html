@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Your offer · My application</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<link rel="stylesheet" href="prospect-portal.css" />
+<style>
+  body { margin: 0; background: var(--pub-canvas); font-family: var(--font-sans); }
+
+  /* The offer page has 2 modes:
+     [data-mode="pending"]  — underwriting still working
+     [data-mode="ready"]    — binding offer issued, awaiting decision (default)
+   */
+
+  /* Pending state */
+  .pending-card {
+    background: linear-gradient(135deg, var(--pub-brand-2) 0%, #1A3868 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pending-card .clock {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(212,168,88,0.18); color: var(--pub-warm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 32px; margin-bottom: 16px;
+    position: relative;
+  }
+  .pending-card .clock::after {
+    content: "";
+    position: absolute; inset: -8px;
+    border: 2px dashed rgba(212,168,88,0.40);
+    border-radius: 50%;
+    animation: spin 12s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .pending-card h2 {
+    margin: 0 0 8px;
+    font: 700 26px var(--font-sans);
+    letter-spacing: -0.02em;
+  }
+  .pending-card p {
+    margin: 0 auto;
+    font: 14.5px var(--font-sans);
+    color: rgba(255,255,255,0.78);
+    line-height: 1.6; max-width: 540px;
+  }
+  .pending-card .when {
+    margin-top: 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 12.5px var(--font-sans);
+    background: rgba(255,255,255,0.10);
+    padding: 6px 14px; border-radius: 999px;
+  }
+
+  /* Offer summary card */
+  .offer-card {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 28px -16px rgba(6,24,46,0.18);
+  }
+  .offer-head {
+    padding: 22px 28px;
+    background: linear-gradient(180deg, #f7fafd 0%, var(--pub-paper) 100%);
+    border-bottom: 1px solid var(--pub-line);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .offer-head .seal {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--pub-brand-soft);
+    color: var(--pub-brand-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .offer-head .ti { flex: 1; min-width: 0; }
+  .offer-head .lbl {
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--pub-brand);
+    margin-bottom: 4px;
+  }
+  .offer-head h2 {
+    margin: 0;
+    font: 700 22px var(--font-sans);
+    letter-spacing: -0.02em;
+    color: var(--pub-ink-1);
+  }
+  .offer-head .meta {
+    font: 12.5px var(--font-sans);
+    color: var(--pub-ink-4);
+    margin-top: 4px;
+  }
+  .offer-head .meta b { color: var(--pub-ink-2); }
+  .offer-head .countdown {
+    background: #fef3c7; color: #92400e;
+    font: 600 12px var(--font-sans);
+    padding: 6px 12px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 5px;
+    flex-shrink: 0;
+  }
+
+  /* The big-three numbers */
+  .terms {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--pub-line);
+  }
+  .term {
+    padding: 20px 24px;
+    border-right: 1px solid var(--pub-line);
+    text-align: center;
+  }
+  .term:last-child { border-right: 0; }
+  .term .lbl {
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--pub-ink-4);
+    margin-bottom: 6px;
+  }
+  .term .v {
+    font: 700 28px var(--font-sans);
+    color: var(--pub-ink-1);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .term .v small {
+    display: block;
+    font: 500 12px var(--font-sans);
+    color: var(--pub-ink-4);
+    margin-top: 4px;
+    letter-spacing: 0;
+  }
+  .term .v.brand { color: var(--pub-brand-2); }
+
+  /* Detailed breakdown */
+  .breakdown { padding: 20px 28px 24px; }
+  .breakdown h3 {
+    margin: 0 0 14px;
+    font: 600 13px var(--font-sans);
+    color: var(--pub-ink-4);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .breakdown h3 i { color: var(--pub-ink-3); font-size: 14px; }
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 32px;
+  }
+  .br-row {
+    display: flex; justify-content: space-between; gap: 12px;
+    font: 13.5px var(--font-sans);
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--pub-line-soft);
+    color: var(--pub-ink-2);
+  }
+  .br-row:last-child { border-bottom: 0; }
+  .br-row .v { color: var(--pub-ink-1); font-weight: 600; }
+  .br-row.total { border-top: 1px solid var(--pub-line); margin-top: 6px; padding-top: 10px; border-bottom: 0; }
+  .br-row.total .v { color: var(--pub-brand-2); font-size: 14px; }
+
+  /* Decision strip — accept / counter / decline */
+  .decision {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .decision h2 {
+    margin: 0 0 8px;
+    font: 700 20px var(--font-sans);
+    color: var(--pub-ink-1);
+    letter-spacing: -0.02em;
+  }
+  .decision p {
+    margin: 0 0 20px;
+    font: 14px var(--font-sans);
+    color: var(--pub-ink-3); line-height: 1.55;
+  }
+  .decision-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 14px;
+  }
+  .dec {
+    border: 1px solid var(--pub-line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--pub-paper);
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .dec:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -10px rgba(6,24,46,0.18); }
+  .dec.accept {
+    background: linear-gradient(135deg, var(--pub-brand-2) 0%, #1A3868 100%);
+    color: #fff;
+    border-color: var(--pub-brand-2);
+  }
+  .dec.accept p { color: rgba(255,255,255,0.78); }
+  .dec.accept:hover { transform: translateY(-2px); }
+  .dec .ic {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .dec.accept .ic { background: rgba(212,168,88,0.20); color: var(--pub-warm); }
+  .dec:not(.accept) .ic { background: var(--pub-canvas-2); color: var(--pub-ink-3); }
+  .dec .h {
+    font: 700 15px var(--font-sans);
+    letter-spacing: -0.01em;
+  }
+  .dec.accept .h { color: #fff; font-size: 17px; }
+  .dec p {
+    font: 13px var(--font-sans);
+    color: var(--pub-ink-3);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .dec .cta {
+    margin-top: auto;
+    display: inline-flex; align-items: center; gap: 5px;
+    font: 600 13px var(--font-sans);
+    color: var(--pub-brand-2);
+    text-decoration: none;
+  }
+  .dec.accept .cta {
+    background: var(--pub-warm);
+    color: var(--pub-ink-1);
+    padding: 9px 14px;
+    border-radius: 9px;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .dec.accept .cta:hover { background: #f0bf6f; }
+
+  /* Important — gate explanation */
+  .gate-callout {
+    background: linear-gradient(180deg, #fdfaf2 0%, var(--pub-paper) 100%);
+    border: 1px solid #f3e9c8;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+  }
+  .gate-callout .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #fef3c7; color: #92400e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .gate-callout h3 {
+    margin: 0 0 4px; font: 600 14.5px var(--font-sans);
+    color: var(--pub-ink-1);
+  }
+  .gate-callout p {
+    margin: 0; font: 13px var(--font-sans);
+    color: var(--pub-ink-3); line-height: 1.55;
+  }
+  .gate-callout p b { color: var(--pub-ink-1); }
+
+  /* Schedule preview */
+  .sched-card { padding: 22px 26px; }
+  .sched-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+  .sched-tabs button {
+    background: transparent; border: 1px solid transparent;
+    padding: 6px 12px; border-radius: 8px;
+    font: 600 12.5px var(--font-sans); color: var(--pub-ink-4);
+    cursor: pointer;
+  }
+  .sched-tabs button.on { background: var(--pub-brand-soft); color: var(--pub-brand-2); }
+  .sched-tabs button:hover { color: var(--pub-ink-1); }
+
+  .sched-table { width: 100%; border-collapse: collapse; font: 13px var(--font-sans); }
+  .sched-table thead th {
+    text-align: left; padding: 8px 10px;
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--pub-ink-4);
+    border-bottom: 1px solid var(--pub-line);
+  }
+  .sched-table tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px dashed var(--pub-line-soft);
+    color: var(--pub-ink-2);
+  }
+  .sched-table tbody tr:last-child td { border-bottom: 0; }
+  .sched-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sched-table .principal { color: var(--pub-brand-2); font-weight: 600; }
+
+  /* Comparison row (issued vs original) */
+  .compare {
+    background: var(--pub-canvas-2);
+    border: 1px solid var(--pub-line);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex; gap: 18px; align-items: center;
+    flex-wrap: wrap;
+    font: 12.5px var(--font-sans);
+    color: var(--pub-ink-3);
+    margin-top: 12px;
+  }
+  .compare .pair { display: inline-flex; align-items: center; gap: 6px; }
+  .compare .pair b { color: var(--pub-ink-1); }
+  .compare .delta {
+    font-weight: 600;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 11px;
+  }
+  .compare .delta.down { background: #dcfce7; color: #15803d; }
+  .compare .delta.up   { background: #fee2e2; color: #b91c1c; }
+
+  /* Two-col offer body */
+  .offer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    align-items: start;
+  }
+  .offer-grid > .right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 130px; }
+
+  @media (max-width: 980px) {
+    .offer-grid { grid-template-columns: 1fr; }
+    .offer-grid > .right { position: static; }
+    .terms { grid-template-columns: 1fr; }
+    .term { border-right: 0; border-bottom: 1px solid var(--pub-line); }
+    .term:last-child { border-bottom: 0; }
+    .breakdown-grid { grid-template-columns: 1fr; }
+    .decision-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body class="pub-body" data-screen-label="Prospect — Offer" data-mode="ready">
+
+<header class="pub-top">
+  <div class="pub-top-inner">
+    <a class="pub-brand" href="landing.html"><span class="dot" aria-hidden="true"></span>DIG</a>
+    <button class="pub-burger" type="button" aria-label="Menu" onclick="this.parentElement.querySelector('.pub-nav').classList.toggle('open');"><i class="ri-menu-line"></i></button>
+    <nav class="pub-nav" aria-label="Primary">
+      <a href="landing.html">Home</a>
+      <a href="browse-v2.html">Browse</a>
+      <a href="financing.html">Financing</a>
+      <a href="landing.html#faq">FAQ</a>
+    </nav>
+    <div class="pub-top-right">
+      <button class="pub-btn pub-btn-ghost" type="button" aria-label="Notifications"><i class="ri-notification-3-line"></i></button>
+      <a class="pp-user" href="prospect-account.html">
+        <span class="av pub-face-1" aria-hidden="true"></span>
+        <span class="nm">Danyls Mensah<small>Application APP-2026-0143</small></span>
+        <i class="ri-arrow-down-s-line"></i>
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="pp-subnav" aria-label="Portal sections">
+  <div class="pp-subnav-inner">
+    <a href="prospect-portal.html"><i class="ri-dashboard-line"></i> Application</a>
+    <a href="prospect-documents.html"><i class="ri-folder-open-line"></i> Documents</a>
+    <a href="prospect-messages.html"><i class="ri-chat-3-line"></i> Messages</a>
+    <a href="prospect-schedule.html"><i class="ri-calendar-line"></i> Schedule</a>
+    <a class="on" href="prospect-offer.html"><i class="ri-file-paper-2-line"></i> Offer <span class="nb live">New</span></a>
+    <a href="prospect-account.html"><i class="ri-user-settings-line"></i> Account</a>
+    <span class="ref-pill"><i class="ri-hashtag"></i> APP-2026-0143</span>
+  </div>
+</nav>
+
+<main class="pp-shell">
+
+  <div class="pp-page-head">
+    <div class="ti">
+      <div class="eyebrow"><i class="ri-file-paper-2-line"></i> Binding offer</div>
+      <h1>Your offer is ready.</h1>
+      <p>Underwriting cleared your file Mar 22. The numbers below are binding through Apr 5 — accept now to lock in the rate, or counter if you want different terms.</p>
+    </div>
+    <div class="actions">
+      <button class="pp-btn ghost" type="button"><i class="ri-download-2-line"></i> Download PDF</button>
+      <button class="pp-btn ghost" type="button"><i class="ri-printer-line"></i> Print</button>
+    </div>
+  </div>
+
+  <div class="offer-grid">
+
+    <div class="left">
+
+      <!-- The offer card -->
+      <section class="offer-card">
+        <div class="offer-head">
+          <div class="seal"><i class="ri-shield-check-line"></i></div>
+          <div class="ti">
+            <div class="lbl">Approved · binding</div>
+            <h2>Plot 14B · Riverstone Estate</h2>
+            <div class="meta">Issued <b>Mar 22, 2026</b> by Kwame Antwi · Senior underwriter · DIG</div>
+          </div>
+          <div class="countdown"><i class="ri-time-line"></i> Locks Apr 5 · 11 days</div>
+        </div>
+
+        <!-- Big three -->
+        <div class="terms">
+          <div class="term">
+            <div class="lbl">Loan amount</div>
+            <div class="v">$38,800<small>$48,500 list − $9,700 deposit</small></div>
+          </div>
+          <div class="term">
+            <div class="lbl">Monthly payment</div>
+            <div class="v brand">$472<small>principal &amp; interest · taxes separate</small></div>
+          </div>
+          <div class="term">
+            <div class="lbl">Rate &amp; term</div>
+            <div class="v">7.85% / 10 yr<small>fixed · APR 8.21%</small></div>
+          </div>
+        </div>
+
+        <!-- Detailed breakdown -->
+        <div class="breakdown">
+          <h3><i class="ri-list-check-2"></i> Cost breakdown</h3>
+          <div class="breakdown-grid">
+
+            <div class="br-row"><span>Purchase price</span><span class="v">$48,500.00</span></div>
+            <div class="br-row"><span>Origination fee (1.0%)</span><span class="v">$388.00</span></div>
+
+            <div class="br-row"><span>Down payment (20%)</span><span class="v">$9,700.00</span></div>
+            <div class="br-row"><span>Title &amp; recording</span><span class="v">$340.00</span></div>
+
+            <div class="br-row"><span>Loan principal</span><span class="v">$38,800.00</span></div>
+            <div class="br-row"><span>Property taxes (escrow / mo)</span><span class="v">$54.00</span></div>
+
+            <div class="br-row"><span>Interest rate (fixed)</span><span class="v">7.85%</span></div>
+            <div class="br-row"><span>Insurance (escrow / mo)</span><span class="v">$28.00</span></div>
+
+            <div class="br-row"><span>Term</span><span class="v">120 months</span></div>
+            <div class="br-row"><span>Total monthly (PITI)</span><span class="v">$554.00</span></div>
+
+            <div class="br-row total"><span>First payment due</span><span class="v">May 1, 2026</span></div>
+            <div class="br-row total"><span>Total interest over 10 yr</span><span class="v">$17,860.00</span></div>
+
+          </div>
+
+          <div class="compare">
+            <span style="font-weight: 600; color: var(--pub-ink-2);">vs. your application:</span>
+            <span class="pair">Rate <b>7.85%</b> <span class="delta down">−0.40 pts</span></span>
+            <span class="pair">Monthly <b>$472</b> <span class="delta down">−$14</span></span>
+            <span class="pair">Term <b>10 yr</b> <span class="delta" style="background: var(--pub-canvas-2); color: var(--pub-ink-3);">unchanged</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Decision strip -->
+      <section class="decision">
+        <h2>Make a decision</h2>
+        <p>Your offer is binding through <b style="color: var(--pub-ink-1);">Apr 5, 2026</b>. Accepting moves you to closing — sign the contract, pay the deposit, and we hand over the keys within 14 days.</p>
+
+        <div class="decision-grid">
+          <div class="dec accept">
+            <div class="ic"><i class="ri-shield-check-line"></i></div>
+            <div class="h">Accept this offer</div>
+            <p>Locks the rate, opens the deposit window, and creates your customer account with full access to repayments &amp; statements.</p>
+            <a class="cta" href="#">Accept &amp; continue <i class="ri-arrow-right-line"></i></a>
+          </div>
+          <div class="dec">
+            <div class="ic"><i class="ri-exchange-line"></i></div>
+            <div class="h">Counter</div>
+            <p>Want a different deposit, term, or first-payment date? Send a counter and we'll re-quote within 1 business day.</p>
+            <a class="cta" href="prospect-messages.html">Send a counter <i class="ri-arrow-right-line"></i></a>
+          </div>
+          <div class="dec">
+            <div class="ic"><i class="ri-close-circle-line"></i></div>
+            <div class="h">Decline</div>
+            <p>You can step away with no penalty — your file is closed and your documents deleted within 30 days.</p>
+            <a class="cta" href="#" style="color: var(--pub-ink-3);">Decline politely <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Boundary callout — what accepting unlocks -->
+      <div class="gate-callout">
+        <div class="ic"><i class="ri-key-2-line"></i></div>
+        <div>
+          <h3>Accepting opens your customer account</h3>
+          <p>Right now you can <b>read</b> the offer, <b>compare</b> terms, and <b>message</b> Anita with questions — without committing. Once you click <b>Accept &amp; continue</b>, we create your customer record, you sign electronically, and you become a Ream customer with full access to <b>direct-debit setup, repayment schedule, statements, and the customer dashboard</b>. Until then, no payment leaves your account.</p>
+        </div>
+      </div>
+
+      <!-- Repayment schedule preview -->
+      <section class="pp-card sched-card">
+        <div class="pp-card-head">
+          <h2><i class="ri-calendar-2-line"></i> Repayment schedule</h2>
+          <div class="sched-tabs">
+            <button type="button" class="on">First 12</button>
+            <button type="button">Year-by-year</button>
+            <button type="button">Full 120</button>
+          </div>
+        </div>
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Due date</th>
+              <th class="num">Payment</th>
+              <th class="num">Principal</th>
+              <th class="num">Interest</th>
+              <th class="num">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>May 1, 2026</td><td class="num">$472.00</td><td class="num principal">$218.31</td><td class="num">$253.69</td><td class="num">$38,581.69</td></tr>
+            <tr><td>2</td><td>Jun 1, 2026</td><td class="num">$472.00</td><td class="num principal">$219.74</td><td class="num">$252.26</td><td class="num">$38,361.95</td></tr>
+            <tr><td>3</td><td>Jul 1, 2026</td><td class="num">$472.00</td><td class="num principal">$221.18</td><td class="num">$250.82</td><td class="num">$38,140.77</td></tr>
+            <tr><td>4</td><td>Aug 1, 2026</td><td class="num">$472.00</td><td class="num principal">$222.62</td><td class="num">$249.38</td><td class="num">$37,918.15</td></tr>
+            <tr><td>5</td><td>Sep 1, 2026</td><td class="num">$472.00</td><td class="num principal">$224.08</td><td class="num">$247.92</td><td class="num">$37,694.07</td></tr>
+            <tr><td>6</td><td>Oct 1, 2026</td><td class="num">$472.00</td><td class="num principal">$225.54</td><td class="num">$246.46</td><td class="num">$37,468.53</td></tr>
+            <tr><td>7</td><td>Nov 1, 2026</td><td class="num">$472.00</td><td class="num principal">$227.02</td><td class="num">$244.98</td><td class="num">$37,241.51</td></tr>
+            <tr><td>8</td><td>Dec 1, 2026</td><td class="num">$472.00</td><td class="num principal">$228.50</td><td class="num">$243.50</td><td class="num">$37,013.01</td></tr>
+            <tr><td>9</td><td>Jan 1, 2027</td><td class="num">$472.00</td><td class="num principal">$230.00</td><td class="num">$242.00</td><td class="num">$36,783.01</td></tr>
+            <tr><td>10</td><td>Feb 1, 2027</td><td class="num">$472.00</td><td class="num principal">$231.50</td><td class="num">$240.50</td><td class="num">$36,551.51</td></tr>
+            <tr><td>11</td><td>Mar 1, 2027</td><td class="num">$472.00</td><td class="num principal">$233.01</td><td class="num">$238.99</td><td class="num">$36,318.50</td></tr>
+            <tr><td>12</td><td>Apr 1, 2027</td><td class="num">$472.00</td><td class="num principal">$234.54</td><td class="num">$237.46</td><td class="num">$36,083.96</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+
+    <!-- Right rail -->
+    <aside class="right">
+
+      <!-- What happens after accept -->
+      <div class="pp-card">
+        <div class="pp-card-head"><h2><i class="ri-roadmap-line"></i> If you accept, what's next</h2></div>
+        <ol style="margin: 0; padding-left: 18px; font: 13px var(--font-sans); color: var(--pub-ink-2); line-height: 1.7;">
+          <li><b>E-sign</b> the loan contract (10 min, on this device)</li>
+          <li><b>Pay the deposit</b> — $9,700 by wire or card within 48h</li>
+          <li><b>Set up direct debit</b> for monthly payments</li>
+          <li><b>Site visit &amp; key handover</b> at the plot</li>
+          <li><b>First payment</b> due May 1, 2026</li>
+        </ol>
+      </div>
+
+      <!-- Q from advisor -->
+      <div class="pp-card" style="background: linear-gradient(180deg, #f7fafd 0%, var(--pub-paper) 100%); border-color: #cfe0f4;">
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <div class="av pub-face-5" style="width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; border: 1px solid var(--pub-line); flex-shrink: 0;"></div>
+          <div>
+            <div style="font: 600 13px var(--font-sans); color: var(--pub-ink-1); margin-bottom: 3px;">From Anita, your advisor</div>
+            <p style="margin: 0 0 10px; font: 13px var(--font-sans); color: var(--pub-ink-2); line-height: 1.55;">
+              Happy to walk through the schedule on a call before you decide — totally normal to want a second look. Most folks accept within 48 hours.
+            </p>
+            <a class="pp-btn" href="prospect-messages.html" style="font-size: 12.5px;"><i class="ri-chat-3-line"></i> Reply to Anita</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lock countdown -->
+      <div class="pp-card" style="text-align: center; padding: 18px 18px;">
+        <div style="font: 600 11px var(--font-sans); text-transform: uppercase; letter-spacing: 0.10em; color: var(--pub-ink-4); margin-bottom: 6px;">Rate locks in</div>
+        <div style="font: 700 32px var(--font-sans); color: var(--pub-ink-1); letter-spacing: -0.025em;">11 <small style="font-size: 13px; font-weight: 500; color: var(--pub-ink-4);">days</small></div>
+        <div style="font: 12px var(--font-sans); color: var(--pub-ink-3); margin-top: 4px;">Apr 5, 2026 · 11:59 PM CT</div>
+      </div>
+
+      <div class="pp-bounds" style="grid-template-columns: 1fr; padding: 14px 16px; margin: 0;">
+        <div class="pp-bounds-col gate">
+          <h4 style="font-size: 10px;"><i class="ri-lock-line"></i> Locked until accept</h4>
+          <ul>
+            <li style="font-size: 12px;">E-sign the contract</li>
+            <li style="font-size: 12px;">Pay the deposit</li>
+            <li style="font-size: 12px;">Direct-debit setup</li>
+            <li style="font-size: 12px;">Customer dashboard</li>
+          </ul>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+</main>
+
+</body>
+</html>

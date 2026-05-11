@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Financing</title>
+<meta name="description" content="How Ream financing works in Dallas, Texas — qualifying, terms, and a live monthly-payment simulator." />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<link rel="stylesheet" href="browse-v2.css" />
+<style>
+  :root {
+    --max: 1320px;
+    --bold-grad: linear-gradient(135deg, #06182E 0%, #0E2747 60%, #1E4180 100%);
+  }
+
+  /* HERO — readable, photo + dark scrim */
+  .fn-hero {
+    color: #fff;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    background: #06182E;
+  }
+  .fn-hero .bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1800&q=80");
+    background-size: cover; background-position: center;
+  }
+  .fn-hero .scrim {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(120deg, rgba(26,13,51,0.94) 0%, rgba(26,13,51,0.82) 50%, rgba(14,39,71,0.55) 100%);
+  }
+  .fn-hero-inner {
+    max-width: var(--max); margin: 0 auto; position: relative; z-index: 2;
+    padding: 88px 32px 96px;
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: center;
+  }
+  .fn-hero .h-photo {
+    aspect-ratio: 4 / 5; max-height: 420px;
+    background-size: cover; background-position: center;
+    border-radius: 20px; box-shadow: 0 24px 48px rgba(0,0,0,0.40);
+    border: 4px solid rgba(255,255,255,0.18);
+    position: relative; overflow: hidden;
+  }
+  .fn-hero .h-photo .badge {
+    position: absolute; left: 16px; bottom: 16px;
+    background: #fff; color: #06182E;
+    padding: 12px 16px; border-radius: 12px;
+    font: 600 13px var(--font-sans);
+    display: flex; gap: 12px; align-items: center;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.30);
+  }
+  .fn-hero .h-photo .badge .av {
+    width: 36px; height: 36px; border-radius: 50%;
+    background-size: cover; background-position: center;
+  }
+  .fn-hero .h-photo .badge .meta { font: 11.5px var(--font-sans); color: #6b6979; font-weight: 500; }
+  .fn-hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: rgba(255,255,255,0.92);
+    padding: 6px 14px; border-radius: 999px;
+    font: 500 12.5px var(--font-sans);
+    margin-bottom: 18px;
+  }
+  .fn-hero h1 {
+    margin: 0 0 16px; font-size: 56px; font-weight: 700;
+    line-height: 1.02; letter-spacing: -0.03em;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.30);
+  }
+  .fn-hero h1 em { font-style: normal; color: #D4A858; }
+  .fn-hero .lede {
+    font: 18px var(--font-sans); color: rgba(255,255,255,0.92);
+    margin: 0 0 26px; max-width: 540px; line-height: 1.55;
+  }
+  .fn-hero .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .fn-hero-stats {
+    display: flex; gap: 36px; margin-top: 36px;
+    padding-top: 26px; border-top: 1px solid rgba(255,255,255,0.18);
+    flex-wrap: wrap;
+  }
+  .fn-hero-stats .v { font: 700 26px var(--font-sans); letter-spacing: -0.02em; color: #fff; }
+  .fn-hero-stats .v small { color: #D4A858; font-size: 14px; }
+  .fn-hero-stats .l { font: 12.5px var(--font-sans); color: rgba(255,255,255,0.66); margin-top: 2px; }
+
+  /* SECTION */
+  .fn-section { max-width: var(--max); margin: 0 auto; padding: 80px 32px; }
+  .fn-section.tight { padding: 64px 32px; }
+  .fn-band { background: #f8f6f2; border-block: 1px solid #ece8dc; }
+  .fn-band-dark { background: #06182E; color: #fff; }
+
+  .fn-shead { max-width: 720px; margin: 0 0 36px; }
+  .fn-shead.center { text-align: center; margin-left: auto; margin-right: auto; }
+  .fn-shead .tag {
+    font: 600 12px var(--font-sans);
+    color: #1E4180; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 10px; display: inline-block;
+  }
+  .fn-band-dark .fn-shead .tag { color: #D4A858; }
+  .fn-shead h2 {
+    margin: 0 0 12px; font: 700 36px var(--font-sans);
+    letter-spacing: -0.025em; line-height: 1.1;
+    color: #06182E;
+  }
+  .fn-band-dark .fn-shead h2 { color: #fff; }
+  .fn-shead p {
+    margin: 0; font: 16px var(--font-sans);
+    line-height: 1.55; color: #4a4658; max-width: 620px;
+  }
+  .fn-band-dark .fn-shead p { color: rgba(255,255,255,0.74); }
+
+  /* WHY FINANCING — split: left copy, right comparison */
+  .fn-why { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; }
+  .fn-why-points { display: grid; gap: 18px; margin-top: 24px; }
+  .fn-why-points .pt { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: flex-start; }
+  .fn-why-points .pt .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #E8EFFA; color: #1E4180;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 17px; margin-top: 2px;
+  }
+  .fn-why-points .pt h5 { margin: 0 0 2px; font: 600 16px var(--font-sans); color: #06182E; }
+  .fn-why-points .pt p { margin: 0; font: 13.5px var(--font-sans); color: #4a4658; line-height: 1.55; }
+
+  .fn-compare {
+    background: #fff;
+    border: 1px solid #ece8dc;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .fn-compare table { width: 100%; border-collapse: collapse; }
+  .fn-compare thead th {
+    text-align: left; padding: 18px 20px;
+    font: 600 12px var(--font-sans); color: #6b6979;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: #f8f6f2;
+    border-bottom: 1px solid #ece8dc;
+  }
+  .fn-compare thead th.ream { color: #1E4180; }
+  .fn-compare thead th.bank { color: #6b6979; }
+  .fn-compare tbody td {
+    padding: 14px 20px;
+    font: 14px var(--font-sans); color: #06182E;
+    border-bottom: 1px solid #f1ede0;
+    vertical-align: middle;
+  }
+  .fn-compare tbody tr:last-child td { border-bottom: 0; }
+  .fn-compare tbody td:first-child { font-weight: 500; }
+  .fn-compare tbody td.ream { background: rgba(124,58,237,0.04); font-weight: 500; color: #0E2747; }
+  .fn-compare .yes { color: #16a34a; }
+  .fn-compare .no { color: #dc2626; }
+
+  /* QUALIFY — 4 numbered cards */
+  .fn-qualify-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .fn-qcard {
+    background: #fff;
+    border: 1px solid #ece8dc;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+  }
+  .fn-qcard .num {
+    font: 700 13px var(--font-sans); color: #D4A858;
+    letter-spacing: 0.05em;
+    position: absolute; top: 22px; right: 24px;
+  }
+  .fn-qcard .ico {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: #E8EFFA; color: #1E4180;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 14px;
+  }
+  .fn-qcard h4 { margin: 0 0 6px; font: 600 17px var(--font-sans); color: #06182E; }
+  .fn-qcard p { margin: 0; font: 13.5px var(--font-sans); color: #4a4658; line-height: 1.55; }
+
+  /* DOCUMENT CHECKLIST */
+  .fn-docs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 36px; }
+  .fn-doc-col {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 24px 28px;
+  }
+  .fn-doc-col h4 {
+    margin: 0 0 16px; font: 600 16px var(--font-sans);
+    color: #fff;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .fn-doc-col h4 i { color: #D4A858; }
+  .fn-doc-col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .fn-doc-col ul li {
+    display: grid; grid-template-columns: 24px 1fr; gap: 10px;
+    font: 14px var(--font-sans); color: rgba(255,255,255,0.84);
+    line-height: 1.5;
+  }
+  .fn-doc-col ul li i { color: #34d399; font-size: 18px; margin-top: 2px; }
+  .fn-doc-col ul li small { display: block; color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 2px; }
+
+  /* SIMULATOR */
+  .fn-sim {
+    background: #fff;
+    border: 1px solid #ece8dc;
+    border-radius: 20px;
+    overflow: hidden;
+    display: grid; grid-template-columns: 1.05fr 1fr;
+  }
+  .fn-sim-left {
+    padding: 36px 40px;
+    border-right: 1px solid #ece8dc;
+  }
+  .fn-sim-left h3 {
+    margin: 0 0 6px; font: 600 20px var(--font-sans);
+    color: #06182E;
+  }
+  .fn-sim-left .sub {
+    font: 14px var(--font-sans); color: #4a4658;
+    margin-bottom: 24px;
+  }
+
+  .fn-sim-property-row {
+    display: grid; grid-template-columns: 1fr; gap: 8px;
+    margin-bottom: 18px;
+  }
+  .fn-sim-property-row .picker {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: #f8f6f2; border: 1px solid #ece8dc;
+    border-radius: 12px; padding: 4px;
+  }
+  .fn-sim-property-row .picker button {
+    background: transparent; border: 0; padding: 9px 12px;
+    border-radius: 8px;
+    font: 500 13px var(--font-sans); color: #6b6979;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .fn-sim-property-row .picker button.on {
+    background: #fff; color: #06182E;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .fn-sim-control { margin-bottom: 22px; }
+  .fn-sim-control .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .fn-sim-control .label-row label { font: 500 13px var(--font-sans); color: #4a4658; }
+  .fn-sim-control .label-row .val { font: 600 15px var(--font-sans); color: #06182E; }
+  .fn-sim-control .label-row .val small { color: #6b6979; font-weight: 400; }
+  .fn-sim-control input[type=range] {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, #1E4180 var(--p, 50%), #ece8dc var(--p, 50%));
+    outline: none;
+  }
+  .fn-sim-control input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 3px solid #1E4180;
+    cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .fn-sim-control input[type=range]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 3px solid #1E4180;
+    cursor: pointer;
+  }
+  .fn-sim-control .scale {
+    display: flex; justify-content: space-between;
+    font: 11px var(--font-sans); color: #6b6979;
+    margin-top: 6px;
+  }
+
+  .fn-sim-input {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid #ece8dc; border-radius: 10px;
+    font: 500 15px var(--font-sans); color: #06182E;
+    background: #f8f6f2;
+  }
+  .fn-sim-input:focus { outline: none; border-color: #1E4180; background: #fff; }
+
+  /* Simulator right pane */
+  .fn-sim-right {
+    background: var(--bold-grad);
+    color: #fff;
+    padding: 36px 40px;
+    position: relative; overflow: hidden;
+  }
+  .fn-sim-right::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 90% 10%, rgba(251,191,36,0.18), transparent 55%);
+  }
+  .fn-sim-right > * { position: relative; }
+  .fn-sim-right .stitle {
+    font: 500 12px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.66);
+    margin-bottom: 8px;
+  }
+  .fn-sim-right .monthly {
+    font: 700 56px var(--font-sans); letter-spacing: -0.03em;
+    color: #D4A858; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .fn-sim-right .monthly .per {
+    font-size: 18px; color: rgba(255,255,255,0.66);
+    font-weight: 500; letter-spacing: 0;
+  }
+  .fn-sim-right .summary {
+    font: 14.5px var(--font-sans);
+    color: rgba(255,255,255,0.84);
+    margin-bottom: 24px; line-height: 1.5;
+  }
+  .fn-sim-rows { display: grid; gap: 12px; padding: 18px 0; border-block: 1px solid rgba(255,255,255,0.18); }
+  .fn-sim-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font: 14px var(--font-sans);
+  }
+  .fn-sim-row .k { color: rgba(255,255,255,0.66); }
+  .fn-sim-row .v { font-weight: 600; color: #fff; }
+  .fn-sim-row .v.warn { color: #D4A858; }
+  .fn-sim-row.total .k { color: #fff; font-weight: 600; }
+  .fn-sim-row.total .v { font-size: 17px; }
+
+  .fn-sim-cta {
+    margin-top: 24px;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .fn-sim-cta a {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 12px 18px; border-radius: 10px;
+    font: 600 14px var(--font-sans); text-decoration: none;
+  }
+  .fn-sim-cta a.primary { background: #D4A858; color: #06182E; }
+  .fn-sim-cta a.primary:hover { background: #fff; }
+  .fn-sim-cta a.ghost { background: rgba(255,255,255,0.10); color: #fff; border: 1px solid rgba(255,255,255,0.20); }
+  .fn-sim-cta a.ghost:hover { background: rgba(255,255,255,0.16); }
+
+  .fn-sim-footnote {
+    margin-top: 16px;
+    font: 12px var(--font-sans);
+    color: rgba(255,255,255,0.55); line-height: 1.5;
+  }
+
+  /* APR DISCLOSURE BAND */
+  .fn-disc {
+    background: #fff;
+    border: 1px solid #ece8dc;
+    border-radius: 14px;
+    padding: 22px 26px;
+    display: grid; grid-template-columns: 36px 1fr; gap: 14px;
+    margin-top: 28px;
+  }
+  .fn-disc .ic { font-size: 22px; color: #1E4180; }
+  .fn-disc h4 { margin: 0 0 4px; font: 600 14px var(--font-sans); color: #06182E; }
+  .fn-disc p { margin: 0; font: 13px var(--font-sans); color: #4a4658; line-height: 1.55; }
+
+  @media (max-width: 1100px) {
+    .fn-hero h1 { font-size: 42px; }
+    .fn-hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .fn-hero .h-photo { max-height: 320px; aspect-ratio: 16/10; }
+    .fn-why, .fn-sim, .fn-docs { grid-template-columns: 1fr; }
+    .fn-sim-left { border-right: 0; border-bottom: 1px solid #ece8dc; }
+    .fn-qualify-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 720px) {
+    .fn-hero h1 { font-size: 32px; }
+    .fn-hero-inner { padding: 56px 20px 64px; }
+    .fn-section { padding: 56px 20px; }
+    .fn-qualify-grid { grid-template-columns: 1fr; }
+    .fn-sim-right { padding: 28px 24px; }
+    .fn-sim-right .monthly { font-size: 44px; }
+    .fn-hero-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body class="pub-body" data-variant="bold">
+
+<header class="pub-top">
+  <div class="pub-top-inner">
+    <a class="pub-brand" href="landing.html"><span class="dot" aria-hidden="true"></span>DIG</a>
+    <button class="pub-burger" type="button" aria-label="Menu" onclick="this.parentElement.querySelector('.pub-nav').classList.toggle('open'); this.parentElement.querySelector('.pub-top-right').classList.toggle('open');"><i class="ri-menu-line"></i></button>
+    <nav class="pub-nav" aria-label="Primary">
+      <a href="landing.html">Home</a>
+      <a href="browse-v2.html">Browse</a>
+      <a href="financing.html" class="on">Financing</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html#faq">FAQ</a>
+    </nav>
+    <div class="pub-top-right">
+      <a class="pub-btn pub-btn-ghost" href="login.html">Sign in</a>
+      <a class="pub-btn pub-btn-primary" href="prospect-public.html"><i class="ri-magic-line" aria-hidden="true"></i> Get started</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="fn-hero" data-screen-label="01 Financing hero">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="fn-hero-inner">
+    <div>
+      <span class="eyebrow"><i class="ri-bank-card-line"></i> Owner-financing in Dallas, Texas</span>
+      <h1>Pay <em>monthly</em>.<br>Own <em>outright</em>.</h1>
+      <p class="lede">Skip the 30-year mortgage and the 90-day approval. Ream finances your land or home directly — fixed rate, no balloons, no early-payment penalties. Decisions in 3–5 days.</p>
+      <div class="row">
+        <a class="pub-btn pub-btn-warm" href="prospect-public.html"><i class="ri-magic-line"></i> Get a real offer</a>
+        <a class="pub-btn pub-btn-outline" style="background: rgba(255,255,255,0.10); color: #fff; border-color: rgba(255,255,255,0.30);" href="#simulator">Try the simulator <i class="ri-arrow-down-line"></i></a>
+      </div>
+      <div class="fn-hero-stats">
+        <div><div class="v">11.5<small>%</small></div><div class="l">Starting APR · fixed</div></div>
+        <div><div class="v">3–5<small> days</small></div><div class="l">Underwriting decision</div></div>
+        <div><div class="v">$0</div><div class="l">Early-payment penalty</div></div>
+      </div>
+    </div>
+    <div class="h-photo pub-img pub-fam-1">
+      <div class="badge">
+        <div class="av pub-img pub-face-7"></div>
+        <div>
+          <div>Approved in 4 days</div>
+          <div class="meta">Maria &amp; Luis · Bishop Arts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY FINANCING -->
+<section class="fn-section" data-screen-label="02 Why financing" id="why">
+  <div class="fn-why">
+    <div>
+      <div class="fn-shead">
+        <div class="tag">Why owner-financing?</div>
+        <h2>Made for buyers banks won't underwrite.</h2>
+        <p>Most Dallas land doesn't qualify for a traditional mortgage — banks want move-in ready housing on titled, surveyed lots with utilities. We finance the rest. And we do it without the 60-day paper chase.</p>
+      </div>
+      <div class="fn-why-points">
+        <div class="pt">
+          <div class="ic"><i class="ri-flashlight-fill"></i></div>
+          <div>
+            <h5>Decisions in 3–5 days</h5>
+            <p>Instead of 60–90 days of bank back-and-forth, we underwrite in-house against the property and your income.</p>
+          </div>
+        </div>
+        <div class="pt">
+          <div class="ic"><i class="ri-percent-line"></i></div>
+          <div>
+            <h5>Locked APR from 11.5%</h5>
+            <p>Fixed for the life of the loan. No teaser rates, no resets, no balloons. What you sign is what you pay.</p>
+          </div>
+        </div>
+        <div class="pt">
+          <div class="ic"><i class="ri-refund-2-line"></i></div>
+          <div>
+            <h5>No early-payment penalties</h5>
+            <p>Pay it off whenever you can — partial or full — without giving up a dollar in interest savings.</p>
+          </div>
+        </div>
+        <div class="pt">
+          <div class="ic"><i class="ri-shield-check-line"></i></div>
+          <div>
+            <h5>Title-verified, escrow-protected</h5>
+            <p>Every property's title is checked at Dallas County Records. Your deposit sits in regulated escrow until closing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fn-compare">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="ream">Ream</th>
+            <th class="bank">Traditional bank</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Approval time</td><td class="ream">3–5 days</td><td>30–90 days</td></tr>
+          <tr><td>Down payment</td><td class="ream">5–20%</td><td>20–25%</td></tr>
+          <tr><td>Credit score floor</td><td class="ream">No hard floor</td><td>620+</td></tr>
+          <tr><td>Vacant land OK</td><td class="ream"><i class="ri-checkbox-circle-fill yes"></i></td><td><i class="ri-close-circle-fill no"></i></td></tr>
+          <tr><td>Self-employed OK</td><td class="ream"><i class="ri-checkbox-circle-fill yes"></i></td><td>Hard</td></tr>
+          <tr><td>Early-payment penalty</td><td class="ream"><i class="ri-close-circle-fill no"></i> None</td><td>Often 1–3 yrs</td></tr>
+          <tr><td>Balloon payments</td><td class="ream"><i class="ri-close-circle-fill no"></i> None</td><td>Common on land</td></tr>
+          <tr><td>7-day cool-off</td><td class="ream"><i class="ri-checkbox-circle-fill yes"></i></td><td><i class="ri-close-circle-fill no"></i></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO QUALIFY -->
+<section class="fn-band" data-screen-label="03 How to qualify" id="qualify">
+  <div class="fn-section tight">
+    <div class="fn-shead center">
+      <div class="tag">How to qualify</div>
+      <h2>Four boxes to check.</h2>
+      <p>Most Dallas residents qualify. Here's exactly what we look at — no hidden criteria, no scorecard tricks.</p>
+    </div>
+
+    <div class="fn-qualify-grid">
+      <div class="fn-qcard">
+        <span class="num">01</span>
+        <div class="ico"><i class="ri-user-3-line"></i></div>
+        <h4>You're 18+ &amp; based in the US</h4>
+        <p>You need a US address (Texas not required) and a valid government-issued ID. Diaspora buyers welcome with a US co-signer.</p>
+      </div>
+      <div class="fn-qcard">
+        <span class="num">02</span>
+        <div class="ico"><i class="ri-money-dollar-circle-line"></i></div>
+        <h4>Verifiable income</h4>
+        <p>Two recent payslips or three months of bank statements. Self-employed? Submit 12 months of business deposits or a recent tax return.</p>
+      </div>
+      <div class="fn-qcard">
+        <span class="num">03</span>
+        <div class="ico"><i class="ri-bank-card-2-line"></i></div>
+        <h4>10% deposit (typical)</h4>
+        <p>Most properties are at 10%. Some accept as low as 5% with a stronger income profile, others ask 20% on premium plots.</p>
+      </div>
+      <div class="fn-qcard">
+        <span class="num">04</span>
+        <div class="ico"><i class="ri-percent-line"></i></div>
+        <h4>Sensible debt-to-income</h4>
+        <p>Monthly housing payment under 35% of gross monthly income, including this loan. We'll tell you instantly if you're outside.</p>
+      </div>
+    </div>
+
+    <!-- Disclosure -->
+    <div class="fn-disc">
+      <div class="ic"><i class="ri-information-line"></i></div>
+      <div>
+        <h4>What we don't require</h4>
+        <p>No minimum FICO score, no W-2 employment history, no US citizenship. We do a soft credit pull at application (no impact on score) and a hard pull only at final underwriting, after you've reviewed and accepted indicative terms.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULATOR -->
+<section class="fn-section" data-screen-label="04 Simulator" id="simulator">
+  <div class="fn-shead center">
+    <div class="tag">Try the math</div>
+    <h2>Monthly payment simulator.</h2>
+    <p>Move the sliders. Indicative numbers based on Ream's standard rate card — your final rate may vary by 0.5–1.5% depending on profile.</p>
+  </div>
+
+  <div class="fn-sim">
+    <div class="fn-sim-left">
+      <h3>Set your scenario</h3>
+      <div class="sub">Pick a property type, then dial in price, deposit, and term.</div>
+
+      <div class="fn-sim-property-row">
+        <div class="picker" id="propType" role="tablist" aria-label="Property type">
+          <button data-t="land" class="on" type="button"><i class="ri-landscape-line"></i> Land</button>
+          <button data-t="house" type="button"><i class="ri-home-4-line"></i> House</button>
+        </div>
+      </div>
+
+      <div class="fn-sim-control">
+        <div class="label-row">
+          <label for="simPrice">Property price</label>
+          <div class="val">$<span id="simPriceLabel">200,000</span></div>
+        </div>
+        <input type="range" id="simPrice" min="50000" max="900000" step="5000" value="200000" />
+        <div class="scale"><span>$50k</span><span>$300k</span><span>$900k</span></div>
+      </div>
+
+      <div class="fn-sim-control">
+        <div class="label-row">
+          <label for="simDep">Down payment</label>
+          <div class="val">
+            <span id="simDepPct">10</span>% <small>= $<span id="simDepAmt">20,000</span></small>
+          </div>
+        </div>
+        <input type="range" id="simDep" min="5" max="50" step="1" value="10" />
+        <div class="scale"><span>5%</span><span>20%</span><span>50%</span></div>
+      </div>
+
+      <div class="fn-sim-control">
+        <div class="label-row">
+          <label for="simTerm">Loan term</label>
+          <div class="val"><span id="simTermLabel">120</span> <small>months · <span id="simTermYears">10</span>yr</small></div>
+        </div>
+        <input type="range" id="simTerm" min="36" max="240" step="12" value="120" />
+        <div class="scale"><span>3yr</span><span>10yr</span><span>20yr</span></div>
+      </div>
+
+    </div>
+
+    <div class="fn-sim-right">
+      <div class="stitle">Monthly payment</div>
+      <div class="monthly">$<span id="outMonthly">2,582</span><span class="per">/mo</span></div>
+      <div class="summary">Estimated principal + interest, fixed for the life of the loan.</div>
+
+      <div class="fn-sim-rows">
+        <div class="fn-sim-row"><div class="k">Property price</div><div class="v">$<span id="outPrice">200,000</span></div></div>
+        <div class="fn-sim-row"><div class="k">Down payment</div><div class="v">$<span id="outDep">20,000</span></div></div>
+        <div class="fn-sim-row"><div class="k">Amount financed</div><div class="v">$<span id="outFin">180,000</span></div></div>
+        <div class="fn-sim-row"><div class="k">Interest paid</div><div class="v warn">$<span id="outInt">129,873</span></div></div>
+        <div class="fn-sim-row total"><div class="k">Total cost over term</div><div class="v">$<span id="outTotal">329,873</span></div></div>
+      </div>
+
+      <div class="fn-sim-cta">
+        <a class="primary" href="prospect-public.html"><i class="ri-magic-line"></i> Get a real offer</a>
+        <a class="ghost" href="browse-v2.html"><i class="ri-search-line"></i> Browse listings</a>
+      </div>
+      <div class="fn-sim-footnote">
+        Indicative only. Final APR set at underwriting based on credit, income, and property profile. No fees included; closing costs typically run $800–$1,400.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCUMENT CHECKLIST -->
+<section class="fn-band-dark" data-screen-label="05 Documents">
+  <div class="fn-section tight">
+    <div class="fn-shead center">
+      <div class="tag">Documents</div>
+      <h2>What you'll need to submit.</h2>
+      <p>Have these ready and your application moves from interest to indicative offer in a single day.</p>
+    </div>
+
+    <div class="fn-docs">
+      <div class="fn-doc-col">
+        <h4><i class="ri-id-card-line"></i> Identity (everyone)</h4>
+        <ul>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Government-issued photo ID<small>Driver's license, US passport, or state ID</small></div></li>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Proof of address<small>Utility bill, lease, or bank statement, last 90 days</small></div></li>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Social Security Number<small>Or ITIN — required for Texas owner-financing</small></div></li>
+        </ul>
+      </div>
+      <div class="fn-doc-col">
+        <h4><i class="ri-money-dollar-circle-line"></i> Income (one of these)</h4>
+        <ul>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Employed: 2 recent payslips<small>And 3 months of bank statements</small></div></li>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Self-employed: 12mo of bank statements<small>Or your most recent IRS Form 1040</small></div></li>
+          <li><i class="ri-checkbox-circle-fill"></i><div>Retired/diaspora: pension or remittance proof<small>Plus 6 months of US-bank deposits</small></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="pub-foot">
+  <div class="pub-foot-inner">
+    <div class="pub-foot-brand">
+      <a class="pub-brand" href="landing.html"><span class="dot"></span>DIG</a>
+      <p>Dispensation Investment Group — pre-financing land &amp; homes across Texas. Real estate ownership made accessible.</p>
+      <div class="pub-foot-contact">
+        <span><i class="ri-map-pin-2-line"></i> 3232 McKinney Ave, Suite 512, Dallas, TX 75204</span>
+        <span><i class="ri-phone-line"></i> <a href="tel:+12147728720">+1 (214) 772-8720</a></span>
+        <span><i class="ri-mail-line"></i> <a href="mailto:info@dinvestgroup.com">info@dinvestgroup.com</a></span>
+      </div>
+      <div class="pub-foot-licenses">
+        <span><i class="ri-shield-check-line"></i> TREC License #9612045</span>
+        <span><i class="ri-bank-line"></i> Texas Owner-Finance Mortgage Servicer</span>
+        <span><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      </div>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Browse</h4>
+      <ul>
+        <li><a href="browse-v2.html">All listings</a></li>
+        <li><a href="browse-v2.html?type=land">Land</a></li>
+        <li><a href="browse-v2.html?type=house">Houses</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Financing</h4>
+      <ul>
+        <li><a href="financing.html#why">Why financing</a></li>
+        <li><a href="financing.html#qualify">Qualifying</a></li>
+        <li><a href="financing.html#simulator">Simulator</a></li>
+        <li><a href="prospect-public.html">Pre-qualify</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="landing.html#about">About</a></li>
+        <li><a href="landing.html#faq">FAQ</a></li>
+        <li><a href="login.html">Sign in</a></li>
+        <li><a href="mailto:info@dinvestgroup.com">Contact</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="legal.html">Disclosures</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pub-foot-meta">
+    <span>© 2026 Dispensation Investment Group LLC · Dallas, TX</span>
+    <span class="lks">
+      <span class="pub-foot-eho"><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      <a href="legal.html">Disclosures</a>
+      <a href="privacy.html">Privacy</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    const fmt = n => Math.round(n).toLocaleString('en-US');
+
+    // Type-driven APR — Land = 12.0%, House = 11.5%
+    let currentApr = 12.0;
+
+    const els = {
+      price: document.getElementById('simPrice'),
+      dep: document.getElementById('simDep'),
+      term: document.getElementById('simTerm'),
+      priceLabel: document.getElementById('simPriceLabel'),
+      depPct: document.getElementById('simDepPct'),
+      depAmt: document.getElementById('simDepAmt'),
+      termLabel: document.getElementById('simTermLabel'),
+      termYears: document.getElementById('simTermYears'),
+      monthly: document.getElementById('outMonthly'),
+      outPrice: document.getElementById('outPrice'),
+      outDep: document.getElementById('outDep'),
+      outFin: document.getElementById('outFin'),
+      outInt: document.getElementById('outInt'),
+      outTotal: document.getElementById('outTotal'),
+    };
+
+    function setSliderFill(input) {
+      const min = +input.min, max = +input.max, val = +input.value;
+      const pct = ((val - min) / (max - min)) * 100;
+      input.style.setProperty('--p', pct + '%');
+    }
+
+    function calc() {
+      const price = +els.price.value;
+      const depPct = +els.dep.value;
+      const term = +els.term.value;
+      const apr = currentApr;
+
+      const dep = price * depPct / 100;
+      const principal = price - dep;
+      const r = (apr / 100) / 12;
+      let monthly;
+      if (r === 0) {
+        monthly = principal / term;
+      } else {
+        monthly = principal * r * Math.pow(1 + r, term) / (Math.pow(1 + r, term) - 1);
+      }
+      const total = monthly * term + dep;
+      const interest = total - price;
+
+      els.priceLabel.textContent = fmt(price);
+      els.depPct.textContent = depPct;
+      els.depAmt.textContent = fmt(dep);
+      els.termLabel.textContent = term;
+      els.termYears.textContent = (term / 12).toFixed(term % 12 === 0 ? 0 : 1);
+
+      els.monthly.textContent = fmt(monthly);
+      els.outPrice.textContent = fmt(price);
+      els.outDep.textContent = fmt(dep);
+      els.outFin.textContent = fmt(principal);
+      els.outInt.textContent = fmt(interest);
+      els.outTotal.textContent = fmt(total);
+
+      [els.price, els.dep, els.term].forEach(setSliderFill);
+    }
+
+    [els.price, els.dep, els.term].forEach(s => {
+      s.addEventListener('input', calc);
+    });
+
+    // Property-type presets
+    document.querySelectorAll('#propType button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#propType button').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        const t = btn.dataset.t;
+        if (t === 'land') {
+          els.price.value = 186500;
+          els.dep.value = 10;
+          els.term.value = 144;
+          currentApr = 12.0;
+        } else if (t === 'house') {
+          els.price.value = 320000;
+          els.dep.value = 15;
+          els.term.value = 180;
+          currentApr = 11.5;
+        }
+        calc();
+      });
+    });
+
+    calc();
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Broadcasts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .composer-grid { display:grid;grid-template-columns:1fr 380px;gap:18px; }
+  @media (max-width: 1100px) { .composer-grid { grid-template-columns:1fr; } }
+  .preview-banner { padding:12px 16px;border-radius:8px;display:grid;grid-template-columns:24px 1fr auto;gap:12px;align-items:flex-start;font:500 12.5px/1.55 var(--font-sans); }
+  .preview-banner.info { background:#eef2ff;color:#312e81;border:1px solid #c7d2fe; }
+  .preview-banner.info i.lead { color:#4f46e5; }
+  .preview-banner.warn { background:#fffbeb;color:#78350f;border:1px solid #fde68a; }
+  .preview-banner.warn i.lead { color:#f59e0b; }
+  .preview-banner.crit { background:#fef2f2;color:#7f1d1d;border:1px solid #fecaca; }
+  .preview-banner.crit i.lead { color:#dc2626; }
+  .preview-banner b { display:block;font-weight:700;margin-bottom:2px; }
+  .seg-bar { display:flex;background:white;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden;width:fit-content; }
+  .seg-bar button { background:transparent;border:0;padding:6px 12px;font:500 12px var(--font-sans);color:var(--adm-text-3);cursor:pointer;border-right:1px solid var(--adm-border); }
+  .seg-bar button:last-child { border-right:0; }
+  .seg-bar button.on { background:var(--adm-accent-50);color:var(--adm-accent-700);font-weight:600; }
+  .target-pill { display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--adm-border);border-radius:8px;cursor:pointer;background:white;font:500 12.5px var(--font-sans); }
+  .target-pill input { margin:0; }
+  .target-pill.on { background:var(--adm-accent-50);border-color:var(--adm-accent-200);color:var(--adm-accent-700);font-weight:600; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"broadcasts",
+    crumb:[{label:"Broadcasts"}],
+    title:"Broadcasts",
+    subtitle:"Compose announcements that appear in-app, by email, or both. Past broadcasts are immutable once sent.",
+    actions:`<button class="adm-btn" id="bcastHistory"><i class="material-symbols-rounded">history</i> Past broadcasts <span class="adm-pill muted no-dot" style="margin-left:6px;">42</span></button>`,
+    env:"STAGING",
+  });
+</script>
+<script>
+document.getElementById("adm-content").innerHTML = `
+  <div class="composer-grid">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">edit_note</i> Compose broadcast</h3>
+          <div class="row gap-2"><button class="adm-btn adm-btn-sm">Save draft</button></div>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-row"><div>
+            <label class="adm-label">Title</label>
+            <input class="adm-input" value="Maintenance window — May 12, 02:00–04:00 UTC" />
+          </div></div>
+
+          <div class="adm-row"><div>
+            <label class="adm-label">Severity</label>
+            <div class="seg-bar" id="sev">
+              <button data-k="info" class="on">Info</button>
+              <button data-k="warn">Warning</button>
+              <button data-k="crit">Critical</button>
+            </div>
+            <div class="adm-help">Drives banner color, sound on critical, and whether dismiss is allowed.</div>
+          </div></div>
+
+          <div class="adm-row"><div>
+            <label class="adm-label">Body (Markdown)</label>
+            <textarea class="adm-textarea" rows="6">**Heads up — scheduled platform maintenance.**
+
+We'll be deploying upgraded payment workers on **Monday, May 12 at 02:00 UTC** (about 60 hours from now). Expect:
+
+- 5–10 minute window where payments may show as *Pending* longer than usual.
+- No data loss. Read access is preserved throughout.
+
+[View status page →](https://status.ream.com)</textarea>
+          </div></div>
+
+          <div class="adm-row cols-2">
+            <div>
+              <label class="adm-label">Channels</label>
+              <div class="row gap-2" style="flex-wrap:wrap;">
+                <label class="target-pill on"><input type="checkbox" checked> In-app banner</label>
+                <label class="target-pill"><input type="checkbox"> Email digest</label>
+                <label class="target-pill"><input type="checkbox"> Slack webhook</label>
+              </div>
+            </div>
+            <div>
+              <label class="adm-label">Dismissable?</label>
+              <div class="seg-bar">
+                <button class="on">Yes</button>
+                <button>Sticky</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">target</i> Audience</h3></div>
+        <div class="adm-card-body">
+          <div class="row gap-2" style="flex-wrap:wrap;margin-bottom:12px;">
+            <label class="target-pill on"><input type="radio" name="aud" checked> All organizations <span class="muted">142</span></label>
+            <label class="target-pill"><input type="radio" name="aud"> By plan</label>
+            <label class="target-pill"><input type="radio" name="aud"> By cohort</label>
+            <label class="target-pill"><input type="radio" name="aud"> Specific orgs</label>
+            <label class="target-pill"><input type="radio" name="aud"> Specific users</label>
+          </div>
+          <div class="adm-row cols-2">
+            <div>
+              <label class="adm-label">Roles to notify</label>
+              <div class="row gap-2" style="flex-wrap:wrap;">
+                <label class="target-pill on"><input type="checkbox" checked> Owners</label>
+                <label class="target-pill on"><input type="checkbox" checked> Admins</label>
+                <label class="target-pill"><input type="checkbox"> All members</label>
+              </div>
+            </div>
+            <div>
+              <label class="adm-label">Estimated reach</label>
+              <div class="row gap-2" style="margin-top:6px;">
+                <span class="adm-pill indigo no-dot" style="font-size:12px;padding:5px 10px;">142 orgs</span>
+                <span class="adm-pill indigo no-dot" style="font-size:12px;padding:5px 10px;">428 admins</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">schedule</i> Schedule &amp; expiry</h3></div>
+        <div class="adm-card-body">
+          <div class="adm-row cols-2">
+            <div>
+              <label class="adm-label">Send at</label>
+              <div class="seg-bar"><button class="on">Now</button><button>Schedule…</button></div>
+            </div>
+            <div>
+              <label class="adm-label">Auto-expire after</label>
+              <select class="adm-select">
+                <option>3 days</option>
+                <option selected>7 days</option>
+                <option>14 days</option>
+                <option>Never</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;position:sticky;top:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">visibility</i> Preview · in-app banner</h3></div>
+        <div class="adm-card-body">
+          <div class="preview-banner info">
+            <i class="material-symbols-rounded lead">campaign</i>
+            <div>
+              <b>Maintenance window — May 12, 02:00–04:00 UTC</b>
+              Heads up — scheduled platform maintenance. We'll be deploying upgraded payment workers Monday at 02:00 UTC. <a href="#" style="color:var(--adm-stripe);font-weight:600;">View status page →</a>
+            </div>
+            <button class="adm-kebab" style="margin-top:-4px;"><i class="material-symbols-rounded">close</i></button>
+          </div>
+          <div class="adm-help" style="margin-top:10px;">Will appear at the top of every authenticated page for owners &amp; admins of all orgs.</div>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">verified</i> Approval</h3></div>
+        <div class="adm-card-body">
+          <div class="adm-stat-row"><span class="lbl">Created by</span><span class="val">Daria Kim</span></div>
+          <div class="adm-stat-row"><span class="lbl">2-person rule</span><span class="adm-pill muted no-dot">Not required (info)</span></div>
+          <div class="adm-stat-row"><span class="lbl">Audience size</span><span class="val">428 recipients</span></div>
+        </div>
+        <div class="adm-card-foot" style="display:flex;gap:8px;">
+          <button class="adm-btn" style="flex:1;">Save draft</button>
+          <button class="adm-btn adm-btn-primary" style="flex:1;"><i class="material-symbols-rounded">send</i> Send now</button>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">history</i> Recent broadcasts</h3></div>
+        <div class="adm-card-body" style="padding:0;">
+          ${[
+            {t:"New House inventory module is live", k:"info", aud:"All", sent:"3 days", reach:"428"},
+            {t:"Plaid OAuth migration — action required", k:"warn", aud:"Trial+Starter", sent:"1 wk", reach:"118"},
+            {t:"Critical: rotate webhook signing keys", k:"crit", aud:"Enterprise", sent:"2 wk", reach:"14"},
+            {t:"April release notes", k:"info", aud:"All", sent:"3 wk", reach:"428"},
+          ].map(b => `
+            <div style="padding:11px 16px;border-bottom:1px solid var(--adm-border-2);">
+              <div class="row" style="justify-content:space-between;gap:10px;">
+                <span style="font:600 12.5px var(--font-sans);color:var(--adm-text-1);">${b.t}</span>
+                <span class="adm-pill ${b.k === "info" ? "indigo" : (b.k === "warn" ? "warn" : "crit")} no-dot" style="font-size:9px;">${b.k.toUpperCase()}</span>
+              </div>
+              <div class="muted tiny" style="margin-top:3px;">${b.aud} · ${b.reach} recipients · ${b.sent} ago</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const T = AdminShell.toast;
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+// Severity tabs swap preview
+$$('#sev button').forEach(b => b.onclick = () => {
+  $$('#sev button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  const k = b.dataset.k;
+  const banner = $('.preview-banner');
+  banner.className = "preview-banner " + k;
+  banner.querySelector('.lead').textContent = k === "crit" ? "error" : (k === "warn" ? "warning" : "campaign");
+  // Update 2-person rule pill based on severity
+  const rule = $$('.adm-stat-row').find(r => r.textContent.includes("2-person rule"));
+  if (rule) {
+    const pill = rule.querySelector('.adm-pill');
+    if (k === "crit") { pill.textContent = "Required"; pill.className = "adm-pill crit no-dot"; }
+    else if (k === "warn") { pill.textContent = "Recommended"; pill.className = "adm-pill warn no-dot"; }
+    else { pill.textContent = "Not required (info)"; pill.className = "adm-pill muted no-dot"; }
+  }
+});
+
+// All other seg-bars
+$$('.seg-bar').forEach(bar => {
+  if (bar.id === "sev") return;
+  $$('button', bar).forEach(btn => btn.onclick = () => {
+    $$('button', bar).forEach(x => x.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+// Toggle target-pill chips (checkbox + radio styles)
+$$('.target-pill').forEach(p => {
+  const input = p.querySelector('input');
+  if (!input) return;
+  p.addEventListener('click', () => {
+    if (input.type === "radio") {
+      $$(`.target-pill input[name="${input.name}"]`).forEach(x => x.closest('.target-pill').classList.remove('on'));
+      input.checked = true;
+      p.classList.add('on');
+    } else {
+      // checkbox handled natively; update class on next tick
+      requestAnimationFrame(() => p.classList.toggle('on', input.checked));
+    }
+  });
+});
+
+// Past broadcasts (top action)
+$('#bcastHistory').onclick = () => T("Loading past broadcasts (42 records)…", "info");
+
+// Save draft (header) + Save draft (footer)
+$$('.adm-card-head .adm-btn').forEach(b => {
+  if (b.textContent.trim() === "Save draft") b.onclick = () => T("Draft saved · 'Maintenance window — May 12'", "success");
+});
+$$('.adm-card-foot .adm-btn').forEach(b => {
+  if (b.textContent.trim() === "Save draft") b.onclick = () => T("Draft saved", "success");
+});
+
+// Send now (requires confirm; respects severity)
+$$('.adm-card-foot .adm-btn-primary').forEach(b => b.onclick = async () => {
+  const sev = $('#sev button.on').dataset.k;
+  const reachEl = $$('.adm-stat-row').find(r => r.textContent.includes("Audience size"));
+  const reach = reachEl ? reachEl.querySelector('.val').textContent : "428 recipients";
+  if (sev === "crit") {
+    const ok = await AdminShell.confirmDialog({
+      title: "Send CRITICAL broadcast to " + reach + "?",
+      body: "Critical broadcasts cannot be dismissed and require a second admin to approve within 5 minutes. Recipients will hear the alert sound.",
+      confirmLabel: "Request approval",
+      danger: true,
+    });
+    if (ok) T("Approval request sent to Marc Olsen · waiting 5:00", "warn");
+  } else {
+    const ok = await AdminShell.confirmDialog({
+      title: `Send broadcast to ${reach}?`,
+      body: "Once sent, the broadcast is immutable. You can expire it early but not edit the content.",
+      confirmLabel: "Send now",
+    });
+    if (ok) T("Broadcast sent to " + reach, "success");
+  }
+});
+
+// Title input + textarea live-update preview
+const titleEl = $$('.adm-input').find(i => i.value && i.value.includes("Maintenance"));
+const previewTitle = $('.preview-banner b');
+if (titleEl && previewTitle) {
+  titleEl.oninput = () => { previewTitle.textContent = titleEl.value || "(Untitled broadcast)"; };
+}
+
+// Recent broadcast rows clickable
+$$('.adm-card-body > div').forEach(row => {
+  if (row.style && row.style.borderBottom) {
+    row.style.cursor = "pointer";
+    row.onclick = () => {
+      const t = row.querySelector('span').textContent;
+      T(`Opening broadcast: ${t.length > 40 ? t.slice(0,40) + "…" : t}`, "info");
+    };
+  }
+});
+
+// Auto-expire select
+$('.adm-select').onchange = (e) => T(`Auto-expire set to ${e.target.value}`, "info");
+
+// Banner dismiss button (preview only)
+const dismiss = $('.preview-banner .adm-kebab');
+if (dismiss) dismiss.onclick = (e) => { e.preventDefault(); T("Preview only — dismiss disabled while composing", "info"); };
+</script>
+</body>
+</html>

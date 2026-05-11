@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Users</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .seg-bar { display:flex;background:white;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden; }
+  .seg-bar button { background:transparent;border:0;padding:6px 12px;font:500 12px var(--font-sans);color:var(--adm-text-3);cursor:pointer;border-right:1px solid var(--adm-border); }
+  .seg-bar button:last-child { border-right:0; }
+  .seg-bar button.on { background:var(--adm-accent-50);color:var(--adm-accent-700);font-weight:600; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"users",
+    crumb:[{label:"Users"}],
+    title:"Users",
+    subtitle:"All people across all tenants. Lock, unlock, reset MFA, or trace activity from here.",
+    actions:`<button class="adm-btn" id="usersExport"><i class="material-symbols-rounded">file_download</i> Export</button>`,
+    env:"STAGING",
+  });
+</script>
+<script>
+const COLORS = ["#6366f1","#0ea5e9","#10b981","#f59e0b","#ec4899","#8b5cf6","#ef4444","#14b8a6"];
+function col(s){let h=0;for(const c of s) h=(h*31+c.charCodeAt(0))|0;return COLORS[Math.abs(h)%COLORS.length];}
+
+const USERS = [
+  { n:"Javier Vasquez", e:"jvasquez@pinecrest.com",   org:"Pinecrest Loans",   role:"Owner", state:"active", mfa:true,  la:"2 min", joined:"Mar 2024" },
+  { n:"Mei Tanaka",     e:"mtanaka@pinecrest.com",   org:"Pinecrest Loans",   role:"Admin", state:"active", mfa:true,  la:"14 min", joined:"Mar 2024" },
+  { n:"Karoline Steiner",e:"kst@atlascap.com",       org:"Atlas Capital",     role:"Owner", state:"active", mfa:true,  la:"1 hr",  joined:"Sep 2023" },
+  { n:"Tina Wu",        e:"tina@atlascap.com",       org:"Atlas Capital",     role:"Admin", state:"locked", mfa:true,  la:"3 days", joined:"Oct 2023", reason:"Abuse" },
+  { n:"Aaron Bell",     e:"abell@greenline.io",      org:"Greenline Properties", role:"Owner", state:"active", mfa:false, la:"2 hr",  joined:"Jan 2025" },
+  { n:"Priya Sahni",    e:"priya@maven-realty.com",  org:"Maven Realty",      role:"Owner", state:"active", mfa:true,  la:"36 min", joined:"Nov 2024" },
+  { n:"Daniel Park",    e:"dpark@pinecrest.com",     org:"Pinecrest Loans",   role:"Loan officer", state:"active", mfa:true, la:"1 hr", joined:"Apr 2024" },
+  { n:"Roxana Iliescu", e:"riliescu@pinecrest.com",  org:"Pinecrest Loans",   role:"Loan officer", state:"active", mfa:false, la:"yesterday", joined:"Jun 2024" },
+  { n:"Marcus O'Brien", e:"marcus@northgate.co",     org:"Northgate Realty",  role:"Owner", state:"readonly", mfa:true, la:"1 wk", joined:"Apr 2026", reason:"Org read-only" },
+  { n:"Hyo-jin Park",   e:"hjpark@cobaltlend.com",   org:"Cobalt Lending",    role:"Admin", state:"active", mfa:true,  la:"4 hr",  joined:"Aug 2024" },
+  { n:"Sandra Velez",   e:"svelez@heritageprop.com", org:"Heritage Property", role:"Owner", state:"active", mfa:true,  la:"22 min", joined:"Jul 2023" },
+  { n:"Owen Bryant",    e:"obryant@blueridge.land",  org:"BlueRidge Land Co.",role:"Owner", state:"active", mfa:true,  la:"yesterday", joined:"Feb 2025" },
+];
+
+const rows = USERS.map(u => `
+  <tr onclick="location.href='admin-user-detail.html?u=${encodeURIComponent(u.e)}'">
+    <td>
+      <div class="adm-ent">
+        <span class="adm-ava round" style="background:${col(u.e)};">${u.n.split(" ").map(p=>p[0]).join("").slice(0,2)}</span>
+        <div class="meta"><div class="nm">${u.n}</div><div class="sub mono">${u.e}</div></div>
+      </div>
+    </td>
+    <td><a style="color:var(--adm-stripe);text-decoration:none;font-weight:500;" onclick="event.stopPropagation();">${u.org}</a></td>
+    <td>${u.role}</td>
+    <td>
+      <span class="adm-pill ${u.state}">${u.state === "readonly" ? "Read-only" : u.state}</span>
+      ${u.reason ? `<div class="muted tiny" style="margin-top:3px;">${u.reason}</div>` : ""}
+    </td>
+    <td>${u.mfa ? '<span class="adm-pill active no-dot">ON</span>' : '<span class="adm-pill warn no-dot">OFF</span>'}</td>
+    <td class="muted">${u.la}</td>
+    <td class="muted">${u.joined}</td>
+    <td class="right" onclick="event.stopPropagation();"><button class="adm-kebab" data-uk="${u.e}" data-uname="${u.n}" data-ustate="${u.state}" data-umfa="${u.mfa}"><i class="material-symbols-rounded">more_horiz</i></button></td>
+  </tr>
+`).join("");
+
+document.getElementById("adm-content").innerHTML = `
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">Total users</div><div class="adm-kpi-value">8,412</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +312 (7d)</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Active (30d)</div><div class="adm-kpi-value">6,148</div><div class="adm-kpi-delta flat">73% of total</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">MFA enrolled</div><div class="adm-kpi-value">82.1%</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +1.4pp</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Locked</div><div class="adm-kpi-value">14</div><div class="adm-kpi-delta flat">2 awaiting review</div></div>
+  </div>
+
+  <div class="adm-filterbar">
+    <div class="grow"><div class="adm-filter-input"><i class="material-symbols-rounded">search</i><input placeholder="Search by name, email, ID, IP…"/></div></div>
+    <div class="seg-bar">
+      <button class="on">All</button>
+      <button>Active</button>
+      <button>Read-only</button>
+      <button>Locked</button>
+      <button>MFA off</button>
+    </div>
+    <button class="adm-pill-filter">Org: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Role: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Last seen: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+  </div>
+
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead><tr><th>User</th><th>Organization</th><th>Role</th><th>State</th><th>MFA</th><th>Last active</th><th>Joined</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <div class="adm-pager" id="usersPager">
+    <span id="usersCount">Showing 1–12 of 8,412</span>
+    <div class="controls">
+      <button data-pg="prev" disabled><i class="material-symbols-rounded">chevron_left</i></button>
+      <button class="num active" data-pg="1">1</button><button class="num" data-pg="2">2</button><button class="num" data-pg="3">3</button>
+      <button class="num" disabled>…</button><button class="num" data-pg="701">701</button>
+      <button data-pg="next"><i class="material-symbols-rounded">chevron_right</i></button>
+    </div>
+  </div>
+`;
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const T = AdminShell.toast;
+
+$("#usersExport").onclick = () => {
+  const header = "name,email,org,role,state,mfa,last_active,joined\n";
+  const body = USERS.map(u => `"${u.n}",${u.e},"${u.org}",${u.role},${u.state},${u.mfa},"${u.la}","${u.joined}"`).join("\n");
+  const blob = new Blob([header+body], { type:"text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download=`ream-users-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  T(`Exported ${USERS.length} users to CSV`, "success");
+};
+
+const usSearch = $(".adm-filterbar .adm-filter-input input");
+usSearch.addEventListener("input", () => {
+  const q = usSearch.value.trim().toLowerCase();
+  let n = 0;
+  $$("tbody tr").forEach(tr => {
+    const show = !q || tr.textContent.toLowerCase().includes(q);
+    tr.style.display = show ? "" : "none";
+    if (show) n++;
+  });
+  $("#usersCount").textContent = q ? `Showing ${n} match${n===1?"":"es"} for "${usSearch.value}"` : `Showing 1–12 of 8,412`;
+});
+
+$$(".seg-bar button").forEach(btn => {
+  btn.onclick = () => {
+    $$(".seg-bar button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    const label = btn.textContent.trim().toLowerCase();
+    let n = 0;
+    $$("tbody tr").forEach(tr => {
+      let show = true;
+      if (label === "active") show = tr.querySelector(".adm-pill.active") && !tr.querySelector(".adm-pill.locked") && !tr.querySelector(".adm-pill.readonly");
+      else if (label === "read-only") show = !!tr.querySelector(".adm-pill.readonly");
+      else if (label === "locked") show = !!tr.querySelector(".adm-pill.locked");
+      else if (label === "mfa off") show = !!tr.querySelector(".adm-pill.warn.no-dot");
+      tr.style.display = show ? "" : "none";
+      if (show) n++;
+    });
+    $("#usersCount").textContent = label === "all" ? `Showing 1–12 of 8,412` : `Showing ${n} ${label} user${n===1?"":"s"}`;
+  };
+});
+
+$$(".adm-pill-filter").forEach(pf => {
+  pf.onclick = () => {
+    const label = pf.textContent.trim().split(":")[0].trim();
+    if (label === "Org") AdminShell.popMenu(pf, ["Pinecrest Loans","Atlas Capital","Greenline Properties","Maven Realty","Northgate Realty","Cobalt Lending","Heritage Property","BlueRidge Land Co.","Any"].map(o => ({ label:o, onClick:() => pf.querySelector(".v").textContent = o === "Any" ? "Any" : o.split(" ")[0] })));
+    else if (label === "Role") AdminShell.popMenu(pf, ["Owner","Admin","Loan officer","Borrower","Any"].map(r => ({ label:r, onClick:() => pf.querySelector(".v").textContent = r })));
+    else if (label === "Last seen") AdminShell.popMenu(pf, [{label:"Last hour",onClick:()=>pf.querySelector(".v").textContent="1h"},{label:"Last 24 hours",onClick:()=>pf.querySelector(".v").textContent="24h"},{label:"Last 7 days",onClick:()=>pf.querySelector(".v").textContent="7d"},{label:"Last 30 days",onClick:()=>pf.querySelector(".v").textContent="30d"},{label:"Any",onClick:()=>pf.querySelector(".v").textContent="Any"}]);
+  };
+});
+
+$$("[data-uk]").forEach(btn => {
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    const email = btn.dataset.uk, name = btn.dataset.uname, state = btn.dataset.ustate, mfa = btn.dataset.umfa === "true";
+    AdminShell.popMenu(btn, [
+      { label:"Open profile", icon:"open_in_new", onClick:() => location.href=`admin-user-detail.html?u=${encodeURIComponent(email)}` },
+      { label:"Impersonate", icon:"switch_account", onClick:() => T(`Impersonation session started for ${name}`, "warn") },
+      { label:"Copy email", icon:"content_copy", onClick:() => { navigator.clipboard.writeText(email); T("Email copied", "success"); }},
+      { label:"Send password reset", icon:"key", onClick:async () => {
+        const ok = await AdminShell.confirmDialog({ title:`Send password reset to ${name}?`, body:`A reset link will be emailed to ${email}. The link expires in 60 minutes.`, confirmLabel:"Send reset" });
+        if (ok) T(`Password reset sent to ${email}`, "success");
+      }},
+      mfa
+        ? { label:"Reset MFA", icon:"lock_reset", onClick:async () => {
+            const ok = await AdminShell.confirmDialog({ title:`Reset MFA for ${name}?`, body:"They'll be required to re-enroll on next login.", confirmLabel:"Reset MFA" });
+            if (ok) T(`MFA reset for ${name}`, "warn");
+          }}
+        : { label:"Require MFA enrollment", icon:"shield", onClick:() => T(`MFA required for ${name} on next login`, "info") },
+      "-",
+      state === "locked"
+        ? { label:"Unlock account", icon:"lock_open", onClick:async () => {
+            const ok = await AdminShell.confirmDialog({ title:`Unlock ${name}?`, body:"They'll regain immediate access. Reason will be logged in the audit trail.", confirmLabel:"Unlock" });
+            if (ok) T(`${name} unlocked`, "success");
+          }}
+        : { label:"Lock account", icon:"block", danger:true, onClick:async () => {
+            const ok = await AdminShell.confirmDialog({ title:`Lock ${name}?`, body:"They will be signed out and unable to log in until unlocked. Use for abuse or compliance holds.", confirmLabel:"Lock account", danger:true });
+            if (ok) T(`${name} locked`, "danger");
+          }},
+    ]);
+  };
+});
+
+$$("#usersPager [data-pg]").forEach(btn => {
+  btn.onclick = () => {
+    if (btn.disabled) return;
+    const v = btn.dataset.pg;
+    if (v === "next" || v === "prev") { T("Loading next page…", "info"); return; }
+    $$("#usersPager .num").forEach(n => n.classList.remove("active"));
+    btn.classList.add("active");
+    T(`Page ${v}`, "info");
+  };
+});
+</script>
+</body>
+</html>

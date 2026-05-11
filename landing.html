@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dispensation Investment Group — Own land in Texas, on your terms.</title>
+<meta name="description" content="Dispensation Investment Group (DIG) pre-finances land and homes across Texas. Title-verified, transparent monthly payments, 30-year terms." />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<link rel="stylesheet" href="browse-v2.css" />
+<style>
+  :root { --max: 1280px; }
+
+  /* ===== HERO — readable: dark photo overlay + warm text ===== */
+  .ld-hero {
+    position: relative;
+    color: #fff;
+    overflow: hidden;
+    background: #06182E;
+  }
+  .ld-hero .bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1800&q=80");
+    background-size: cover; background-position: center;
+  }
+  .ld-hero .scrim {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(135deg, rgba(6,24,46,0.92) 0%, rgba(6,24,46,0.78) 50%, rgba(14,39,71,0.55) 100%);
+  }
+  .ld-hero-inner {
+    position: relative; z-index: 2;
+    max-width: var(--max); margin: 0 auto;
+    padding: 88px var(--pub-pad) 96px;
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 56px; align-items: center;
+  }
+  .ld-hero .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(212,168,88,0.16);
+    border: 1px solid rgba(212,168,88,0.45);
+    color: #E8C879;
+    padding: 7px 14px; border-radius: 999px;
+    font: 600 12.5px var(--font-sans);
+    margin-bottom: 22px;
+  }
+  .ld-hero h1 {
+    margin: 0 0 18px; font: 700 60px var(--font-sans);
+    line-height: 1.02; letter-spacing: -0.035em;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.30);
+  }
+  .ld-hero h1 em { font-style: normal; color: #D4A858; }
+  .ld-hero .lede {
+    font: 18px/1.55 var(--font-sans);
+    color: rgba(255,255,255,0.92);
+    margin: 0 0 28px; max-width: 560px;
+  }
+  .ld-hero .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .ld-hero-stats {
+    display: flex; gap: 40px; margin-top: 40px;
+    padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.18);
+  }
+  .ld-hero-stats .v { font: 700 28px var(--font-sans); letter-spacing: -0.02em; color: #fff; }
+  .ld-hero-stats .v small { font-size: 16px; color: #D4A858; }
+  .ld-hero-stats .l { font: 13px var(--font-sans); color: rgba(255,255,255,0.66); margin-top: 2px; }
+
+  /* Hero side: family/owner photos */
+  .ld-hv {
+    position: relative; height: 520px;
+  }
+  .ld-hv .frame {
+    position: absolute; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.40);
+    border: 4px solid rgba(255,255,255,0.20);
+  }
+  .ld-hv .f1 { left: 0; top: 30px; width: 60%; height: 280px; transform: rotate(-2deg); }
+  .ld-hv .f2 { right: 0; top: 0; width: 50%; height: 220px; transform: rotate(3deg); }
+  .ld-hv .f3 { right: 10%; bottom: 0; width: 60%; height: 220px; transform: rotate(-1deg); z-index: 2; }
+  .ld-hv .tag {
+    position: absolute;
+    background: #fff; color: var(--pub-ink-1);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font: 600 13px var(--font-sans);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    display: flex; align-items: center; gap: 10px;
+    z-index: 3;
+  }
+  .ld-hv .tag .av { width: 36px; height: 36px; border-radius: 50%; background-size: cover; background-position: center; }
+  .ld-hv .tag .name { font-weight: 700; }
+  .ld-hv .tag .meta { font-size: 11.5px; color: var(--pub-ink-4); font-weight: 500; }
+  .ld-hv .tag .stars { color: #f59e0b; font-size: 11px; }
+  .ld-hv .tag-1 { left: -8px; bottom: 70px; }
+  .ld-hv .tag-2 { right: -10px; top: 240px; }
+
+  /* ===== Section helpers (override pub-section padding for max width) ===== */
+  .ld-sec { max-width: var(--max); margin: 0 auto; padding: 96px var(--pub-pad); }
+  .ld-sec.tight { padding: 72px var(--pub-pad); }
+
+  /* ===== FEATURED ===== */
+  .ld-feat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .ld-feat-card {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .ld-feat-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(20,12,60,0.10); }
+  .ld-feat-card .photo {
+    aspect-ratio: 4 / 3; position: relative;
+    background-size: cover; background-position: center;
+  }
+  .ld-feat-card .badge {
+    position: absolute; top: 12px; left: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.96); color: var(--pub-ink-1);
+    padding: 5px 10px; border-radius: 999px;
+    font: 600 11px var(--font-sans); letter-spacing: 0.02em;
+  }
+  .ld-feat-card .badge i { color: var(--pub-brand); }
+  .ld-feat-card .badge.new i { color: var(--pub-success); }
+  .ld-feat-card .body { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .ld-feat-card .id { font: 600 11px var(--font-sans); color: var(--pub-ink-4); letter-spacing: 0.06em; text-transform: uppercase; }
+  .ld-feat-card h3 { margin: 0; font: 600 18px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-feat-card .loc { display: inline-flex; align-items: center; gap: 4px; font: 13px var(--font-sans); color: var(--pub-ink-3); }
+  .ld-feat-card .facts { display: flex; gap: 14px; font: 13px var(--font-sans); color: var(--pub-ink-2); margin-top: 2px; }
+  .ld-feat-card .facts .v { font-weight: 600; color: var(--pub-ink-1); }
+  .ld-feat-card .facts .l { color: var(--pub-ink-4); }
+  .ld-feat-card .price {
+    border-top: 1px solid var(--pub-line-soft);
+    margin-top: auto; padding-top: 14px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .ld-feat-card .price .v { font: 700 19px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-feat-card .price .mo { font: 12.5px var(--font-sans); color: var(--pub-ink-3); text-align: right; }
+  .ld-feat-card .price .mo strong { color: var(--pub-ink-1); }
+
+  .ld-feat-cta { display: flex; justify-content: center; margin-top: 36px; }
+  .ld-feat-cta a {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 14px 26px; background: var(--pub-ink-1); color: #fff;
+    border-radius: 12px; font: 600 14px var(--font-sans);
+    text-decoration: none;
+  }
+  .ld-feat-cta a:hover { background: var(--pub-brand-2); }
+
+  /* ===== ABOUT split with photo ===== */
+  .ld-about { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .ld-about-photo {
+    aspect-ratio: 4 / 5;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover; background-position: center;
+    box-shadow: 0 24px 48px rgba(20,12,60,0.18);
+  }
+  .ld-about-photo .qt {
+    position: absolute; left: 24px; right: 24px; bottom: 24px;
+    background: rgba(255,255,255,0.97);
+    border-radius: 14px; padding: 18px 20px;
+    display: flex; gap: 14px; align-items: center;
+  }
+  .ld-about-photo .qt .av { width: 44px; height: 44px; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
+  .ld-about-photo .qt p { margin: 0 0 4px; font: 14px/1.4 var(--font-sans); color: var(--pub-ink-1); }
+  .ld-about-photo .qt .who { font: 12px var(--font-sans); color: var(--pub-ink-4); }
+  .ld-about-photo .qt .who strong { color: var(--pub-ink-2); font-weight: 600; }
+
+  .ld-about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+  .ld-about-stats .stat {
+    background: var(--pub-canvas-2);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .ld-about-stats .stat .v {
+    font: 700 32px var(--font-sans); color: var(--pub-brand-2);
+    letter-spacing: -0.025em;
+  }
+  .ld-about-stats .stat .v small { font: 600 16px var(--font-sans); color: var(--pub-brand); }
+  .ld-about-stats .stat .k { font: 14px var(--font-sans); color: var(--pub-ink-3); margin-top: 4px; }
+
+  /* ===== HOW IT WORKS ===== */
+  .ld-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: step; }
+  .ld-step {
+    background: #fff; border: 1px solid var(--pub-line);
+    border-radius: 16px; padding: 26px 24px; position: relative;
+  }
+  .ld-step .num {
+    counter-increment: step;
+    font: 700 13px var(--font-sans); color: var(--pub-warm-2);
+    letter-spacing: 0.06em; position: absolute; top: 22px; right: 24px;
+  }
+  .ld-step .num::before { content: "0" counter(step); }
+  .ld-step .ico {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--pub-brand-soft); color: var(--pub-brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 14px;
+  }
+  .ld-step h4 { margin: 0 0 6px; font: 600 17px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-step p { margin: 0; font: 13.5px/1.55 var(--font-sans); color: var(--pub-ink-3); }
+
+  /* ===== TESTIMONIALS — humanity ===== */
+  .ld-testi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+  }
+  .ld-testi {
+    background: #fff;
+    border: 1px solid var(--pub-line);
+    border-radius: 16px;
+    padding: 28px 26px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .ld-testi .stars { color: var(--pub-warm-2); font-size: 14px; letter-spacing: 2px; }
+  .ld-testi blockquote {
+    margin: 0; font: 16px/1.55 var(--font-sans);
+    color: var(--pub-ink-1); flex: 1;
+  }
+  .ld-testi .who { display: flex; gap: 12px; align-items: center; padding-top: 14px; border-top: 1px solid var(--pub-line-soft); }
+  .ld-testi .who .av {
+    width: 44px; height: 44px; border-radius: 50%;
+    background-size: cover; background-position: center;
+  }
+  .ld-testi .who .name { font: 600 14px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-testi .who .role { font: 12.5px var(--font-sans); color: var(--pub-ink-4); margin-top: 1px; }
+
+  /* ===== PROSPECT ===== */
+  .ld-prospect { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: stretch; }
+  .ld-prospect-list { display: grid; gap: 18px; margin-top: 16px; }
+  .ld-prospect-list .item { display: grid; grid-template-columns: 32px 1fr; gap: 14px; }
+  .ld-prospect-list .check {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--pub-brand-soft); color: var(--pub-brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; margin-top: 2px;
+  }
+  .ld-prospect-list .item h5 { margin: 0 0 4px; font: 600 16px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-prospect-list .item p { margin: 0; font: 13.5px/1.55 var(--font-sans); color: var(--pub-ink-3); }
+
+  .ld-prospect-card {
+    background: linear-gradient(135deg, #06182E 0%, #0E2747 70%, #1E4180 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 36px;
+    display: flex; flex-direction: column; gap: 18px;
+    min-height: 420px;
+    position: relative; overflow: hidden;
+  }
+  .ld-prospect-card::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 90% 10%, rgba(212,168,88,0.22), transparent 55%);
+  }
+  .ld-prospect-card > * { position: relative; }
+  .ld-prospect-card h3 { margin: 0; font: 700 26px var(--font-sans); letter-spacing: -0.02em; line-height: 1.15; }
+  .ld-prospect-card p { margin: 0; font: 15px/1.5 var(--font-sans); color: rgba(255,255,255,0.84); }
+  .ld-prospect-card .form { display: grid; gap: 12px; }
+  .ld-prospect-card .form .field { display: grid; gap: 5px; }
+  .ld-prospect-card .form label {
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.66);
+  }
+  .ld-prospect-card .form input,
+  .ld-prospect-card .form select {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.20);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #fff; font: 500 14px var(--font-sans);
+  }
+  .ld-prospect-card .form input::placeholder { color: rgba(255,255,255,0.55); }
+  .ld-prospect-card .form select option { color: var(--pub-ink-1); }
+  .ld-prospect-card .form button {
+    background: var(--pub-warm); color: var(--pub-ink-1);
+    border: 0; border-radius: 10px;
+    padding: 13px 18px;
+    font: 700 14px var(--font-sans);
+    cursor: pointer; margin-top: 4px;
+    display: inline-flex; align-items: center; gap: 6px; justify-content: center;
+  }
+  .ld-prospect-card .form button:hover { background: #fff; }
+
+  /* ===== WHY chooseus  ===== */
+  .ld-why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .ld-why-card { background: #fff; border: 1px solid var(--pub-line); border-radius: 16px; padding: 28px 26px; }
+  .ld-why-card .ico {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .ld-why-card.c1 .ico { background: #F8EFD8; color: #8A6520; }
+  .ld-why-card.c2 .ico { background: var(--pub-brand-soft); color: var(--pub-brand); }
+  .ld-why-card.c3 .ico { background: #dcfce7; color: #166534; }
+  .ld-why-card.c4 .ico { background: #ffe4e6; color: #be123c; }
+  .ld-why-card.c5 .ico { background: #dbeafe; color: #1d4ed8; }
+  .ld-why-card.c6 .ico { background: #fed7aa; color: #c2410c; }
+  .ld-why-card h4 { margin: 0 0 6px; font: 600 18px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-why-card p { margin: 0; font: 14px/1.55 var(--font-sans); color: var(--pub-ink-3); }
+
+  /* ===== SECURITY band — light, readable ===== */
+  .ld-sec-band {
+    background: linear-gradient(180deg, #fdfaf2 0%, #faf3df 100%);
+    border-block: 1px solid #f3e9c8;
+  }
+  .ld-sec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .ld-sec-item {
+    background: #fff;
+    border: 1px solid #ece8dc;
+    border-radius: 14px;
+    padding: 24px 22px;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .ld-sec-item:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(6,24,46,0.10); border-color: #d8d1bd; }
+  .ld-sec-item .ico {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--pub-brand-soft); color: var(--pub-brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 14px;
+  }
+  .ld-sec-item h4 { margin: 0 0 6px; font: 600 15.5px var(--font-sans); color: var(--pub-ink-1); }
+  .ld-sec-item p { margin: 0; font: 13px/1.55 var(--font-sans); color: var(--pub-ink-3); }
+
+  /* ===== FAQ — searchable two-col grid ===== */
+  .ld-faq-head {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 36px;
+    align-items: end; margin-bottom: 36px;
+  }
+  .ld-faq-search {
+    position: relative;
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 8px 8px 8px 44px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(20,12,60,0.05);
+  }
+  .ld-faq-search > i {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--pub-ink-4); font-size: 18px;
+  }
+  .ld-faq-search input {
+    flex: 1; border: 0; outline: 0;
+    font: 14.5px var(--font-sans); color: var(--pub-ink-1);
+    background: transparent; padding: 8px 0;
+  }
+  .ld-faq-search input::placeholder { color: var(--pub-ink-4); }
+  .ld-faq-tabs {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .ld-faq-tabs button {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font: 500 13px var(--font-sans);
+    color: var(--pub-ink-3);
+    cursor: pointer;
+  }
+  .ld-faq-tabs button.on {
+    background: var(--pub-ink-1); color: #fff; border-color: var(--pub-ink-1);
+  }
+  .ld-faq-tabs button:hover:not(.on) { color: var(--pub-ink-1); border-color: var(--pub-ink-3); }
+
+  .ld-faq-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .ld-faq-tile {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .ld-faq-tile.hidden { display: none; }
+  .ld-faq-tile[open] {
+    border-color: var(--pub-brand);
+    box-shadow: 0 12px 28px rgba(30,65,128,0.10);
+  }
+  .ld-faq-tile summary {
+    list-style: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 18px;
+  }
+  .ld-faq-tile summary::-webkit-details-marker { display: none; }
+  .ld-faq-tile summary .qmeta {
+    font: 600 11px var(--font-sans); color: var(--pub-brand);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 6px; display: inline-block;
+  }
+  .ld-faq-tile summary .qtitle {
+    font: 600 16px/1.4 var(--font-sans); color: var(--pub-ink-1);
+  }
+  .ld-faq-tile summary .toggle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--pub-brand-soft); color: var(--pub-brand);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .ld-faq-tile[open] summary .toggle { transform: rotate(45deg); background: var(--pub-brand); color: #fff; }
+  .ld-faq-tile .ans {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--pub-line-soft);
+    font: 14.5px/1.65 var(--font-sans);
+    color: var(--pub-ink-3);
+  }
+  .ld-faq-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--pub-ink-3);
+    background: var(--pub-paper);
+    border: 1px dashed var(--pub-line);
+    border-radius: 14px;
+  }
+  .ld-faq-empty i { font-size: 28px; color: var(--pub-ink-4); display: block; margin-bottom: 8px; }
+
+  /* ===== CTA strip with photo ===== */
+  .ld-cta {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    color: #fff;
+    margin: 0 auto;
+    max-width: var(--max);
+  }
+  .ld-cta .bg {
+    position: absolute; inset: 0;
+    background-image: url("https://images.unsplash.com/photo-1581579186913-45ac3e6efe93?w=1800&q=80");
+    background-size: cover; background-position: center;
+  }
+  .ld-cta .scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, rgba(6,24,46,0.92) 30%, rgba(26,13,51,0.55) 100%);
+  }
+  .ld-cta .body {
+    position: relative; z-index: 2;
+    padding: 64px 56px;
+    display: grid; grid-template-columns: 1.4fr 1fr;
+    gap: 36px; align-items: center;
+  }
+  .ld-cta h2 { margin: 0 0 14px; font: 700 36px var(--font-sans); letter-spacing: -0.025em; line-height: 1.1; }
+  .ld-cta p { margin: 0; font: 16px/1.55 var(--font-sans); color: rgba(255,255,255,0.82); max-width: 520px; }
+  .ld-cta .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+  .ld-cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 22px; border-radius: 12px;
+    font: 600 14px var(--font-sans); cursor: pointer; text-decoration: none;
+    border: 1px solid transparent;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .ld-cta-btn-warm { background: var(--pub-warm, #f4e8d8); color: var(--pub-ink-1, #06182E); }
+  .ld-cta-btn-warm:hover { background: #fff; transform: translateY(-1px); }
+  .ld-cta-btn-ghost { background: rgba(255,255,255,0.10); color: #fff !important; border-color: rgba(255,255,255,0.45); }
+  .ld-cta-btn-ghost:hover { background: rgba(255,255,255,0.22); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1100px) {
+    .ld-hero h1 { font-size: 46px; }
+    .ld-hero-inner, .ld-about, .ld-prospect, .ld-faq-head { grid-template-columns: 1fr; gap: 40px; }
+    .ld-feat-grid, .ld-steps, .ld-why-grid, .ld-testi-grid { grid-template-columns: 1fr 1fr; }
+    .ld-sec-grid { grid-template-columns: 1fr 1fr; }
+    .ld-faq-grid { grid-template-columns: 1fr; }
+    .ld-hv { height: 420px; }
+    .ld-cta .body { grid-template-columns: 1fr; padding: 48px 32px; }
+    .ld-cta .actions { justify-content: flex-start; }
+  }
+  @media (max-width: 720px) {
+    .ld-hero h1 { font-size: 36px; }
+    .ld-hero-inner { padding: 56px 20px 64px; }
+    .ld-sec, .ld-sec.tight { padding: 56px 20px; }
+    .ld-feat-grid, .ld-steps, .ld-why-grid, .ld-testi-grid, .ld-sec-grid, .ld-about-stats { grid-template-columns: 1fr; }
+    .ld-hv { display: none; }
+    .ld-hero-stats { gap: 24px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="pub-body">
+
+<!-- ============== TOPBAR ============== -->
+<header class="pub-top">
+  <div class="pub-top-inner">
+    <a class="pub-brand" href="landing.html"><span class="dot" aria-hidden="true"></span>DIG</a>
+    <button class="pub-burger" type="button" aria-label="Menu" onclick="this.parentElement.querySelector('.pub-nav').classList.toggle('open'); this.parentElement.querySelector('.pub-top-right').classList.toggle('open');"><i class="ri-menu-line"></i></button>
+    <nav class="pub-nav" aria-label="Primary">
+      <a href="landing.html" class="on">Home</a>
+      <a href="browse-v2.html">Browse</a>
+      <a href="financing.html">Financing</a>
+      <a href="landing.html#about">About</a>
+      <a href="landing.html#faq">FAQ</a>
+    </nav>
+    <div class="pub-top-right">
+      <a class="pub-btn pub-btn-ghost" href="login.html">Sign in</a>
+      <a class="pub-btn pub-btn-primary" href="prospect-public.html"><i class="ri-magic-line"></i> Get started</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============== HERO ============== -->
+<section class="ld-hero" data-screen-label="01 Hero">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="ld-hero-inner">
+    <div>
+      <span class="eyebrow"><i class="ri-shield-check-line"></i> Title-verified land &amp; homes · Dallas, Texas</span>
+      <h1>Own a piece of <em>Dallas</em>.<br>On your terms.</h1>
+      <p class="lede">Title-verified plots and move-in-ready houses across Dallas. Transparent monthly financing — predictable payments, no surprise fees, no balloons.</p>
+      <div class="row">
+        <a class="pub-btn pub-btn-warm" href="browse-v2.html"><i class="ri-search-2-line"></i> Browse properties</a>
+        <a class="pub-btn pub-btn-outline" style="background: rgba(255,255,255,0.10); color: #fff; border-color: rgba(255,255,255,0.30);" href="financing.html">See financing <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="ld-hero-stats">
+        <div><div class="v">87</div><div class="l">Active listings</div></div>
+        <div><div class="v">312</div><div class="l">Families housed</div></div>
+        <div><div class="v">4.9<small>★</small></div><div class="l">Customer rating</div></div>
+      </div>
+    </div>
+    <div class="ld-hv" aria-hidden="true">
+      <div class="frame f1 pub-img pub-fam-1"></div>
+      <div class="frame f2 pub-img pub-img-house-1"></div>
+      <div class="frame f3 pub-img pub-fam-7"></div>
+      <div class="tag tag-1">
+        <div class="av pub-img pub-face-7"></div>
+        <div>
+          <div class="name">Maria &amp; Luis</div>
+          <div class="meta">Bishop Arts · 0.21 ac</div>
+        </div>
+      </div>
+      <div class="tag tag-2">
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="name">"Closed in 9 days"</div>
+          <div class="meta">— J. Patel, Lakewood</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEATURED ============== -->
+<section class="pub-band" data-screen-label="02 Featured properties">
+  <div class="ld-sec tight">
+    <div class="pub-shead">
+      <div class="tag">Hand-picked</div>
+      <h2>Featured this week.</h2>
+      <p>Verified title, transparent pricing, financing-ready — straight from our Dallas inventory.</p>
+    </div>
+
+    <div class="ld-feat-grid">
+      <a class="ld-feat-card" href="asset-detail.html?id=LND-038">
+        <div class="photo pub-img pub-img-meadow">
+          <span class="badge new"><i class="ri-sparkling-2-fill"></i> New listing</span>
+        </div>
+        <div class="body">
+          <div class="id">LND-038 · Land</div>
+          <h3>Highland Park Garden Plot</h3>
+          <div class="loc"><i class="ri-map-pin-line"></i> Highland Park, Dallas, TX</div>
+          <div class="facts">
+            <span><span class="v">0.36</span> <span class="l">acres</span></span>
+            <span><span class="v">Residential</span></span>
+            <span><span class="v">Paved</span></span>
+          </div>
+          <div class="price">
+            <div class="v">$540,000</div>
+            <div class="mo">or <strong>$4,115</strong>/mo<br>$54,000 deposit</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="ld-feat-card" href="asset-detail.html?id=LND-014">
+        <div class="photo pub-img pub-img-oaks">
+          <span class="badge"><i class="ri-star-fill"></i> Featured</span>
+        </div>
+        <div class="body">
+          <div class="id">LND-014 · Land</div>
+          <h3>Brookfield Plot</h3>
+          <div class="loc"><i class="ri-map-pin-line"></i> Lakewood, Dallas, TX</div>
+          <div class="facts">
+            <span><span class="v">0.42</span> <span class="l">acres</span></span>
+            <span><span class="v">Residential</span></span>
+            <span><span class="v">Corner</span></span>
+          </div>
+          <div class="price">
+            <div class="v">$186,500</div>
+            <div class="mo">or <strong>$1,420</strong>/mo<br>$18,650 deposit</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="ld-feat-card" href="asset-detail.html?id=HSE-027">
+        <div class="photo pub-img pub-img-townhouse">
+          <span class="badge"><i class="ri-shield-check-line"></i> Title verified</span>
+        </div>
+        <div class="body">
+          <div class="id">HSE-027 · House</div>
+          <h3>Bishop Arts Townhouse</h3>
+          <div class="loc"><i class="ri-map-pin-line"></i> Bishop Arts, Dallas, TX</div>
+          <div class="facts">
+            <span><span class="v">3</span> <span class="l">bed</span></span>
+            <span><span class="v">2.5</span> <span class="l">bath</span></span>
+            <span><span class="v">1,640</span> <span class="l">sqft</span></span>
+          </div>
+          <div class="price">
+            <div class="v">$245,000</div>
+            <div class="mo">or <strong>$1,890</strong>/mo<br>$24,500 deposit</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="ld-feat-cta">
+      <a href="browse-v2.html">Browse all 16 properties <i class="ri-arrow-right-line"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ABOUT ============== -->
+<section class="ld-sec" id="about" data-screen-label="03 About">
+  <div class="ld-about">
+    <div class="ld-about-photo pub-img pub-fam-2">
+      <div class="qt">
+        <div class="av pub-img pub-face-1"></div>
+        <div>
+          <p>"They financed our half-acre when no bank would. Three years in, on track."</p>
+          <div class="who"><strong>Talia &amp; Marcus Reyes</strong> · Lakewood, owners since 2023</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="pub-shead" style="margin-bottom: 24px;">
+        <div class="tag">About Ream</div>
+        <h2>The flexible way to own land in Dallas.</h2>
+        <p>Ream connects buyers with title-verified land and move-in-ready houses — and finances them directly. We're not a bank. We list properties, verify titles, underwrite financing, and stay your point of contact through every payment.</p>
+        <p style="margin-top:14px;">We started Ream in 2022 because the path to ownership in Dallas was either gated by 30-year mortgages or hidden behind opaque cash deals. We rebuilt it: monthly payments, transparent rates, escrow on every transaction, and a single human you can text.</p>
+      </div>
+      <div class="ld-about-stats">
+        <div class="stat"><div class="v">$48<small>M</small></div><div class="k">Loans originated since 2022</div></div>
+        <div class="stat"><div class="v">312</div><div class="k">Families housed in Dallas</div></div>
+        <div class="stat"><div class="v">11.5<small>%</small></div><div class="k">Starting APR · 36–240 mo</div></div>
+        <div class="stat"><div class="v">3–5<small> days</small></div><div class="k">Underwriting decisions</div></div>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top: 28px;">
+        <a class="pub-btn pub-btn-primary" href="prospect-public.html"><i class="ri-magic-line"></i> Become a prospect</a>
+        <a class="pub-btn pub-btn-outline" href="financing.html">How financing works <i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== HOW IT WORKS ============== -->
+<section class="pub-band" data-screen-label="04 How it works">
+  <div class="ld-sec tight" id="how">
+    <div class="pub-shead center">
+      <div class="tag">From browse to keys</div>
+      <h2>How it works.</h2>
+      <p>Four steps, fully transparent. No hidden fees. You'll know exactly where you stand at every stage.</p>
+    </div>
+    <div class="ld-steps">
+      <div class="ld-step">
+        <span class="num"></span>
+        <div class="ico"><i class="ri-search-2-line"></i></div>
+        <h4>Browse &amp; favorite</h4>
+        <p>Filter Dallas land and houses by acreage, budget, and utilities. Save what catches your eye — no account needed yet.</p>
+      </div>
+      <div class="ld-step">
+        <span class="num"></span>
+        <div class="ico"><i class="ri-magic-line"></i></div>
+        <h4>Become a prospect</h4>
+        <p>Submit a 5-minute interest form. We send you an indicative monthly payment within hours and assign a named agent.</p>
+      </div>
+      <div class="ld-step">
+        <span class="num"></span>
+        <div class="ico"><i class="ri-file-text-line"></i></div>
+        <h4>Documents &amp; approval</h4>
+        <p>Upload ID, proof of income, and bank statements. Underwriting in 3–5 business days, status updates the whole way.</p>
+      </div>
+      <div class="ld-step">
+        <span class="num"></span>
+        <div class="ico"><i class="ri-key-2-line"></i></div>
+        <h4>Sign &amp; move in</h4>
+        <p>Sign electronically, get your title or move-in date, then pay your monthly through the Ream app — autopay-ready.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TESTIMONIALS — humanity ============== -->
+<section class="ld-sec tight" data-screen-label="05 Testimonials">
+  <div class="pub-shead center">
+    <div class="tag">Real Dallas owners</div>
+    <h2>Built on trust.</h2>
+    <p>312 families, three years, one promise — clarity at every step.</p>
+  </div>
+  <div class="ld-testi-grid">
+    <div class="ld-testi">
+      <div class="stars">★★★★★</div>
+      <blockquote>"I'd been turned down by two banks for being self-employed. Ream said yes in four days. Three years later, our plot's two months from being fully paid off."</blockquote>
+      <div class="who">
+        <div class="av pub-img pub-face-2"></div>
+        <div>
+          <div class="name">Daniel Okafor</div>
+          <div class="role">Owner · Cedar Crest, since 2023</div>
+        </div>
+      </div>
+    </div>
+    <div class="ld-testi">
+      <div class="stars">★★★★★</div>
+      <blockquote>"My agent answered every WhatsApp for nine months. When my husband lost his job, they paused our payments instead of penalising us. That's a partner, not a lender."</blockquote>
+      <div class="who">
+        <div class="av pub-img pub-face-3"></div>
+        <div>
+          <div class="name">Aisha Rodríguez</div>
+          <div class="role">Owner · Oak Cliff, since 2024</div>
+        </div>
+      </div>
+    </div>
+    <div class="ld-testi">
+      <div class="stars">★★★★★</div>
+      <blockquote>"We compared three lenders. Ream had the only fixed APR with no early-payment penalty. Closed our 2-acre plot in 11 days, financed the whole thing."</blockquote>
+      <div class="who">
+        <div class="av pub-img pub-face-4"></div>
+        <div>
+          <div class="name">James &amp; Priya Patel</div>
+          <div class="role">Owners · Bishop Arts, since 2024</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== BECOME A PROSPECT ============== -->
+<section class="pub-band" data-screen-label="06 Become a prospect">
+  <div class="ld-sec tight" id="prospect">
+    <div class="ld-prospect">
+      <div>
+        <div class="pub-shead">
+          <div class="tag">Becoming a prospect</div>
+          <h2>From interest to indicative offer in 5 minutes.</h2>
+          <p>You don't need a credit score or pre-approval to start. Tell us roughly what you want and we'll match you with available inventory and a real monthly payment estimate — based on the actual property, not a generic calculator.</p>
+        </div>
+        <div class="ld-prospect-list">
+          <div class="item">
+            <div class="check"><i class="ri-check-line"></i></div>
+            <div>
+              <h5>1. Tell us what you're looking for</h5>
+              <p>Land or house, neighborhood, acreage range, target budget, payment preference.</p>
+            </div>
+          </div>
+          <div class="item">
+            <div class="check"><i class="ri-check-line"></i></div>
+            <div>
+              <h5>2. Get matched within hours</h5>
+              <p>A licensed Texas advisor sends 3–5 hand-picked properties with indicative monthlies. No commitment, no credit pull.</p>
+            </div>
+          </div>
+          <div class="item">
+            <div class="check"><i class="ri-check-line"></i></div>
+            <div>
+              <h5>3. Pick a property &amp; submit documents</h5>
+              <p>Choose what fits, upload ID and proof of income through your prospect portal. Soft credit check at this stage only.</p>
+            </div>
+          </div>
+          <div class="item">
+            <div class="check"><i class="ri-check-line"></i></div>
+            <div>
+              <h5>4. Final approval &amp; close</h5>
+              <p>Underwriting decision in 3–5 business days. Sign electronically, deposit goes into escrow, and you're an owner.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="ld-prospect-card">
+        <h3>Start your interest form.</h3>
+        <p>Quick and free. Indicative payment in hours.</p>
+        <form class="form" onsubmit="event.preventDefault(); window.location='prospect-public.html';">
+          <div class="field">
+            <label>I'm looking for</label>
+            <select>
+              <option>Land in Dallas</option>
+              <option>A house in Dallas</option>
+              <option>Both — show me everything</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Target budget</label>
+            <select>
+              <option>Under $150k</option>
+              <option>$150k – $300k</option>
+              <option>$300k – $500k</option>
+              <option>$500k+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" placeholder="you@example.com" required />
+          </div>
+          <button type="submit"><i class="ri-magic-line"></i> Continue</button>
+        </form>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============== WHY CHOOSE ============== -->
+<section class="ld-sec tight" data-screen-label="07 Why choose Ream">
+  <div class="pub-shead center">
+    <div class="tag">Why Ream</div>
+    <h2>Built for the way Dallas buyers actually buy.</h2>
+    <p>Six things you get with Ream that you won't get from a traditional broker, lender, or marketplace.</p>
+  </div>
+  <div class="ld-why-grid">
+    <div class="ld-why-card c1">
+      <div class="ico"><i class="ri-flashlight-fill"></i></div>
+      <h4>Approval in days, not months</h4>
+      <p>Most decisions return inside 5 business days — and you'll always know where you stand.</p>
+    </div>
+    <div class="ld-why-card c2">
+      <div class="ico"><i class="ri-customer-service-2-line"></i></div>
+      <h4>One named agent, start to finish</h4>
+      <p>From first inquiry to last payment. No call-center handoffs, no chatbot loops. They text you on WhatsApp.</p>
+    </div>
+    <div class="ld-why-card c3">
+      <div class="ico"><i class="ri-bank-card-line"></i></div>
+      <h4>Transparent monthly payments</h4>
+      <p>Fixed APR from 11.5%, locked at signing. No balloon payments, no early-payment penalties, ever.</p>
+    </div>
+    <div class="ld-why-card c4">
+      <div class="ico"><i class="ri-shield-keyhole-line"></i></div>
+      <h4>Title verified, every time</h4>
+      <p>Every plot's title is checked against Dallas County Records before it goes live.</p>
+    </div>
+    <div class="ld-why-card c5">
+      <div class="ico"><i class="ri-bank-line"></i></div>
+      <h4>Escrow on every deal</h4>
+      <p>Your deposit sits with our regulated escrow partner until handover.</p>
+    </div>
+    <div class="ld-why-card c6">
+      <div class="ico"><i class="ri-refund-2-line"></i></div>
+      <h4>7-day cool-off guarantee</h4>
+      <p>Change your mind in the first 7 days and get your deposit back, no questions asked.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SECURITY ============== -->
+<section class="ld-sec-band" data-screen-label="08 Security">
+  <div class="ld-sec tight">
+    <div class="pub-shead center">
+      <div class="tag">Security &amp; compliance</div>
+      <h2>Your data, your money — protected.</h2>
+      <p>How we secure the application that holds your contracts, payment methods, and personal documents.</p>
+    </div>
+    <div class="ld-sec-grid">
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-lock-2-line"></i></div>
+        <h4>End-to-end TLS 1.3</h4>
+        <p>Every page, every API call. Encrypted with modern cipher suites only.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-shield-keyhole-line"></i></div>
+        <h4>AES-256 at rest</h4>
+        <p>Documents and personal data encrypted at rest. Keys rotated quarterly.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-fingerprint-2-line"></i></div>
+        <h4>Two-factor required</h4>
+        <p>SMS or authenticator-app 2FA on every account with financial access.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-bank-line"></i></div>
+        <h4>SOC 2 Type II</h4>
+        <p>Hosted on AWS US-East. Pen-tested by an external firm twice a year.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-eye-off-line"></i></div>
+        <h4>Privacy by default</h4>
+        <p>We never sell or share your data. Documents visible only to your assigned agent.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-history-line"></i></div>
+        <h4>Full audit log</h4>
+        <p>Every action on your account is logged. View it any time from your portal.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-user-shared-line"></i></div>
+        <h4>GLBA-compliant</h4>
+        <p>Gramm-Leach-Bliley Act safeguards for financial data, end to end.</p>
+      </div>
+      <div class="ld-sec-item">
+        <div class="ico"><i class="ri-money-dollar-circle-line"></i></div>
+        <h4>Escrow-protected</h4>
+        <p>Deposits go into a regulated escrow trust. Never commingled with operating funds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FAQ — searchable, two-col tile grid ============== -->
+<section class="ld-sec tight" id="faq" data-screen-label="09 FAQ">
+  <div class="ld-faq-head">
+    <div class="pub-shead" style="margin-bottom: 0;">
+      <div class="tag">Frequently asked</div>
+      <h2>Questions, answered.</h2>
+      <p>Search across our most common questions, or filter by topic. Still curious? Talk to an agent.</p>
+    </div>
+    <div class="ld-faq-search">
+      <i class="ri-search-line" aria-hidden="true"></i>
+      <input id="faqSearch" type="search" placeholder="Search questions — e.g. deposit, credit, title…" />
+    </div>
+  </div>
+
+  <div class="ld-faq-tabs" id="faqTabs">
+    <button class="on" data-cat="all">All</button>
+    <button data-cat="basics">Basics</button>
+    <button data-cat="financing">Financing</button>
+    <button data-cat="docs">Documents &amp; credit</button>
+    <button data-cat="ownership">Ownership</button>
+    <button data-cat="legal">Legal</button>
+  </div>
+
+  <div class="ld-faq-grid" id="faqGrid">
+    <details class="ld-faq-tile" data-cat="basics" open>
+      <summary>
+        <div>
+          <div class="qmeta">Basics</div>
+          <div class="qtitle">What is owner-financing, and how is it different from a mortgage?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Owner-financing means Ream — not a bank — finances your purchase directly. You make a deposit, sign a financing contract, and pay a monthly amount until the balance is cleared. It's faster to qualify for than a traditional mortgage (3–5 days vs. 30–90), more flexible on documentation, with no third-party lender. Once you've paid in full, you receive the deed.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="basics">
+      <summary>
+        <div>
+          <div class="qmeta">Basics</div>
+          <div class="qtitle">Where in Texas does Ream operate?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Currently, Dallas only. Every property listed on Ream is within Dallas city limits or its immediate surrounds. We plan to expand to Houston and Austin in 2027.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="financing">
+      <summary>
+        <div>
+          <div class="qmeta">Financing</div>
+          <div class="qtitle">What's the typical deposit?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Most properties require a 10% deposit, though it can range from 5% to 20% depending on the property and your financial profile. Your indicative offer will show the exact deposit before you commit to anything.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="financing">
+      <summary>
+        <div>
+          <div class="qmeta">Financing</div>
+          <div class="qtitle">What rates and terms do you offer?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Fixed APRs from 11.5% to 13.0%, locked at signing. Terms run from 36 months (3 years) up to 240 months (20 years). There are no balloon payments and no early-payment penalties.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="docs">
+      <summary>
+        <div>
+          <div class="qmeta">Documents &amp; credit</div>
+          <div class="qtitle">Do you do a credit check?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">We do a soft credit pull when you select a property and start the formal application — this does <em>not</em> affect your credit score. We perform a hard pull only at final underwriting, after you've reviewed and accepted your terms.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="docs">
+      <summary>
+        <div>
+          <div class="qmeta">Documents &amp; credit</div>
+          <div class="qtitle">What if I'm self-employed or don't have W-2s?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">No problem. We accept 12 months of bank statements, your most recent IRS Form 1040, or 1099 records as proof of income. Roughly 40% of our customers are self-employed.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="ownership">
+      <summary>
+        <div>
+          <div class="qmeta">Ownership</div>
+          <div class="qtitle">What happens if I miss a payment?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Your assigned agent reaches out the day after a missed payment. We offer a 10-day grace period at no charge, and after that a 5% late fee. We never repossess after a single missed payment — we work with you on a forbearance plan if needed.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="ownership">
+      <summary>
+        <div>
+          <div class="qmeta">Ownership</div>
+          <div class="qtitle">Can I sell or transfer the property before paying it off?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Yes. You can sell, transfer, or refinance with another lender at any time. The remaining balance becomes due at the close of that transaction. We coordinate the title release directly with your buyer's title company.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="legal">
+      <summary>
+        <div>
+          <div class="qmeta">Legal</div>
+          <div class="qtitle">How do I know the title is clean?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Every property has its title verified against Dallas County Records before it goes live. The title-verification report is included in your prospect packet, and we use a licensed Texas title company at closing to issue a title insurance policy in your name.</div>
+    </details>
+    <details class="ld-faq-tile" data-cat="legal">
+      <summary>
+        <div>
+          <div class="qmeta">Legal</div>
+          <div class="qtitle">Is Ream a licensed broker?</div>
+        </div>
+        <span class="toggle"><i class="ri-add-line"></i></span>
+      </summary>
+      <div class="ans">Yes. Dispensation Investment Group LLC is licensed by the Texas Real Estate Commission (TREC License #9612045) and our financing operations are registered as a Texas Owner-Finance Mortgage Lender (NMLS #2034581).</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============== CTA ============== -->
+<section style="padding: 0 var(--pub-pad) 96px;" data-screen-label="10 CTA">
+  <div class="ld-cta">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="scrim" aria-hidden="true"></div>
+    <div class="body">
+      <div>
+        <h2>Ready to find your piece of Dallas?</h2>
+        <p>87 active listings, financing decisions in 3–5 days, a real human walking you through every step.</p>
+      </div>
+      <div class="actions">
+        <a class="ld-cta-btn ld-cta-btn-warm" href="prospect-public.html"><i class="ri-magic-line"></i> Get matched</a>
+        <a class="ld-cta-btn ld-cta-btn-ghost" href="browse-v2.html"><i class="ri-search-2-line"></i> Browse listings</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="pub-foot">
+  <div class="pub-foot-inner">
+    <div class="pub-foot-brand">
+      <a class="pub-brand" href="landing.html"><span class="dot"></span>DIG</a>
+      <p>Dispensation Investment Group — pre-financing land &amp; homes across Texas. Real estate ownership made accessible.</p>
+      <div class="pub-foot-contact">
+        <span><i class="ri-map-pin-2-line"></i> 3232 McKinney Ave, Suite 512, Dallas, TX 75204</span>
+        <span><i class="ri-phone-line"></i> <a href="tel:+12147728720">+1 (214) 772-8720</a></span>
+        <span><i class="ri-mail-line"></i> <a href="mailto:info@dinvestgroup.com">info@dinvestgroup.com</a></span>
+      </div>
+      <div class="pub-foot-licenses">
+        <span><i class="ri-shield-check-line"></i> TREC License #9612045</span>
+        <span><i class="ri-bank-line"></i> Texas Owner-Finance Mortgage Servicer</span>
+        <span><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      </div>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Browse</h4>
+      <ul>
+        <li><a href="browse-v2.html">All listings</a></li>
+        <li><a href="browse-v2.html?type=land">Land</a></li>
+        <li><a href="browse-v2.html?type=house">Houses</a></li>
+        <li><a href="browse-v2.html#new">New this week</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Financing</h4>
+      <ul>
+        <li><a href="financing.html">How it works</a></li>
+        <li><a href="financing.html#qualify">Qualifying</a></li>
+        <li><a href="financing.html#simulator">Simulator</a></li>
+        <li><a href="prospect-public.html">Pre-qualify</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="landing.html#about">About</a></li>
+        <li><a href="landing.html#faq">FAQ</a></li>
+        <li><a href="login.html">Sign in</a></li>
+        <li><a href="mailto:info@dinvestgroup.com">Contact</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="legal.html">Disclosures</a></li>
+        <li><a href="#">Accessibility</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pub-foot-meta">
+    <span>© 2026 Dispensation Investment Group LLC · Dallas, TX</span>
+    <span class="lks">
+      <span class="pub-foot-eho"><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      <a href="legal.html">Disclosures</a>
+      <a href="privacy.html">Privacy</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  // FAQ filter + search
+  (function () {
+    const tabs = document.querySelectorAll('#faqTabs button');
+    const tiles = document.querySelectorAll('#faqGrid .ld-faq-tile');
+    const search = document.getElementById('faqSearch');
+    const grid = document.getElementById('faqGrid');
+    let cat = 'all';
+
+    function refresh() {
+      const q = search.value.trim().toLowerCase();
+      let visible = 0;
+      tiles.forEach(t => {
+        const matchCat = cat === 'all' || t.dataset.cat === cat;
+        const text = t.textContent.toLowerCase();
+        const matchQ = !q || text.includes(q);
+        const show = matchCat && matchQ;
+        t.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      let empty = grid.querySelector('.ld-faq-empty');
+      if (visible === 0) {
+        if (!empty) {
+          empty = document.createElement('div');
+          empty.className = 'ld-faq-empty';
+          empty.innerHTML = '<i class="ri-search-eye-line"></i><h3 style="margin:0 0 4px; font:600 16px var(--font-sans); color:var(--pub-ink-1)">No matching questions</h3><p style="margin:0">Try a different search term, or talk to an agent for help.</p>';
+          grid.appendChild(empty);
+        }
+      } else if (empty) {
+        empty.remove();
+      }
+    }
+    tabs.forEach(b => b.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      cat = b.dataset.cat;
+      refresh();
+    }));
+    search.addEventListener('input', refresh);
+  })();
+</script>
+
+</body>
+</html>

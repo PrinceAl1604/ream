@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Email template</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  body { background: #f6f5f9; }
+
+  /* =========================================================
+     Page chrome
+     ========================================================= */
+  .et-page { max-width: 1320px; margin: 0 auto; padding: 32px 24px 80px; }
+  .et-eyebrow {
+    color: var(--color-brand-600);
+    font: 700 11px/1 var(--font-sans);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .et-title { font: 700 32px/1.15 var(--font-display); color: #1a1626; margin: 0 0 8px; letter-spacing: -.02em; }
+  .et-lede { font: 400 15px/1.6 var(--font-sans); color: #5b5670; margin: 0 0 28px; max-width: 720px; }
+
+  .et-toc {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    font: 500 13px var(--font-sans);
+  }
+  .et-toc a { color: #5b5670; text-decoration: none; padding: 4px 0; }
+  .et-toc a:hover { color: var(--color-brand-600); }
+  .et-toc .sep { color: #d4d2db; }
+
+  /* =========================================================
+     Section header
+     ========================================================= */
+  .et-section { margin: 48px 0 0; }
+  .et-section-head {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 0 18px;
+  }
+  .et-section-head .num {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    display: flex; align-items: center; justify-content: center;
+    font: 700 13px var(--font-sans);
+  }
+  .et-section-head h2 { font: 700 22px/1.2 var(--font-display); margin: 0; color: #1a1626; }
+  .et-section-head p { margin: 0 0 0 8px; font: 400 13px var(--font-sans); color: #7a7589; }
+
+  /* =========================================================
+     Showcase grid
+     ========================================================= */
+  .et-showcase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  @media (max-width: 980px) { .et-showcase { grid-template-columns: 1fr; } }
+
+  .et-showcase-card {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .et-showcase-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-default);
+    background: #fafaff;
+    flex-wrap: wrap;
+  }
+  .et-showcase-head .code {
+    font: 700 10.5px/1 var(--font-sans);
+    letter-spacing: .08em;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    border-radius: 4px;
+    padding: 4px 7px;
+  }
+  .et-showcase-head .label { font: 600 13px var(--font-sans); color: #1a1626; }
+  .et-showcase-head .meta { margin-left: auto; font: 400 11.5px var(--font-sans); color: #7a7589; }
+
+  .et-mailclient {
+    background: #ecebef;
+    padding: 24px;
+  }
+  .et-mailmeta {
+    background: white;
+    border-radius: 10px 10px 0 0;
+    padding: 12px 16px 10px;
+    border: 1px solid var(--border-default);
+    border-bottom: none;
+  }
+  .et-mailmeta .sub {
+    font: 600 14px var(--font-sans);
+    color: #1a1626;
+    margin: 0 0 6px;
+  }
+  .et-mailmeta .row { display: flex; gap: 12px; font: 400 11.5px var(--font-sans); color: #7a7589; }
+  .et-mailmeta .row b { color: #3f3a4f; font-weight: 600; }
+  .et-mailmeta .from {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .et-mailmeta .ava {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 11px var(--font-sans);
+  }
+  .et-mailmeta .name { font: 600 13px var(--font-sans); color: #1a1626; }
+  .et-mailmeta .addr { color: #7a7589; font-weight: 400; margin-left: 4px; }
+
+  /* =========================================================
+     The actual email shell — used by all templates
+     This is the canonical layout.
+     ========================================================= */
+  .em-wrap {
+    background: white;
+    border-radius: 0 0 10px 10px;
+    border: 1px solid var(--border-default);
+    border-top: none;
+    overflow: hidden;
+  }
+  .em-shell {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    font-family: var(--font-sans);
+    color: #1a1626;
+  }
+
+  /* Header */
+  .em-head {
+    background: linear-gradient(135deg, #2a1d4f 0%, #4a2bb8 50%, #874ffa 100%);
+    padding: 28px 32px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    color: white;
+  }
+  .em-brand {
+    display: flex; align-items: center; gap: 10px;
+    font: 700 18px var(--font-display);
+    letter-spacing: .03em;
+  }
+  .em-brand .logo {
+    width: 32px; height: 32px;
+    background: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-brand-700);
+    font: 800 15px var(--font-display);
+  }
+  .em-tagline {
+    font: 500 11px var(--font-sans);
+    color: rgba(255,255,255,0.78);
+    letter-spacing: .04em;
+  }
+
+  /* Hero strip */
+  .em-hero {
+    padding: 32px 32px 24px;
+    background: white;
+    text-align: left;
+  }
+  .em-hero .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font: 700 10.5px/1 var(--font-sans);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .em-hero .badge.ok { background: #ddf7ea; color: #166534; }
+  .em-hero .badge.warn { background: #fef3c7; color: #92400e; }
+  .em-hero .badge.danger { background: #fee2e2; color: #991b1b; }
+  .em-hero h1 {
+    font: 700 26px/1.2 var(--font-display);
+    color: #1a1626;
+    margin: 0 0 12px;
+    letter-spacing: -.01em;
+  }
+  .em-hero p {
+    font: 400 15px/1.6 var(--font-sans);
+    color: #4a4659;
+    margin: 0;
+  }
+  .em-hero p + p { margin-top: 10px; }
+
+  /* Body sections */
+  .em-body { padding: 0 32px 8px; }
+  .em-body p { font: 400 15px/1.6 var(--font-sans); color: #4a4659; margin: 0 0 14px; }
+  .em-body p strong { color: #1a1626; font-weight: 600; }
+  .em-body a { color: var(--color-brand-600); }
+
+  /* Stat strip — for receipts, milestones */
+  .em-stats {
+    margin: 18px 32px 0;
+    background: #faf9fc;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .em-stats .s .k { font: 600 10.5px/1 var(--font-sans); color: #7a7589; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+  .em-stats .s .v { font: 700 19px/1.1 var(--font-display); color: #1a1626; letter-spacing: -.01em; }
+  .em-stats .s .d { font: 400 11px/1.3 var(--font-sans); color: #7a7589; margin-top: 4px; }
+
+  /* CTA button */
+  .em-cta-wrap { padding: 24px 32px 8px; }
+  .em-cta {
+    display: inline-block;
+    background: var(--color-brand-600);
+    color: white !important;
+    text-decoration: none;
+    font: 700 14px var(--font-button);
+    padding: 14px 28px;
+    border-radius: 10px;
+    letter-spacing: .02em;
+  }
+  .em-cta.ghost {
+    background: white;
+    color: var(--color-brand-600) !important;
+    border: 1.5px solid var(--color-brand-600);
+  }
+  .em-cta-aux {
+    margin-top: 14px;
+    font: 400 13px var(--font-sans);
+    color: #7a7589;
+  }
+  .em-cta-aux a { color: var(--color-brand-600); word-break: break-all; }
+
+  /* Property card — for listing alerts, deal milestones */
+  .em-prop {
+    margin: 18px 32px 0;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid; grid-template-columns: 140px 1fr;
+    background: white;
+  }
+  .em-prop .photo {
+    background: linear-gradient(135deg, #c8b8e6, #874ffa);
+    aspect-ratio: auto;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 28px;
+  }
+  .em-prop .info { padding: 14px 16px; }
+  .em-prop .info .ref { font: 700 10.5px/1 var(--font-sans); letter-spacing: .08em; color: var(--color-brand-700); margin-bottom: 6px; }
+  .em-prop .info .name { font: 700 15px/1.25 var(--font-display); color: #1a1626; margin-bottom: 4px; }
+  .em-prop .info .addr { font: 400 12px var(--font-sans); color: #7a7589; margin-bottom: 8px; }
+  .em-prop .info .price { font: 700 16px var(--font-sans); color: var(--color-brand-700); }
+
+  /* List rows — for line items, scheduled events */
+  .em-list {
+    margin: 18px 32px 0;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .em-list .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-default);
+    font: 400 13px var(--font-sans);
+  }
+  .em-list .row:last-child { border-bottom: none; background: #faf9fc; }
+  .em-list .row .k { color: #4a4659; }
+  .em-list .row .v { color: #1a1626; font-weight: 600; }
+  .em-list .row.total .k { font-weight: 600; }
+  .em-list .row.total .v { font-size: 15px; color: var(--color-brand-700); }
+
+  /* Notice box — security warnings, action required */
+  .em-notice {
+    margin: 18px 32px 0;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font: 400 13px/1.5 var(--font-sans);
+    color: #78350f;
+  }
+  .em-notice.danger { background: #fee2e2; border-color: #fca5a5; border-left-color: #dc2626; color: #7f1d1d; }
+  .em-notice.info { background: #dbeafe; border-color: #93c5fd; border-left-color: #2563eb; color: #1e3a8a; }
+  .em-notice strong { font-weight: 700; }
+
+  /* Signature */
+  .em-sig {
+    margin: 24px 32px 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-default);
+    font: 400 13px/1.5 var(--font-sans);
+    color: #4a4659;
+  }
+  .em-sig .greet { margin-bottom: 6px; }
+  .em-sig .name { color: #1a1626; font-weight: 600; }
+  .em-sig .role { color: #7a7589; }
+
+  /* Footer */
+  .em-foot {
+    margin-top: 28px;
+    background: #1a1626;
+    color: rgba(255,255,255,0.65);
+    padding: 24px 32px;
+    font: 400 11.5px/1.6 var(--font-sans);
+    text-align: center;
+  }
+  .em-foot .row1 { color: rgba(255,255,255,0.85); margin-bottom: 8px; }
+  .em-foot .links { margin: 8px 0; }
+  .em-foot .links a { color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 8px; }
+  .em-foot .legal { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-top: 10px; }
+  .em-foot .addr { font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+
+  /* =========================================================
+     Anatomy guide (left column of intro section)
+     ========================================================= */
+  .et-anatomy {
+    display: grid;
+    grid-template-columns: minmax(0, 600px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 980px) { .et-anatomy { grid-template-columns: 1fr; } }
+
+  .et-anatomy .preview {
+    background: #ecebef;
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .et-callouts {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .et-callouts li {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .et-callouts li .num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 12px var(--font-sans);
+  }
+  .et-callouts li h4 { margin: 0 0 4px; font: 600 14px var(--font-sans); color: #1a1626; }
+  .et-callouts li p { margin: 0; font: 400 13px/1.5 var(--font-sans); color: #5b5670; }
+  .et-callouts li code {
+    font: 500 11.5px var(--font-mono, "JetBrains Mono", monospace);
+    background: #f4f3f7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #4a2bb8;
+  }
+
+  /* =========================================================
+     Block library — modular pieces table
+     ========================================================= */
+  .et-blocks {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 920px) { .et-blocks { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .et-blocks { grid-template-columns: 1fr; } }
+
+  .et-block {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .et-block .ico {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .et-block h4 { margin: 0 0 4px; font: 600 14px var(--font-sans); color: #1a1626; }
+  .et-block .class {
+    font: 500 11px var(--font-mono, monospace);
+    background: #f4f3f7;
+    color: #4a2bb8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .et-block p { margin: 0 0 6px; font: 400 12.5px/1.5 var(--font-sans); color: #5b5670; }
+  .et-block .uses {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-default);
+    font: 400 11.5px/1.5 var(--font-sans);
+    color: #7a7589;
+  }
+  .et-block .uses b { color: #4a4659; font-weight: 600; }
+
+  /* =========================================================
+     Token table
+     ========================================================= */
+  .et-tokens {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .et-tokens table { width: 100%; border-collapse: collapse; }
+  .et-tokens th, .et-tokens td {
+    padding: 11px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-default);
+    font: 400 13px var(--font-sans);
+    color: #4a4659;
+  }
+  .et-tokens th {
+    background: #faf9fc;
+    font-weight: 600;
+    color: #1a1626;
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .et-tokens .swatch {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .et-tokens code {
+    font: 500 12px var(--font-mono, monospace);
+    color: #4a2bb8;
+  }
+  .et-tokens tr:last-child td { border-bottom: none; }
+
+  /* =========================================================
+     Code preview
+     ========================================================= */
+  .et-codeblock {
+    background: #1a1626;
+    border-radius: 12px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    font: 500 12.5px/1.7 var(--font-mono, "JetBrains Mono", monospace);
+    color: #d6d2e8;
+    border: 1px solid #2a2240;
+  }
+  .et-codeblock .tag { color: #b591ff; }
+  .et-codeblock .attr { color: #f0c674; }
+  .et-codeblock .str { color: #a3e7c4; }
+  .et-codeblock .com { color: #6c6485; font-style: italic; }
+
+  /* =========================================================
+     Topbar / brand bar
+     ========================================================= */
+  .et-topbar {
+    background: white;
+    border-bottom: 1px solid var(--border-default);
+    padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .et-topbar .crumb { font: 500 13px var(--font-sans); color: #7a7589; }
+  .et-topbar .crumb a { color: var(--color-brand-600); text-decoration: none; }
+  .et-topbar .actions { display: flex; gap: 8px; }
+  .et-topbar .btn {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font: 600 13px var(--font-sans);
+    color: #4a4659;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .et-topbar .btn.primary { background: var(--color-brand-600); border-color: var(--color-brand-600); color: white; }
+  .et-topbar .btn:hover { border-color: var(--color-brand-400); }
+  .et-topbar .btn.primary:hover { background: var(--color-brand-700); }
+
+</style>
+</head>
+<body>
+
+<div class="et-topbar">
+  <div class="crumb">
+    <a href="index.html">Index</a>
+    &nbsp;/&nbsp;
+    <a href="emails-catalog.html">Email catalog</a>
+    &nbsp;/&nbsp;
+    <span>Email template</span>
+  </div>
+  <div class="actions">
+    <a href="emails-catalog.html" class="btn"><i class="ri-mail-line"></i> Catalog (38)</a>
+    <a href="#anatomy" class="btn primary"><i class="ri-magic-line"></i> Anatomy</a>
+  </div>
+</div>
+
+<div class="et-page">
+
+  <!-- Intro -->
+  <p class="et-eyebrow">Communications · Brand · Layout</p>
+  <h1 class="et-title">REAM email template — one shell, every message.</h1>
+  <p class="et-lede">
+    A single, modular layout used by all 38 transactional and lifecycle emails in the catalog.
+    Every block is tokenised, on-brand, and renders consistently across Gmail, Outlook,
+    Apple Mail and mobile clients.
+  </p>
+
+  <nav class="et-toc">
+    <a href="#anatomy">1. Anatomy</a><span class="sep">·</span>
+    <a href="#blocks">2. Block library</a><span class="sep">·</span>
+    <a href="#tokens">3. Brand tokens</a><span class="sep">·</span>
+    <a href="#examples">4. Live examples</a><span class="sep">·</span>
+    <a href="#code">5. Source HTML</a>
+  </nav>
+
+  <!-- ===========================================================
+       1. ANATOMY
+       =========================================================== -->
+  <section class="et-section" id="anatomy">
+    <div class="et-section-head">
+      <span class="num">1</span>
+      <h2>Anatomy</h2>
+      <p>The canonical layout — header, hero, body, optional blocks, signature, footer.</p>
+    </div>
+
+    <div class="et-anatomy">
+      <div class="preview">
+        <div class="em-shell" style="border-radius: 12px; overflow: hidden; box-shadow: 0 12px 32px rgba(26, 22, 38, 0.12);">
+
+          <!-- Header -->
+          <div class="em-head" data-callout="1">
+            <div class="em-brand">
+              <span class="logo">R</span>
+              REAM
+            </div>
+            <span class="em-tagline">Real Estate, Reimagined</span>
+          </div>
+
+          <!-- Hero -->
+          <div class="em-hero" data-callout="2">
+            <span class="badge">Confirmation</span>
+            <h1>Hero headline goes here</h1>
+            <p>One- or two-sentence summary that delivers the email's main message at a glance.</p>
+          </div>
+
+          <!-- Body -->
+          <div class="em-body" data-callout="3">
+            <p>Hi <strong>{{firstName}}</strong>, this paragraph holds the bulk of the conversational copy.</p>
+            <p>Use it for context, next steps, or any narrative content.</p>
+          </div>
+
+          <!-- Stats -->
+          <div class="em-stats" data-callout="4">
+            <div class="s"><div class="k">Amount</div><div class="v">$2,450</div><div class="d">USD</div></div>
+            <div class="s"><div class="k">Date</div><div class="v">May 7</div><div class="d">2026</div></div>
+            <div class="s"><div class="k">Reference</div><div class="v">#A-2046</div><div class="d">Confirmed</div></div>
+          </div>
+
+          <!-- CTA -->
+          <div class="em-cta-wrap" data-callout="5">
+            <a class="em-cta" href="#">View receipt</a>
+            <p class="em-cta-aux">Or paste into your browser:<br/><a href="#">https://app.ream.com/r/A-2046</a></p>
+          </div>
+
+          <!-- Notice -->
+          <div class="em-notice" data-callout="6">
+            <strong>Heads up.</strong> Optional callout for time-sensitive info, security notes, or warnings.
+          </div>
+
+          <!-- Signature -->
+          <div class="em-sig" data-callout="7">
+            <div class="greet">Thank you,</div>
+            <div class="name">Sarah Johnson</div>
+            <div class="role">Senior Loan Officer · REAM Dallas</div>
+          </div>
+
+          <!-- Footer -->
+          <div class="em-foot" data-callout="8">
+            <div class="row1">REAM · Real Estate, Reimagined</div>
+            <div class="links">
+              <a href="#">Help</a>·<a href="#">Privacy</a>·<a href="#">Unsubscribe</a>
+            </div>
+            <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+            <div class="legal">© 2026 REAM, Inc. Licensed Texas Real Estate Brokerage. NMLS #2389471.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <ol class="et-callouts">
+        <li>
+          <span class="num">1</span>
+          <div>
+            <h4>Brand header</h4>
+            <p>Gradient bar (<code>#2a1d4f → #874ffa</code>) with logo + tagline. Same height across every email so the brand silhouette is recognisable in the inbox preview.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div>
+            <h4>Hero</h4>
+            <p>Coloured badge (<code>.badge.ok</code> / <code>.warn</code> / <code>.danger</code>) + h1 + 1-line summary. The hero alone should answer "what is this email about?"</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div>
+            <h4>Body copy</h4>
+            <p>Conversational paragraphs with merge fields like <code>{{firstName}}</code>. Use sparingly — most transactional emails should fit in two short paragraphs.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">4</span>
+          <div>
+            <h4>Stats / property / list</h4>
+            <p>Optional structured block: <code>.em-stats</code> for numerics, <code>.em-prop</code> for a listing card, <code>.em-list</code> for line items. Pick at most one.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">5</span>
+          <div>
+            <h4>Primary CTA</h4>
+            <p>Single brand-coloured button. The fallback URL underneath is required for accessibility and for clients that strip buttons.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">6</span>
+          <div>
+            <h4>Notice (optional)</h4>
+            <p>Inline callout for warnings, expirations, or security details. Three variants: amber (caution), red (danger), blue (info).</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">7</span>
+          <div>
+            <h4>Signature</h4>
+            <p>For human-sent emails (loan officer, agent). Skip on system emails.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">8</span>
+          <div>
+            <h4>Compliance footer</h4>
+            <p>Dark footer with brand line, legal links, mailing address, copyright + NMLS. Required by CAN-SPAM and lender regulations.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       2. BLOCK LIBRARY
+       =========================================================== -->
+  <section class="et-section" id="blocks">
+    <div class="et-section-head">
+      <span class="num">2</span>
+      <h2>Block library</h2>
+      <p>Modular pieces — mix and match per email type.</p>
+    </div>
+
+    <div class="et-blocks">
+      <div class="et-block">
+        <div class="ico"><i class="ri-flag-line"></i></div>
+        <h4>Header</h4>
+        <span class="class">.em-head</span>
+        <p>Gradient brand strip. Always present. Same on every template.</p>
+        <div class="uses"><b>Used in:</b> all 38 templates</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-magic-line"></i></div>
+        <h4>Hero</h4>
+        <span class="class">.em-hero</span>
+        <p>Badge + headline + summary. The "TL;DR" of the email.</p>
+        <div class="uses"><b>Used in:</b> all 38 templates</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-text"></i></div>
+        <h4>Body copy</h4>
+        <span class="class">.em-body</span>
+        <p>Free-form paragraphs with merge tags and links.</p>
+        <div class="uses"><b>Used in:</b> 36 / 38</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-bar-chart-2-line"></i></div>
+        <h4>Stats strip</h4>
+        <span class="class">.em-stats</span>
+        <p>3-column key/value/detail. For amounts, dates, IDs.</p>
+        <div class="uses"><b>Used in:</b> receipts, milestones, statements</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-home-2-line"></i></div>
+        <h4>Property card</h4>
+        <span class="class">.em-prop</span>
+        <p>Photo + ref + name + address + price.</p>
+        <div class="uses"><b>Used in:</b> listing alerts, deal milestones</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-list-check-2"></i></div>
+        <h4>Line item list</h4>
+        <span class="class">.em-list</span>
+        <p>Key/value rows with optional total. Bordered table.</p>
+        <div class="uses"><b>Used in:</b> statements, receipts, schedules</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-cursor-line"></i></div>
+        <h4>Primary CTA</h4>
+        <span class="class">.em-cta</span>
+        <p>Single brand button + fallback URL. Always one per email.</p>
+        <div class="uses"><b>Used in:</b> 35 / 38</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-error-warning-line"></i></div>
+        <h4>Notice</h4>
+        <span class="class">.em-notice</span>
+        <p>Amber, red, or blue inline callout for warnings or expirations.</p>
+        <div class="uses"><b>Used in:</b> security, expirations, action-required</div>
+      </div>
+      <div class="et-block">
+        <div class="ico"><i class="ri-quill-pen-line"></i></div>
+        <h4>Signature</h4>
+        <span class="class">.em-sig</span>
+        <p>Name + role for emails sent on behalf of a person.</p>
+        <div class="uses"><b>Used in:</b> human-sent emails (agents, officers)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       3. TOKENS
+       =========================================================== -->
+  <section class="et-section" id="tokens">
+    <div class="et-section-head">
+      <span class="num">3</span>
+      <h2>Brand tokens</h2>
+      <p>Inlined as hex for email-client compatibility — but always sourced from REAM design tokens.</p>
+    </div>
+
+    <div class="et-tokens">
+      <table>
+        <thead>
+          <tr><th style="width: 40px;"></th><th>Token</th><th>Value</th><th>Used for</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#874ffa;"></span></td><td><code>--color-brand-600</code></td><td>#874FFA</td><td>CTA, links, badges, brand emphasis</td></tr>
+          <tr><td><span class="swatch" style="background:#6e3fce;"></span></td><td><code>--color-brand-700</code></td><td>#6E3FCE</td><td>CTA hover, footer links</td></tr>
+          <tr><td><span class="swatch" style="background:#2a1d4f;"></span></td><td>Header gradient start</td><td>#2A1D4F</td><td>Top-left of header gradient</td></tr>
+          <tr><td><span class="swatch" style="background:#1a1626;"></span></td><td>Footer & body fg</td><td>#1A1626</td><td>Headlines, footer background</td></tr>
+          <tr><td><span class="swatch" style="background:#4a4659;"></span></td><td>Body text</td><td>#4A4659</td><td>Paragraph copy</td></tr>
+          <tr><td><span class="swatch" style="background:#7a7589;"></span></td><td>Muted text</td><td>#7A7589</td><td>Captions, labels, addr lines</td></tr>
+          <tr><td><span class="swatch" style="background:#faf9fc; border-color: var(--border-default);"></span></td><td>Subtle surface</td><td>#FAF9FC</td><td>Stats / list-total background</td></tr>
+          <tr><td><span class="swatch" style="background:#fef3c7;"></span></td><td>Warn surface</td><td>#FEF3C7</td><td>Notice (amber)</td></tr>
+          <tr><td><span class="swatch" style="background:#fee2e2;"></span></td><td>Danger surface</td><td>#FEE2E2</td><td>Notice (red)</td></tr>
+          <tr><td><span class="swatch" style="background:#dbeafe;"></span></td><td>Info surface</td><td>#DBEAFE</td><td>Notice (blue)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       4. EXAMPLES
+       =========================================================== -->
+  <section class="et-section" id="examples">
+    <div class="et-section-head">
+      <span class="num">4</span>
+      <h2>Live examples</h2>
+      <p>Same layout, four very different messages — verify, milestone, receipt, KYC rejection.</p>
+    </div>
+
+    <div class="et-showcase">
+
+      <!-- AUTH-001 — Verify email -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">AUTH-001</span>
+          <span class="label">Verify your email</span>
+          <span class="meta">System · Account</span>
+        </div>
+        <div class="et-mailclient">
+          <div class="et-mailmeta">
+            <div class="from">
+              <div class="ava">R</div>
+              <div><span class="name">REAM</span><span class="addr">&lt;hello@ream.com&gt;</span></div>
+            </div>
+            <div class="sub">Confirm your email to get started — REAM</div>
+            <div class="row"><span><b>To:</b> sarah.kim@gmail.com</span><span><b>May 7, 9:14 AM</b></span></div>
+          </div>
+          <div class="em-wrap">
+            <div class="em-shell">
+              <div class="em-head">
+                <div class="em-brand"><span class="logo">R</span> REAM</div>
+                <span class="em-tagline">Real Estate, Reimagined</span>
+              </div>
+              <div class="em-hero">
+                <span class="badge">Confirm</span>
+                <h1>Welcome to REAM, Sarah.</h1>
+                <p>You're one click away from browsing land and homes financed transparently in Dallas, Texas.</p>
+              </div>
+              <div class="em-body">
+                <p>Confirm your email so we can save your searches, send price alerts, and start your prospect application when you're ready.</p>
+              </div>
+              <div class="em-cta-wrap">
+                <a class="em-cta" href="#">Confirm email</a>
+                <p class="em-cta-aux">Link expires in 24 hours. If you didn't sign up, you can ignore this email.</p>
+              </div>
+              <div class="em-foot">
+                <div class="row1">REAM · Real Estate, Reimagined</div>
+                <div class="links"><a href="#">Help</a>·<a href="#">Privacy</a>·<a href="#">Unsubscribe</a></div>
+                <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+                <div class="legal">© 2026 REAM, Inc. NMLS #2389471.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEAL-002 — Approved -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DEAL-002</span>
+          <span class="label">Loan approved · contract ready</span>
+          <span class="meta">Officer · Milestone</span>
+        </div>
+        <div class="et-mailclient">
+          <div class="et-mailmeta">
+            <div class="from">
+              <div class="ava">SJ</div>
+              <div><span class="name">Sarah Johnson</span><span class="addr">&lt;sarah.j@ream.com&gt;</span></div>
+            </div>
+            <div class="sub">🎉 Approved — your contract for 3402 Elmwood Trail is ready</div>
+            <div class="row"><span><b>To:</b> marcus.lee@gmail.com</span><span><b>May 7, 11:42 AM</b></span></div>
+          </div>
+          <div class="em-wrap">
+            <div class="em-shell">
+              <div class="em-head">
+                <div class="em-brand"><span class="logo">R</span> REAM</div>
+                <span class="em-tagline">Real Estate, Reimagined</span>
+              </div>
+              <div class="em-hero">
+                <span class="badge ok">Approved</span>
+                <h1>Your loan is approved, Marcus.</h1>
+                <p>Underwriting cleared this morning. Your contract is ready for review and e-signature.</p>
+              </div>
+              <div class="em-prop">
+                <div class="photo"><i class="ri-home-2-line"></i></div>
+                <div class="info">
+                  <div class="ref">HSE-027 · 3.2 acres</div>
+                  <div class="name">3402 Elmwood Trail</div>
+                  <div class="addr">East Dallas, TX 75223</div>
+                  <div class="price">$184,500</div>
+                </div>
+              </div>
+              <div class="em-stats">
+                <div class="s"><div class="k">Term</div><div class="v">15 yr</div><div class="d">Fixed</div></div>
+                <div class="s"><div class="k">Rate</div><div class="v">8.25%</div><div class="d">APR</div></div>
+                <div class="s"><div class="k">Monthly</div><div class="v">$1,431</div><div class="d">P+I</div></div>
+              </div>
+              <div class="em-cta-wrap">
+                <a class="em-cta" href="#">Review &amp; sign contract</a>
+                <p class="em-cta-aux">Sign by <strong>May 14</strong> to keep your rate locked.</p>
+              </div>
+              <div class="em-sig">
+                <div class="greet">Congratulations,</div>
+                <div class="name">Sarah Johnson</div>
+                <div class="role">Senior Loan Officer · REAM Dallas</div>
+              </div>
+              <div class="em-foot">
+                <div class="row1">REAM · Real Estate, Reimagined</div>
+                <div class="links"><a href="#">Help</a>·<a href="#">Privacy</a>·<a href="#">Unsubscribe</a></div>
+                <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+                <div class="legal">© 2026 REAM, Inc. NMLS #2389471.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAY-002 — Receipt -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">PAY-002</span>
+          <span class="label">Payment receipt</span>
+          <span class="meta">System · Finance</span>
+        </div>
+        <div class="et-mailclient">
+          <div class="et-mailmeta">
+            <div class="from">
+              <div class="ava">R</div>
+              <div><span class="name">REAM Receipts</span><span class="addr">&lt;receipts@ream.com&gt;</span></div>
+            </div>
+            <div class="sub">Receipt — Installment #14 paid · $1,431.00</div>
+            <div class="row"><span><b>To:</b> marcus.lee@gmail.com</span><span><b>May 7, 6:00 AM</b></span></div>
+          </div>
+          <div class="em-wrap">
+            <div class="em-shell">
+              <div class="em-head">
+                <div class="em-brand"><span class="logo">R</span> REAM</div>
+                <span class="em-tagline">Real Estate, Reimagined</span>
+              </div>
+              <div class="em-hero">
+                <span class="badge ok">Paid</span>
+                <h1>Payment received — thank you.</h1>
+                <p>Installment #14 cleared this morning. Your next payment is scheduled for June 1.</p>
+              </div>
+              <div class="em-list">
+                <div class="row"><span class="k">Installment #14</span><span class="v">$1,431.00</span></div>
+                <div class="row"><span class="k">Late fee</span><span class="v">$0.00</span></div>
+                <div class="row"><span class="k">Reference</span><span class="v">REC-2046-014</span></div>
+                <div class="row total"><span class="k">Total paid</span><span class="v">$1,431.00</span></div>
+              </div>
+              <div class="em-cta-wrap">
+                <a class="em-cta ghost" href="#">Download receipt PDF</a>
+              </div>
+              <div class="em-foot">
+                <div class="row1">REAM · Real Estate, Reimagined</div>
+                <div class="links"><a href="#">Help</a>·<a href="#">Privacy</a>·<a href="#">Unsubscribe</a></div>
+                <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+                <div class="legal">© 2026 REAM, Inc. NMLS #2389471.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KYC-003 — Rejected -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">KYC-003</span>
+          <span class="label">KYC document needs review</span>
+          <span class="meta">System · Compliance</span>
+        </div>
+        <div class="et-mailclient">
+          <div class="et-mailmeta">
+            <div class="from">
+              <div class="ava">R</div>
+              <div><span class="name">REAM Compliance</span><span class="addr">&lt;compliance@ream.com&gt;</span></div>
+            </div>
+            <div class="sub">Action needed — please re-upload your ID</div>
+            <div class="row"><span><b>To:</b> marcus.lee@gmail.com</span><span><b>May 7, 2:15 PM</b></span></div>
+          </div>
+          <div class="em-wrap">
+            <div class="em-shell">
+              <div class="em-head">
+                <div class="em-brand"><span class="logo">R</span> REAM</div>
+                <span class="em-tagline">Real Estate, Reimagined</span>
+              </div>
+              <div class="em-hero">
+                <span class="badge warn">Action needed</span>
+                <h1>One quick fix on your ID.</h1>
+                <p>Your driver's license photo was a little blurry — could you re-upload a sharper version?</p>
+              </div>
+              <div class="em-body">
+                <p>This is the last step before we can run your underwriting. Most people finish in under 2 minutes.</p>
+              </div>
+              <div class="em-notice">
+                <strong>Tip.</strong> Take the photo in good light, lay the ID flat, and make sure all four corners are visible.
+              </div>
+              <div class="em-cta-wrap">
+                <a class="em-cta" href="#">Re-upload ID</a>
+                <p class="em-cta-aux">Need help? Reply to this email and we'll walk you through it.</p>
+              </div>
+              <div class="em-sig">
+                <div class="greet">Thanks,</div>
+                <div class="name">Diane Park</div>
+                <div class="role">Compliance · REAM Dallas</div>
+              </div>
+              <div class="em-foot">
+                <div class="row1">REAM · Real Estate, Reimagined</div>
+                <div class="links"><a href="#">Help</a>·<a href="#">Privacy</a>·<a href="#">Unsubscribe</a></div>
+                <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+                <div class="legal">© 2026 REAM, Inc. NMLS #2389471.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       5. SOURCE
+       =========================================================== -->
+  <section class="et-section" id="code">
+    <div class="et-section-head">
+      <span class="num">5</span>
+      <h2>Source HTML</h2>
+      <p>The minimal markup — fill in the blocks you need, leave the rest out.</p>
+    </div>
+
+    <div class="et-codeblock"><span class="com">&lt;!-- Email shell — every REAM email starts here --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-shell"</span><span class="tag">&gt;</span>
+
+  <span class="com">&lt;!-- 1. Header (always) --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-head"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-brand"</span><span class="tag">&gt;</span><span class="tag">&lt;span</span> <span class="attr">class=</span><span class="str">"logo"</span><span class="tag">&gt;</span>R<span class="tag">&lt;/span&gt;</span> REAM<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;span</span> <span class="attr">class=</span><span class="str">"em-tagline"</span><span class="tag">&gt;</span>Real Estate, Reimagined<span class="tag">&lt;/span&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 2. Hero (always) — badge variants: ok | warn | danger --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-hero"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;span</span> <span class="attr">class=</span><span class="str">"badge ok"</span><span class="tag">&gt;</span>Approved<span class="tag">&lt;/span&gt;</span>
+    <span class="tag">&lt;h1&gt;</span>{{headline}}<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>{{summary}}<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 3. Body (most emails) --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-body"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Hi <span class="tag">&lt;strong&gt;</span>{{firstName}}<span class="tag">&lt;/strong&gt;</span>, ...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 4a. Optional: stats (.em-stats) | property (.em-prop) | list (.em-list) — pick one --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-stats"</span><span class="tag">&gt;</span> ... <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 5. CTA (most emails) --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-cta-wrap"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">class=</span><span class="str">"em-cta"</span> <span class="attr">href=</span><span class="str">"{{url}}"</span><span class="tag">&gt;</span>{{cta}}<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;p</span> <span class="attr">class=</span><span class="str">"em-cta-aux"</span><span class="tag">&gt;</span>{{ctaHint}}<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 6. Optional: notice — variants: (default amber) | danger | info --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-notice"</span><span class="tag">&gt;&lt;strong&gt;</span>Heads up.<span class="tag">&lt;/strong&gt;</span> ...<span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 7. Optional: signature for human-sent emails --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-sig"</span><span class="tag">&gt;</span> ... <span class="tag">&lt;/div&gt;</span>
+
+  <span class="com">&lt;!-- 8. Footer (always) --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="str">"em-foot"</span><span class="tag">&gt;</span> ... <span class="tag">&lt;/div&gt;</span>
+
+<span class="tag">&lt;/div&gt;</span></div>
+  </section>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Land</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Land</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="lands"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <span class="current">Land</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search land…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="lst-hero">
+          <div>
+            <h1 class="page-title">Land</h1>
+            <div class="sub">Plots and parcels available for sale, reserved, or owned. Use the title-status filter to surface plots that need legal follow-up.</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-secondary" onclick="window.location.href='imports.html'"><i class="ri-upload-cloud-2-line"></i> Import</button>
+            <button class="btn btn-primary" data-rw-open="land"><i class="ri-add-line"></i> Add land</button>
+          </div>
+        </div>
+
+        <div class="lst-kpis">
+          <div class="card"><div class="card-title">Total plots</div><div class="card-value">76</div><div class="delta up">+5 this month</div></div>
+          <div class="card"><div class="card-title">Available</div><div class="card-value" style="color: var(--color-success-700);">38</div><div class="delta muted">Open inventory</div></div>
+          <div class="card"><div class="card-title">Reserved</div><div class="card-value" style="color: var(--color-warning-700);">14</div><div class="delta warn">3 deposits pending</div></div>
+          <div class="card"><div class="card-title">Sold (90d)</div><div class="card-value">12</div><div class="delta up">+4 vs prev</div></div>
+        </div>
+
+        <div class="lst-tabs" id="landTabs" role="tablist">
+          <button class="tab on" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">8</span></button>
+          <button class="tab" data-type="available"><i class="ri-flashlight-line"></i> Available <span class="cnt">3</span></button>
+          <button class="tab" data-type="reserved"><i class="ri-time-line"></i> Reserved <span class="cnt">2</span></button>
+          <button class="tab" data-type="owned"><i class="ri-shield-check-line"></i> Owned <span class="cnt">2</span></button>
+          <button class="tab" data-type="sold"><i class="ri-check-double-line"></i> Sold <span class="cnt">1</span></button>
+        </div>
+
+        <div class="lst-toolbar">
+          <div class="lst-search"><i class="ri-search-line"></i><input id="landSearch" placeholder="Search by name, code, or location…" /></div>
+          <button class="btn btn-secondary btn-sm">Size ▾</button>
+          <button class="btn btn-secondary btn-sm">Title ▾</button>
+          <button class="btn btn-secondary btn-sm">Site ▾</button>
+          <button class="btn btn-secondary btn-sm">Price ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <span class="grow"></span>
+          <span class="count"><span id="landCount">8</span> plots</span>
+          <div class="view"><button class="on" title="Grid"><i class="ri-grid-fill"></i></button><button title="List"><i class="ri-list-unordered"></i></button></div>
+        </div>
+
+        <div class="lst-grid" id="landGrid">
+
+          <a class="lst-card" data-type="available" data-img="garden" href="land-detail.html">
+            <div class="img"><span class="badge" data-tone="new"><i class="ri-sparkling-2-line"></i> NEW LISTING</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">LND-038 · LAND</div>
+              <h4>Highland Park Garden Plot</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Highland Park, Dallas, TX</div>
+              <div class="specs"><span><span class="num">0.36</span><span class="lab">acres</span></span><span class="tag">Residential</span><span class="tag">Paved</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$540,000</div><div class="price-meta">or <b>$4,115</b>/mo<br/>$54,000 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="owned" data-img="eastview" href="land-detail.html">
+            <div class="img"><span class="badge"><i class="ri-shield-check-line"></i> OWNED</span><button class="fav on" aria-label="Favorite"><i class="ri-heart-fill"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">EV-027 · LAND</div>
+              <h4>Eastview · Plot 27</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Eastview Estate, Accra</div>
+              <div class="specs"><span><span class="num">600</span><span class="lab">m²</span></span><span class="tag">Residential</span><span class="tag">Title registered</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$48,000</div><div class="price-meta">Acquired<br/><b>Nov 3, 2024</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="reserved" data-img="hillside" href="land-detail.html">
+            <div class="img"><span class="badge" data-tone="reserved"><i class="ri-time-line"></i> RESERVED</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">HL-009 · LAND</div>
+              <h4>Hillside · Plot 09</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Hillside Phase II, Accra</div>
+              <div class="specs"><span><span class="num">480</span><span class="lab">m²</span></span><span class="tag">Residential</span><span class="tag">Hilltop</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$48,500</div><div class="price-meta">$4,850 <b>deposit paid</b><br/>Reserved <b>May 22</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="available" data-img="dakar" href="land-detail.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> AVAILABLE</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">DB-014 · LAND</div>
+              <h4>Dakar Bay · Plot 14</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Dakar Bay Estate, Senegal</div>
+              <div class="specs"><span><span class="num">720</span><span class="lab">m²</span></span><span class="tag">Beachfront</span><span class="tag">Mixed-use</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$92,000</div><div class="price-meta">or <b>$715</b>/mo<br/>$9,200 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="reserved" data-img="palm" href="land-detail.html">
+            <div class="img"><span class="badge" data-tone="reserved"><i class="ri-time-line"></i> RESERVED · DEPOSIT DUE</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">PG-21 · LAND</div>
+              <h4>Palm Grove · Plot 21</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Palm Grove Estate, Tema</div>
+              <div class="specs"><span><span class="num">540</span><span class="lab">m²</span></span><span class="tag">Residential</span><span class="tag">Corner</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$58,200</div><div class="price-meta" style="color: var(--color-warning-700);">$1,200 <b>of $5,820</b><br/>Due <b>Jul 02</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="available" data-img="northgate" href="land-detail.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> AVAILABLE</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">NG-58 · LAND</div>
+              <h4>Northgate · Plot 58</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Northgate Phase II, Accra</div>
+              <div class="specs"><span><span class="num">820</span><span class="lab">m²</span></span><span class="tag">Residential</span><span class="tag">Title registered</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$104,500</div><div class="price-meta">or <b>$815</b>/mo<br/>$10,450 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="owned" data-img="riverbend" href="land-detail.html">
+            <div class="img"><span class="badge"><i class="ri-shield-check-line"></i> OWNED</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">RB-031 · LAND</div>
+              <h4>Riverbend · Plot 31</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Riverbend Estate, Accra</div>
+              <div class="specs"><span><span class="num">650</span><span class="lab">m²</span></span><span class="tag">Riverside</span><span class="tag">Title registered</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$72,000</div><div class="price-meta">Acquired<br/><b>Aug 18, 2024</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="sold" data-img="phoenix" href="land-detail.html">
+            <div class="img"><span class="badge" data-tone="sold"><i class="ri-check-double-line"></i> SOLD · APR 2025</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">PM-44 · LAND</div>
+              <h4>Phoenix Mesa · Plot 44</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Phoenix Mesa, Accra</div>
+              <div class="specs"><span><span class="num">580</span><span class="lab">m²</span></span><span class="tag">Residential</span><span class="tag">Hilltop</span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$54,400</div><div class="price-meta">Sold to <b>F. Yansané</b><br/>Apr 02, 2025</div></div>
+          </a>
+
+        </div>
+
+        <div class="lst-empty" id="emptyState" hidden>
+          <i class="ri-search-line"></i>
+          <div class="ti">No plots match those filters</div>
+          <div class="sb">Try clearing the search or switching to All.</div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+document.getElementById('btnExport')?.addEventListener('click',()=>toast('Exporting 76 plots as CSV…'));
+document.querySelectorAll('.icon-btn').forEach(b=>b.addEventListener('click',()=>toast('No new notifications')));
+document.querySelectorAll('.btn.btn-secondary.btn-sm,.btn.btn-text.btn-sm').forEach(b=>b.addEventListener('click',()=>toast('Filter: '+b.textContent.trim())));
+document.querySelectorAll('.lst-card .fav').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();b.classList.toggle('on');b.querySelector('i').className=b.classList.contains('on')?'ri-heart-fill':'ri-heart-line';}));
+document.querySelectorAll('.view button').forEach((btn,i,arr)=>btn.addEventListener('click',()=>{arr.forEach(x=>x.classList.remove('on'));btn.classList.add('on');toast(i===0?'Grid view':'List view');}));
+
+const tabs=document.querySelectorAll('#landTabs .tab');
+const cards=Array.from(document.querySelectorAll('#landGrid .lst-card'));
+const searchInput=document.getElementById('landSearch');
+const countEl=document.getElementById('landCount');
+const emptyState=document.getElementById('emptyState');
+let activeType='all';let q='';
+function apply(){let n=0;cards.forEach(c=>{const okType=activeType==='all'||c.dataset.type===activeType;const okQ=!q||c.textContent.toLowerCase().includes(q);const show=okType&&okQ;c.style.display=show?'':'none';if(show)n++;});countEl.textContent=n;emptyState.hidden=n>0;}
+tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('on'));t.classList.add('on');activeType=t.dataset.type;apply();}));
+searchInput.addEventListener('input',()=>{q=searchInput.value.trim().toLowerCase();apply();});
+</script>
+<script src="_register-wizards.js"></script>
+</body>
+</html>

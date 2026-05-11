@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Sites</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Sites</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="sites"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <span class="current">Sites</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search sites…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="lst-hero">
+          <div>
+            <h1 class="page-title">Sites</h1>
+            <div class="sub">Developments and estates that group lots, houses, and infrastructure. Click a site to see its inventory, sales velocity, and construction progress.</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-primary" data-rw-open="site"><i class="ri-add-line"></i> Add site</button>
+          </div>
+        </div>
+
+        <div class="lst-kpis">
+          <div class="card"><div class="card-title">Active sites</div><div class="card-value">9</div><div class="delta up">+1 this quarter</div></div>
+          <div class="card"><div class="card-title">Total inventory</div><div class="card-value">214</div><div class="delta muted">Lots & units</div></div>
+          <div class="card"><div class="card-title">Sold to date</div><div class="card-value" style="color: var(--color-success-700);">128</div><div class="delta up">60% sold</div></div>
+          <div class="card"><div class="card-title">Sales (90d)</div><div class="card-value">22</div><div class="delta up">+5 vs prev</div></div>
+        </div>
+
+        <div class="lst-tabs" id="siteTabs" role="tablist">
+          <button class="tab on" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">6</span></button>
+          <button class="tab" data-type="selling"><i class="ri-flashlight-line"></i> Selling <span class="cnt">3</span></button>
+          <button class="tab" data-type="construction"><i class="ri-tools-line"></i> Construction <span class="cnt">2</span></button>
+          <button class="tab" data-type="planning"><i class="ri-pencil-ruler-2-line"></i> Planning <span class="cnt">1</span></button>
+        </div>
+
+        <div class="lst-toolbar">
+          <div class="lst-search"><i class="ri-search-line"></i><input id="siteSearch" placeholder="Search by name or location…" /></div>
+          <button class="btn btn-secondary btn-sm">Region ▾</button>
+          <button class="btn btn-secondary btn-sm">Phase ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <span class="grow"></span>
+          <span class="count"><span id="siteCount">6</span> sites</span>
+          <div class="view"><button class="on" title="Grid"><i class="ri-grid-fill"></i></button><button title="List"><i class="ri-list-unordered"></i></button></div>
+        </div>
+
+        <div class="lst-grid" id="siteGrid">
+
+          <a class="lst-card" data-type="selling" data-img="sunridge" href="site-detail.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> SELLING · PHASE 2</span></div>
+            <div class="body">
+              <div class="eyebrow">SR · ESTATE</div>
+              <h4>Sunridge Estate</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Ridge Lane, Accra · 14 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Sold inventory</span><b>32 / 48</b></div>
+              <div class="bar"><span style="width: 67%;"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">48</div><div class="lab">Lots</div></div>
+              <div><div class="num">22</div><div class="lab">Houses</div></div>
+              <div><div class="num">$3.2M</div><div class="lab">Booked</div></div>
+            </div>
+          </a>
+
+          <a class="lst-card" data-type="selling" data-img="riverbend" href="site-detail.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> SELLING · PHASE 1</span></div>
+            <div class="body">
+              <div class="eyebrow">RB · ESTATE</div>
+              <h4>Riverbend Estate</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Riverbend, Accra · 9 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Sold inventory</span><b>18 / 36</b></div>
+              <div class="bar"><span style="width: 50%;"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">36</div><div class="lab">Lots</div></div>
+              <div><div class="num">12</div><div class="lab">Houses</div></div>
+              <div><div class="num">$1.8M</div><div class="lab">Booked</div></div>
+            </div>
+          </a>
+
+          <a class="lst-card" data-type="construction" data-img="northgate" href="site-detail.html">
+            <div class="img"><span class="badge" data-tone="construction"><i class="ri-tools-line"></i> CONSTRUCTION · 78%</span></div>
+            <div class="body">
+              <div class="eyebrow">NG · ESTATE</div>
+              <h4>Northgate Phase II</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Northgate, Accra · 22 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Construction progress</span><b>78%</b></div>
+              <div class="bar"><span style="width: 78%; background: linear-gradient(90deg, var(--color-warning-500, #f59e0b), var(--color-warning-700, #b45309));"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">62</div><div class="lab">Lots</div></div>
+              <div><div class="num">28</div><div class="lab">Houses</div></div>
+              <div><div class="num">Sep '25</div><div class="lab">Hand-over</div></div>
+            </div>
+          </a>
+
+          <a class="lst-card" data-type="selling" data-img="palm" href="site-detail.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> SELLING · PHASE 1</span></div>
+            <div class="body">
+              <div class="eyebrow">PG · ESTATE</div>
+              <h4>Palm Grove Estate</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Palm Grove, Tema · 6 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Sold inventory</span><b>14 / 28</b></div>
+              <div class="bar"><span style="width: 50%;"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">28</div><div class="lab">Lots</div></div>
+              <div><div class="num">8</div><div class="lab">Houses</div></div>
+              <div><div class="num">$1.1M</div><div class="lab">Booked</div></div>
+            </div>
+          </a>
+
+          <a class="lst-card" data-type="construction" data-img="oakwood" href="site-detail.html">
+            <div class="img"><span class="badge" data-tone="construction"><i class="ri-tools-line"></i> CONSTRUCTION · 42%</span></div>
+            <div class="body">
+              <div class="eyebrow">OW · ESTATE</div>
+              <h4>Oakwood Heights</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Oakwood, Accra · 18 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Construction progress</span><b>42%</b></div>
+              <div class="bar"><span style="width: 42%; background: linear-gradient(90deg, var(--color-warning-500, #f59e0b), var(--color-warning-700, #b45309));"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">54</div><div class="lab">Lots</div></div>
+              <div><div class="num">24</div><div class="lab">Houses</div></div>
+              <div><div class="num">Mar '26</div><div class="lab">Hand-over</div></div>
+            </div>
+          </a>
+
+          <a class="lst-card" data-type="planning" data-img="harbor" href="site-detail.html">
+            <div class="img"><span class="badge" data-tone="reserved"><i class="ri-pencil-ruler-2-line"></i> PLANNING</span></div>
+            <div class="body">
+              <div class="eyebrow">HV · ESTATE</div>
+              <h4>Harbor View</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Harbor View, Cape Coast · 24 ha</div>
+            </div>
+            <div class="progress">
+              <div class="lab"><span>Approvals secured</span><b>4 / 6</b></div>
+              <div class="bar"><span style="width: 67%; background: var(--color-grey-400);"></span></div>
+            </div>
+            <div class="stat-grid">
+              <div><div class="num">86</div><div class="lab">Planned lots</div></div>
+              <div><div class="num">Q1</div><div class="lab">Break-ground</div></div>
+              <div><div class="num">2026</div><div class="lab">Year</div></div>
+            </div>
+          </a>
+
+        </div>
+
+        <div class="lst-empty" id="emptyState" hidden>
+          <i class="ri-search-line"></i>
+          <div class="ti">No sites match those filters</div>
+          <div class="sb">Try clearing the search or switching to All.</div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+document.getElementById('btnExport')?.addEventListener('click',()=>toast('Exporting 9 sites as CSV…'));
+document.querySelectorAll('.icon-btn').forEach(b=>b.addEventListener('click',()=>toast('No new notifications')));
+document.querySelectorAll('.btn.btn-secondary.btn-sm,.btn.btn-text.btn-sm').forEach(b=>b.addEventListener('click',()=>toast('Filter: '+b.textContent.trim())));
+document.querySelectorAll('.view button').forEach((btn,i,arr)=>btn.addEventListener('click',()=>{arr.forEach(x=>x.classList.remove('on'));btn.classList.add('on');toast(i===0?'Grid view':'List view');}));
+
+const tabs=document.querySelectorAll('#siteTabs .tab');
+const cards=Array.from(document.querySelectorAll('#siteGrid .lst-card'));
+const searchInput=document.getElementById('siteSearch');
+const countEl=document.getElementById('siteCount');
+const emptyState=document.getElementById('emptyState');
+let activeType='all';let q='';
+function apply(){let n=0;cards.forEach(c=>{const okType=activeType==='all'||c.dataset.type===activeType;const okQ=!q||c.textContent.toLowerCase().includes(q);const show=okType&&okQ;c.style.display=show?'':'none';if(show)n++;});countEl.textContent=n;emptyState.hidden=n>0;}
+tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('on'));t.classList.add('on');activeType=t.dataset.type;apply();}));
+searchInput.addEventListener('input',()=>{q=searchInput.value.trim().toLowerCase();apply();});
+</script>
+<script src="_register-wizards.js"></script>
+</body>
+</html>

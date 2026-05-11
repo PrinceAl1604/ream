@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — User guide</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg-canvas);
+    color: var(--fg1);
+    font: var(--text-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* =========================================================
+     Layout — sticky TOC on the left, prose on the right
+     ========================================================= */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    max-width: 1280px;
+    margin: 0 auto;
+    gap: 56px;
+    padding: 0 40px 120px;
+  }
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; gap: 0; padding: 0 24px 80px; }
+    .toc { position: static !important; border-right: 0 !important; padding: 24px 0 !important; }
+  }
+
+  /* =========================================================
+     Hero
+     ========================================================= */
+  .hero {
+    background:
+      radial-gradient(ellipse at 80% 0%, rgba(159, 114, 251, 0.35) 0%, transparent 60%),
+      linear-gradient(135deg, var(--color-brand-deep) 0%, var(--color-brand-950) 60%, var(--color-brand-900) 100%);
+    color: white;
+    padding: 64px 0 72px;
+    margin-bottom: 56px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(180deg, black 0%, transparent 80%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 600 11px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-brand-200);
+    background: rgba(159, 114, 251, 0.12);
+    border: 1px solid rgba(159, 114, 251, 0.32);
+    padding: 7px 12px;
+    border-radius: 999px;
+    margin-bottom: 22px;
+  }
+  .hero-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-brand-300);
+    box-shadow: 0 0 0 3px rgba(159, 114, 251, 0.20);
+  }
+  .hero h1 {
+    font: 700 64px/0.96 var(--font-display);
+    letter-spacing: -0.025em;
+    margin: 0 0 16px;
+    color: white;
+    max-width: 880px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--color-brand-300);
+  }
+  .hero .lede {
+    font: 400 17px/1.55 var(--font-sans);
+    color: rgba(255,255,255,0.78);
+    max-width: 640px;
+    margin: 0 0 28px;
+  }
+  .hero-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    font: 500 12.5px/1 var(--font-sans);
+    color: rgba(255,255,255,0.55);
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-meta i { color: var(--color-brand-300); }
+
+  /* =========================================================
+     TOC
+     ========================================================= */
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    padding: 8px 24px 8px 0;
+    border-right: 1px solid var(--border-subtle);
+    max-height: 100vh;
+    overflow: auto;
+  }
+  .toc-label {
+    font: 600 10.5px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg3);
+    margin: 8px 0 14px;
+    padding: 0 8px;
+  }
+  .toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: toc;
+  }
+  .toc li { counter-increment: toc; }
+  .toc a {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 4px;
+    padding: 8px 8px;
+    border-radius: 6px;
+    color: var(--fg2);
+    font: 500 13px/1.35 var(--font-sans);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+  }
+  .toc a::before {
+    content: counter(toc, decimal-leading-zero);
+    font: 600 10.5px/1.4 var(--font-mono);
+    color: var(--fg4);
+    padding-top: 2px;
+  }
+  .toc a:hover {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .toc a.active {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    border-left-color: var(--color-brand-600);
+  }
+  .toc a.active::before { color: var(--color-brand-600); }
+
+  /* =========================================================
+     Sections
+     ========================================================= */
+  main { min-width: 0; }
+  section { margin-bottom: 80px; scroll-margin-top: 24px; }
+  .sec-num {
+    font: 600 11.5px/1 var(--font-mono);
+    color: var(--color-brand-600);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--color-brand-50);
+    border-radius: 999px;
+  }
+  h2 {
+    font: 700 36px/1.1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--color-grey-900);
+    margin: 0 0 14px;
+  }
+  h3 {
+    font: 600 18px/1.35 var(--font-sans);
+    color: var(--color-grey-900);
+    margin: 32px 0 12px;
+  }
+  h4 {
+    font: 600 13.5px/1.3 var(--font-sans);
+    color: var(--color-grey-900);
+    margin: 0 0 6px;
+  }
+  p { color: var(--fg2); font: 400 15px/1.65 var(--font-sans); margin: 0 0 14px; max-width: 68ch; }
+  p strong { color: var(--color-grey-900); font-weight: 600; }
+  ul, ol { color: var(--fg2); font: 400 15px/1.6 var(--font-sans); padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--color-brand-400); }
+
+  .lede-p {
+    font: 400 17px/1.6 var(--font-sans);
+    color: var(--fg2);
+    max-width: 64ch;
+    margin: 0 0 28px;
+  }
+
+  /* =========================================================
+     Lifecycle diagram
+     ========================================================= */
+  .lifecycle {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin: 24px 0 8px;
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--color-grey-50);
+  }
+  .lc-step {
+    padding: 18px 16px;
+    border-right: 1px solid var(--border-subtle);
+    background: white;
+    position: relative;
+  }
+  .lc-step:last-child { border-right: 0; }
+  .lc-step::after {
+    content: "";
+    position: absolute;
+    right: -7px; top: 50%;
+    width: 13px; height: 13px;
+    background: white;
+    border-top: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
+    transform: translateY(-50%) rotate(45deg);
+    z-index: 2;
+  }
+  .lc-step:last-child::after { display: none; }
+  .lc-step .lc-num {
+    font: 600 10px/1 var(--font-mono);
+    color: var(--color-brand-600);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .lc-step .lc-name {
+    font: 600 14px/1.2 var(--font-sans);
+    color: var(--color-grey-900);
+    margin-bottom: 4px;
+  }
+  .lc-step .lc-who {
+    font: 500 11px/1.3 var(--font-sans);
+    color: var(--fg3);
+    margin-bottom: 8px;
+  }
+  .lc-step .lc-icon {
+    font-size: 22px;
+    color: var(--color-brand-500);
+    margin-bottom: 8px;
+    display: block;
+  }
+  @media (max-width: 760px) {
+    .lifecycle { grid-template-columns: 1fr; }
+    .lc-step { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
+    .lc-step::after { display: none; }
+  }
+
+  /* =========================================================
+     Convention cards
+     ========================================================= */
+  .conv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  @media (max-width: 720px) { .conv-grid { grid-template-columns: 1fr; } }
+  .conv {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 18px 18px 16px;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .conv .ico {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .conv h4 { margin: 0 0 4px; font-size: 14px; }
+  .conv p { font-size: 13.5px; line-height: 1.55; margin: 0; }
+
+  /* =========================================================
+     Checklist (before you start)
+     ========================================================= */
+  .checklist {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 18px 0;
+  }
+  .checklist-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: start;
+  }
+  .checklist-row:last-child { border-bottom: 0; }
+  .checklist-row .step {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font: 700 11.5px/1 var(--font-mono);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .checklist-row h4 { margin: 0 0 4px; }
+  .checklist-row p { margin: 0; font-size: 13.5px; max-width: 56ch; }
+  .checklist-row .who {
+    font: 600 10.5px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg3);
+    background: var(--color-grey-100);
+    padding: 5px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+
+  /* =========================================================
+     Role cards (the heart of the guide)
+     ========================================================= */
+  .role-card {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .role-head {
+    padding: 22px 24px 18px;
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    background: linear-gradient(180deg, var(--rh-bg-1, var(--color-grey-50)) 0%, white 100%);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .role-head .role-ico {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--rh-ico-bg, var(--color-brand-100));
+    color: var(--rh-ico-fg, var(--color-brand-700));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .role-head .meta { min-width: 0; }
+  .role-head .tag {
+    font: 600 10.5px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--rh-tag-fg, var(--color-brand-700));
+    margin-bottom: 6px;
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .role-head h3 {
+    font: 700 24px/1.15 var(--font-display);
+    color: var(--color-grey-900);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .role-head .sub {
+    font: 400 13.5px/1.5 var(--font-sans);
+    color: var(--fg3);
+    margin: 0;
+    max-width: 64ch;
+  }
+  .role-head .access {
+    font: 600 10.5px/1 var(--font-mono);
+    color: var(--fg3);
+    background: white;
+    border: 1px solid var(--border-default);
+    padding: 5px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .role-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media (max-width: 720px) { .role-body { grid-template-columns: 1fr; } }
+  .role-col {
+    padding: 20px 24px 22px;
+    border-right: 1px solid var(--border-subtle);
+  }
+  .role-col:last-child { border-right: 0; border-top: 0; }
+  @media (max-width: 720px) {
+    .role-col { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
+    .role-col:last-child { border-bottom: 0; }
+  }
+  .role-col h4 {
+    font: 600 11px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg3);
+    margin: 0 0 12px;
+  }
+  .role-col ul { padding-left: 0; list-style: none; margin: 0; }
+  .role-col li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 8px;
+    padding: 6px 0;
+    font: 400 13.5px/1.5 var(--font-sans);
+    color: var(--fg2);
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .role-col li:last-child { border-bottom: 0; }
+  .role-col li i {
+    color: var(--rh-ico-fg, var(--color-brand-600));
+    font-size: 13px;
+    padding-top: 3px;
+  }
+  .role-col li b { color: var(--color-grey-900); font-weight: 600; }
+
+  /* Role-specific accent palettes (override --rh-* vars on the card) */
+  .rc-public   { --rh-bg-1: #f8fafc; --rh-ico-bg: #e2e8f0; --rh-ico-fg: #475569; --rh-tag-fg: #475569; }
+  .rc-prospect { --rh-bg-1: #fff8eb; --rh-ico-bg: #fde7b7; --rh-ico-fg: #9a6c0d; --rh-tag-fg: #9a6c0d; }
+  .rc-customer { --rh-bg-1: #ecfdf5; --rh-ico-bg: #c8f0db; --rh-ico-fg: #0d7c4d; --rh-tag-fg: #0d7c4d; }
+  .rc-sales    { --rh-bg-1: #f7f3ff; --rh-ico-bg: #e4d7ff; --rh-ico-fg: #6e3fce; --rh-tag-fg: #6e3fce; }
+  .rc-finance  { --rh-bg-1: #ecfdf5; --rh-ico-bg: #bcebd0; --rh-ico-fg: #0d7c4d; --rh-tag-fg: #0d7c4d; }
+  .rc-followup { --rh-bg-1: #eef4ff; --rh-ico-bg: #d4e1fc; --rh-ico-fg: #2c4ea1; --rh-tag-fg: #2c4ea1; }
+  .rc-orgadmin { --rh-bg-1: #fdf3f3; --rh-ico-bg: #fbd5d5; --rh-ico-fg: #b91c1c; --rh-tag-fg: #b91c1c; }
+  .rc-superadmin { --rh-bg-1: #18112c; --rh-ico-bg: rgba(159,114,251,0.20); --rh-ico-fg: #d6c1ff; --rh-tag-fg: #d6c1ff; }
+  .rc-superadmin .role-head { background: linear-gradient(180deg, #170936 0%, #2a1656 100%); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .rc-superadmin .role-head h3 { color: white; }
+  .rc-superadmin .role-head .sub { color: rgba(255,255,255,0.7); }
+  .rc-superadmin .role-head .access { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: rgba(255,255,255,0.7); }
+
+  /* Tier strip — for admin/sales/finance/follow-up which have agent/manager/admin tiers */
+  .tier-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: white;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .tier-strip .tier {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border-subtle);
+  }
+  .tier-strip .tier:last-child { border-right: 0; }
+  .tier-strip .tier-label {
+    font: 600 10.5px/1 var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--rh-tag-fg, var(--color-brand-700));
+    margin-bottom: 6px;
+  }
+  .tier-strip .tier-name {
+    font: 600 13.5px/1.3 var(--font-sans);
+    color: var(--color-grey-900);
+    margin-bottom: 4px;
+  }
+  .tier-strip .tier-desc {
+    font: 400 12.5px/1.45 var(--font-sans);
+    color: var(--fg3);
+  }
+  @media (max-width: 720px) {
+    .tier-strip { grid-template-columns: 1fr; }
+    .tier-strip .tier { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
+    .tier-strip .tier:last-child { border-bottom: 0; }
+  }
+
+  /* =========================================================
+     Callouts
+     ========================================================= */
+  .callout {
+    border-left: 3px solid var(--color-brand-500);
+    background: var(--color-brand-50);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 18px;
+    margin: 18px 0;
+  }
+  .callout h4 {
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-brand-700);
+    margin: 0 0 6px;
+  }
+  .callout p { color: var(--color-grey-800); font-size: 13.5px; margin: 0; }
+
+  /* =========================================================
+     Concept grid (entities)
+     ========================================================= */
+  .concepts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+  }
+  @media (max-width: 760px) { .concepts { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .concepts { grid-template-columns: 1fr; } }
+  .concept {
+    background: white;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+  }
+  .concept .ck {
+    display: inline-block;
+    font: 600 10px/1 var(--font-mono);
+    color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    padding: 4px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .concept h4 { font-size: 13.5px; margin: 0 0 4px; }
+  .concept p { font-size: 12.5px; color: var(--fg3); line-height: 1.5; margin: 0; max-width: none; }
+
+  /* =========================================================
+     Top bar
+     ========================================================= */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .topbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 12px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .tb-brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    font: 700 17px/1 var(--font-display);
+    color: var(--color-grey-900);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .tb-brand .logo {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: var(--color-brand-600);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 14px/1 var(--font-display);
+  }
+  .tb-spacer { flex: 1; }
+  .tb-link {
+    font: 500 13px/1 var(--font-sans);
+    color: var(--fg2);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+  .tb-link:hover { color: var(--color-brand-700); background: var(--color-brand-50); }
+  .tb-cta {
+    font: 600 13px/1 var(--font-sans);
+    color: white;
+    background: var(--color-brand-600);
+    padding: 9px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tb-cta:hover { background: var(--color-brand-700); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 80px;
+    padding: 32px 40px;
+    text-align: center;
+    color: var(--fg3);
+    font: 400 12.5px/1.5 var(--font-sans);
+  }
+
+  /* Channel pill (used in concept blocks) */
+  .pillrow { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .pill {
+    font: 600 10.5px/1 var(--font-sans);
+    background: var(--color-grey-100);
+    color: var(--color-grey-700);
+    padding: 4px 8px;
+    border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .pill i { font-size: 11px; }
+</style>
+</head>
+<body>
+
+<!-- =================================================================
+     Top bar
+     ================================================================= -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="tb-brand" href="../index.html">
+      <span class="logo">R</span> REAM
+    </a>
+    <span class="tb-spacer"></span>
+    <a class="tb-link" href="../index.html">App entry</a>
+    <a class="tb-link" href="../landing.html">Marketing</a>
+    <a class="tb-cta" href="../ream.html">Open the app <i class="ri-arrow-right-line"></i></a>
+  </div>
+</div>
+
+<!-- =================================================================
+     Hero
+     ================================================================= -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="hero-eyebrow"><span class="dot"></span> User guide · v1</span>
+    <h1>Everything you need to run <em>real estate financing</em> on REAM.</h1>
+    <p class="lede">REAM is the operating system for owner-financed land and home sales — from listing a plot, to capturing prospects, to signing a loan, to collecting decades of monthly payments. This guide explains how it fits together, the conventions every team should know, and what each kind of user can do.</p>
+    <div class="hero-meta">
+      <span><i class="ri-time-line"></i> 12 min read</span>
+      <span><i class="ri-team-line"></i> 8 user types</span>
+      <span><i class="ri-book-2-line"></i> 7 sections</span>
+      <span><i class="ri-refresh-line"></i> Updated May 2026</span>
+    </div>
+  </div>
+</header>
+
+<!-- =================================================================
+     Body shell — sticky TOC + main column
+     ================================================================= -->
+<div class="shell">
+
+  <!-- ----------- TOC ----------- -->
+  <aside class="toc">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><a href="#what" data-toc>What REAM is</a></li>
+      <li><a href="#how" data-toc>How it works</a></li>
+      <li><a href="#concepts" data-toc>Core concepts</a></li>
+      <li><a href="#conventions" data-toc>Conventions to know</a></li>
+      <li><a href="#before" data-toc>Before you start</a></li>
+      <li><a href="#users" data-toc>Per-user capabilities</a></li>
+      <li><a href="#help" data-toc>Getting help</a></li>
+    </ol>
+  </aside>
+
+  <!-- ----------- Main column ----------- -->
+  <main>
+
+    <!-- =============== 01 · What REAM is =============== -->
+    <section id="what">
+      <span class="sec-num">01 · OVERVIEW</span>
+      <h2>What REAM is.</h2>
+      <p class="lede-p">REAM is a vertical SaaS for organizations that <strong>sell real estate using their own money</strong> — pre-financed land, owner-financed homes, rent-to-own — and need to manage every step of that relationship for the next 5 to 30 years.</p>
+
+      <p>Most CRMs end at "deal closed". Most loan-servicing software starts at "loan booked". REAM joins them: a public listing site at one end, a structured loan ledger at the other, and a single timeline of activities, documents, and payments running between them. One organization, many sites, many properties, many customers, many years.</p>
+
+      <h3>What you can do on the platform</h3>
+      <ul>
+        <li><b>List inventory</b> — sites, individual plots, and finished houses, with public-facing detail pages.</li>
+        <li><b>Capture prospects</b> — through a public intake form, an agent's manual entry, CSV import, or shared invite link.</li>
+        <li><b>Underwrite and offer</b> — compute indicative offers, request documents, qualify or reject.</li>
+        <li><b>Sign and book a loan</b> — generate a contract from templates, capture a wet/e-signature, book the loan.</li>
+        <li><b>Service the loan</b> — log payments, reconcile bank statements, send reminders, calculate payoffs.</li>
+        <li><b>Stay in touch</b> — log every call, email, SMS, WhatsApp, note, and payment on a single timeline per customer.</li>
+        <li><b>Run the team</b> — invite agents, assign portfolios, set quotas, watch dashboards by role and tier.</li>
+      </ul>
+    </section>
+
+    <!-- =============== 02 · How it works =============== -->
+    <section id="how">
+      <span class="sec-num">02 · LIFECYCLE</span>
+      <h2>How a customer flows through.</h2>
+      <p class="lede-p">Every customer on REAM moves through five stages. Most pages in the app are scoped to one of them — knowing where someone is tells you which screens apply.</p>
+
+      <div class="lifecycle">
+        <div class="lc-step">
+          <div class="lc-num">STAGE 1</div>
+          <i class="ri-search-eye-line lc-icon"></i>
+          <div class="lc-name">Visitor</div>
+          <div class="lc-who">Anonymous</div>
+          <p style="font:400 12px/1.45 var(--font-sans); margin:0; color:var(--fg3);">Browses listings on the public site. No account.</p>
+        </div>
+        <div class="lc-step">
+          <div class="lc-num">STAGE 2</div>
+          <i class="ri-user-search-line lc-icon"></i>
+          <div class="lc-name">Prospect</div>
+          <div class="lc-who">Applicant</div>
+          <p style="font:400 12px/1.45 var(--font-sans); margin:0; color:var(--fg3);">Submitted an interest form. Has a portal to track it.</p>
+        </div>
+        <div class="lc-step">
+          <div class="lc-num">STAGE 3</div>
+          <i class="ri-quill-pen-line lc-icon"></i>
+          <div class="lc-name">Just signed</div>
+          <div class="lc-who">New customer</div>
+          <p style="font:400 12px/1.45 var(--font-sans); margin:0; color:var(--fg3);">Contract executed. Onboarding checklist active.</p>
+        </div>
+        <div class="lc-step">
+          <div class="lc-num">STAGE 4</div>
+          <i class="ri-bank-line lc-icon"></i>
+          <div class="lc-name">Active</div>
+          <div class="lc-who">Loan holder</div>
+          <p style="font:400 12px/1.45 var(--font-sans); margin:0; color:var(--fg3);">Paying monthly. Statements, AutoPay, calculator.</p>
+        </div>
+        <div class="lc-step">
+          <div class="lc-num">STAGE 5</div>
+          <i class="ri-medal-line lc-icon"></i>
+          <div class="lc-name">Paid off</div>
+          <div class="lc-who">Owner</div>
+          <p style="font:400 12px/1.45 var(--font-sans); margin:0; color:var(--fg3);">Loan closed. Title transferred. Documents archived.</p>
+        </div>
+      </div>
+
+      <p style="margin-top:18px;">A single record carries through the whole lifecycle: the prospect record becomes the customer record, the property they applied for becomes the property on the loan, and the activity timeline accumulates across stages. <strong>You never lose history</strong>.</p>
+    </section>
+
+    <!-- =============== 03 · Core concepts =============== -->
+    <section id="concepts">
+      <span class="sec-num">03 · VOCABULARY</span>
+      <h2>Core concepts.</h2>
+      <p class="lede-p">A handful of nouns appear everywhere in the app. Get fluent with these and most pages will read themselves.</p>
+
+      <div class="concepts">
+        <div class="concept">
+          <span class="ck">SITE</span>
+          <h4>Site</h4>
+          <p>A development — an estate, an acreage, a township. The container for plots and houses. Has a map, a name, and a few aggregate stats.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">LISTING</span>
+          <h4>Listing</h4>
+          <p>An individual unit for sale: a plot of land or a finished house. Belongs to a site. Has a price, terms, photos, and a public detail page.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">PROSPECT</span>
+          <h4>Prospect</h4>
+          <p>A person interested in a listing. Captured from the public form, an import, or by an agent. Pipeline-stage, not yet a customer.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">CUSTOMER</span>
+          <h4>Customer</h4>
+          <p>A prospect who has signed. Owns one or more loans and properties. Has a portal account.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">LOAN</span>
+          <h4>Loan</h4>
+          <p>The financing contract for one property. Tracks principal, interest, schedule, balance, and every transaction against it.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">ACTIVITY</span>
+          <h4>Activity</h4>
+          <p>Anything that happened on a relationship — note, call, email, SMS, WhatsApp, payment. All shown on one timeline.
+            <span class="pillrow">
+              <span class="pill"><i class="ri-sticky-note-line"></i> Note</span>
+              <span class="pill"><i class="ri-phone-line"></i> Call</span>
+              <span class="pill"><i class="ri-mail-line"></i> Email</span>
+              <span class="pill"><i class="ri-message-2-line"></i> SMS</span>
+              <span class="pill"><i class="ri-whatsapp-line"></i> WhatsApp</span>
+              <span class="pill"><i class="ri-bank-card-line"></i> Payment</span>
+            </span>
+          </p>
+        </div>
+        <div class="concept">
+          <span class="ck">DOC REQUEST</span>
+          <h4>Document request</h4>
+          <p>An ask for a specific file from a prospect or customer (ID, payslip, bank statement). Tracked separately so nothing slips.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">TEMPLATE</span>
+          <h4>Template</h4>
+          <p>A reusable shape — for activities, document requests, emails, contracts. Defines the fields and copy your team uses.</p>
+        </div>
+        <div class="concept">
+          <span class="ck">ORG</span>
+          <h4>Organization</h4>
+          <p>The tenant. Your company. Has its own brand, listings, team, customers — fully isolated from other orgs on REAM.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 04 · Conventions =============== -->
+    <section id="conventions">
+      <span class="sec-num">04 · GROUND RULES</span>
+      <h2>Conventions to know before you start.</h2>
+      <p class="lede-p">A few patterns repeat throughout REAM. Learn them once and the rest of the app gets predictable.</p>
+
+      <div class="conv-grid">
+        <div class="conv">
+          <div class="ico"><i class="ri-stack-line"></i></div>
+          <div>
+            <h4>One person, one record</h4>
+            <p>A prospect record becomes the customer record on signing. Don't create a new account for the same person — find them and convert. The system de-duplicates by phone and email.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-time-line"></i></div>
+          <div>
+            <h4>Everything goes on the timeline</h4>
+            <p>If it happened, log it. Calls, "no answer", payments, even internal notes. The timeline is the source of truth for handoffs between agents and audits later.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-arrow-up-line"></i></div>
+          <div>
+            <h4>Activities can have parents and children</h4>
+            <p>Use <b>"Sub-activity of…"</b> on a follow-up call to link it to the original email. The parent shows a panel of children; the child shows a ribbon back to the parent.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-shield-user-line"></i></div>
+          <div>
+            <h4>Roles are scoped, not titles</h4>
+            <p>Your dashboard, sidebar, and what you can edit all change with your role and tier (agent / manager / admin) — not with a job title. Ask your org admin for the right one.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-database-2-line"></i></div>
+          <div>
+            <h4>Templates first, then transactions</h4>
+            <p>Before sending the first email or generating the first contract, build the template. The same applies to activity types, doc requests, and loan products.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-money-dollar-circle-line"></i></div>
+          <div>
+            <h4>Payments are reviewed, not auto-applied</h4>
+            <p>Logged or imported payments enter a <b>review queue</b> before they hit a loan ledger. Finance approves and allocates. This keeps the books reconcilable.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-link"></i></div>
+          <div>
+            <h4>Invites, not signups</h4>
+            <p>Internal users are added by invite from an admin — never by self-signup. Customers, by contrast, do self-sign-up against an existing application.</p>
+          </div>
+        </div>
+        <div class="conv">
+          <div class="ico"><i class="ri-eye-line"></i></div>
+          <div>
+            <h4>Public versus private detail pages</h4>
+            <p>Listings have a <b>public</b> page (no PII, marketing copy) and an <b>internal</b> page (operational fields, owner data). Always verify which one a link points to before sharing externally.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 05 · Before you start =============== -->
+    <section id="before">
+      <span class="sec-num">05 · SETUP</span>
+      <h2>Before you start using the app.</h2>
+      <p class="lede-p">If your organization is brand-new on REAM, an admin should walk through these in order. Most can be done in an afternoon; templates and listings continue to grow over time.</p>
+
+      <div class="checklist">
+        <div class="checklist-row">
+          <div class="step">1</div>
+          <div>
+            <h4>Create your organization</h4>
+            <p>Run the agency onboarding wizard: profile, location, legal entity, branding. This becomes the namespace for everything that follows. Only one organization per legal entity.</p>
+          </div>
+          <span class="who">Org admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">2</div>
+          <div>
+            <h4>Invite your team</h4>
+            <p>Add agents, managers, and admins by email. Assign each one a line (sales / finance / follow-up) and a tier. They confirm via an emailed invite link.</p>
+          </div>
+          <span class="who">Org admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">3</div>
+          <div>
+            <h4>Set up loan products</h4>
+            <p>Define your standard offer shapes — term, interest, deposit, fees. Every loan booked later picks one of these as a starting point.</p>
+          </div>
+          <span class="who">Finance admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">4</div>
+          <div>
+            <h4>Build templates</h4>
+            <p>Activity types, email templates, document templates (the loan agreement), and standard document requests. Anything you'd rewrite twice belongs in a template.</p>
+          </div>
+          <span class="who">Org admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">5</div>
+          <div>
+            <h4>Add sites and listings</h4>
+            <p>Create the site (the development), then add plots and houses underneath it. Upload photos and pricing. Public detail pages go live as soon as a listing is published.</p>
+          </div>
+          <span class="who">Sales admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">6</div>
+          <div>
+            <h4>Import existing prospects &amp; customers</h4>
+            <p>If you're migrating from a spreadsheet or another CRM, use the imports tool — CSV/Excel for prospects, customers, properties, and historic transactions. Map columns, preview, then commit.</p>
+          </div>
+          <span class="who">Org admin</span>
+        </div>
+        <div class="checklist-row">
+          <div class="step">7</div>
+          <div>
+            <h4>Connect the public site</h4>
+            <p>Point your domain at the listings page, share the public intake link, and you're collecting prospects. Day-one operational state achieved.</p>
+          </div>
+          <span class="who">Org admin</span>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h4>Don't skip step 4</h4>
+        <p>Templates are easy to skip and brutal to retrofit. Once you've sent 200 emails or booked 50 loans, redoing the templates means migrating live data. Spend an hour up front.</p>
+      </div>
+    </section>
+
+    <!-- =============== 06 · Per-user capabilities =============== -->
+    <section id="users">
+      <span class="sec-num">06 · ROLES</span>
+      <h2>What each user can do.</h2>
+      <p class="lede-p">REAM has eight kinds of users. The first three are external (visitors, applicants, customers); the next four are your internal team, each with three tiers; the last is platform staff. Pages, dashboards, and permissions all change with the role.</p>
+
+      <!-- ----- Public visitor ----- -->
+      <article class="role-card rc-public">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-eye-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-global-line"></i> External · No account</div>
+            <h3>Public visitor</h3>
+            <p class="sub">An anonymous person browsing your listings or marketing site. Top of the funnel. No login required.</p>
+          </div>
+          <span class="access">Read-only</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Browse the <b>landing page</b> and learn how financing works</li>
+              <li><i class="ri-check-line"></i> Open the <b>listings catalog</b>, filter by site, price, size</li>
+              <li><i class="ri-check-line"></i> View any <b>land or house detail page</b> — photos, terms, location</li>
+              <li><i class="ri-check-line"></i> Submit the <b>express-interest form</b> to become a prospect</li>
+              <li><i class="ri-check-line"></i> Sign in if they already have a customer account</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> See any internal pricing, owner details, or activity history</li>
+              <li><i class="ri-close-line"></i> Communicate with an agent until they submit interest</li>
+              <li><i class="ri-close-line"></i> Reserve, hold, or pay for a property without applying</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Landing &middot; Browse listings &middot; Asset detail &middot; Express interest &middot; Financing</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Prospect ----- -->
+      <article class="role-card rc-prospect">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-user-search-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-file-text-line"></i> External · Application in flight</div>
+            <h3>Prospect</h3>
+            <p class="sub">Someone who submitted the interest form. They have a portal account scoped to their application until they sign — then they become a customer.</p>
+          </div>
+          <span class="access">Their record only</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Track the <b>stage of their application</b> on a portal timeline</li>
+              <li><i class="ri-check-line"></i> See the <b>indicative offer</b> once finance generates one</li>
+              <li><i class="ri-check-line"></i> View, fulfil, and reply to <b>document requests</b> from the team</li>
+              <li><i class="ri-check-line"></i> Upload IDs, payslips, bank statements, and any other ask</li>
+              <li><i class="ri-check-line"></i> Continue browsing listings and saving favorites</li>
+              <li><i class="ri-check-line"></i> Message their assigned sales agent</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> See any other prospect or customer's data</li>
+              <li><i class="ri-close-line"></i> Sign a final loan contract — that happens after qualification</li>
+              <li><i class="ri-close-line"></i> Make a payment until a loan is booked against them</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> My application &middot; Submission receipt &middot; My requests &middot; Request detail</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Customer ----- -->
+      <article class="role-card rc-customer">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-user-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-bank-card-line"></i> External · Signed contract</div>
+            <h3>Customer</h3>
+            <p class="sub">A prospect who has signed a loan agreement. Has the full customer portal — and the portal adapts as they move through four lifecycle states.</p>
+          </div>
+          <span class="access">Their portfolio only</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> See the <b>next payment</b>, schedule, balance, and history</li>
+              <li><i class="ri-check-line"></i> Set up <b>AutoPay</b> on a card or bank account</li>
+              <li><i class="ri-check-line"></i> Log a one-off payment and watch it clear review</li>
+              <li><i class="ri-check-line"></i> Run the <b>payoff calculator</b> for early settlement scenarios</li>
+              <li><i class="ri-check-line"></i> Download contracts, statements, receipts, and tax letters</li>
+              <li><i class="ri-check-line"></i> Open a request to follow-up support and track its SLA</li>
+              <li><i class="ri-check-line"></i> Manage <b>multiple properties</b> and AutoPay rules at once if they have several loans</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> Modify the loan contract, rate, or schedule directly</li>
+              <li><i class="ri-close-line"></i> See internal team notes about their account</li>
+            </ul>
+            <h4 style="margin-top:18px;">Lifecycle states</h4>
+            <ul>
+              <li><i class="ri-quill-pen-line"></i> <b>Just signed</b> — onboarding checklist, AutoPay setup, first-payment countdown</li>
+              <li><i class="ri-bank-line"></i> <b>Active</b> — standard loan-holder dashboard</li>
+              <li><i class="ri-stack-line"></i> <b>Multi-property</b> — portfolio totals, per-property cards, bulk AutoPay</li>
+              <li><i class="ri-medal-line"></i> <b>Paid off</b> — archive view, title transfer documents</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Sales line ----- -->
+      <article class="role-card rc-sales">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-megaphone-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-shield-user-line"></i> Internal team · 3 tiers</div>
+            <h3>Sales</h3>
+            <p class="sub">Owns the relationship from intake through signed contract: works the prospect pipeline, runs site visits, builds offers, and brings deals to close.</p>
+          </div>
+          <span class="access">Pipeline + assigned</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Work the <b>prospects pipeline</b> — kanban or table view</li>
+              <li><i class="ri-check-line"></i> Open a prospect's full detail with timeline, documents, offer</li>
+              <li><i class="ri-check-line"></i> Log calls, emails, SMS, WhatsApp, notes — link them as parent / sub-activity</li>
+              <li><i class="ri-check-line"></i> Generate the <b>indicative offer</b> and share it with the prospect</li>
+              <li><i class="ri-check-line"></i> Request documents using saved templates</li>
+              <li><i class="ri-check-line"></i> Manage <b>site &amp; listing inventory</b> — create and edit listings</li>
+              <li><i class="ri-check-line"></i> Generate the loan agreement from a document template and walk the prospect through signing</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> Approve a payment or modify the loan ledger (finance does)</li>
+              <li><i class="ri-close-line"></i> Invite or remove other internal users (org admin does)</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Prospects &middot; Prospect detail &middot; Sites &middot; Houses &middot; Lands &middot; Loan create</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tier-strip">
+          <div class="tier">
+            <div class="tier-label">AGENT</div>
+            <div class="tier-name">Sales agent</div>
+            <div class="tier-desc">Owns a portfolio of prospects. Sees today's tasks, hot leads, quota progress.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">MANAGER</div>
+            <div class="tier-name">Sales manager</div>
+            <div class="tier-desc">Sees the whole team's funnel, leaderboard, forecast, coaching queue. Reassigns prospects.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">ADMIN</div>
+            <div class="tier-name">Sales admin</div>
+            <div class="tier-desc">Org-wide pipeline, lead-source mix, site demand, revenue-to-plan. Sets sales policies and templates.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Finance line ----- -->
+      <article class="role-card rc-finance">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-bank-card-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-shield-user-line"></i> Internal team · 3 tiers</div>
+            <h3>Finance</h3>
+            <p class="sub">Owns the loan ledger after signing: confirms payments, runs reconciliation, manages aging, and reports on portfolio health.</p>
+          </div>
+          <span class="access">All loans</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Work the <b>payment review queue</b> — approve, reject, allocate</li>
+              <li><i class="ri-check-line"></i> Open any <b>loan detail (admin)</b> — schedule, balance, transactions</li>
+              <li><i class="ri-check-line"></i> Run the <b>payoff calculator</b> for early-settlement scenarios</li>
+              <li><i class="ri-check-line"></i> Import a bank statement and reconcile against expected receipts</li>
+              <li><i class="ri-check-line"></i> Edit <b>loan products</b> — terms, rates, fees</li>
+              <li><i class="ri-check-line"></i> See <b>aging buckets</b>, NPL, IFRS-9 provisions, vintage cohorts</li>
+              <li><i class="ri-check-line"></i> Verify uploaded documents (IDs, bank letters)</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> Edit the prospect pipeline or sign a contract (sales does)</li>
+              <li><i class="ri-close-line"></i> Re-issue a contract template — that's an org-admin action</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Loans &middot; Loan detail &middot; Repayments &middot; Payment review &middot; Reports &middot; Doc verify</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tier-strip">
+          <div class="tier">
+            <div class="tier-label">AGENT</div>
+            <div class="tier-name">Finance agent</div>
+            <div class="tier-desc">Verifications queue, today's reminders, past-due workload, payment confirmations.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">MANAGER</div>
+            <div class="tier-name">Finance manager</div>
+            <div class="tier-desc">Aging buckets, team workload, high-risk accounts, day-end reconciliation.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">ADMIN</div>
+            <div class="tier-name">Finance admin</div>
+            <div class="tier-desc">Portfolio aging, NPL, provisions, vintage cohorts, compliance reports. Defines loan products.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Follow-up line ----- -->
+      <article class="role-card rc-followup">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-customer-service-2-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-shield-user-line"></i> Internal team · 3 tiers</div>
+            <h3>Follow-up</h3>
+            <p class="sub">Owns the post-signing relationship: customer requests, retention, payment-difficulty conversations, satisfaction. The "customer success" line for a 30-year product.</p>
+          </div>
+          <span class="access">Assigned customers</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Work a queue of <b>customer requests</b> with SLA timers</li>
+              <li><i class="ri-check-line"></i> Open any active customer's full activity timeline</li>
+              <li><i class="ri-check-line"></i> Log calls, SMS, WhatsApp; create payment-promise activities</li>
+              <li><i class="ri-check-line"></i> Send templated emails (statements, reminders, payoff quotes)</li>
+              <li><i class="ri-check-line"></i> Schedule <b>follow-up tasks</b> as sub-activities of an original call</li>
+              <li><i class="ri-check-line"></i> Flag at-risk accounts and hand off to finance</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> Approve a payment (finance reviews) or change loan terms</li>
+              <li><i class="ri-close-line"></i> Edit the prospect pipeline (sales does)</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Customers &middot; Customer detail &middot; Document requests &middot; Activity</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tier-strip">
+          <div class="tier">
+            <div class="tier-label">AGENT</div>
+            <div class="tier-name">Follow-up agent</div>
+            <div class="tier-desc">My customers, today's check-ins, open requests, SLA timers, recent conversations.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">MANAGER</div>
+            <div class="tier-name">Follow-up manager</div>
+            <div class="tier-desc">Team SLA, CSAT, request mix, coaching items, at-risk accounts.</div>
+          </div>
+          <div class="tier">
+            <div class="tier-label">ADMIN</div>
+            <div class="tier-name">Follow-up admin</div>
+            <div class="tier-desc">Customer journey health, retention, NPS, channel mix, themes, playbooks, QA.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Org admin ----- -->
+      <article class="role-card rc-orgadmin">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-vip-crown-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-building-2-line"></i> Internal · Org owner</div>
+            <h3>Organization admin</h3>
+            <p class="sub">The person who owns the REAM tenant. Sets up the org, manages every internal user, defines templates, owns billing and policies.</p>
+          </div>
+          <span class="access">Everything in the org</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> Run the <b>onboarding wizard</b> and edit org settings, branding, legal entity</li>
+              <li><i class="ri-check-line"></i> <b>Invite, promote, demote, or remove</b> any internal user</li>
+              <li><i class="ri-check-line"></i> Edit every <b>template</b> — activity, document request, email, contract</li>
+              <li><i class="ri-check-line"></i> Run <b>imports</b> — bulk-load prospects, customers, properties, transactions</li>
+              <li><i class="ri-check-line"></i> See every dashboard for sales, finance, and follow-up at the admin tier</li>
+              <li><i class="ri-check-line"></i> Read the <b>full activity log</b> for compliance and audit</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Cannot do</h4>
+            <ul>
+              <li><i class="ri-close-line"></i> Touch another organization's data — strict tenant isolation</li>
+              <li><i class="ri-close-line"></i> Modify platform-level feature flags (super admin does)</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Org settings &middot; Agents / Managers / Admins &middot; Templates &middot; Imports &middot; Activity log</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <!-- ----- Super admin ----- -->
+      <article class="role-card rc-superadmin">
+        <div class="role-head">
+          <div class="role-ico"><i class="ri-shield-keyhole-line"></i></div>
+          <div class="meta">
+            <div class="tag"><i class="ri-rocket-line"></i> Platform · REAM staff only</div>
+            <h3>Super admin</h3>
+            <p class="sub">REAM platform staff. Manages organizations, runs the platform, supports customers. Not part of any single tenant — sits above all of them.</p>
+          </div>
+          <span class="access">All organizations</span>
+        </div>
+        <div class="role-body">
+          <div class="role-col">
+            <h4>Can do</h4>
+            <ul>
+              <li><i class="ri-check-line"></i> See and search <b>every organization</b> on REAM</li>
+              <li><i class="ri-check-line"></i> Search any user across any org</li>
+              <li><i class="ri-check-line"></i> <b>Act as</b> an org admin to debug a customer's setup (audited)</li>
+              <li><i class="ri-check-line"></i> Manage <b>feature flags</b> — beta access, kill switches, plan gating</li>
+              <li><i class="ri-check-line"></i> Send platform <b>broadcasts</b> to one or all orgs</li>
+              <li><i class="ri-check-line"></i> Read the <b>audit log</b> — every privileged action is recorded</li>
+              <li><i class="ri-check-line"></i> See <b>system health</b> — uptime, queue depth, error rate</li>
+            </ul>
+          </div>
+          <div class="role-col">
+            <h4>Operating principle</h4>
+            <ul>
+              <li><i class="ri-eye-line"></i> Default mode is <b>read-only</b>. Mutations require an Act-as session.</li>
+              <li><i class="ri-history-line"></i> Every action is logged — orgs can audit super-admin access against their tenant.</li>
+              <li><i class="ri-shield-line"></i> Customer data is treated as confidential and only opened on a documented support ticket.</li>
+            </ul>
+            <h4 style="margin-top:18px;">Key pages</h4>
+            <ul>
+              <li><i class="ri-arrow-right-s-line"></i> Admin dashboard &middot; Organizations &middot; Users &middot; Invites &middot; Flags &middot; Audit log &middot; Broadcasts &middot; Health</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- =============== 07 · Help =============== -->
+    <section id="help">
+      <span class="sec-num">07 · SUPPORT</span>
+      <h2>Getting help.</h2>
+      <p class="lede-p">Stuck on a screen? Three places to look, in order.</p>
+      <ol>
+        <li><b>The page itself</b> — most screens have an "i" icon next to the title with inline help.</li>
+        <li><b>This guide</b> — bookmark it. Sections 03 and 06 cover most "what does this mean" questions.</li>
+        <li><b>Your org admin</b> — for permissions, missing pages, or "I should be able to see this".</li>
+      </ol>
+      <p>For platform-level issues — outages, suspected bugs, billing — your org admin can escalate to REAM support, who will respond from the platform's super-admin console.</p>
+
+      <div class="callout" style="margin-top:32px;">
+        <h4>One last thing</h4>
+        <p>This guide is versioned alongside the app. When something major changes — a new lifecycle stage, a new role, a new module — this page is the first place it gets documented. Check the date in the header to see when you last looked.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  REAM user guide · v1 · May 2026 &nbsp;·&nbsp; <a href="../index.html">Back to app entry</a>
+</footer>
+
+<script>
+  // ===== Active section highlight in the TOC =====
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a[data-toc]'));
+    var sections = links.map(function (a) {
+      return document.querySelector(a.getAttribute('href'));
+    });
+
+    function onScroll() {
+      var y = window.scrollY + 120;
+      var current = sections[0];
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i] && sections[i].offsetTop <= y) current = sections[i];
+      }
+      links.forEach(function (a) { a.classList.remove('active'); });
+      if (current) {
+        var match = links.find(function (a) { return a.getAttribute('href') === '#' + current.id; });
+        if (match) match.classList.add('active');
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Smooth scroll
+    links.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var t = document.querySelector(a.getAttribute('href'));
+        if (!t) return;
+        e.preventDefault();
+        window.scrollTo({ top: t.offsetTop - 16, behavior: 'smooth' });
+        history.replaceState(null, '', a.getAttribute('href'));
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

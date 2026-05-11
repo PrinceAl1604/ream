@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Settings</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .settings-grid { display:grid;grid-template-columns:220px 1fr;gap:24px; }
+  @media (max-width: 1000px) { .settings-grid { grid-template-columns:1fr; } }
+  .settings-nav { position:sticky;top:14px;display:flex;flex-direction:column;gap:1px;align-self:flex-start; }
+  .settings-nav a { padding:7px 12px;border-radius:6px;text-decoration:none;font:500 13px var(--font-sans);color:var(--adm-text-3);display:flex;align-items:center;gap:9px; }
+  .settings-nav a i { font-size:16px;color:var(--adm-text-4); }
+  .settings-nav a:hover { background:#f3f4f6;color:var(--adm-text-1); }
+  .settings-nav a.on { background:var(--adm-accent-50);color:var(--adm-accent-700); }
+  .settings-nav a.on i { color:var(--adm-stripe); }
+  .killbox { background:#fff5f5;border:1px solid #fecaca;border-radius:10px; }
+  .killbox .head { padding:12px 16px;border-bottom:1px solid #fecaca;display:flex;justify-content:space-between;align-items:center; }
+  .killbox .head h3 { margin:0;font:600 14px var(--font-sans);color:var(--adm-danger-700);display:flex;align-items:center;gap:8px; }
+  .killbox .body { padding:18px 16px; }
+  .killbox .switch-row { display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid #fecaca; }
+  .killbox .switch-row:first-child { border-top:0; }
+  .killbox .switch-row .t { font:600 13px var(--font-sans);color:var(--adm-text-1); }
+  .killbox .switch-row .s { font:500 12px var(--font-sans);color:var(--adm-text-3);margin-top:2px;max-width:560px; }
+  .ip-tag { display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:6px;background:#f3f4f6;font:500 12px var(--font-mono);color:var(--adm-text-1);margin-right:6px;margin-bottom:6px; }
+  .ip-tag i { font-size:12px;color:var(--adm-text-4);cursor:pointer; }
+  .role-card { display:grid;grid-template-columns:60px 1fr auto;gap:14px;padding:14px 16px;border:1px solid var(--adm-border);border-radius:10px;background:white;margin-bottom:8px;align-items:center; }
+  .role-card .ic { width:60px;height:60px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:24px; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"settings",
+    crumb:[{label:"Settings"}],
+    title:"Platform settings",
+    subtitle:"Admins, roles, security policy, and the kill-switch console. Most changes require 2-person approval.",
+    env:"STAGING",
+  });
+</script>
+<script>
+document.getElementById("adm-content").innerHTML = `
+  <div class="settings-grid">
+    <nav class="settings-nav">
+      <a href="#admins" class="on"><i class="material-symbols-rounded">verified_user</i> Platform admins</a>
+      <a href="#roles"><i class="material-symbols-rounded">badge</i> Roles</a>
+      <a href="#security"><i class="material-symbols-rounded">policy</i> Security policy</a>
+      <a href="#allowlist"><i class="material-symbols-rounded">vpn_lock</i> IP allowlist</a>
+      <a href="#kill"><i class="material-symbols-rounded">emergency_home</i> Kill-switch</a>
+      <a href="#integrations"><i class="material-symbols-rounded">extension</i> Integrations</a>
+      <a href="#export"><i class="material-symbols-rounded">file_download</i> Data export</a>
+    </nav>
+    <div>
+      <h2 id="admins" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Platform admins</h2>
+      <div class="adm-card" style="margin-bottom:24px;">
+        <div class="adm-card-head"><h3>3 admins with platform-level access</h3>
+          <button class="adm-btn adm-btn-sm adm-btn-primary"><i class="material-symbols-rounded">person_add</i> Invite admin</button>
+        </div>
+        <table class="adm-table">
+          <thead><tr><th>Admin</th><th>Role</th><th>MFA</th><th>Last action</th><th></th></tr></thead>
+          <tbody>
+            ${[
+              {n:"Daria Kim",e:"dkim@ream.com",r:"Super Admin",mfa:"Hardware key + TOTP",la:"2 min ago",ic:"shield",me:true},
+              {n:"Marc Olsen",e:"molsen@ream.com",r:"Super Admin",mfa:"Hardware key + TOTP",la:"4 hr"},
+              {n:"Pat Reilly",e:"preilly@ream.com",r:"Operator",mfa:"TOTP only",la:"yesterday"},
+              {n:"Anne Vargas",e:"avargas@ream.com",r:"Compliance",mfa:"Hardware key + TOTP",la:"3 days"},
+            ].map(a => `
+              <tr>
+                <td>
+                  <div class="adm-ent">
+                    <span class="adm-ava round" style="background:linear-gradient(135deg,#f59e0b,#dc2626);">${a.n.split(" ").map(p=>p[0]).join("")}</span>
+                    <div class="meta"><div class="nm">${a.n} ${a.me?'<span class="adm-pill indigo no-dot" style="margin-left:6px;font-size:9px;">YOU</span>':""}</div><div class="sub mono">${a.e}</div></div>
+                  </div>
+                </td>
+                <td><span class="adm-pill indigo no-dot">${a.r.toUpperCase()}</span></td>
+                <td>${a.mfa}</td>
+                <td class="muted">${a.la}</td>
+                <td class="right">${a.me ? '' : '<button class="adm-kebab"><i class="material-symbols-rounded">more_horiz</i></button>'}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="roles" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Roles</h2>
+      <div class="role-card">
+        <span class="ic" style="background:#1e1b4b;color:white;"><i class="material-symbols-rounded">verified_user</i></span>
+        <div>
+          <div style="font:600 14px var(--font-sans);color:var(--adm-text-1);">Super Admin</div>
+          <div class="muted" style="font:500 12px var(--font-sans);margin-top:2px;max-width:520px;">Full read/write across the platform. Can lock/unlock orgs, flip kill-switch, manage other admins.</div>
+        </div>
+        <div class="row gap-2"><span class="adm-pill indigo no-dot">2 admins</span><button class="adm-btn adm-btn-sm">Edit</button></div>
+      </div>
+      <div class="role-card">
+        <span class="ic" style="background:var(--adm-accent-50);color:var(--adm-stripe);"><i class="material-symbols-rounded">support_agent</i></span>
+        <div>
+          <div style="font:600 14px var(--font-sans);color:var(--adm-text-1);">Operator</div>
+          <div class="muted" style="font:500 12px var(--font-sans);margin-top:2px;max-width:520px;">Read all, write to orgs/users for support actions. Cannot manage flags or admins.</div>
+        </div>
+        <div class="row gap-2"><span class="adm-pill indigo no-dot">1 admin</span><button class="adm-btn adm-btn-sm">Edit</button></div>
+      </div>
+      <div class="role-card" style="margin-bottom:24px;">
+        <span class="ic" style="background:#ecfeff;color:#0e7490;"><i class="material-symbols-rounded">gavel</i></span>
+        <div>
+          <div style="font:600 14px var(--font-sans);color:var(--adm-text-1);">Compliance</div>
+          <div class="muted" style="font:500 12px var(--font-sans);margin-top:2px;max-width:520px;">Read all + audit log export + data subject requests. No writes.</div>
+        </div>
+        <div class="row gap-2"><span class="adm-pill indigo no-dot">1 admin</span><button class="adm-btn adm-btn-sm">Edit</button></div>
+      </div>
+
+      <h2 id="security" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Security policy</h2>
+      <div class="adm-card" style="margin-bottom:24px;">
+        <div class="adm-card-body" style="padding:0;">
+          ${[
+            {t:"Require hardware key for Super Admin",s:"FIDO2 / WebAuthn. TOTP-only fallbacks deny.",on:true,danger:false},
+            {t:"MFA reset cadence",s:"Force every 90 days. Currently 2 admins out of compliance.",on:true,danger:false,extra:'<span class="adm-pill warn no-dot">2 due</span>'},
+            {t:"Step-up auth on destructive actions",s:"Re-prompt for MFA before delete, lock, kill-switch, role change.",on:true,danger:false},
+            {t:"2-person rule on critical flags",s:"Promotions ≥ 75% on flags marked critical require approval.",on:true,danger:false},
+            {t:"Session lifetime",s:"Idle 30 min · absolute 12 hr.",on:true,danger:false,extra:'<button class="adm-btn adm-btn-sm">Edit…</button>'},
+            {t:"Public signup",s:"Master switch for /register. OFF = invite-only.",on:false,danger:false},
+          ].map(p => `
+            <div class="row" style="padding:14px 16px;border-bottom:1px solid var(--adm-border-2);justify-content:space-between;gap:14px;">
+              <div>
+                <div style="font:600 13px var(--font-sans);color:var(--adm-text-1);">${p.t}</div>
+                <div class="muted" style="font:500 12px var(--font-sans);margin-top:2px;">${p.s}</div>
+              </div>
+              <div class="row gap-2">
+                ${p.extra || ""}
+                <button class="adm-switch ${p.on ? 'on' : ''}"></button>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <h2 id="allowlist" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">IP allowlist</h2>
+      <div class="adm-card" style="margin-bottom:24px;">
+        <div class="adm-card-body">
+          <p class="muted tiny" style="margin:0 0 10px;">Super Admin logins only succeed from these IP ranges. CIDR notation. Changes require 2-person approval.</p>
+          <div style="margin-bottom:10px;">
+            <span class="ip-tag">10.0.0.0/16 · Office VPN <i class="material-symbols-rounded">close</i></span>
+            <span class="ip-tag">98.176.0.40/30 · D. Kim home <i class="material-symbols-rounded">close</i></span>
+            <span class="ip-tag">203.0.99.0/24 · M. Olsen home <i class="material-symbols-rounded">close</i></span>
+            <span class="ip-tag">172.58.0.0/16 · Mobile carrier <i class="material-symbols-rounded">close</i></span>
+          </div>
+          <div class="row gap-2">
+            <input class="adm-input" placeholder="Add range, e.g. 192.0.2.0/24" style="flex:1;" />
+            <button class="adm-btn">Add range</button>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="kill" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Kill-switch console</h2>
+      <div class="killbox" style="margin-bottom:24px;">
+        <div class="head"><h3><i class="material-symbols-rounded">emergency_home</i> Emergency controls</h3>
+          <span class="adm-pill muted no-dot">All clear</span>
+        </div>
+        <div class="body">
+          <div class="adm-callout warn" style="margin-bottom:14px;"><i class="material-symbols-rounded">warning</i><div><b>Two-person rule</b> — flipping any switch below requires confirmation from a second Super Admin within 60 seconds. The org is also notified.</div></div>
+          <div class="switch-row">
+            <div>
+              <div class="t">Pause all writes (read-only mode)</div>
+              <div class="s">Sets <code>READONLY_MODE=true</code>. UI shows banner. Login still works. Use for incident response.</div>
+            </div>
+            <button class="adm-switch danger"></button>
+          </div>
+          <div class="switch-row">
+            <div>
+              <div class="t">Disable new logins</div>
+              <div class="s">Existing sessions continue; new logins return 503.</div>
+            </div>
+            <button class="adm-switch danger"></button>
+          </div>
+          <div class="switch-row">
+            <div>
+              <div class="t">Block public webhooks</div>
+              <div class="s">Plaid, Stripe, Twilio inbound returns 503. Use during data integrity incidents.</div>
+            </div>
+            <button class="adm-switch danger"></button>
+          </div>
+          <div class="switch-row">
+            <div>
+              <div class="t">Force-revoke all sessions</div>
+              <div class="s" style="color:var(--adm-danger-700);">Nuclear option — every user signs out instantly across all orgs. Cannot be undone.</div>
+            </div>
+            <button class="adm-btn adm-btn-danger">Revoke all…</button>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="integrations" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Integrations</h2>
+      <div class="adm-card" style="margin-bottom:24px;">
+        <div class="adm-card-body" style="padding:0;">
+          ${[
+            {n:"Stripe",d:"Billing. cus_*** customers managed in Stripe.",ok:true,id:"acct_1Q…"},
+            {n:"Plaid",d:"Bank linking. P1 incident in progress.",ok:false,id:"client_id 5e2f…"},
+            {n:"Postmark",d:"Transactional email. 8.4k sent today.",ok:true,id:"server_token 9a…"},
+            {n:"Twilio",d:"SMS. 25% rolled out behind sms_provider_twilio.",ok:true,id:"AC8b…"},
+            {n:"Datadog",d:"Metrics + APM. SLO dashboards wired.",ok:true,id:"app_key abc…"},
+            {n:"Sentry",d:"Errors. 14 issues open this week.",ok:true,id:"dsn https://…"},
+          ].map(i => `
+            <div class="row" style="padding:12px 16px;border-bottom:1px solid var(--adm-border-2);justify-content:space-between;">
+              <div>
+                <div style="font:600 13px var(--font-sans);color:var(--adm-text-1);">${i.n}</div>
+                <div class="muted tiny" style="margin-top:2px;">${i.d}</div>
+              </div>
+              <div class="row gap-2">
+                <code class="mono" style="font-size:11px;color:var(--adm-text-3);">${i.id}</code>
+                <span class="adm-pill ${i.ok ? "active" : "crit"}">${i.ok ? "Connected" : "Degraded"}</span>
+                <button class="adm-btn adm-btn-sm">Manage</button>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <h2 id="export" style="font:600 16px var(--font-sans);margin:6px 0 12px;color:var(--adm-text-1);">Data export</h2>
+      <div class="adm-card">
+        <div class="adm-card-body">
+          <p class="muted tiny" style="margin:0 0 10px;">Compliance exports satisfy SOC 2, GDPR (Article 15), and CCPA right-to-know requests. Each export is signed and the request is recorded in audit log.</p>
+          <div class="row gap-2" style="flex-wrap:wrap;">
+            <button class="adm-btn"><i class="material-symbols-rounded">file_download</i> Audit log (CSV)</button>
+            <button class="adm-btn"><i class="material-symbols-rounded">file_download</i> Org-level data subject request</button>
+            <button class="adm-btn"><i class="material-symbols-rounded">file_download</i> User-level data subject request</button>
+            <button class="adm-btn"><i class="material-symbols-rounded">file_download</i> Full platform snapshot (encrypted)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const T = AdminShell.toast;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+
+// Settings nav — smooth scroll + on-state
+$$('.settings-nav a').forEach(a => {
+  a.onclick = (e) => {
+    e.preventDefault();
+    $$('.settings-nav a').forEach(x => x.classList.remove('on'));
+    a.classList.add('on');
+    const tgt = document.querySelector(a.getAttribute('href'));
+    if (tgt) tgt.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+});
+
+// Invite admin
+$$('.adm-btn-primary').forEach(b => {
+  if (b.textContent.includes("Invite admin")) b.onclick = async () => {
+    const ok = await AdminShell.confirmDialog({
+      title: "Invite a platform admin?",
+      body: "Platform admin invitations require two-person approval. Recipient must enroll a hardware key before the invite token activates.",
+      confirmLabel: "Continue",
+    });
+    if (ok) T("Admin invite form opening…", "info");
+  };
+});
+
+// Admin row kebabs
+$$('.adm-table .adm-kebab').forEach(kb => {
+  kb.onclick = (e) => {
+    e.stopPropagation();
+    const tr = kb.closest('tr');
+    const name = tr.querySelector('.nm').textContent.trim();
+    const email = tr.querySelector('.sub').textContent.trim();
+    AdminShell.popMenu(kb, [
+      { label: "Open user", icon: "open_in_new", onClick: () => location.href = `admin-user-detail.html?u=${encodeURIComponent(email)}` },
+      { label: "Force MFA reset", icon: "lock_reset", onClick: async () => {
+        const ok = await AdminShell.confirmDialog({ title: `Force MFA reset for ${name}?`, body: "They must re-enroll a hardware key on next login. Two-person approval required.", confirmLabel: "Request reset" });
+        if (ok) T(`MFA reset request sent`, "warn");
+      }},
+      "-",
+      { label: "Revoke admin access", icon: "person_remove", danger: true, onClick: async () => {
+        const ok = await AdminShell.confirmDialog({ title: `Revoke admin access for ${name}?`, body: "They keep their Ream user account but lose all platform-level permissions.", confirmLabel: "Revoke", danger: true });
+        if (ok) T(`Admin access revoked · pending second approval`, "warn");
+      }},
+    ]);
+  };
+});
+
+// Role edit + integration manage + edit session lifetime
+$$('.adm-btn-sm').forEach(b => {
+  const txt = b.textContent.trim();
+  if (txt === "Edit" && b.closest('.role-card')) b.onclick = () => {
+    const name = b.closest('.role-card').querySelector('div > div').textContent;
+    T(`Editing role: ${name}`, "info");
+  };
+  else if (txt === "Manage") b.onclick = () => {
+    const name = b.closest('.row').querySelector('div > div').textContent.trim();
+    T(`Opening ${name} integration manager…`, "info");
+  };
+  else if (txt === "Edit…") b.onclick = () => T("Session lifetime editor opening…", "info");
+});
+
+// Security policy switches (non-danger)
+$$('.adm-switch').forEach(sw => {
+  if (sw.classList.contains('danger')) {
+    sw.onclick = async () => {
+      const row = sw.closest('.switch-row');
+      const title = row.querySelector('.t').textContent;
+      const ok = await AdminShell.confirmDialog({
+        title: `Flip kill-switch: "${title}"?`,
+        body: "Platform-wide emergency control. A second Super Admin must approve within 60 seconds. Every user is notified.",
+        confirmLabel: "Request approval",
+        danger: true,
+      });
+      if (ok) T(`Approval request sent · ${title} · waiting 0:60`, "danger");
+    };
+  } else {
+    sw.onclick = async () => {
+      const row = sw.closest('.row');
+      const title = row.querySelector('div > div').textContent;
+      const turningOn = !sw.classList.contains('on');
+      const ok = await AdminShell.confirmDialog({
+        title: `${turningOn ? "Enable" : "Disable"} "${title}"?`,
+        body: "Security policy changes are logged in audit.",
+        confirmLabel: turningOn ? "Enable" : "Disable",
+        danger: !turningOn,
+      });
+      if (ok) { sw.classList.toggle('on'); T(`${title} ${turningOn ? "enabled" : "disabled"}`, turningOn ? "success" : "warn"); }
+    };
+  }
+});
+
+// IP allowlist
+$$('.ip-tag i').forEach(x => x.onclick = async (e) => {
+  e.stopPropagation();
+  const tag = x.closest('.ip-tag');
+  const range = tag.textContent.trim().replace(/close$/, "").trim();
+  const ok = await AdminShell.confirmDialog({ title: `Remove ${range}?`, body: "Super Admins logging in from this range will be denied. Two-person approval required.", confirmLabel: "Remove", danger: true });
+  if (ok) { tag.style.opacity = "0.4"; T(`${range} removed · awaiting second approval`, "warn"); }
+});
+const ipInput = document.querySelector('.adm-input[placeholder*="192.0.2"]');
+$$('.adm-btn').forEach(b => {
+  if (b.textContent.trim() === "Add range") b.onclick = async () => {
+    if (!ipInput.value.trim()) { T("Enter a CIDR range first", "warn"); return; }
+    const ok = await AdminShell.confirmDialog({ title: `Add ${ipInput.value} to allowlist?`, body: "Two-person approval required.", confirmLabel: "Request add" });
+    if (ok) { T(`${ipInput.value} added · awaiting second approval`, "warn"); ipInput.value = ""; }
+  };
+});
+
+// Force-revoke all sessions
+$$('.adm-btn-danger').forEach(b => {
+  if (b.textContent.includes("Revoke all")) b.onclick = async () => {
+    const ok = await AdminShell.confirmDialog({
+      title: "Force-revoke ALL sessions?",
+      body: "Every user across all 142 orgs will be signed out instantly. This is irreversible. Two-person approval required.",
+      confirmLabel: "Request revocation",
+      danger: true,
+    });
+    if (ok) T(`Revoke-all request sent · waiting 0:60`, "danger");
+  };
+});
+
+// Data export buttons
+$$('.adm-card .adm-btn').forEach(b => {
+  if (b.textContent.includes("file_download") || ["Audit log (CSV)","Org-level data subject request","User-level data subject request","Full platform snapshot (encrypted)"].some(t => b.textContent.includes(t))) {
+    b.onclick = async () => {
+      const label = b.textContent.trim();
+      const ok = await AdminShell.confirmDialog({
+        title: `Generate export: ${label}?`,
+        body: "Exports are signed and the request is recorded in audit log. Download link is valid for 60 minutes.",
+        confirmLabel: "Generate",
+      });
+      if (ok) T(`Export queued · email when ready`, "success");
+    };
+  }
+});
+
+// Track scroll position to highlight nav
+const sections = ["admins","roles","security","allowlist","kill","integrations","export"];
+window.addEventListener('scroll', () => {
+  let active = sections[0];
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < 120) active = id;
+  }
+  $$('.settings-nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + active));
+});
+</script>
+</body>
+</html>

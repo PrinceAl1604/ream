@@ -1,0 +1,170 @@
+/* =====================================================================
+   Ream · Row actions menu
+   Drop-in dots menu for table rows on agents/managers/admins/customers.
+   Mounted by row-actions.js.
+   ===================================================================== */
+
+/* Dots cell trigger */
+.row-actions-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--fg4);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.row-actions-trigger:hover {
+  color: var(--fg1);
+  background: var(--color-grey-100);
+  border-color: var(--border-default);
+}
+.row-actions-trigger.open {
+  color: var(--color-brand-700);
+  background: var(--color-brand-50);
+  border-color: var(--color-brand-200);
+}
+
+/* Floating menu */
+.row-actions-menu {
+  position: fixed;
+  z-index: 200;
+  min-width: 220px;
+  background: white;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(15, 14, 22, 0.14), 0 2px 6px rgba(15, 14, 22, 0.06);
+  padding: 6px;
+  font: 13px var(--font-sans);
+  animation: ramFadeIn 120ms ease-out;
+}
+@keyframes ramFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.row-actions-menu .ram-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--fg1);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font: inherit;
+}
+.row-actions-menu .ram-item i {
+  font-size: 15px; color: var(--fg3); width: 16px; text-align: center;
+}
+.row-actions-menu .ram-item:hover {
+  background: var(--color-brand-50);
+  color: var(--color-brand-800);
+}
+.row-actions-menu .ram-item:hover i { color: var(--color-brand-700); }
+
+.row-actions-menu .ram-item.danger { color: var(--color-error-700); }
+.row-actions-menu .ram-item.danger i { color: var(--color-error-600); }
+.row-actions-menu .ram-item.danger:hover {
+  background: var(--color-error-50);
+  color: var(--color-error-800);
+}
+.row-actions-menu .ram-item.danger:hover i { color: var(--color-error-700); }
+
+.row-actions-menu .ram-sep {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 2px;
+}
+
+.row-actions-menu .ram-section {
+  padding: 6px 10px 2px;
+  font: 600 10px var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg4);
+}
+
+/* Toast (shared) */
+.ram-toast {
+  position: fixed;
+  bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--color-grey-900);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font: 500 13px var(--font-sans);
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 24px rgba(15, 14, 22, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms, transform 200ms;
+  z-index: 250;
+}
+.ram-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.ram-toast i { color: var(--color-success-400); }
+.ram-toast.danger i { color: var(--color-error-400); }
+
+/* Reset password modal */
+.ram-modal-back {
+  position: fixed; inset: 0;
+  background: rgba(15, 14, 22, 0.55);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 240;
+}
+.ram-modal-back.open { display: flex; }
+.ram-modal {
+  width: min(440px, 92vw);
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(15, 14, 22, 0.3);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+.ram-modal .head {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.ram-modal .head .icon-bg {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--color-warning-50);
+  color: var(--color-warning-700);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.ram-modal h3 {
+  margin: 0 0 4px;
+  font: 600 16px var(--font-sans);
+  color: var(--fg1);
+}
+.ram-modal .sub {
+  font: 13px var(--font-sans);
+  color: var(--fg3);
+  line-height: 1.45;
+}
+.ram-modal .body {
+  padding: 16px 20px;
+  font: 13px var(--font-sans);
+  color: var(--fg2);
+}
+.ram-modal .body label {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 12px;
+  font-size: 12px; color: var(--fg2);
+}
+.ram-modal .foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 14px 20px;
+  background: var(--color-grey-50);
+  border-top: 1px solid var(--border-subtle);
+}

@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Import report</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="dialog.css" />
+<style>
+  .rp-wrap { padding: 6px 4px 24px; max-width: 1080px; margin: 0 auto; }
+
+  /* Hero */
+  .rp-hero {
+    background: linear-gradient(180deg, #fefcf8, #fffaf2);
+    border: 1px solid #fde9c8;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .rp-hero .ic {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+    color: #fff; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 22px; flex: none;
+    box-shadow: 0 6px 14px rgba(120, 79, 41, 0.22);
+  }
+  .rp-hero h1 { margin: 0; font: 700 20px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.015em; }
+  .rp-hero .sb { font: 13px var(--font-sans); color: var(--fg2); margin-top: 4px; line-height: 1.55; }
+  .rp-hero .legid { font: 600 13px var(--font-mono); color: var(--color-brand-700); }
+  .rp-hero .right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+  .rp-hero .right .sb { margin-top: 0; }
+
+  /* Verdict strip */
+  .rp-verdict {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .rp-verdict.ok { background: #ecfdf5; border: 1px solid #a7f3d0; }
+  .rp-verdict.err { background: #fef2f2; border: 1px solid #fecaca; }
+  .rp-verdict .ic {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #fff; flex: none;
+  }
+  .rp-verdict.ok .ic { background: #10b981; }
+  .rp-verdict.err .ic { background: #dc2626; }
+  .rp-verdict .ti { font: 700 14px var(--font-sans); }
+  .rp-verdict.ok .ti { color: #064e3b; }
+  .rp-verdict.err .ti { color: #7f1d1d; }
+  .rp-verdict .sb { font: 12.5px var(--font-sans); margin-top: 2px; }
+  .rp-verdict.ok .sb { color: #047857; }
+  .rp-verdict.err .sb { color: #991b1b; }
+
+  /* Grid */
+  .rp-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  @media (max-width: 980px) { .rp-grid { grid-template-columns: 1fr; } }
+  .rp-col { display: flex; flex-direction: column; gap: 14px; }
+
+  .rp-card {
+    background: #fff;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .rp-card h3 {
+    margin: 0 0 12px;
+    font: 700 13px var(--font-sans);
+    color: var(--color-grey-900);
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: -0.005em;
+  }
+  .rp-card h3 i { color: var(--color-brand-600); font-size: 16px; }
+  .rp-card .sb { font: 12px var(--font-sans); color: var(--fg3); margin-top: -8px; margin-bottom: 12px; line-height: 1.5; }
+
+  /* Two-column dl */
+  dl.rp-dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0; font: 13px var(--font-sans); }
+  dl.rp-dl dt { color: var(--fg3); font-weight: 500; }
+  dl.rp-dl dd { margin: 0; color: var(--color-grey-900); font-weight: 600; }
+  dl.rp-dl dd.mono { font-family: var(--font-mono); }
+  dl.rp-dl dd.num { font-family: var(--font-mono); text-align: right; }
+
+  /* Reconciliation table */
+  table.rp-recon { width: 100%; border-collapse: collapse; }
+  table.rp-recon th {
+    text-align: left;
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--fg3);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-grey-200);
+  }
+  table.rp-recon th.num, table.rp-recon td.num { text-align: right; font-family: var(--font-mono); }
+  table.rp-recon td {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--color-grey-100);
+    font: 13px var(--font-sans);
+    color: var(--color-grey-900);
+  }
+  table.rp-recon tr.total td {
+    font-weight: 700;
+    border-top: 2px solid var(--color-grey-300);
+    border-bottom: 0;
+    padding-top: 12px;
+  }
+  table.rp-recon .delta.ok { color: #047857; font-family: var(--font-mono); font-weight: 600; }
+  table.rp-recon .delta.bad { color: #dc2626; font-family: var(--font-mono); font-weight: 600; }
+  table.rp-recon .check i { color: #10b981; font-size: 16px; }
+  table.rp-recon .check.bad i { color: #dc2626; }
+
+  /* 2-person rule card */
+  .rp-2p { display: flex; align-items: center; gap: 14px; }
+  .rp-2p .slot { flex: 1; }
+  .rp-2p .lbl { font: 11px var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg3); margin-bottom: 4px; }
+  .rp-2p .name { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .rp-2p .role { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .rp-2p .arrow { color: var(--fg3); }
+  .rp-2p .you { color: #6d28d9; }
+
+  /* Documents list */
+  .rp-docs { display: flex; flex-direction: column; gap: 6px; }
+  .rp-doc {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 8px;
+    background: #fff;
+    font: 13px var(--font-sans);
+  }
+  .rp-doc .docic { width: 30px; height: 30px; border-radius: 7px; background: var(--color-brand-50); color: var(--color-brand-700); display: inline-flex; align-items: center; justify-content: center; font-size: 15px; flex: none; }
+  .rp-doc .docname { flex: 1; color: var(--color-grey-900); font-weight: 600; }
+  .rp-doc .docmeta { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; font-weight: 400; }
+  .rp-doc a { color: var(--color-brand-700); text-decoration: none; font-weight: 500; font-size: 12px; }
+  .rp-doc a:hover { text-decoration: underline; }
+
+  /* Timeline */
+  .rp-timeline { display: flex; flex-direction: column; gap: 12px; position: relative; padding-left: 22px; }
+  .rp-timeline::before {
+    content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px;
+    background: var(--color-grey-200);
+  }
+  .rp-tl-item { position: relative; }
+  .rp-tl-item::before {
+    content: ''; position: absolute; left: -22px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--color-brand-600);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--color-brand-200);
+  }
+  .rp-tl-item .when { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .rp-tl-item .what { font: 13px var(--font-sans); color: var(--color-grey-900); margin-top: 2px; }
+  .rp-tl-item .who { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+
+  /* Sticky action bar */
+  .rp-actionbar {
+    position: sticky; bottom: 0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border-default);
+    margin: 24px -24px -24px;
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10;
+  }
+  .rp-actionbar .note {
+    font: 12px var(--font-sans); color: var(--fg2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .rp-actionbar .note i { color: var(--color-brand-600); font-size: 14px; }
+  .rp-actionbar .spacer { flex: 1; }
+  .rp-btn {
+    appearance: none; cursor: pointer; font-family: inherit;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font: 600 13px var(--font-sans);
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid transparent;
+    transition: background .1s, border-color .1s;
+  }
+  .rp-btn.secondary { background: #fff; color: var(--color-grey-800); border-color: var(--color-grey-200); }
+  .rp-btn.secondary:hover { background: var(--color-grey-50); }
+  .rp-btn.danger { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+  .rp-btn.danger:hover { background: #fee2e2; }
+  .rp-btn.primary { background: #047857; color: #fff; border-color: #047857; }
+  .rp-btn.primary:hover { background: #065f46; }
+  .rp-btn.primary[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+  /* Disabled-warning banner for failed imports */
+  .rp-disabled-note {
+    padding: 11px 14px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    font: 12.5px var(--font-sans);
+    color: #7c2d12;
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .rp-disabled-note i { color: #c2410c; font-size: 15px; margin-top: 1px; }
+
+  /* Toast */
+  .mg-toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    padding: 10px 16px;
+    background: var(--color-grey-900); color: #fff;
+    border-radius: 8px;
+    font: 500 13px var(--font-sans);
+    z-index: 9999;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mg-toast.ok { background: #047857; }
+  .mg-toast.err { background: #b91c1c; }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Migrations/Report</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+          <a class="nav-item" href="contacts.html"><i class="ri-contacts-line"></i> Contacts</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="followups.html"><i class="ri-customer-service-2-line"></i> Follow-ups <span class="nav-badge urgent">7</span></a>
+          <a class="nav-item" href="leads.html"><i class="ri-mail-line"></i> Inbox <span class="nav-badge">12</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="payments.html"><i class="ri-exchange-dollar-line"></i> Payments <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Migrations</span><span class="urg">6</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item active" href="migrations.html"><i class="ri-shield-user-line"></i> Pending verification <span class="nav-badge urgent">4</span></a>
+          <a class="nav-item" href="migrations.html?tab=failed"><i class="ri-error-warning-line"></i> Reconciliation failed <span class="nav-badge urgent">2</span></a>
+          <a class="nav-item" href="migrations.html?tab=drift"><i class="ri-pulse-line"></i> Drift watch <span class="nav-badge">3</span></a>
+          <a class="nav-item" href="migrations.html?tab=materialized"><i class="ri-check-double-line"></i> Recently materialized</a>
+          <a class="nav-item" href="migrations.html?tab=rejected"><i class="ri-archive-line"></i> Rejected (audit)</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="loans.html"><i class="ri-bank-line"></i></a>
+          <span class="sep">/</span>
+          <a href="migrations.html">Migrations</a>
+          <span class="sep">/</span>
+          <span class="current" id="rpCrumbId">Report</span>
+        </div>
+        <div class="actions">
+          <a class="btn btn-secondary" href="migrations.html"><i class="ri-arrow-left-line"></i> Back to queue</a>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="rp-wrap">
+
+          <!-- Hero -->
+          <div class="rp-hero">
+            <div class="ic"><i class="ri-file-text-line"></i></div>
+            <div>
+              <h1>Import report</h1>
+              <div class="sb">Full reconciliation for <span class="legid" id="rpLegId">LX-2019-00471</span>. Approval and decline are only available from this page so every reviewer sees the same evidence.</div>
+            </div>
+            <div class="right">
+              <div class="sb" id="rpStatusBadge"><span class="mg-badge ok" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font:600 11px var(--font-sans);background:#fff7ed;color:#c2410c;"><i class="ri-time-line"></i> Awaiting verification</span></div>
+              <div class="sb" id="rpAsOf">As of May 11, 2026 · batch-2026-05-11-001</div>
+            </div>
+          </div>
+
+          <!-- Verdict -->
+          <div class="rp-verdict ok" id="rpVerdict">
+            <div class="ic"><i class="ri-shield-check-line"></i></div>
+            <div>
+              <div class="ti" id="rpVerdictTi">Reconciliation clean · within tolerance</div>
+              <div class="sb" id="rpVerdictSb">All five totals match within $0.50 / 1.0 bp. Safe to make this loan live.</div>
+            </div>
+          </div>
+
+          <!-- Grid -->
+          <div class="rp-grid">
+
+            <div class="rp-col">
+
+              <!-- Reconciliation -->
+              <div class="rp-card">
+                <h3><i class="ri-equalizer-2-line"></i> Reconciliation</h3>
+                <div class="sb">Ream re-derived these totals from the schedule, payment history, and as-of date. Each row must agree with the legacy system within tolerance ($0.50 / 1.0 bp).</div>
+                <table class="rp-recon">
+                  <thead><tr>
+                    <th>Component</th>
+                    <th class="num">Legacy</th>
+                    <th class="num">Ream</th>
+                    <th class="num">Δ</th>
+                    <th>Check</th>
+                  </tr></thead>
+                  <tbody id="rpReconBody"></tbody>
+                </table>
+              </div>
+
+              <!-- Loan facts -->
+              <div class="rp-card">
+                <h3><i class="ri-bank-line"></i> Loan facts</h3>
+                <dl class="rp-dl">
+                  <dt>Borrower</dt><dd>Anna Thompson · member #9001</dd>
+                  <dt>Collateral</dt><dd>Sunridge · Plot 09 · site #310</dd>
+                  <dt>Product</dt><dd>Hilltop Plan · 15-yr · fixed</dd>
+                  <dt>Origination</dt><dd>Mar 15, 2019</dd>
+                  <dt>Term</dt><dd>180 months</dd>
+                  <dt>Total amount</dt><dd class="num">$240,000.00</dd>
+                  <dt>Down payment</dt><dd class="num">$48,000.00</dd>
+                  <dt>Annual rate</dt><dd class="num">6.250%</dd>
+                  <dt>Interest method</dt><dd>Fixed actuarial · 30/360</dd>
+                  <dt>Monthly P+I</dt><dd class="num">$1,648.27</dd>
+                  <dt>Monthly escrow</dt><dd class="num">$182.50</dd>
+                </dl>
+              </div>
+
+              <!-- Schedule position -->
+              <div class="rp-card">
+                <h3><i class="ri-calendar-check-line"></i> Schedule position</h3>
+                <dl class="rp-dl">
+                  <dt>Fully-paid installments</dt><dd class="num">84 of 180</dd>
+                  <dt>Current installment</dt><dd class="num">#85 · due May 15, 2026</dd>
+                  <dt>Next installment</dt><dd class="num">#86 · due Jun 15, 2026</dd>
+                  <dt>Current DPD</dt><dd class="num">0 days</dd>
+                  <dt>Worst DPD (lifetime)</dt><dd class="num">27 days</dd>
+                  <dt>Last payment</dt><dd>Apr 15, 2026 · <span class="num">$1,830.77</span></dd>
+                </dl>
+              </div>
+
+              <!-- Timeline -->
+              <div class="rp-card">
+                <h3><i class="ri-history-line"></i> Audit timeline</h3>
+                <div class="rp-timeline">
+                  <div class="rp-tl-item">
+                    <div class="when">2 min ago</div>
+                    <div class="what">Submitted for verification</div>
+                    <div class="who">ops-ana · membership #17</div>
+                  </div>
+                  <div class="rp-tl-item">
+                    <div class="when">3 min ago</div>
+                    <div class="what">Reconciliation re-run · 5/5 components within tolerance</div>
+                    <div class="who">system</div>
+                  </div>
+                  <div class="rp-tl-item">
+                    <div class="when">5 min ago</div>
+                    <div class="what">Source row imported from AcmeLOS v3.4</div>
+                    <div class="who">ops-ana · membership #17</div>
+                  </div>
+                  <div class="rp-tl-item">
+                    <div class="when">6 min ago</div>
+                    <div class="what">Source fingerprint computed · <span style="font-family:var(--font-mono);">sha256:b41c…d9f2</span></div>
+                    <div class="who">system</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="rp-col">
+
+              <!-- 2-person rule -->
+              <div class="rp-card">
+                <h3><i class="ri-shield-user-line"></i> Two-person rule</h3>
+                <div class="sb">A different admin must approve before the loan goes live.</div>
+                <div class="rp-2p">
+                  <div class="slot">
+                    <div class="lbl">Submitter</div>
+                    <div class="name">ops-ana</div>
+                    <div class="role">membership #17 · Operations</div>
+                  </div>
+                  <i class="ri-arrow-right-line arrow"></i>
+                  <div class="slot">
+                    <div class="lbl">Verifier</div>
+                    <div class="name you">You — Kevin Manga</div>
+                    <div class="role">Admin / Owner</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Identity -->
+              <div class="rp-card">
+                <h3><i class="ri-fingerprint-line"></i> Identity</h3>
+                <dl class="rp-dl">
+                  <dt>Legacy ID</dt><dd class="mono">LX-2019-00471</dd>
+                  <dt>Source system</dt><dd>AcmeLOS · v3.4</dd>
+                  <dt>Import batch</dt><dd class="mono">batch-2026-05-11-001</dd>
+                  <dt>As-of date</dt><dd>May 11, 2026</dd>
+                  <dt>Idempotency key</dt><dd class="mono" style="word-break:break-all; font-size:11.5px;">import:LX-2019-00471:2026-05-11</dd>
+                  <dt>Source fingerprint</dt><dd class="mono" style="font-size:11.5px;">sha256:b41c…d9f2</dd>
+                </dl>
+              </div>
+
+              <!-- Documents -->
+              <div class="rp-card">
+                <h3><i class="ri-attachment-2"></i> Documents</h3>
+                <div class="rp-docs">
+                  <div class="rp-doc">
+                    <div class="docic"><i class="ri-file-paper-2-line"></i></div>
+                    <div style="flex:1;">
+                      <div class="docname">Legacy payoff statement</div>
+                      <div class="docmeta">PDF · 2 pages · 184 KB</div>
+                    </div>
+                    <a href="#" onclick="event.preventDefault();return false;">View</a>
+                  </div>
+                  <div class="rp-doc">
+                    <div class="docic"><i class="ri-file-list-3-line"></i></div>
+                    <div style="flex:1;">
+                      <div class="docname">Amortization schedule (legacy)</div>
+                      <div class="docmeta">CSV · 180 rows · 22 KB</div>
+                    </div>
+                    <a href="#" onclick="event.preventDefault();return false;">View</a>
+                  </div>
+                  <div class="rp-doc">
+                    <div class="docic"><i class="ri-bank-card-line"></i></div>
+                    <div style="flex:1;">
+                      <div class="docname">Payment history export</div>
+                      <div class="docmeta">CSV · 84 rows · 11 KB</div>
+                    </div>
+                    <a href="#" onclick="event.preventDefault();return false;">View</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tolerance -->
+              <div class="rp-card">
+                <h3><i class="ri-ruler-line"></i> Tolerance</h3>
+                <dl class="rp-dl">
+                  <dt>Absolute</dt><dd class="num">$0.50</dd>
+                  <dt>Relative</dt><dd class="num">1.0 bp</dd>
+                  <dt>Note</dt><dd style="font-weight:400; font-size:12px; color:var(--fg2); line-height:1.5;">Org default. A different tolerance can be set per-batch in Settings → Migrations.</dd>
+                </dl>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Action bar -->
+          <div class="rp-actionbar" id="rpActionBar">
+            <div class="note"><i class="ri-shield-check-line"></i> <span id="rpActionNote">You're the second admin. Approval makes this loan live immediately.</span></div>
+            <span class="spacer"></span>
+            <a class="rp-btn secondary" href="migrations.html">Close without action</a>
+            <button class="rp-btn danger" id="rpDecline"><i class="ri-arrow-go-back-line"></i> Decline</button>
+            <button class="rp-btn primary" id="rpApprove"><i class="ri-check-line"></i> Approve & make live</button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="ream-shell.js" onerror="this.remove();"></script>
+<script>
+(function () {
+  'use strict';
+
+  var params = new URLSearchParams(location.search);
+  var tab = params.get('tab') || 'pending';
+  var rowId = params.get('id') || '';
+
+  // Decide whether this is the pending-clean case or a drift case
+  var driftCase = (tab === 'failed');
+
+  // Reconciliation lines (signed delta)
+  var lines = driftCase
+    ? [
+        { label: 'Principal · paid to date',   legacy: 57340.18, ream: 57340.18, delta: 0,   ok: true },
+        { label: 'Interest · paid to date',    legacy: 62110.42, ream: 62124.62, delta: 14.20, ok: false },
+        { label: 'Escrow · paid to date',      legacy: 15330.00, ream: 15330.00, delta: 0,   ok: true },
+        { label: 'Outstanding principal',      legacy: 134659.82, ream: 134659.82, delta: 0, ok: true },
+        { label: 'Total payoff',               legacy: 164549.40, ream: 164563.60, delta: 14.20, ok: false }
+      ]
+    : [
+        { label: 'Principal · paid to date',   legacy: 57340.18, ream: 57340.18, delta: 0, ok: true },
+        { label: 'Interest · paid to date',    legacy: 62110.42, ream: 62110.42, delta: 0, ok: true },
+        { label: 'Escrow · paid to date',      legacy: 15330.00, ream: 15330.00, delta: 0, ok: true },
+        { label: 'Outstanding principal',      legacy: 134659.82, ream: 134659.82, delta: 0, ok: true },
+        { label: 'Total payoff',               legacy: 164549.40, ream: 164549.40, delta: 0, ok: true }
+      ];
+
+  function fmt(n) {
+    if (n === 0) return '$0.00';
+    var s = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (n < 0 ? '-' : '') + '$' + s;
+  }
+  function fmtSigned(n) {
+    if (n === 0) return '$0.00';
+    return (n > 0 ? '+' : '-') + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  var tbody = document.getElementById('rpReconBody');
+  tbody.innerHTML = lines.map(function (l, i) {
+    var isLast = i === lines.length - 1;
+    return '<tr' + (isLast ? ' class="total"' : '') + '>' +
+      '<td>' + l.label + '</td>' +
+      '<td class="num">' + fmt(l.legacy) + '</td>' +
+      '<td class="num">' + fmt(l.ream) + '</td>' +
+      '<td class="num"><span class="delta ' + (l.ok ? 'ok' : 'bad') + '">' + fmtSigned(l.delta) + '</span></td>' +
+      '<td class="check' + (l.ok ? '' : ' bad') + '"><i class="' + (l.ok ? 'ri-check-line' : 'ri-close-line') + '"></i></td>' +
+    '</tr>';
+  }).join('');
+
+  // Verdict state
+  var verdict = document.getElementById('rpVerdict');
+  var verdictTi = document.getElementById('rpVerdictTi');
+  var verdictSb = document.getElementById('rpVerdictSb');
+  var approveBtn = document.getElementById('rpApprove');
+  var noteEl = document.getElementById('rpActionNote');
+  var statusBadge = document.getElementById('rpStatusBadge');
+  var actionBar = document.getElementById('rpActionBar');
+
+  if (driftCase) {
+    verdict.classList.remove('ok');
+    verdict.classList.add('err');
+    verdict.querySelector('.ic i').className = 'ri-error-warning-line';
+    verdictTi.textContent = 'Reconciliation failed · drift on Interest';
+    verdictSb.textContent = '$14.20 over tolerance. Approval is blocked until the submitter fixes the numbers and resubmits.';
+    approveBtn.disabled = true;
+    approveBtn.title = 'Approval is blocked while reconciliation fails';
+    statusBadge.innerHTML = '<span class="mg-badge err" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font:600 11px var(--font-sans);background:#fee2e2;color:#b91c1c;"><i class="ri-error-warning-line"></i> Drift exceeds tolerance</span>';
+    noteEl.innerHTML = '<b>Approval blocked</b> while drift exceeds tolerance. You can still decline and ask the submitter to fix the numbers.';
+    var bar = document.createElement('div');
+    bar.className = 'rp-disabled-note';
+    bar.innerHTML = '<i class="ri-information-line"></i><div><b>Approval is disabled.</b> Drift must be resolved before this loan can go live. Decline with a note so the submitter knows what to re-export from their legacy system.</div>';
+    actionBar.parentElement.insertBefore(bar, actionBar);
+  }
+
+  // Crumb
+  if (rowId) document.getElementById('rpCrumbId').textContent = 'Report · ' + (rowId.length > 10 ? rowId.slice(0, 10) + '…' : rowId);
+
+  // Toast helper
+  function toast(msg, kind) {
+    var t = document.createElement('div');
+    t.className = 'mg-toast' + (kind ? ' ' + kind : '');
+    t.innerHTML = (kind === 'ok' ? '<i class="ri-check-line"></i>' : kind === 'err' ? '<i class="ri-error-warning-line"></i>' : '<i class="ri-information-line"></i>') + ' ' + msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.style.transition = 'opacity .25s'; t.style.opacity = '0'; }, 2200);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+
+  // Dialog helpers
+  function buildDialog(id) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = id;
+    el.className = 'modal-backdrop';
+    el.style.display = 'none';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML = '<div class="modal" style="width:480px;"><span class="grab"></span></div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function (e) { if (e.target === el) el.style.display = 'none'; });
+    return el;
+  }
+
+  function openApproveDialog() {
+    var el = buildDialog('rpApproveDlg');
+    el.querySelector('.modal').innerHTML = ''
+      + '<span class="grab"></span>'
+      + '<div class="modal-head">'
+      +   '<div style="width:36px;height:36px;border-radius:9px;background:#ecfdf5;color:#047857;display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ri-shield-check-line"></i></div>'
+      +   '<div style="flex:1;"><h3 class="modal-title">Approve and make this loan live?</h3><p class="modal-sub">A live loan account is created with the opening balances above. The submitter and audit log will record your approval. This is the only place where loans become live.</p></div>'
+      + '</div>'
+      + '<div style="padding:4px 20px 16px;"><label style="display:flex;gap:8px;align-items:flex-start;font:13px var(--font-sans);color:var(--color-grey-800);cursor:pointer;"><input type="checkbox" id="rpApproveAttest" style="margin-top:3px;"/><span>I have reviewed the reconciliation and the supporting documents. I confirm the figures match the legacy system.</span></label></div>'
+      + '<div class="modal-foot"><span class="spacer"></span>'
+      +   '<button class="rp-btn secondary" data-act="cancel">Cancel</button>'
+      +   '<button class="rp-btn primary" data-act="ok" disabled><i class="ri-check-line"></i> Approve &amp; make live</button>'
+      + '</div>';
+    el.style.display = 'flex';
+    var att = el.querySelector('#rpApproveAttest');
+    var ok = el.querySelector('[data-act=ok]');
+    att.addEventListener('change', function () { ok.disabled = !att.checked; });
+    el.querySelector('[data-act=cancel]').onclick = function () { el.style.display = 'none'; };
+    ok.onclick = function () {
+      el.style.display = 'none';
+      toast('Approved · loan is now live', 'ok');
+      setTimeout(function () { window.location.href = 'migrations.html?tab=materialized'; }, 1000);
+    };
+    setTimeout(function () { att.focus(); }, 30);
+  }
+
+  function openDeclineDialog() {
+    var el = buildDialog('rpDeclineDlg');
+    el.querySelector('.modal').innerHTML = ''
+      + '<span class="grab"></span>'
+      + '<div class="modal-head">'
+      +   '<div style="width:36px;height:36px;border-radius:9px;background:#fff7ed;color:#c2410c;display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ri-arrow-go-back-line"></i></div>'
+      +   '<div style="flex:1;"><h3 class="modal-title">Decline this import?</h3><p class="modal-sub">The submitter will see your note and can fix the numbers. Nothing goes live.</p></div>'
+      + '</div>'
+      + '<div style="padding:4px 20px 16px;"><label style="display:block;font:600 11px var(--font-sans);text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);margin-bottom:6px;">Note for the submitter <span style="color:#dc2626;">*</span></label>'
+      +   '<textarea id="rpDeclineReason" rows="3" placeholder="e.g. Interest paid-to-date is $14.20 over what the legacy statement shows — please re-pull and try again." style="width:100%;border:1px solid var(--border-default);border-radius:8px;padding:10px 12px;font:13px var(--font-sans);outline:none;resize:vertical;"></textarea></div>'
+      + '<div class="modal-foot"><span class="spacer"></span>'
+      +   '<button class="rp-btn secondary" data-act="cancel">Cancel</button>'
+      +   '<button class="rp-btn danger" data-act="ok"><i class="ri-arrow-go-back-line"></i> Decline &amp; send back</button>'
+      + '</div>';
+    el.style.display = 'flex';
+    var ta = el.querySelector('#rpDeclineReason');
+    el.querySelector('[data-act=cancel]').onclick = function () { el.style.display = 'none'; };
+    el.querySelector('[data-act=ok]').onclick = function () {
+      var why = (ta.value || '').trim();
+      if (!why) { ta.focus(); ta.style.borderColor = '#dc2626'; return; }
+      el.style.display = 'none';
+      toast('Declined · sent back to submitter', 'err');
+      setTimeout(function () { window.location.href = 'migrations.html?tab=rejected'; }, 1000);
+    };
+    setTimeout(function () { ta.focus(); }, 30);
+  }
+
+  approveBtn.addEventListener('click', function () {
+    if (approveBtn.disabled) { toast('Approval is blocked — reconciliation fails', 'err'); return; }
+    openApproveDialog();
+  });
+  document.getElementById('rpDecline').addEventListener('click', openDeclineDialog);
+
+  // Sidebar collapse parity with main app
+  document.querySelectorAll('.nav-group .group-label').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var g = b.closest('.nav-group');
+      var c = g.dataset.collapsed === 'true';
+      g.dataset.collapsed = c ? 'false' : 'true';
+      b.setAttribute('aria-expanded', c ? 'true' : 'false');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

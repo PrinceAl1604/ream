@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Account settings</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="settings-page.css" />
+<style>
+  /* Toggle switch */
+  .st-toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; cursor: pointer; }
+  .st-toggle input { display: none; }
+  .st-toggle .track {
+    position: absolute; inset: 0;
+    background: var(--color-grey-300); border-radius: 999px;
+    transition: background .14s;
+  }
+  .st-toggle .knob {
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: #fff; border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    transition: transform .14s;
+  }
+  .st-toggle input:checked + .track { background: var(--color-brand-600); }
+  .st-toggle input:checked + .track + .knob { transform: translateX(16px); }
+
+  /* Notification matrix row */
+  .st-notif-row {
+    display: grid; grid-template-columns: 1fr 60px 60px;
+    gap: 12px; align-items: center;
+    padding: 12px 0;
+  }
+  .st-notif-row + .st-notif-row { border-top: 1px solid var(--border-subtle); }
+  .st-notif-row .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+  .st-notif-row .sb { font: 12.5px var(--font-sans); color: var(--fg2); margin-top: 2px; line-height: 1.5; }
+  .st-notif-row .col-h { font: 600 10.5px var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg3); text-align: center; }
+  .st-notif-row .ck { display: flex; justify-content: center; }
+
+  /* Session row */
+  .st-sess-row {
+    display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center;
+    padding: 14px 0;
+  }
+  .st-sess-row + .st-sess-row { border-top: 1px solid var(--border-subtle); }
+  .st-sess-row .ic {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--color-grey-50); color: var(--color-grey-700);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .st-sess-row .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); display: flex; align-items: center; gap: 6px; }
+  .st-sess-row .ti .pill {
+    font: 600 10.5px var(--font-sans); padding: 1px 7px; border-radius: 999px;
+    background: #def0e3; color: #1f7a52; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .st-sess-row .sb { font: 12.5px var(--font-sans); color: var(--fg2); margin-top: 2px; }
+
+  /* Theme cards */
+  .st-themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .st-theme {
+    cursor: pointer; padding: 0; border-radius: 10px;
+    background: transparent; border: 0; text-align: left;
+  }
+  .st-theme .swatch {
+    aspect-ratio: 16/10; border-radius: 10px;
+    border: 2px solid var(--border-default);
+    overflow: hidden; position: relative;
+    transition: border-color .14s, box-shadow .14s;
+  }
+  .st-theme.active .swatch { border-color: var(--color-brand-600); box-shadow: 0 0 0 3px rgba(59,91,217,0.14); }
+  .st-theme .swatch::before, .st-theme .swatch::after {
+    content: ''; position: absolute;
+  }
+  .st-theme .swatch::before {
+    left: 0; top: 0; bottom: 0; width: 36%;
+    background: var(--side, var(--color-grey-50));
+    border-right: 1px solid rgba(0,0,0,0.06);
+  }
+  .st-theme .swatch::after {
+    left: 36%; top: 0; right: 0; bottom: 0;
+    background: var(--main, #fff);
+  }
+  .st-theme .lbl {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 4px 0;
+    font: 600 13px var(--font-sans); color: var(--color-grey-800);
+  }
+  .st-theme .lbl i { color: var(--fg3); font-size: 14px; }
+  .st-theme.active .lbl i { color: var(--color-brand-600); }
+
+  .st-theme[data-theme="light"] { --side: #f6f7fa; --main: #ffffff; }
+  .st-theme[data-theme="dark"]  { --side: #11151c; --main: #1a212c; }
+  .st-theme[data-theme="auto"]  { --side: linear-gradient(to bottom, #f6f7fa 50%, #11151c 50%); --main: linear-gradient(to bottom, #fff 50%, #1a212c 50%); }
+
+  /* Density radio cards */
+  .st-density { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .st-density-opt {
+    cursor: pointer; padding: 12px 14px;
+    border: 1px solid var(--border-default); border-radius: 10px;
+    background: var(--color-base-white);
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color .14s, box-shadow .14s;
+  }
+  .st-density-opt:hover { border-color: var(--color-grey-400); }
+  .st-density-opt.active {
+    border-color: var(--color-brand-600);
+    box-shadow: 0 0 0 3px rgba(59,91,217,0.12);
+  }
+  .st-density-opt .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); display: flex; align-items: center; justify-content: space-between; }
+  .st-density-opt .sb { font: 12.5px var(--font-sans); color: var(--fg2); }
+  .st-density-opt input { display: none; }
+  .st-density-opt .check { color: var(--color-brand-600); font-size: 16px; opacity: 0; }
+  .st-density-opt.active .check { opacity: 1; }
+</style>
+</head>
+<body data-layout="a">
+
+<div class="app">
+
+  <!-- =========== SIDEBAR =========== -->
+  <aside class="sidebar">
+    <a class="brand org-pill" href="owner-dashboard.html">
+      <span class="org-logo">G</span>
+      <span class="org-meta">
+        <span class="org-name">Golden Acres Realty</span>
+        <span class="org-plan">Studio · Trial</span>
+      </span>
+      <i class="ri-expand-up-down-line org-caret"></i>
+    </a>
+
+    <div class="group-label" style="padding: 6px 10px 4px;">Workspace</div>
+    <a class="nav-item" href="owner-dashboard.html"><i class="ri-home-5-line"></i> Home</a>
+    <button class="nav-item" type="button"><i class="ri-inbox-line"></i> Inbox</button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Listings &amp; pipeline</div>
+    <button class="nav-item" type="button"><i class="ri-building-line"></i> Houses <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-landscape-line"></i> Lands <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-bank-card-line"></i> Loans <span class="nav-badge">0</span></button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Team</div>
+    <button class="nav-item" type="button"><i class="ri-team-line"></i> Agents <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-shield-user-line"></i> Admins <span class="nav-badge">1</span></button>
+    <button class="nav-item" type="button"><i class="ri-bar-chart-2-line"></i> Reports</button>
+
+    <div class="spacer" style="flex: 1;"></div>
+
+    <div class="sb-rail">
+      <button class="sb-rail-btn" type="button" title="Notifications"><i class="ri-notification-3-line"></i></button>
+      <a class="sb-rail-btn" href="org-settings.html" title="Organization settings"><i class="ri-settings-3-line"></i></a>
+      <button class="sb-rail-btn" type="button" title="Help & support"><i class="ri-question-line"></i></button>
+    </div>
+
+    <a class="user with-menu active" href="user-settings.html" style="background: var(--color-grey-50);">
+      <div class="avatar" style="background: var(--color-brand-700);">
+        <span>AO</span><span class="presence"></span>
+      </div>
+      <div class="meta">
+        <div class="name">Amara Osei</div>
+        <div class="role-chip"><i class="ri-vip-crown-line"></i> Owner</div>
+      </div>
+      <i class="ri-expand-up-down-line more"></i>
+    </a>
+  </aside>
+
+  <!-- =========== MAIN =========== -->
+  <section class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="owner-dashboard.html" style="color: var(--fg3); text-decoration: none;">Home</a>
+        <i class="ri-arrow-right-s-line" style="color: var(--fg4);"></i>
+        <span class="current">Account settings</span>
+      </div>
+    </div>
+
+    <div class="content" style="padding: 0;">
+
+      <header class="st-page-head">
+        <div>
+          <h1>Account settings</h1>
+          <div class="sub">Personal preferences for Amara Osei. Only you can see and change these.</div>
+        </div>
+        <div class="st-layout-toggle" id="layoutToggle">
+          <button data-layout-btn="a" class="active" type="button"><i class="ri-layout-left-line"></i> Layout A</button>
+          <button data-layout-btn="b" type="button"><i class="ri-layout-grid-line"></i> Layout B</button>
+        </div>
+      </header>
+
+      <div class="st-page">
+
+        <!-- ============ RAIL ============ -->
+        <nav class="st-rail" id="stRail">
+          <div class="st-rail-section-label">You</div>
+          <button class="st-rail-link active" type="button" data-section="profile"><i class="ri-user-line"></i> Profile</button>
+          <button class="st-rail-link" type="button" data-section="security"><i class="ri-lock-2-line"></i> Sign-in &amp; security</button>
+
+          <div class="st-rail-section-label" style="margin-top: 14px;">Preferences</div>
+          <button class="st-rail-link" type="button" data-section="notifications"><i class="ri-notification-3-line"></i> Notifications</button>
+          <button class="st-rail-link" type="button" data-section="appearance"><i class="ri-palette-line"></i> Appearance</button>
+
+          <div class="st-rail-section-label" style="margin-top: 14px;">Account</div>
+          <button class="st-rail-link danger" type="button" data-section="danger"><i class="ri-alarm-warning-line"></i> Danger zone</button>
+        </nav>
+
+        <!-- ============ CONTENT ============ -->
+        <div class="st-content">
+
+          <!-- ===== Profile ===== -->
+          <div class="st-pane active" data-pane="profile">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Profile</h2>
+                <p>How your name and avatar appear to teammates and customers across REAM.</p>
+              </div>
+              <div class="st-card">
+                <div class="st-row full">
+                  <div class="st-field">
+                    <label>Avatar</label>
+                    <div class="st-logo-up">
+                      <div class="preview" style="background: var(--color-brand-700); border-radius: 50%;">AO</div>
+                      <div>
+                        <div class="actions">
+                          <button class="st-btn secondary" type="button"><i class="ri-upload-2-line"></i> Upload photo</button>
+                          <button class="st-btn ghost" type="button">Remove</button>
+                        </div>
+                        <div class="hint">JPG or PNG, square, at least 256×256.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 18px;">
+                  <div class="st-field">
+                    <label>First name <span class="req">*</span></label>
+                    <input class="st-input" type="text" value="Amara" />
+                  </div>
+                  <div class="st-field">
+                    <label>Last name <span class="req">*</span></label>
+                    <input class="st-input" type="text" value="Osei" />
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Email</label>
+                    <input class="st-input" type="email" value="amara@goldenacres.com" />
+                    <span class="hint">Changing email requires re-verification.</span>
+                  </div>
+                  <div class="st-field">
+                    <label>Phone</label>
+                    <input class="st-input" type="tel" value="+1 (415) 555-0142" />
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Job title</label>
+                    <input class="st-input" type="text" value="Founder" />
+                  </div>
+                  <div class="st-field">
+                    <label>Language</label>
+                    <select class="st-select">
+                      <option>English</option>
+                      <option>Français</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Sign-in & security ===== -->
+          <div class="st-pane" data-pane="security">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Sign-in &amp; security</h2>
+                <p>Password, two-factor, and active sessions across your devices.</p>
+              </div>
+
+              <div class="st-card">
+                <div class="st-section-head" style="margin-bottom: 12px;"><h2 style="font-size: 14px;">Password</h2></div>
+                <div class="st-row">
+                  <div class="st-field">
+                    <label>Current password</label>
+                    <input class="st-input" type="password" value="••••••••" />
+                  </div>
+                  <div class="st-field"></div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>New password</label>
+                    <input class="st-input" type="password" placeholder="At least 12 characters" />
+                  </div>
+                  <div class="st-field">
+                    <label>Confirm new password</label>
+                    <input class="st-input" type="password" />
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Update password</button>
+                </div>
+              </div>
+
+              <div class="st-card" style="margin-top: 14px;">
+                <div class="st-section-head" style="margin-bottom: 12px;"><h2 style="font-size: 14px;">Two-factor authentication</h2></div>
+                <div class="st-sess-row">
+                  <div class="ic" style="background: #def0e3; color: #1f7a52;"><i class="ri-shield-check-line"></i></div>
+                  <div>
+                    <div class="ti">Authenticator app <span class="pill">Enabled</span></div>
+                    <div class="sb">Backed up to iCloud Keychain. Last used today.</div>
+                  </div>
+                  <button class="st-btn secondary" type="button">Manage</button>
+                </div>
+                <div class="st-sess-row">
+                  <div class="ic"><i class="ri-message-3-line"></i></div>
+                  <div>
+                    <div class="ti">SMS backup</div>
+                    <div class="sb">Send a code to +1 ••• ••• 0142 if your authenticator is unavailable.</div>
+                  </div>
+                  <label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label>
+                </div>
+              </div>
+
+              <div class="st-card" style="margin-top: 14px;">
+                <div class="st-section-head" style="margin-bottom: 8px;"><h2 style="font-size: 14px;">Active sessions</h2></div>
+                <div class="st-sess-row">
+                  <div class="ic"><i class="ri-macbook-line"></i></div>
+                  <div>
+                    <div class="ti">MacBook Pro · Chrome <span class="pill">This device</span></div>
+                    <div class="sb">San Francisco, CA · active now</div>
+                  </div>
+                  <span style="font: 12.5px var(--font-sans); color: var(--fg3);">—</span>
+                </div>
+                <div class="st-sess-row">
+                  <div class="ic"><i class="ri-smartphone-line"></i></div>
+                  <div>
+                    <div class="ti">iPhone 15 · Safari</div>
+                    <div class="sb">San Francisco, CA · 2 hours ago</div>
+                  </div>
+                  <button class="st-btn secondary" type="button">Sign out</button>
+                </div>
+                <div class="st-sess-row">
+                  <div class="ic"><i class="ri-windows-line"></i></div>
+                  <div>
+                    <div class="ti">Windows · Edge</div>
+                    <div class="sb">Newark, NJ · 4 days ago</div>
+                  </div>
+                  <button class="st-btn secondary" type="button">Sign out</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Notifications ===== -->
+          <div class="st-pane" data-pane="notifications">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Notifications</h2>
+                <p>Choose how you'd like to hear about activity in your agency. In-app notifications always show in the bell.</p>
+              </div>
+              <div class="st-card">
+                <div class="st-notif-row" style="border-bottom: 1px solid var(--border-default);">
+                  <div></div>
+                  <div class="col-h">Email</div>
+                  <div class="col-h">Push</div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">New prospect inquiries</div>
+                    <div class="sb">A customer applied to one of your listings.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">Loan payments</div>
+                    <div class="sb">Payment received, late, or refunded.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">Document uploads</div>
+                    <div class="sb">A prospect or borrower uploaded a requested document.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">Task assignments</div>
+                    <div class="sb">A teammate assigned you a follow-up.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">Weekly digest</div>
+                    <div class="sb">Monday morning summary of your pipeline and loans.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" checked /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-notif-row">
+                  <div>
+                    <div class="ti">Product updates</div>
+                    <div class="sb">Major REAM releases. Roughly once a month.</div>
+                  </div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+                  <div class="ck"><label class="st-toggle"><input type="checkbox" /><span class="track"></span><span class="knob"></span></label></div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Appearance ===== -->
+          <div class="st-pane" data-pane="appearance">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Appearance</h2>
+                <p>Theme and density apply to your view only — your teammates can pick their own.</p>
+              </div>
+              <div class="st-card">
+                <div class="st-section-head" style="margin-bottom: 12px;"><h2 style="font-size: 14px;">Theme</h2></div>
+                <div class="st-themes" id="themePicker">
+                  <button class="st-theme active" data-theme="light" type="button">
+                    <span class="swatch"></span>
+                    <span class="lbl">Light <i class="ri-check-line"></i></span>
+                  </button>
+                  <button class="st-theme" data-theme="dark" type="button">
+                    <span class="swatch"></span>
+                    <span class="lbl">Dark <i class="ri-check-line"></i></span>
+                  </button>
+                  <button class="st-theme" data-theme="auto" type="button">
+                    <span class="swatch"></span>
+                    <span class="lbl">Auto <i class="ri-check-line"></i></span>
+                  </button>
+                </div>
+
+                <div class="st-section-head" style="margin: 24px 0 12px;"><h2 style="font-size: 14px;">Density</h2></div>
+                <div class="st-density" id="densityPicker">
+                  <label class="st-density-opt">
+                    <input type="radio" name="density" />
+                    <span class="ti">Compact <i class="ri-check-line check"></i></span>
+                    <span class="sb">Tighter rows, smaller padding. Good for big screens.</span>
+                  </label>
+                  <label class="st-density-opt active">
+                    <input type="radio" name="density" checked />
+                    <span class="ti">Comfortable <i class="ri-check-line check"></i></span>
+                    <span class="sb">REAM defaults. A balance of breathing room and density.</span>
+                  </label>
+                  <label class="st-density-opt">
+                    <input type="radio" name="density" />
+                    <span class="ti">Spacious <i class="ri-check-line check"></i></span>
+                    <span class="sb">Roomier rows, larger touch targets.</span>
+                  </label>
+                </div>
+
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Danger zone ===== -->
+          <div class="st-pane" data-pane="danger">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Danger zone</h2>
+                <p>These actions affect your access and account. Irreversible ones require typed confirmation.</p>
+              </div>
+
+              <div class="st-danger-card">
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Sign out everywhere</div>
+                    <div class="sb">Ends every session except this one. You'll need to sign in again on other devices.</div>
+                  </div>
+                  <button class="st-btn secondary" type="button" style="border-color: #f3d2c9; color: #b54e3c; background: var(--color-base-white);"><i class="ri-logout-circle-line"></i> Sign out</button>
+                </div>
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Leave Golden Acres Realty</div>
+                    <div class="sb">Removes you from this agency. As Owner, you must transfer ownership before leaving.</div>
+                  </div>
+                  <button class="st-btn secondary" type="button" disabled style="border-color: #f3d2c9; color: #b54e3c; background: var(--color-base-white); opacity: .55; cursor: not-allowed;"><i class="ri-logout-box-r-line"></i> Leave</button>
+                </div>
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Delete account</div>
+                    <div class="sb">Permanently deletes your REAM account across every agency you belong to. We'll keep an export for 30 days.</div>
+                  </div>
+                  <button class="st-btn danger" type="button"><i class="ri-delete-bin-line"></i> Delete account</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // Section nav
+  const links = [...document.querySelectorAll('.st-rail-link')];
+  const panes = [...document.querySelectorAll('.st-pane')];
+  function setSection(name) {
+    links.forEach(l => l.classList.toggle('active', l.dataset.section === name));
+    panes.forEach(p => p.classList.toggle('active', p.dataset.pane === name));
+    if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+  }
+  links.forEach(l => l.addEventListener('click', () => setSection(l.dataset.section)));
+  if (location.hash) {
+    const name = location.hash.slice(1);
+    if (panes.some(p => p.dataset.pane === name)) setSection(name);
+  }
+
+  // Layout toggle
+  const layoutBtns = [...document.querySelectorAll('[data-layout-btn]')];
+  function setLayout(name) {
+    document.body.dataset.layout = name;
+    layoutBtns.forEach(b => b.classList.toggle('active', b.dataset.layoutBtn === name));
+    try { localStorage.setItem('reamSettingsLayout', name); } catch (e) {}
+  }
+  layoutBtns.forEach(b => b.addEventListener('click', () => setLayout(b.dataset.layoutBtn)));
+  try {
+    const saved = localStorage.getItem('reamSettingsLayout');
+    if (saved === 'a' || saved === 'b') setLayout(saved);
+  } catch (e) {}
+
+  // Theme picker
+  document.querySelectorAll('.st-theme').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.st-theme').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+
+  // Density picker
+  document.querySelectorAll('.st-density-opt').forEach(o => {
+    o.addEventListener('click', () => {
+      document.querySelectorAll('.st-density-opt').forEach(x => x.classList.remove('active'));
+      o.classList.add('active');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

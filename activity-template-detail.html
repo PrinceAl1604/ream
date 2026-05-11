@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Sales · Daily Outreach</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="row-actions.css" />
+<link rel="stylesheet" href="_detail.css" />
+<style>
+  /* ===== Detail layout ===== */
+  .atd-hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px; align-items: flex-start;
+    padding: 4px 0 0 0;
+  }
+  .atd-hero .ti-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .atd-hero h1 { margin: 0; font: 600 22px var(--font-sans); color: var(--color-grey-900); }
+  .atd-hero .sb { font: 500 13px var(--font-sans); color: var(--fg3); margin-top: 6px; max-width: 720px; line-height: 1.5; }
+  .atd-hero .audline { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; font: 500 12px var(--font-sans); color: var(--fg3); }
+
+  .at-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 10.5px var(--font-sans); padding: 2px 8px; border-radius: 999px;
+    border: 1px solid transparent; line-height: 1.4;
+  }
+  .at-pill.active   { background: var(--color-success-50); color: var(--color-success-800); border-color: var(--color-success-200); }
+  .at-pill.draft    { background: var(--color-warning-50); color: var(--color-warning-800); border-color: var(--color-warning-200); }
+  .at-pill.archived { background: var(--color-grey-100); color: var(--color-grey-700); border-color: var(--color-grey-200); }
+  .at-pill.featured { background: var(--color-brand-50); color: var(--color-brand-800); border-color: var(--color-brand-200); }
+
+  /* KPI strip — slightly larger w/ derivation note */
+  .atd-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .atd-stats .stat {
+    border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 14px 16px; background: #fff;
+  }
+  .atd-stats .stat .lab {
+    font: 600 11px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .atd-stats .stat .val {
+    font: 600 26px var(--font-sans); color: var(--color-grey-900);
+    margin-top: 4px; font-variant-numeric: tabular-nums;
+  }
+  .atd-stats .stat .sub { font: 500 12px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .atd-stats .stat.is-good .val { color: var(--color-success-700); }
+  .atd-stats .stat.is-warn .val { color: var(--color-warning-700); }
+  .atd-stats .stat.is-bad  .val { color: var(--color-error-700); }
+
+  /* Tabs */
+  .atd-tabs {
+    display: flex; gap: 2px; border-bottom: 1px solid var(--border-subtle);
+  }
+  .atd-tabs .t {
+    padding: 10px 14px;
+    font: 600 13px var(--font-sans); color: var(--fg3);
+    background: transparent; border: 0;
+    border-bottom: 2px solid transparent;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .atd-tabs .t:hover { color: var(--fg1); }
+  .atd-tabs .t.active { color: var(--color-brand-700); border-bottom-color: var(--color-brand-600); }
+  .atd-tabs .t .cnt {
+    font: 600 11px var(--font-sans);
+    background: var(--color-grey-100); color: var(--fg3);
+    padding: 1px 7px; border-radius: 999px;
+  }
+  .atd-tabs .t.active .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+  .atd-pane { display: none; }
+  .atd-pane.active { display: block; }
+
+  /* Activities editor */
+  .atd-section-head {
+    display: flex; align-items: center; gap: 12px;
+    margin: 8px 0 10px;
+  }
+  .atd-section-head h2 {
+    font: 600 14.5px var(--font-sans); color: var(--color-grey-900); margin: 0;
+  }
+  .atd-section-head .meta { font: 500 12px var(--font-sans); color: var(--fg3); }
+  .atd-section-head .spacer { flex: 1; }
+
+  .act-editor {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .act-card {
+    display: grid;
+    grid-template-columns: 22px 1fr 160px 120px 120px 32px;
+    gap: 12px; align-items: center;
+    background: #fff;
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .act-card.is-mandatory { border-left: 3px solid var(--color-error-500); padding-left: 12px; }
+  .act-card .drag { color: var(--fg4); cursor: grab; font-size: 16px; text-align: center; }
+  .act-card .name {
+    display: flex; flex-direction: column; gap: 3px; min-width: 0;
+  }
+  .act-card .name .ti {
+    font: 600 13.5px var(--font-sans); color: var(--color-grey-900);
+    border: 0; background: transparent; padding: 0; outline: none;
+    width: 100%;
+  }
+  .act-card .name .ti:focus { background: var(--color-grey-25); padding: 2px 6px; border-radius: 4px; }
+  .act-card .name .src { font: 500 11.5px var(--font-sans); color: var(--fg3); display: inline-flex; align-items: center; gap: 4px; }
+  .act-card .name .src i { color: var(--color-brand-600); }
+
+  .act-card .kpi-out {
+    display: flex; flex-direction: column; gap: 2px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .act-card .kpi-out .lab {
+    font: 600 10px var(--font-sans); color: var(--fg4);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .act-card .kpi-out code {
+    font: 600 11.5px var(--font-mono, ui-monospace, monospace);
+    background: var(--color-grey-100); color: var(--color-grey-800);
+    padding: 1px 5px; border-radius: 4px; align-self: flex-start;
+  }
+
+  .act-card .target {
+    display: flex; flex-direction: column; gap: 2px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .act-card .target .lab {
+    font: 600 10px var(--font-sans); color: var(--fg4);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .act-card .target .v { font: 600 14px var(--font-sans); color: var(--color-grey-900); font-variant-numeric: tabular-nums; }
+  .act-card .target .v small { font-weight: 500; color: var(--fg3); font-size: 11px; }
+
+  .act-card .mand-toggle {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 10.5px var(--font-sans);
+    padding: 4px 9px; border-radius: 999px;
+    cursor: pointer; user-select: none;
+    border: 1px solid var(--color-grey-200); background: #fff; color: var(--fg3);
+  }
+  .act-card .mand-toggle.on {
+    background: var(--color-error-50); color: var(--color-error-800); border-color: var(--color-error-200);
+  }
+  .act-card .mand-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .act-card .mand-wrap .lab {
+    font: 600 10px var(--font-sans); color: var(--fg4);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+
+  .act-card .kebab {
+    width: 28px; height: 28px;
+    border: 0; background: transparent; color: var(--fg3);
+    border-radius: 6px; cursor: pointer;
+  }
+  .act-card .kebab:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+
+  .act-add-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 12.5px var(--font-sans); color: var(--color-brand-700);
+    background: transparent; border: 1px dashed var(--color-grey-300);
+    padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    justify-content: center;
+  }
+  .act-add-btn:hover { background: var(--color-brand-50); border-color: var(--color-brand-300); }
+
+  /* ===== KPI heatmap ===== */
+  .heat-wrap { overflow-x: auto; }
+  .heat {
+    border-collapse: separate; border-spacing: 0;
+    font: 500 12px var(--font-sans);
+    width: 100%; min-width: 760px;
+  }
+  .heat th, .heat td {
+    padding: 8px 10px; text-align: center;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+  .heat thead th {
+    background: var(--color-grey-50);
+    font: 600 11px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: .04em;
+    position: sticky; top: 0;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .heat thead th.act-h {
+    text-align: center;
+    padding: 8px 6px;
+    line-height: 1.3;
+  }
+  .heat thead th.act-h .nm { display: block; color: var(--color-grey-900); font: 600 11.5px var(--font-sans); text-transform: none; letter-spacing: 0; }
+  .heat thead th.act-h .tg { display: block; color: var(--fg3); font: 500 10px var(--font-sans); margin-top: 2px; }
+  .heat thead th.act-h.is-mandatory .nm::before {
+    content: "*"; color: var(--color-error-600); margin-right: 2px;
+  }
+  .heat thead th.agent-h { text-align: left; padding-left: 14px; }
+  .heat thead th.score-h { text-align: right; padding-right: 14px; }
+
+  .heat td.agent-c {
+    text-align: left; padding-left: 14px;
+    font: 600 13px var(--font-sans); color: var(--color-grey-900);
+  }
+  .heat td.agent-c .ava {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font: 600 11px var(--font-sans);
+    margin-right: 8px; vertical-align: middle;
+  }
+  .heat td.agent-c .role { font: 500 11px var(--font-sans); color: var(--fg3); margin-left: 2px; }
+
+  .heat td.cell {
+    padding: 4px 4px;
+  }
+  .heat td.cell .pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 44px; padding: 4px 8px;
+    border-radius: 6px;
+    font: 600 12px var(--font-sans); font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .heat td.cell .pill .frac { font-size: 11px; opacity: .75; margin-left: 4px; font-weight: 500; }
+  .heat td.cell .pill.met       { background: var(--color-success-100); color: var(--color-success-800); }
+  .heat td.cell .pill.exceeded  { background: var(--color-success-200); color: var(--color-success-900); }
+  .heat td.cell .pill.partial   { background: var(--color-warning-100); color: var(--color-warning-800); }
+  .heat td.cell .pill.zero      { background: var(--color-grey-100); color: var(--color-grey-500); }
+  .heat td.cell .pill.bool-yes  { background: var(--color-success-100); color: var(--color-success-800); }
+  .heat td.cell .pill.bool-no   { background: var(--color-error-100); color: var(--color-error-800); }
+
+  .heat td.score-c {
+    text-align: right; padding-right: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .heat td.score-c .pct { font: 700 14px var(--font-sans); }
+  .heat td.score-c .pct.is-good { color: var(--color-success-700); }
+  .heat td.score-c .pct.is-warn { color: var(--color-warning-700); }
+  .heat td.score-c .pct.is-bad  { color: var(--color-error-700); }
+  .heat td.score-c .day-bar {
+    display: inline-block; vertical-align: middle;
+    width: 60px; height: 6px; border-radius: 3px;
+    background: var(--color-grey-100); margin-left: 8px;
+    position: relative; overflow: hidden;
+  }
+  .heat td.score-c .day-bar > span {
+    display: block; height: 100%; border-radius: 3px;
+  }
+  .heat td.score-c .day-bar.is-good > span { background: var(--color-success-500); }
+  .heat td.score-c .day-bar.is-warn > span { background: var(--color-warning-500); }
+  .heat td.score-c .day-bar.is-bad  > span { background: var(--color-error-500); }
+
+  .heat tbody tr:hover td { background: var(--color-brand-50); }
+  .heat tfoot td {
+    background: var(--color-grey-25);
+    font: 600 12px var(--font-sans); color: var(--color-grey-900);
+    border-top: 2px solid var(--border-default); border-bottom: 0;
+    padding-top: 10px; padding-bottom: 10px;
+  }
+  .heat tfoot td.agent-c { color: var(--fg3); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; }
+
+  /* Day picker */
+  .day-pick {
+    display: inline-flex; gap: 4px; align-items: center;
+    background: var(--color-grey-100);
+    border-radius: 8px; padding: 3px;
+  }
+  .day-pick button {
+    border: 0; background: transparent;
+    padding: 6px 10px; border-radius: 6px;
+    font: 600 12px var(--font-sans); color: var(--fg2);
+    cursor: pointer;
+  }
+  .day-pick button.on { background: #fff; color: var(--color-grey-900); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+  /* Assignments */
+  .assign-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;
+  }
+  .assign-card {
+    display: flex; gap: 10px; align-items: center;
+    border: 1px solid var(--border-default);
+    border-radius: 10px; padding: 12px 14px; background: #fff;
+  }
+  .assign-card .ava {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font: 600 13px var(--font-sans);
+    flex-shrink: 0;
+  }
+  .assign-card .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .assign-card .meta { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+  .assign-card .right { margin-left: auto; text-align: right; }
+  .assign-card .pct { font: 700 14px var(--font-sans); font-variant-numeric: tabular-nums; }
+  .assign-card .pct.is-good { color: var(--color-success-700); }
+  .assign-card .pct.is-warn { color: var(--color-warning-700); }
+  .assign-card .pct.is-bad  { color: var(--color-error-700); }
+  .assign-card .pct .since { font: 500 11px var(--font-sans); color: var(--fg3); }
+
+  /* Trend chart (history tab) */
+  .trend-card {
+    border: 1px solid var(--border-default); border-radius: 12px;
+    padding: 16px 20px; background: #fff;
+  }
+  .trend-card h3 { margin: 0 0 4px; font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+  .trend-card .sb { font: 500 12px var(--font-sans); color: var(--fg3); }
+  .trend-svg { width: 100%; height: 200px; display: block; margin-top: 12px; }
+
+  /* Toast */
+  .toast-stack {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    background: var(--color-grey-900); color: white;
+    padding: 10px 16px; border-radius: 8px; font: 500 13px var(--font-sans);
+    box-shadow: 0 12px 28px rgba(15,23,42,.25);
+    pointer-events: auto;
+    animation: toastIn .25s ease, toastOut .25s ease 3.5s forwards;
+  }
+  @keyframes toastIn { from { opacity:0; transform: translateY(8px); } }
+  @keyframes toastOut { to { opacity:0; transform: translateY(8px); } }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/activity-templates/AT-001</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <!-- =========== SIDEBAR =========== -->
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-sub">Dallas, TX</span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+          <a class="nav-item" href="reports.html"><i class="ri-bar-chart-line"></i> Reports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Team</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="agents.html"><i class="ri-user-star-line"></i> Agents <span class="nav-badge">14</span></a>
+          <a class="nav-item" href="managers.html"><i class="ri-shield-user-line"></i> Managers</a>
+          <a class="nav-item active" href="activity-templates.html"><i class="ri-list-check-3"></i> Activity templates <span class="nav-badge">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-list-3-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="org-settings.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <!-- =========== MAIN =========== -->
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <a href="activity-templates.html">Activity templates</a>
+          <span class="sep">/</span>
+          <span class="current">Sales · Daily Outreach</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- Hero -->
+        <div class="atd-hero">
+          <div>
+            <div class="ti-row">
+              <h1>Sales · Daily Outreach</h1>
+              <span class="at-pill active"><i class="ri-checkbox-circle-line"></i> Active</span>
+              <span class="at-pill featured"><i class="ri-star-fill"></i> Default for Sales</span>
+            </div>
+            <div class="sb">
+              The standard daily checklist for Sales agents — calls, listing shares, site visits, and prospect entry.
+              Mandatory activities count toward each agent's <strong>complete-day</strong> rate; counts feed numeric KPIs in real time.
+            </div>
+            <div class="audline">
+              <span>Audience:</span>
+              <span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span>
+              <span style="color:var(--color-grey-300);">·</span>
+              <span>Active days: <strong style="color:var(--color-grey-800);">Mon – Fri</strong></span>
+              <span style="color:var(--color-grey-300);">·</span>
+              <span>Resets <strong style="color:var(--color-grey-800);">daily at 00:00</strong></span>
+              <span style="color:var(--color-grey-300);">·</span>
+              <span>Created by <strong style="color:var(--color-grey-800);">Kevin Manga</strong> · last edit May 8</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary"><i class="ri-history-line"></i> History</button>
+            <button class="btn btn-secondary"><i class="ri-file-copy-line"></i> Duplicate</button>
+            <button class="btn btn-secondary"><i class="ri-user-add-line"></i> Assign</button>
+            <button class="btn btn-primary" id="btnEdit"><i class="ri-edit-2-line"></i> Edit</button>
+          </div>
+        </div>
+
+        <!-- Live KPI strip -->
+        <div class="atd-stats">
+          <div class="stat is-good">
+            <div class="lab">Today's compliance</div>
+            <div class="val">91%</div>
+            <div class="sub">Mandatory done across all assigned agents</div>
+          </div>
+          <div class="stat">
+            <div class="lab">Assigned agents</div>
+            <div class="val">6</div>
+            <div class="sub">5 on-track · 1 at risk</div>
+          </div>
+          <div class="stat">
+            <div class="lab">KPIs derived</div>
+            <div class="val">7</div>
+            <div class="sub">5 numeric · 2 boolean</div>
+          </div>
+          <div class="stat is-good">
+            <div class="lab">Day-streak (team)</div>
+            <div class="val">12<span style="font-size:14px; color:var(--fg3); font-weight:500;"> days</span></div>
+            <div class="sub">Avg ≥80% mandatory · uninterrupted</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="atd-tabs" id="tabs">
+          <button class="t active" data-pane="kpi"><i class="ri-bar-chart-2-line"></i> Today's KPIs <span class="cnt">live</span></button>
+          <button class="t" data-pane="activities"><i class="ri-list-check-3"></i> Activities <span class="cnt">7</span></button>
+          <button class="t" data-pane="assigned"><i class="ri-team-line"></i> Assigned agents <span class="cnt">6</span></button>
+          <button class="t" data-pane="history"><i class="ri-line-chart-line"></i> Trend <span class="cnt">30d</span></button>
+        </div>
+
+        <!-- ============================================================
+             PANE: TODAY'S KPI HEATMAP
+             ============================================================ -->
+        <div class="atd-pane active" data-pane="kpi">
+
+          <div class="atd-section-head">
+            <h2>Today's compliance heatmap</h2>
+            <span class="meta">Each row is an agent. Numeric cells show <strong>actual / target</strong>; <span style="color:var(--color-error-700);">*</span> marks mandatory. Cell color reflects target attainment.</span>
+            <span class="spacer"></span>
+            <div class="day-pick">
+              <button>Mon</button>
+              <button>Tue</button>
+              <button>Wed</button>
+              <button>Thu</button>
+              <button class="on">Today · Fri</button>
+            </div>
+          </div>
+
+          <div class="heat-wrap">
+            <table class="heat">
+              <thead>
+                <tr>
+                  <th class="agent-h">Agent</th>
+                  <th class="act-h is-mandatory"><span class="nm">Calls</span><span class="tg">target 15</span></th>
+                  <th class="act-h is-mandatory"><span class="nm">Visits</span><span class="tg">target 3</span></th>
+                  <th class="act-h is-mandatory"><span class="nm">Shares</span><span class="tg">target 5</span></th>
+                  <th class="act-h is-mandatory"><span class="nm">Notes</span><span class="tg">required</span></th>
+                  <th class="act-h is-mandatory"><span class="nm">Pipeline review</span><span class="tg">required</span></th>
+                  <th class="act-h"><span class="nm">New prospects</span><span class="tg">target 2</span></th>
+                  <th class="act-h"><span class="nm">EOD report</span><span class="tg">optional</span></th>
+                  <th class="score-h">Day score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-brand-700);">JE</span>Jordan Evans <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill exceeded">18<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill met">3<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill exceeded">7<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill exceeded">3<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="score-c"><span class="pct is-good">112%</span><span class="day-bar is-good"><span style="width:100%;"></span></span></td>
+                </tr>
+
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-blue-600);">MO</span>Marcus Owusu <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill met">15<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill met">3<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill met">5<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill partial">1<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill zero">—</span></td>
+                  <td class="score-c"><span class="pct is-good">100%</span><span class="day-bar is-good"><span style="width:100%;"></span></span></td>
+                </tr>
+
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-pink-600);">SN</span>Sara Ndong <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill exceeded">22<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill exceeded">5<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill exceeded">8<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill exceeded">4<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="score-c"><span class="pct is-good">128%</span><span class="day-bar is-good"><span style="width:100%;"></span></span></td>
+                </tr>
+
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-orange-600);">DP</span>Daniel Park <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill partial">9<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill met">3<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill partial">3<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill bool-no">✗</span></td>
+                  <td class="cell"><span class="pill zero">0<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill zero">—</span></td>
+                  <td class="score-c"><span class="pct is-warn">66%</span><span class="day-bar is-warn"><span style="width:66%;"></span></span></td>
+                </tr>
+
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-success-700);">AB</span>Adwoa Boateng <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill met">15<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill partial">2<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill met">5<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="cell"><span class="pill met">2<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">✓</span></td>
+                  <td class="score-c"><span class="pct is-good">93%</span><span class="day-bar is-good"><span style="width:93%;"></span></span></td>
+                </tr>
+
+                <tr>
+                  <td class="agent-c"><span class="ava" style="background:var(--color-grey-600);">RC</span>Rosa Chen <span class="role">· Sales</span></td>
+                  <td class="cell"><span class="pill zero">0<span class="frac">/15</span></span></td>
+                  <td class="cell"><span class="pill zero">0<span class="frac">/3</span></span></td>
+                  <td class="cell"><span class="pill zero">0<span class="frac">/5</span></span></td>
+                  <td class="cell"><span class="pill bool-no">✗</span></td>
+                  <td class="cell"><span class="pill bool-no">✗</span></td>
+                  <td class="cell"><span class="pill zero">0<span class="frac">/2</span></span></td>
+                  <td class="cell"><span class="pill zero">—</span></td>
+                  <td class="score-c"><span class="pct is-bad">0%</span><span class="day-bar is-bad"><span style="width:4%;"></span></span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="agent-c">Team total</td>
+                  <td class="cell"><span class="pill met">79<span class="frac">/90</span></span></td>
+                  <td class="cell"><span class="pill met">16<span class="frac">/18</span></span></td>
+                  <td class="cell"><span class="pill met">28<span class="frac">/30</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">5/6</span></td>
+                  <td class="cell"><span class="pill bool-yes">4/6</span></td>
+                  <td class="cell"><span class="pill partial">10<span class="frac">/12</span></span></td>
+                  <td class="cell"><span class="pill bool-yes">3/6</span></td>
+                  <td class="score-c"><span class="pct is-good">83%</span><span class="day-bar is-good"><span style="width:83%;"></span></span></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div style="display:flex; gap:18px; align-items:center; padding:14px 0 0; font: 500 11.5px var(--font-sans); color: var(--fg3);">
+            <strong style="color:var(--color-grey-700);">Legend:</strong>
+            <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:3px; background:var(--color-success-200);"></span>Exceeded target</span>
+            <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:3px; background:var(--color-success-100);"></span>Met target</span>
+            <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:3px; background:var(--color-warning-100);"></span>Partial</span>
+            <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:3px; background:var(--color-grey-100);"></span>Not started</span>
+            <span style="display:inline-flex; gap:6px; align-items:center;"><span style="color:var(--color-error-600); font-weight:700;">*</span>Mandatory — counts toward complete-day rate</span>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             PANE: ACTIVITIES (editor)
+             ============================================================ -->
+        <div class="atd-pane" data-pane="activities">
+          <div class="atd-section-head">
+            <h2>Activities in this template</h2>
+            <span class="meta">Drag to reorder · click an activity to inline-edit · the source determines how each KPI is auto-counted.</span>
+          </div>
+
+          <div class="act-editor">
+
+            <div class="act-card is-mandatory">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="Prospect calls" />
+                <span class="src"><i class="ri-link"></i> Source: Prospect timeline · <strong>Call</strong></span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>calls_per_day</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">15 <small>calls</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card is-mandatory">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="Site visits scheduled" />
+                <span class="src"><i class="ri-link"></i> Source: Prospect timeline · <strong>Visit</strong></span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>visits_per_day</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">3 <small>visits</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card is-mandatory">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="Listings shared with prospects" />
+                <span class="src"><i class="ri-link"></i> Source: <strong>Listing share</strong> event</span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>shares_per_day</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">5 <small>shares</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card is-mandatory">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="Update prospect notes" />
+                <span class="src"><i class="ri-link"></i> Source: Prospect timeline · <strong>Note</strong></span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>notes_logged_today</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">— <small>boolean</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card is-mandatory">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="Pipeline review with manager" />
+                <span class="src"><i class="ri-link"></i> Source: <strong>Manual log</strong> · pipeline review</span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>pipeline_review_today</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">— <small>boolean</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle on" type="button"><i class="ri-asterisk"></i> Mandatory</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="New prospects added" />
+                <span class="src"><i class="ri-link"></i> Source: <strong>Prospect created</strong></span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>new_prospects_per_day</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">2 <small>prospects</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle" type="button"><i class="ri-asterisk"></i> Optional</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <div class="act-card">
+              <span class="drag"><i class="ri-draggable"></i></span>
+              <div class="name">
+                <input class="ti" value="End-of-day report" />
+                <span class="src"><i class="ri-link"></i> Source: <strong>Manual log</strong> · EOD form</span>
+              </div>
+              <div class="kpi-out">
+                <span class="lab">Derived KPI</span>
+                <code>eod_report_today</code>
+              </div>
+              <div class="target">
+                <span class="lab">Daily target</span>
+                <span class="v">— <small>boolean</small></span>
+              </div>
+              <div class="mand-wrap">
+                <span class="lab">Required</span>
+                <button class="mand-toggle" type="button"><i class="ri-asterisk"></i> Optional</button>
+              </div>
+              <button class="kebab"><i class="ri-more-2-fill"></i></button>
+            </div>
+
+            <button class="act-add-btn" id="addActBtn" type="button">
+              <i class="ri-add-line"></i> Add activity
+            </button>
+
+          </div>
+        </div>
+
+        <!-- ============================================================
+             PANE: ASSIGNED AGENTS
+             ============================================================ -->
+        <div class="atd-pane" data-pane="assigned">
+          <div class="atd-section-head">
+            <h2>Agents assigned to this template</h2>
+            <span class="meta">Today's day-score appears live next to each agent.</span>
+            <span class="spacer"></span>
+            <button class="btn btn-secondary"><i class="ri-user-add-line"></i> Assign agent</button>
+          </div>
+
+          <div class="assign-grid">
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-brand-700);">JE</span>
+              <div>
+                <div class="nm">Jordan Evans</div>
+                <div class="meta">Sales · Austin, TX</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">112%</div>
+                <div class="since">Today · 7-day avg 98%</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-blue-600);">MO</span>
+              <div>
+                <div class="nm">Marcus Owusu</div>
+                <div class="meta">Sales · Accra, GH</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">100%</div>
+                <div class="since">Today · 7-day avg 91%</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-pink-600);">SN</span>
+              <div>
+                <div class="nm">Sara Ndong</div>
+                <div class="meta">Sales · Dakar, SN</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">128%</div>
+                <div class="since">Today · 7-day avg 119%</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-orange-600);">DP</span>
+              <div>
+                <div class="nm">Daniel Park</div>
+                <div class="meta">Sales · Houston, TX</div>
+              </div>
+              <div class="right">
+                <div class="pct is-warn">66%</div>
+                <div class="since">Today · 7-day avg 78%</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-success-700);">AB</span>
+              <div>
+                <div class="nm">Adwoa Boateng</div>
+                <div class="meta">Sales · Tema, GH</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">93%</div>
+                <div class="since">Today · 7-day avg 95%</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-grey-600);">RC</span>
+              <div>
+                <div class="nm">Rosa Chen</div>
+                <div class="meta">Sales · Seattle, WA</div>
+              </div>
+              <div class="right">
+                <div class="pct is-bad">0%</div>
+                <div class="since">Out of office · returns Mon</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             PANE: TREND (30-day history)
+             ============================================================ -->
+        <div class="atd-pane" data-pane="history">
+          <div class="atd-section-head">
+            <h2>30-day team compliance trend</h2>
+            <span class="meta">Daily mandatory-completion rate, averaged across all assigned agents.</span>
+          </div>
+
+          <div class="trend-card">
+            <h3>Mandatory completion · last 30 days</h3>
+            <div class="sb">Bars below 60% are flagged as <strong style="color:var(--color-warning-700);">at-risk days</strong> and trigger a manager nudge.</div>
+            <svg class="trend-svg" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true">
+              <!-- 30 bars -->
+              <g>
+                <!-- generated barely-styled bars (simple inline) -->
+                <!-- We hand-place 30 bars across width 600 -->
+                <!-- bar widths: 14px each, gap 6px → 30*20 = 600 -->
+                <!-- y from 200 (bottom). max bar height 180. -->
+                <!-- Pseudo-data: build a believable trend rising then dipping then steady-good -->
+                <!-- helper: y = 200 - h ; baseline 200 -->
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="3"   y="60"  width="14" height="140"></rect>
+                  <rect x="23"  y="48"  width="14" height="152"></rect>
+                  <rect x="43"  y="56"  width="14" height="144"></rect>
+                </g>
+                <g fill="var(--color-warning-500, #f59e0b)">
+                  <rect x="63"  y="100" width="14" height="100"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="83"  y="40"  width="14" height="160"></rect>
+                  <rect x="103" y="36"  width="14" height="164"></rect>
+                </g>
+                <g fill="var(--color-grey-200, #e5e7eb)">
+                  <rect x="123" y="80"  width="14" height="120"></rect>
+                  <rect x="143" y="80"  width="14" height="120"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="163" y="44"  width="14" height="156"></rect>
+                  <rect x="183" y="50"  width="14" height="150"></rect>
+                  <rect x="203" y="38"  width="14" height="162"></rect>
+                </g>
+                <g fill="var(--color-error-500, #dc2626)">
+                  <rect x="223" y="120" width="14" height="80"></rect>
+                </g>
+                <g fill="var(--color-warning-500, #f59e0b)">
+                  <rect x="243" y="98"  width="14" height="102"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="263" y="42"  width="14" height="158"></rect>
+                  <rect x="283" y="36"  width="14" height="164"></rect>
+                </g>
+                <g fill="var(--color-grey-200, #e5e7eb)">
+                  <rect x="303" y="80"  width="14" height="120"></rect>
+                  <rect x="323" y="80"  width="14" height="120"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="343" y="34"  width="14" height="166"></rect>
+                  <rect x="363" y="30"  width="14" height="170"></rect>
+                  <rect x="383" y="32"  width="14" height="168"></rect>
+                  <rect x="403" y="28"  width="14" height="172"></rect>
+                </g>
+                <g fill="var(--color-warning-500, #f59e0b)">
+                  <rect x="423" y="92"  width="14" height="108"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="443" y="34"  width="14" height="166"></rect>
+                </g>
+                <g fill="var(--color-grey-200, #e5e7eb)">
+                  <rect x="463" y="80"  width="14" height="120"></rect>
+                  <rect x="483" y="80"  width="14" height="120"></rect>
+                </g>
+                <g fill="var(--color-success-500, #16a34a)">
+                  <rect x="503" y="30"  width="14" height="170"></rect>
+                  <rect x="523" y="26"  width="14" height="174"></rect>
+                  <rect x="543" y="32"  width="14" height="168"></rect>
+                  <rect x="563" y="34"  width="14" height="166"></rect>
+                  <rect x="583" y="20"  width="14" height="180"></rect>
+                </g>
+                <!-- target line at 80% (y=40) -->
+                <line x1="0" x2="600" y1="40" y2="40"
+                      stroke="var(--color-grey-400, #9ca3af)" stroke-width="1" stroke-dasharray="4 4" />
+              </g>
+            </svg>
+            <div style="display:flex; gap:16px; align-items:center; padding-top:12px; font: 500 11.5px var(--font-sans); color: var(--fg3);">
+              <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:2px; background:var(--color-success-500);"></span>≥80%</span>
+              <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:2px; background:var(--color-warning-500);"></span>60–79%</span>
+              <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:2px; background:var(--color-error-500);"></span>&lt;60% (at-risk)</span>
+              <span style="display:inline-flex; gap:6px; align-items:center;"><span style="width:12px; height:12px; border-radius:2px; background:var(--color-grey-200);"></span>Weekend (off)</span>
+              <span style="margin-left:auto;">--- target line · 80%</span>
+            </div>
+          </div>
+
+          <div class="atd-section-head" style="margin-top:18px;">
+            <h2>Top movers · last 7 days</h2>
+            <span class="meta">Largest week-over-week changes among assigned agents.</span>
+          </div>
+
+          <div class="assign-grid">
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-pink-600);">SN</span>
+              <div>
+                <div class="nm">Sara Ndong</div>
+                <div class="meta">Sales · 7d avg 119%</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">+24pt</div>
+                <div class="since">vs prior week</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-orange-600);">DP</span>
+              <div>
+                <div class="nm">Daniel Park</div>
+                <div class="meta">Sales · 7d avg 78%</div>
+              </div>
+              <div class="right">
+                <div class="pct is-bad">−16pt</div>
+                <div class="since">vs prior week</div>
+              </div>
+            </div>
+            <div class="assign-card">
+              <span class="ava" style="background:var(--color-brand-700);">JE</span>
+              <div>
+                <div class="nm">Jordan Evans</div>
+                <div class="meta">Sales · 7d avg 98%</div>
+              </div>
+              <div class="right">
+                <div class="pct is-good">+9pt</div>
+                <div class="since">vs prior week</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+(function(){
+  // Tabs
+  var tabs = document.querySelectorAll('#tabs .t');
+  var panes = document.querySelectorAll('.atd-pane');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      panes.forEach(function(p){ p.classList.remove('active'); });
+      t.classList.add('active');
+      var p = document.querySelector('.atd-pane[data-pane="' + t.dataset.pane + '"]');
+      if (p) p.classList.add('active');
+    });
+  });
+
+  // Day picker
+  document.querySelectorAll('.day-pick button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.day-pick button').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+    });
+  });
+
+  // Toast
+  var stack = document.getElementById('toastStack');
+  function toast(msg){
+    var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+    stack.appendChild(el); setTimeout(function(){ el.remove(); }, 4000);
+  }
+  document.querySelectorAll('.btn').forEach(function(b){
+    b.addEventListener('click', function(e){
+      if (b.tagName === 'A') return;
+      var t = b.textContent.trim().replace(/\s+/g,' ');
+      if (b.id === 'btnEdit') { document.querySelector('[data-pane="activities"].t').click(); return; }
+      toast(t + ' (demo)');
+    });
+  });
+
+  // Mandatory toggle
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('.mand-toggle');
+    if (!t) return;
+    t.classList.toggle('on');
+    var card = t.closest('.act-card');
+    if (t.classList.contains('on')) {
+      t.innerHTML = '<i class="ri-asterisk"></i> Mandatory';
+      if (card) card.classList.add('is-mandatory');
+    } else {
+      t.innerHTML = '<i class="ri-asterisk"></i> Optional';
+      if (card) card.classList.remove('is-mandatory');
+    }
+  });
+
+  // Add activity
+  document.getElementById('addActBtn').addEventListener('click', function(){
+    var addBtn = document.getElementById('addActBtn');
+    var card = document.createElement('div');
+    card.className = 'act-card';
+    card.innerHTML =
+      '<span class="drag"><i class="ri-draggable"></i></span>' +
+      '<div class="name">' +
+        '<input class="ti" placeholder="New activity name…" />' +
+        '<span class="src"><i class="ri-link"></i> Source: <strong>Manual log</strong></span>' +
+      '</div>' +
+      '<div class="kpi-out"><span class="lab">Derived KPI</span><code>new_kpi</code></div>' +
+      '<div class="target"><span class="lab">Daily target</span><span class="v">1 <small>per day</small></span></div>' +
+      '<div class="mand-wrap"><span class="lab">Required</span><button class="mand-toggle" type="button"><i class="ri-asterisk"></i> Optional</button></div>' +
+      '<button class="kebab"><i class="ri-more-2-fill"></i></button>';
+    addBtn.parentElement.insertBefore(card, addBtn);
+    card.querySelector('.ti').focus();
+  });
+
+})();
+</script>
+
+</body>
+</html>

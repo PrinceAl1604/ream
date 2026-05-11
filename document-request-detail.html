@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Document request</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<style>
+  /* ============================================================
+     Document request detail — tab convention (mirrors customer-detail)
+     ============================================================ */
+  .drd-hero {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    gap: 16px; align-items: start;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .drd-hero .ava {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--color-warning-700);
+    background: var(--color-warning-50); border: 1px solid var(--color-warning-100, #fde68a);
+  }
+  .drd-hero h1 { margin: 0; font: 600 22px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .drd-hero .meta { display: flex; flex-wrap: wrap; gap: 14px; font: 12.5px var(--font-sans); color: var(--fg3); margin-top: 6px; }
+  .drd-hero .meta i { font-size: 14px; margin-right: 4px; vertical-align: -2px; color: var(--fg4); }
+  .drd-hero .meta a { color: var(--color-brand-600); text-decoration: none; }
+  .drd-hero .meta a:hover { text-decoration: underline; }
+  .drd-hero .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+  .drd-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 11px var(--font-sans);
+    padding: 3px 9px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .drd-status[data-state="overdue"]   { background: #fee2e2; color: #991b1b; }
+  .drd-status[data-state="awaiting"]  { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .drd-status[data-state="review"]    { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .drd-status[data-state="complete"]  { background: var(--color-success-50); color: var(--color-success-700); }
+  .drd-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* KPI strip */
+  .drd-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+  .drd-kpis .card { padding: 14px 16px; }
+  .drd-kpis .card-title { font-size: 12px; margin-bottom: 4px; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
+  .drd-kpis .card-value { font-size: 22px; font-weight: 700; color: var(--color-grey-900); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .drd-kpis .delta { font-size: 11px; margin-top: 4px; color: var(--fg3); }
+  .drd-kpis .delta.warn { color: var(--color-warning-700); }
+  .drd-kpis .delta.err  { color: #991b1b; }
+  .drd-kpis .delta.ok   { color: var(--color-success-700); }
+
+  /* Tabs (matches cd-tabs in customer-detail) */
+  .drd-tabs { display: flex; gap: 2px; margin-top: 18px; border-bottom: 1px solid var(--border-default); }
+  .drd-tab {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 10px 14px; font: 500 13px var(--font-sans); color: var(--fg3);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .drd-tab i { font-size: 15px; }
+  .drd-tab:hover { color: var(--color-grey-900); }
+  .drd-tab.on { color: var(--color-brand-700); border-bottom-color: var(--color-brand-700); font-weight: 600; }
+  .drd-tab .cnt {
+    font: 600 10.5px var(--font-sans);
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    padding: 1px 7px; border-radius: 999px; margin-left: 2px;
+  }
+  .drd-tab.on .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+  .drd-pane[hidden] { display: none; }
+  .drd-pane { padding-top: 18px; }
+  .drd-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
+  .drd-grid > section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+  /* Section header (wrapper-less) */
+  .drd-sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+  .drd-sec-head h3 { margin: 0; font: 600 14px var(--font-sans); color: var(--color-grey-900); display: inline-flex; align-items: center; gap: 8px; }
+  .drd-sec-head h3 i { color: var(--fg3); font-size: 16px; }
+  .drd-sec-head h3 .sub { font: 500 12px var(--font-sans); color: var(--fg3); margin-left: 4px; }
+  .drd-sec-head .meta { font: 500 12px var(--font-sans); color: var(--fg3); }
+  .drd-sec-head .meta a { color: var(--color-brand-600); text-decoration: none; cursor: pointer; }
+  .drd-sec-head .meta a:hover { text-decoration: underline; }
+
+  /* Panel base (used in Overview) */
+  .drd-panel { background: white; border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden; }
+  .drd-panel > header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+  }
+  .drd-panel > header h3 { margin: 0; flex: 1; font: 600 13px var(--font-sans); color: var(--color-grey-900); display: inline-flex; align-items: center; gap: 8px; }
+  .drd-panel > header h3 i { color: var(--fg3); font-size: 15px; }
+  .drd-panel > header .meta { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+  .drd-panel > header .meta a { color: var(--color-brand-600); text-decoration: none; cursor: pointer; }
+  .drd-panel > header .meta a:hover { text-decoration: underline; }
+  .drd-panel > .body { padding: 14px 16px; }
+  .drd-panel > .body.flush { padding: 0; }
+
+  /* Wrapper-less docs / activity (tab panes get a single bordered card) */
+  .drd-pane > .drd-docs, .drd-pane > .drd-timeline {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden;
+  }
+
+  /* Progress card */
+  .drd-progress {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .drd-progress .lab { display: flex; justify-content: space-between; align-items: baseline; font: 13px var(--font-sans); color: var(--fg3); margin-bottom: 10px; }
+  .drd-progress .lab b { color: var(--color-grey-900); font-weight: 600; font: 600 16px var(--font-sans); font-variant-numeric: tabular-nums; }
+  .drd-progress .bar { height: 8px; border-radius: 4px; background: var(--color-grey-100); overflow: hidden; }
+  .drd-progress .bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--color-warning-500, #f59e0b), var(--color-warning-700, #b45309));
+    border-radius: 4px;
+  }
+  .drd-progress .legend { display: flex; gap: 18px; margin-top: 12px; font: 12px var(--font-sans); flex-wrap: wrap; }
+  .drd-progress .legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--fg3); }
+  .drd-progress .legend i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .drd-progress .legend .ok    { color: var(--color-success-600); }
+  .drd-progress .legend .warn  { color: var(--color-warning-700); }
+  .drd-progress .legend .late  { color: #991b1b; }
+  .drd-progress .legend .future{ color: var(--fg3); }
+
+  /* Documents list */
+  .drd-docs { display: flex; flex-direction: column; }
+  .drd-docs .doc {
+    display: grid; grid-template-columns: 36px 1fr auto auto;
+    gap: 12px; align-items: center;
+    padding: 14px 16px; border-bottom: 1px solid var(--border-subtle);
+  }
+  .drd-docs .doc:last-child { border-bottom: 0; }
+  .drd-docs .ic {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .drd-docs .ic[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .drd-docs .ic[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .drd-docs .ic[data-tone="error"]   { background: #fee2e2; color: #991b1b; }
+  .drd-docs .ic[data-tone="muted"]   { background: var(--color-grey-100); color: var(--color-grey-700); }
+  .drd-docs .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); margin-bottom: 2px; }
+  .drd-docs .sb { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .drd-docs .sb b { color: var(--color-grey-800); font-weight: 600; }
+  .drd-docs .pill {
+    font: 600 10.5px var(--font-sans);
+    padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .drd-docs .pill[data-state="received"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .drd-docs .pill[data-state="review"]   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .drd-docs .pill[data-state="awaiting"] { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .drd-docs .pill[data-state="overdue"]  { background: #fee2e2; color: #991b1b; }
+  .drd-docs .doc-actions { display: inline-flex; gap: 4px; }
+  .drd-docs .doc-actions button {
+    background: transparent; border: 0; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 6px;
+    color: var(--fg3); font-size: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .12s, color .12s;
+  }
+  .drd-docs .doc-actions button:hover { background: var(--color-grey-100); color: var(--color-grey-800); }
+  .drd-docs .doc-actions button[data-tone="brand"]:hover { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+  /* Timeline */
+  .drd-timeline { display: flex; flex-direction: column; }
+  .drd-timeline .item {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+  }
+  .drd-timeline .item:last-child { border-bottom: 0; }
+  .drd-timeline .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    background: var(--color-grey-100); color: var(--color-grey-700);
+  }
+  .drd-timeline .ic[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .drd-timeline .ic[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .drd-timeline .ic[data-tone="brand"]   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .drd-timeline .ic[data-tone="error"]   { background: #fee2e2; color: #991b1b; }
+  .drd-timeline .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); line-height: 1.3; }
+  .drd-timeline .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.4; }
+  .drd-timeline .sb b { color: var(--color-grey-800); font-weight: 600; }
+  .drd-timeline .when { font: 500 11.5px var(--font-sans); color: var(--fg3); white-space: nowrap; }
+
+  /* Composer (mirrors customer-detail cd-composer) */
+  .drd-composer {
+    background: white; border: 1px solid var(--color-grey-200); border-radius: 10px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
+  }
+  .drd-comp-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border-subtle); margin: -4px -4px 0; padding: 0 4px; }
+  .drd-comp-tab {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 8px 12px; font: 500 12.5px var(--font-sans); color: var(--fg3);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .drd-comp-tab i { font-size: 14px; }
+  .drd-comp-tab:hover { color: var(--color-grey-900); }
+  .drd-comp-tab.on { color: var(--color-brand-700); border-bottom-color: var(--color-brand-700); font-weight: 600; }
+  .drd-composer textarea {
+    width: 100%; min-height: 72px; resize: vertical; box-sizing: border-box;
+    border: 1px solid var(--color-grey-200); border-radius: 8px;
+    padding: 10px 12px; font: 13px var(--font-sans); color: var(--color-grey-900);
+    background: white; outline: none;
+  }
+  .drd-composer textarea:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .drd-comp-foot { display: flex; align-items: center; gap: 6px; }
+  .drd-comp-foot .ico {
+    background: transparent; border: 1px solid var(--border-default); border-radius: 6px;
+    width: 30px; height: 30px; cursor: pointer; color: var(--fg3); font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .drd-comp-foot .ico:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+  .drd-comp-foot .grow { flex: 1; }
+
+  /* KV */
+  .drd-kv { display: grid; grid-template-columns: 130px 1fr; gap: 10px 16px; font: 13px var(--font-sans); }
+  .drd-kv dt { color: var(--fg3); font-weight: 500; }
+  .drd-kv dd { margin: 0; color: var(--color-grey-900); }
+  .drd-kv dd a { color: var(--color-brand-600); text-decoration: none; }
+  .drd-kv dd a:hover { text-decoration: underline; }
+  .drd-due {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px; border-radius: 999px;
+    background: #fee2e2; color: #991b1b;
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  /* Person card */
+  .drd-person {
+    display: flex; gap: 12px; align-items: center; padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .drd-person .ava {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font: 700 15px var(--font-sans);
+    background: var(--color-brand-700);
+  }
+  .drd-person .nm { font: 600 14px var(--font-sans); color: var(--color-grey-900); }
+  .drd-person .sb { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+
+  /* Modal (functional dialogs) */
+  .drd-modal-bg {
+    position: fixed; inset: 0; background: rgba(15,23,42,.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 80; padding: 20px;
+  }
+  .drd-modal-bg[hidden] { display: none; }
+  .drd-modal {
+    background: white; border-radius: 14px; max-width: 460px; width: 100%;
+    box-shadow: 0 24px 60px rgba(15,23,42,.24);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .drd-modal header { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+  .drd-modal header h3 { margin: 0; font: 600 15px var(--font-sans); color: var(--color-grey-900); }
+  .drd-modal header button { background: transparent; border: 0; cursor: pointer; color: var(--fg3); font-size: 18px; }
+  .drd-modal .body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .drd-modal label { font: 500 12px var(--font-sans); color: var(--fg3); display: block; margin-bottom: 4px; }
+  .drd-modal input, .drd-modal select, .drd-modal textarea {
+    width: 100%; box-sizing: border-box;
+    border: 1px solid var(--color-grey-200); border-radius: 8px;
+    padding: 9px 11px; font: 13px var(--font-sans); color: var(--color-grey-900); outline: none;
+  }
+  .drd-modal input:focus, .drd-modal select:focus, .drd-modal textarea:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .drd-modal footer { padding: 12px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px; background: var(--color-grey-50); }
+</style>
+</head>
+<body>
+<div data-screen-label="Document Request Detail">
+  <div class="app">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item active" href="document-requests.html"><i class="ri-file-text-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <a href="document-requests.html">Document requests</a>
+          <span class="sep">/</span>
+          <span class="current">Joseph Mensah · L-00214</span>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- Hero -->
+        <div class="drd-hero">
+          <span class="ava"><i class="ri-file-text-line"></i></span>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h1>Onboarding documents — Joseph Mensah</h1>
+              <span class="drd-status" data-state="overdue"><span class="dot"></span> Overdue · 4 d</span>
+            </div>
+            <div class="meta">
+              <span><i class="ri-bank-line"></i> Loan <a href="loan-detail-admin.html">#L-00214</a></span>
+              <span><i class="ri-user-line"></i> Customer <a href="customer-detail.html">Joseph Mensah</a></span>
+              <span><i class="ri-user-star-line"></i> Assigned to Aïssa Diallo</span>
+              <span><i class="ri-calendar-event-line"></i> Created May 12 · Due Jun 4</span>
+              <span><i class="ri-mail-send-line"></i> 3 reminders sent</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnReassign"><i class="ri-user-shared-line"></i> Reassign</button>
+            <button class="btn btn-secondary" id="btnExtend"><i class="ri-calendar-event-line"></i> Extend due</button>
+            <button class="btn btn-primary" id="btnRemind"><i class="ri-mail-send-line"></i> Send reminder</button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="drd-kpis">
+          <div class="card"><div class="card-title">Documents</div><div class="card-value" id="kpiDocs">2/4</div><div class="delta">received of requested</div></div>
+          <div class="card"><div class="card-title">Overdue</div><div class="card-value" style="color:#991b1b;">1</div><div class="delta err">4 days late</div></div>
+          <div class="card"><div class="card-title">Reminders</div><div class="card-value">3</div><div class="delta">last sent Jun 6</div></div>
+          <div class="card"><div class="card-title">Days open</div><div class="card-value">26</div><div class="delta warn">since May 12</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="drd-tabs" role="tablist" id="drdTabs">
+          <button class="drd-tab on" data-tab="overview"><i class="ri-layout-line"></i> Overview</button>
+          <button class="drd-tab" data-tab="documents"><i class="ri-file-list-3-line"></i> Documents <span class="cnt" id="cntDocs">4</span></button>
+          <button class="drd-tab" data-tab="activity"><i class="ri-pulse-line"></i> Activity <span class="cnt" id="cntAct">5</span></button>
+          <button class="drd-tab" data-tab="details"><i class="ri-information-line"></i> Details</button>
+        </div>
+
+        <!-- ===== OVERVIEW ===== -->
+        <div class="drd-pane" data-pane="overview">
+
+          <!-- Progress -->
+          <div class="drd-progress">
+            <div class="lab">
+              <span>Submission progress</span>
+              <b id="progressLabel">2 of 4 documents received</b>
+            </div>
+            <div class="bar"><span id="progressBar" style="width: 50%;"></span></div>
+            <div class="legend">
+              <span class="ok"><i></i> 2 received</span>
+              <span class="warn"><i></i> 1 awaiting</span>
+              <span class="late"><i></i> 1 overdue</span>
+              <span class="future"><i></i> 0 upcoming</span>
+            </div>
+          </div>
+
+          <div class="drd-grid">
+            <section>
+              <!-- Outstanding documents preview -->
+              <div class="drd-panel">
+                <header>
+                  <h3><i class="ri-error-warning-line"></i> Outstanding</h3>
+                  <span class="meta"><a data-jump="documents">All documents →</a></span>
+                </header>
+                <div class="body flush drd-docs">
+                  <div class="doc">
+                    <span class="ic" data-tone="warn"><i class="ri-file-text-line"></i></span>
+                    <div>
+                      <div class="nm">Pay stubs · last 6 months</div>
+                      <div class="sb">Awaiting upload · <b>3 of 6 pages received</b></div>
+                    </div>
+                    <span class="pill" data-state="awaiting">Awaiting</span>
+                    <div class="doc-actions">
+                      <button title="Send reminder" data-tone="brand" data-action="remind" data-doc="Pay stubs"><i class="ri-mail-send-line"></i></button>
+                    </div>
+                  </div>
+                  <div class="doc">
+                    <span class="ic" data-tone="error"><i class="ri-home-4-line"></i></span>
+                    <div>
+                      <div class="nm">Proof of address</div>
+                      <div class="sb">Due Jun 4 · <b>4 days overdue</b></div>
+                    </div>
+                    <span class="pill" data-state="overdue">Overdue</span>
+                    <div class="doc-actions">
+                      <button title="Send reminder" data-tone="brand" data-action="remind" data-doc="Proof of address"><i class="ri-mail-send-line"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent activity preview -->
+              <div class="drd-panel">
+                <header>
+                  <h3><i class="ri-history-line"></i> Recent activity</h3>
+                  <span class="meta"><a data-jump="activity">All activity →</a></span>
+                </header>
+                <div class="body flush drd-timeline">
+                  <div class="item">
+                    <span class="ic" data-tone="warn"><i class="ri-mail-send-line"></i></span>
+                    <div>
+                      <div class="ti">Reminder email sent</div>
+                      <div class="sb">Sent by <b>Aïssa Diallo</b> · opened 2h later</div>
+                    </div>
+                    <span class="when">Jun 6</span>
+                  </div>
+                  <div class="item">
+                    <span class="ic" data-tone="success"><i class="ri-check-line"></i></span>
+                    <div>
+                      <div class="ti">Bank statement received</div>
+                      <div class="sb">14 pages · auto-verified</div>
+                    </div>
+                    <span class="when">May 18</span>
+                  </div>
+                  <div class="item">
+                    <span class="ic" data-tone="brand"><i class="ri-mail-line"></i></span>
+                    <div>
+                      <div class="ti">Joseph replied via WhatsApp</div>
+                      <div class="sb">"Will send pay stubs by Friday — waiting on HR"</div>
+                    </div>
+                    <span class="when">May 16</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <!-- Person -->
+              <div class="drd-panel">
+                <div class="drd-person">
+                  <span class="ava">JM</span>
+                  <div style="flex:1; min-width:0;">
+                    <div class="nm">Joseph Mensah</div>
+                    <div class="sb">Customer · loan #L-00214</div>
+                  </div>
+                  <a class="btn btn-text btn-sm" href="customer-detail.html">Profile →</a>
+                </div>
+                <div class="body">
+                  <dl class="drd-kv">
+                    <dt>Email</dt>      <dd><a href="mailto:joseph.m@example.com">joseph.m@example.com</a></dd>
+                    <dt>Phone</dt>      <dd>+233 24 555 0214</dd>
+                    <dt>WhatsApp</dt>   <dd>+233 24 555 0214 <span style="font-size:11px;color:var(--fg3);">· prefers</span></dd>
+                    <dt>Best time</dt>  <dd>Evenings, weekends</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <!-- Linked -->
+              <div class="drd-panel">
+                <header><h3><i class="ri-links-line"></i> Linked</h3></header>
+                <div class="body">
+                  <dl class="drd-kv">
+                    <dt>Site</dt>     <dd><a href="site-detail.html">Sunridge · Lot 09A</a></dd>
+                    <dt>Loan</dt>     <dd><a href="loan-detail-admin.html">#L-00214 · $42,000</a></dd>
+                    <dt>Prospect</dt> <dd><a href="prospect-detail.html">Joseph Mensah</a></dd>
+                  </dl>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===== DOCUMENTS (wrapper-less) ===== -->
+        <div class="drd-pane" data-pane="documents" hidden>
+          <div class="drd-sec-head">
+            <h3><i class="ri-file-list-3-line"></i> Requested documents <span class="sub" id="docsSub">2 of 4 received</span></h3>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" id="btnAddDoc"><i class="ri-add-line"></i> Add document</button>
+              <button class="btn btn-secondary btn-sm" id="btnRemindAll"><i class="ri-mail-send-line"></i> Remind for all</button>
+            </div>
+          </div>
+          <div class="drd-docs" id="docsList">
+            <div class="doc">
+              <span class="ic" data-tone="success"><i class="ri-id-card-line"></i></span>
+              <div>
+                <div class="nm">National ID</div>
+                <div class="sb">Submitted May 14 · <b>2.1 MB · PDF</b> · auto-verified</div>
+              </div>
+              <span class="pill" data-state="received">Received</span>
+              <div class="doc-actions">
+                <button title="View" data-action="view" data-doc="National ID"><i class="ri-eye-line"></i></button>
+                <button title="Download" data-action="download" data-doc="National ID"><i class="ri-download-2-line"></i></button>
+                <button title="More" data-action="more" data-doc="National ID"><i class="ri-more-2-fill"></i></button>
+              </div>
+            </div>
+
+            <div class="doc">
+              <span class="ic" data-tone="success"><i class="ri-bank-line"></i></span>
+              <div>
+                <div class="nm">Bank statement · last 3 months</div>
+                <div class="sb">Submitted May 18 · <b>4.8 MB · 14 pages</b> · auto-verified</div>
+              </div>
+              <span class="pill" data-state="received">Received</span>
+              <div class="doc-actions">
+                <button title="View" data-action="view" data-doc="Bank statement"><i class="ri-eye-line"></i></button>
+                <button title="Download" data-action="download" data-doc="Bank statement"><i class="ri-download-2-line"></i></button>
+                <button title="More" data-action="more" data-doc="Bank statement"><i class="ri-more-2-fill"></i></button>
+              </div>
+            </div>
+
+            <div class="doc">
+              <span class="ic" data-tone="warn"><i class="ri-file-text-line"></i></span>
+              <div>
+                <div class="nm">Pay stubs · last 6 months</div>
+                <div class="sb">Awaiting upload · <b>3 of 6 pages received</b> May 21</div>
+              </div>
+              <span class="pill" data-state="awaiting">Awaiting</span>
+              <div class="doc-actions">
+                <button title="Send reminder" data-tone="brand" data-action="remind" data-doc="Pay stubs"><i class="ri-mail-send-line"></i></button>
+                <button title="Upload on behalf" data-action="upload" data-doc="Pay stubs"><i class="ri-upload-2-line"></i></button>
+                <button title="More" data-action="more" data-doc="Pay stubs"><i class="ri-more-2-fill"></i></button>
+              </div>
+            </div>
+
+            <div class="doc">
+              <span class="ic" data-tone="error"><i class="ri-home-4-line"></i></span>
+              <div>
+                <div class="nm">Proof of address</div>
+                <div class="sb">Due Jun 4 · <b>4 days overdue</b> · last reminder Jun 6</div>
+              </div>
+              <span class="pill" data-state="overdue">Overdue</span>
+              <div class="doc-actions">
+                <button title="Send reminder" data-tone="brand" data-action="remind" data-doc="Proof of address"><i class="ri-mail-send-line"></i></button>
+                <button title="Upload on behalf" data-action="upload" data-doc="Proof of address"><i class="ri-upload-2-line"></i></button>
+                <button title="More" data-action="more" data-doc="Proof of address"><i class="ri-more-2-fill"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ACTIVITY (composer + wrapper-less timeline) ===== -->
+        <div class="drd-pane" data-pane="activity" hidden>
+          <!-- Composer -->
+          <div class="drd-composer">
+            <div class="drd-comp-tabs">
+              <button class="drd-comp-tab on" data-comp="note"><i class="ri-sticky-note-line"></i> Note</button>
+              <button class="drd-comp-tab" data-comp="email"><i class="ri-mail-send-line"></i> Email</button>
+              <button class="drd-comp-tab" data-comp="sms"><i class="ri-message-3-line"></i> SMS</button>
+              <button class="drd-comp-tab" data-comp="call"><i class="ri-phone-line"></i> Log call</button>
+            </div>
+            <textarea id="composeText" placeholder="Add a note about this request…"></textarea>
+            <div class="drd-comp-foot">
+              <button class="ico" title="Attach" id="compAttach"><i class="ri-attachment-2"></i></button>
+              <button class="ico" title="Insert template" id="compTemplate"><i class="ri-file-copy-line"></i></button>
+              <button class="ico" title="Mention teammate" id="compMention"><i class="ri-at-line"></i></button>
+              <span class="grow"></span>
+              <button class="btn btn-text btn-sm" id="compClear">Clear</button>
+              <button class="btn btn-primary btn-sm" id="compPost"><i class="ri-send-plane-line"></i> <span id="compPostLabel">Post note</span></button>
+            </div>
+          </div>
+
+          <div class="drd-sec-head">
+            <h3><i class="ri-history-line"></i> Activity <span class="sub">most recent first</span></h3>
+            <div class="meta"><a id="actFilter">Filter ▾</a></div>
+          </div>
+
+          <div class="drd-timeline" id="actList">
+            <div class="item">
+              <span class="ic" data-tone="warn"><i class="ri-mail-send-line"></i></span>
+              <div>
+                <div class="ti">Reminder email sent</div>
+                <div class="sb">"Friendly reminder: 1 document still outstanding" · sent by <b>Aïssa Diallo</b> · opened 2h later</div>
+              </div>
+              <span class="when">Jun 6</span>
+            </div>
+            <div class="item">
+              <span class="ic" data-tone="success"><i class="ri-check-line"></i></span>
+              <div>
+                <div class="ti">Bank statement received</div>
+                <div class="sb">14 pages · auto-verified · matched on name + DOB</div>
+              </div>
+              <span class="when">May 18</span>
+            </div>
+            <div class="item">
+              <span class="ic" data-tone="brand"><i class="ri-mail-line"></i></span>
+              <div>
+                <div class="ti">Joseph replied via WhatsApp</div>
+                <div class="sb">"Will send pay stubs by Friday — waiting on HR"</div>
+              </div>
+              <span class="when">May 16</span>
+            </div>
+            <div class="item">
+              <span class="ic" data-tone="success"><i class="ri-check-line"></i></span>
+              <div>
+                <div class="ti">National ID received</div>
+                <div class="sb">2.1 MB · PDF · auto-verified</div>
+              </div>
+              <span class="when">May 14</span>
+            </div>
+            <div class="item">
+              <span class="ic"><i class="ri-add-line"></i></span>
+              <div>
+                <div class="ti">Request created</div>
+                <div class="sb">4 documents requested · due Jun 4 · created by <b>Aïssa Diallo</b></div>
+              </div>
+              <span class="when">May 12</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DETAILS ===== -->
+        <div class="drd-pane" data-pane="details" hidden>
+          <div class="drd-grid">
+            <section>
+              <div class="drd-panel">
+                <header><h3><i class="ri-information-line"></i> Request</h3><span class="meta"><a id="editDetails">Edit</a></span></header>
+                <div class="body">
+                  <dl class="drd-kv">
+                    <dt>Status</dt>          <dd><span class="drd-due">Overdue · 4 d</span></dd>
+                    <dt>Created</dt>         <dd>May 12, 2025 by Aïssa Diallo</dd>
+                    <dt>Due date</dt>        <dd id="dueDateVal">Jun 4, 2025</dd>
+                    <dt>Assigned to</dt>     <dd id="assigneeVal">Aïssa Diallo · follow-up</dd>
+                    <dt>Loan</dt>            <dd><a href="loan-detail-admin.html">#L-00214 · Sunridge</a></dd>
+                    <dt>Reminder cadence</dt><dd>Every 3 days</dd>
+                    <dt>Reminders sent</dt>  <dd id="remindCount">3 (last Jun 6)</dd>
+                  </dl>
+                </div>
+              </div>
+            </section>
+            <section>
+              <div class="drd-panel">
+                <header><h3><i class="ri-links-line"></i> Linked</h3></header>
+                <div class="body">
+                  <dl class="drd-kv">
+                    <dt>Customer</dt>  <dd><a href="customer-detail.html">Joseph Mensah</a></dd>
+                    <dt>Site</dt>      <dd><a href="site-detail.html">Sunridge · Lot 09A</a></dd>
+                    <dt>Loan</dt>      <dd><a href="loan-detail-admin.html">#L-00214 · $42,000</a></dd>
+                    <dt>Prospect</dt>  <dd><a href="prospect-detail.html">Joseph Mensah</a></dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="drd-panel">
+                <header><h3><i class="ri-shield-check-line"></i> Danger zone</h3></header>
+                <div class="body">
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn btn-secondary" id="btnPause"><i class="ri-pause-line"></i> Pause reminders</button>
+                    <button class="btn btn-secondary" id="btnCancelReq" style="color:#991b1b;"><i class="ri-close-circle-line"></i> Cancel request</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ===== Modals ===== -->
+<div class="drd-modal-bg" id="modalReassign" hidden>
+  <div class="drd-modal" role="dialog" aria-modal="true">
+    <header><h3>Reassign request</h3><button data-close><i class="ri-close-line"></i></button></header>
+    <div class="body">
+      <div><label>Assign to</label>
+        <select id="reassignTo">
+          <option>Aïssa Diallo · follow-up</option>
+          <option>Jordan Evans · sales</option>
+          <option>Sara Ndong · onboarding</option>
+          <option>Marcus Owusu · sales</option>
+          <option>Adwoa Boateng · finance</option>
+        </select></div>
+      <div><label>Note (optional)</label>
+        <textarea rows="3" id="reassignNote" placeholder="Why are you reassigning this?"></textarea></div>
+    </div>
+    <footer>
+      <button class="btn btn-text" data-close>Cancel</button>
+      <button class="btn btn-primary" id="reassignConfirm">Reassign</button>
+    </footer>
+  </div>
+</div>
+
+<div class="drd-modal-bg" id="modalExtend" hidden>
+  <div class="drd-modal" role="dialog" aria-modal="true">
+    <header><h3>Extend due date</h3><button data-close><i class="ri-close-line"></i></button></header>
+    <div class="body">
+      <div><label>New due date</label><input type="date" id="extendDate" value="2025-06-15" /></div>
+      <div><label>Notify customer</label>
+        <label style="display:flex; align-items:center; gap:8px; font:13px var(--font-sans); color:var(--color-grey-900);">
+          <input type="checkbox" id="extendNotify" checked /> Send Joseph an email about the new date
+        </label></div>
+    </div>
+    <footer>
+      <button class="btn btn-text" data-close>Cancel</button>
+      <button class="btn btn-primary" id="extendConfirm">Save</button>
+    </footer>
+  </div>
+</div>
+
+<div class="drd-modal-bg" id="modalAddDoc" hidden>
+  <div class="drd-modal" role="dialog" aria-modal="true">
+    <header><h3>Add document to request</h3><button data-close><i class="ri-close-line"></i></button></header>
+    <div class="body">
+      <div><label>Document type</label>
+        <select id="newDocType">
+          <option>Tax return (last year)</option>
+          <option>Employment letter</option>
+          <option>Utility bill</option>
+          <option>Marriage certificate</option>
+          <option>Reference letter</option>
+          <option>Other…</option>
+        </select></div>
+      <div><label>Notes for customer</label>
+        <textarea rows="3" id="newDocNotes" placeholder="What exactly do they need to send?"></textarea></div>
+    </div>
+    <footer>
+      <button class="btn btn-text" data-close>Cancel</button>
+      <button class="btn btn-primary" id="addDocConfirm">Add to request</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+(function() {
+  const STORAGE_TABS = 'drd:tab:v1';
+
+  function toast(msg, kind) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    const bg = kind === 'success' ? '#065f46' : kind === 'error' ? '#991b1b' : '#1f2937';
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:'+bg+';color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s';
+    document.body.appendChild(t); requestAnimationFrame(()=>t.style.opacity='1');
+    setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2400);
+  }
+
+  // -------- Tabs --------
+  const tabs = document.querySelectorAll('#drdTabs .drd-tab');
+  const panes = document.querySelectorAll('.drd-pane');
+  function showTab(name) {
+    tabs.forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+    panes.forEach(p => p.toggleAttribute('hidden', p.dataset.pane !== name));
+    try { localStorage.setItem(STORAGE_TABS, name); } catch (e) {}
+  }
+  tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  const saved = localStorage.getItem(STORAGE_TABS);
+  if (saved && [...tabs].some(t => t.dataset.tab === saved)) showTab(saved);
+
+  // Overview "→ all docs/activity" links
+  document.querySelectorAll('[data-jump]').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); showTab(a.dataset.jump); });
+  });
+
+  // -------- Modal helpers --------
+  function openModal(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.hidden = false;
+    const first = m.querySelector('input,select,textarea,button');
+    if (first) setTimeout(()=>first.focus(), 30);
+  }
+  function closeModal(m) {
+    if (typeof m === 'string') m = document.getElementById(m);
+    if (m) m.hidden = true;
+  }
+  document.querySelectorAll('.drd-modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) closeModal(bg); });
+    bg.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(bg)));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.drd-modal-bg:not([hidden])').forEach(closeModal);
+  });
+
+  // -------- Hero actions --------
+  let reminderCount = 3;
+  document.getElementById('btnRemind').addEventListener('click', () => {
+    reminderCount += 1;
+    document.getElementById('remindCount').textContent = reminderCount + ' (just now)';
+    toast('Reminder sent to Joseph Mensah', 'success');
+  });
+  document.getElementById('btnReassign').addEventListener('click', () => openModal('modalReassign'));
+  document.getElementById('btnExtend').addEventListener('click', () => openModal('modalExtend'));
+
+  document.getElementById('reassignConfirm').addEventListener('click', () => {
+    const v = document.getElementById('reassignTo').value;
+    document.getElementById('assigneeVal').textContent = v;
+    closeModal('modalReassign');
+    toast('Reassigned to ' + v, 'success');
+  });
+  document.getElementById('extendConfirm').addEventListener('click', () => {
+    const d = document.getElementById('extendDate').value;
+    if (d) {
+      const dd = new Date(d + 'T00:00:00');
+      const formatted = dd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('dueDateVal').textContent = formatted;
+    }
+    closeModal('modalExtend');
+    toast('Due date updated', 'success');
+  });
+
+  // -------- Documents tab --------
+  document.getElementById('btnAddDoc').addEventListener('click', () => openModal('modalAddDoc'));
+  document.getElementById('btnRemindAll').addEventListener('click', () => {
+    reminderCount += 1;
+    document.getElementById('remindCount').textContent = reminderCount + ' (just now)';
+    toast('Reminders sent for 2 outstanding documents', 'success');
+  });
+  document.getElementById('addDocConfirm').addEventListener('click', () => {
+    const type = document.getElementById('newDocType').value;
+    const list = document.getElementById('docsList');
+    const row = document.createElement('div');
+    row.className = 'doc';
+    row.innerHTML = '<span class="ic" data-tone="muted"><i class="ri-file-add-line"></i></span>' +
+      '<div><div class="nm">' + type + '</div><div class="sb">Just added · awaiting upload from Joseph</div></div>' +
+      '<span class="pill" data-state="awaiting">Awaiting</span>' +
+      '<div class="doc-actions">' +
+      '  <button title="Send reminder" data-tone="brand" data-action="remind" data-doc="' + type + '"><i class="ri-mail-send-line"></i></button>' +
+      '  <button title="Upload on behalf" data-action="upload" data-doc="' + type + '"><i class="ri-upload-2-line"></i></button>' +
+      '  <button title="More" data-action="more" data-doc="' + type + '"><i class="ri-more-2-fill"></i></button>' +
+      '</div>';
+    list.appendChild(row);
+    bindDocActions(row);
+
+    // Update counts
+    const cntEl = document.getElementById('cntDocs');
+    cntEl.textContent = String(parseInt(cntEl.textContent, 10) + 1);
+
+    closeModal('modalAddDoc');
+    toast(type + ' added to request', 'success');
+    document.getElementById('newDocNotes').value = '';
+  });
+
+  // Per-doc actions (delegated + initial)
+  function bindDocActions(scope) {
+    scope.querySelectorAll('.doc-actions button').forEach(b => {
+      if (b.__bound) return;
+      b.__bound = true;
+      b.addEventListener('click', () => {
+        const action = b.dataset.action;
+        const doc = b.dataset.doc || 'document';
+        if (action === 'remind') {
+          reminderCount += 1;
+          document.getElementById('remindCount').textContent = reminderCount + ' (just now)';
+          toast('Reminder sent — ' + doc, 'success');
+        } else if (action === 'view') {
+          toast('Opening preview — ' + doc);
+        } else if (action === 'download') {
+          toast('Downloading ' + doc + '…');
+        } else if (action === 'upload') {
+          // Simulate file picker
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.pdf,image/*';
+          input.addEventListener('change', () => {
+            if (input.files.length) toast('Uploaded ' + input.files[0].name + ' for ' + doc, 'success');
+          });
+          input.click();
+        } else if (action === 'more') {
+          toast('Options menu — ' + doc);
+        }
+      });
+    });
+  }
+  bindDocActions(document);
+
+  // -------- Composer --------
+  const compTabs = document.querySelectorAll('.drd-comp-tab');
+  const compText = document.getElementById('composeText');
+  const compPostLabel = document.getElementById('compPostLabel');
+  const placeholders = {
+    note: 'Add a note about this request…',
+    email: 'Subject + body — sent to joseph.m@example.com',
+    sms: 'Quick SMS to +233 24 555 0214…',
+    call: 'Log what was discussed on the call…'
+  };
+  const labels = { note: 'Post note', email: 'Send email', sms: 'Send SMS', call: 'Log call' };
+  const icons = { note: 'ri-sticky-note-line', email: 'ri-mail-send-line', sms: 'ri-message-3-line', call: 'ri-phone-line' };
+  let compMode = 'note';
+  compTabs.forEach(t => t.addEventListener('click', () => {
+    compTabs.forEach(o => o.classList.toggle('on', o === t));
+    compMode = t.dataset.comp;
+    compText.placeholder = placeholders[compMode];
+    compPostLabel.textContent = labels[compMode];
+  }));
+  document.getElementById('compClear').addEventListener('click', () => { compText.value = ''; });
+  document.getElementById('compPost').addEventListener('click', () => {
+    if (!compText.value.trim()) { toast('Type something first'); return; }
+    // Prepend to activity list
+    const list = document.getElementById('actList');
+    const item = document.createElement('div');
+    item.className = 'item';
+    const tones = { note: '', email: ' data-tone="warn"', sms: ' data-tone="brand"', call: ' data-tone="brand"' };
+    const titles = { note: 'Note added', email: 'Email sent to Joseph', sms: 'SMS sent to Joseph', call: 'Call logged' };
+    item.innerHTML = '<span class="ic"' + tones[compMode] + '><i class="' + icons[compMode] + '"></i></span>' +
+      '<div><div class="ti">' + titles[compMode] + '</div><div class="sb">' + compText.value.replace(/</g, '&lt;') + '</div></div>' +
+      '<span class="when">just now</span>';
+    list.prepend(item);
+    const cntEl = document.getElementById('cntAct');
+    cntEl.textContent = String(parseInt(cntEl.textContent, 10) + 1);
+    compText.value = '';
+    toast(labels[compMode] + ' — done', 'success');
+  });
+  document.getElementById('compAttach').addEventListener('click', () => toast('Attach a file…'));
+  document.getElementById('compTemplate').addEventListener('click', () => toast('Pick a template…'));
+  document.getElementById('compMention').addEventListener('click', () => toast('Mention a teammate…'));
+  document.getElementById('actFilter').addEventListener('click', e => { e.preventDefault(); toast('Filter activity by type…'); });
+
+  // -------- Details tab --------
+  document.getElementById('editDetails').addEventListener('click', e => { e.preventDefault(); toast('Editing request details…'); });
+  document.getElementById('btnPause').addEventListener('click', () => toast('Reminders paused — resume any time'));
+  document.getElementById('btnCancelReq').addEventListener('click', () => {
+    if (confirm('Cancel this document request? Joseph will be notified.')) {
+      toast('Request cancelled', 'error');
+    }
+  });
+})();
+</script>
+</body>
+</html>

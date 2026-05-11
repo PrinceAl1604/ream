@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Houses</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Houses</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="houses"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <span class="current">Houses</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search houses…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="lst-hero">
+          <div>
+            <h1 class="page-title">Houses</h1>
+            <div class="sub">Built homes available for sale, financing, or recently transacted. Filter by status to focus on what's actionable today.</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-secondary" onclick="window.location.href='imports.html'"><i class="ri-upload-cloud-2-line"></i> Import</button>
+            <button class="btn btn-primary" data-rw-open="house"><i class="ri-add-line"></i> Add house</button>
+          </div>
+        </div>
+
+        <div class="lst-kpis">
+          <div class="card"><div class="card-title">Total houses</div><div class="card-value">48</div><div class="delta up">+3 this month</div></div>
+          <div class="card"><div class="card-title">Available</div><div class="card-value" style="color: var(--color-success-700);">21</div><div class="delta muted">Open listings</div></div>
+          <div class="card"><div class="card-title">Financed</div><div class="card-value" style="color: var(--color-brand-700);">19</div><div class="delta muted">Active loans</div></div>
+          <div class="card"><div class="card-title">Sold (90d)</div><div class="card-value">8</div><div class="delta up">+2 vs prev</div></div>
+        </div>
+
+        <div class="lst-tabs" id="houseTabs" role="tablist">
+          <button class="tab on" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">8</span></button>
+          <button class="tab" data-type="available"><i class="ri-flashlight-line"></i> Available <span class="cnt">3</span></button>
+          <button class="tab" data-type="financed"><i class="ri-bank-line"></i> Financed <span class="cnt">3</span></button>
+          <button class="tab" data-type="construction"><i class="ri-tools-line"></i> Construction <span class="cnt">1</span></button>
+          <button class="tab" data-type="sold"><i class="ri-shield-check-line"></i> Sold <span class="cnt">1</span></button>
+        </div>
+
+        <div class="lst-toolbar">
+          <div class="lst-search"><i class="ri-search-line"></i><input id="houseSearch" placeholder="Search by name, code, or location…" /></div>
+          <button class="btn btn-secondary btn-sm">Bedrooms ▾</button>
+          <button class="btn btn-secondary btn-sm">Site ▾</button>
+          <button class="btn btn-secondary btn-sm">Price ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <span class="grow"></span>
+          <span class="count"><span id="houseCount">8</span> houses</span>
+          <div class="view"><button class="on" title="Grid"><i class="ri-grid-fill"></i></button><button title="List"><i class="ri-list-unordered"></i></button></div>
+        </div>
+
+        <div class="lst-grid" id="houseGrid">
+
+          <a class="lst-card" data-type="financed" data-img="sunridge" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="financed"><i class="ri-bank-line"></i> FINANCED</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">SR-14B · HOUSE</div>
+              <h4>Sunridge · Lot 14B</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> 14 Ridge Lane, Accra</div>
+              <div class="specs"><span><span class="num">3</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,840</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$75,000</div><div class="price-meta">$48,200 <b>owed</b><br/>Loan <b>#L-00211</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="available" data-img="oakwood" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="new"><i class="ri-sparkling-2-line"></i> NEW LISTING</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">OW-22 · HOUSE</div>
+              <h4>Oakwood · Villa 22</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Oakwood Heights, Accra</div>
+              <div class="specs"><span><span class="num">4</span><span class="lab">bed</span></span><span><span class="num">3</span><span class="lab">bath</span></span><span><span class="num">2,650</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$182,000</div><div class="price-meta">or <b>$1,420</b>/mo<br/>$18,200 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="available" data-img="palm" href="house-detail-public.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> AVAILABLE</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">PG-08 · HOUSE</div>
+              <h4>Palm Grove · Lot 8</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Palm Grove Estate, Tema</div>
+              <div class="specs"><span><span class="num">3</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,620</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$94,500</div><div class="price-meta">or <b>$735</b>/mo<br/>$9,450 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="financed" data-img="riverbend" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="financed"><i class="ri-bank-line"></i> FINANCED</span><button class="fav on" aria-label="Favorite"><i class="ri-heart-fill"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">RB-7A · HOUSE</div>
+              <h4>Riverbend · Lot 7A</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Riverbend Estate, Accra</div>
+              <div class="specs"><span><span class="num">3</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,720</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$68,000</div><div class="price-meta">$31,840 <b>owed</b><br/>Loan <b>#L-00187</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="construction" data-img="northgate" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="construction"><i class="ri-tools-line"></i> CONSTRUCTION · 78%</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">NG-04 · HOUSE</div>
+              <h4>Northgate · Block A4</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Northgate Phase II, Accra</div>
+              <div class="specs"><span><span class="num">4</span><span class="lab">bed</span></span><span><span class="num">3</span><span class="lab">bath</span></span><span><span class="num">2,180</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$132,000</div><div class="price-meta">Hand-over<br/><b>Sep 2025</b></div></div>
+          </a>
+
+          <a class="lst-card" data-type="financed" data-img="tema" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="financed"><i class="ri-bank-line"></i> FINANCED · 32 d late</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">TH-22 · HOUSE</div>
+              <h4>Tema Heights · Lot 22</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Tema Heights, Tema</div>
+              <div class="specs"><span><span class="num">3</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,540</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$78,000</div><div class="price-meta" style="color: var(--color-warning-700);">$58,910 <b>owed</b><br/>+$240 fee</div></div>
+          </a>
+
+          <a class="lst-card" data-type="available" data-img="harbor" href="house-detail-public.html">
+            <div class="img"><span class="badge"><i class="ri-flashlight-line"></i> AVAILABLE</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">HV-12 · HOUSE</div>
+              <h4>Harbor View · Unit 12</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Harbor View, Cape Coast</div>
+              <div class="specs"><span><span class="num">2</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,180</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$58,000</div><div class="price-meta">or <b>$455</b>/mo<br/>$5,800 deposit</div></div>
+          </a>
+
+          <a class="lst-card" data-type="sold" data-img="phoenix" href="house-detail-public.html">
+            <div class="img"><span class="badge" data-tone="sold"><i class="ri-shield-check-line"></i> SOLD · MAR 2025</span><button class="fav" aria-label="Favorite"><i class="ri-heart-line"></i></button></div>
+            <div class="body">
+              <div class="eyebrow">PM-18 · HOUSE</div>
+              <h4>Phoenix Mesa · Lot 18</h4>
+              <div class="loc"><i class="ri-map-pin-line"></i> Phoenix Mesa, Accra</div>
+              <div class="specs"><span><span class="num">3</span><span class="lab">bed</span></span><span><span class="num">2</span><span class="lab">bath</span></span><span><span class="num">1,650</span><span class="lab">sqft</span></span></div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row"><div class="price">$82,400</div><div class="price-meta">Sold to <b>R. Banerjee</b><br/>Mar 14, 2025</div></div>
+          </a>
+
+        </div>
+
+        <div class="lst-empty" id="emptyState" hidden>
+          <i class="ri-search-line"></i>
+          <div class="ti">No houses match those filters</div>
+          <div class="sb">Try clearing the search or switching to All.</div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+document.getElementById('btnExport')?.addEventListener('click',()=>toast('Exporting 48 houses as CSV…'));
+document.querySelectorAll('.icon-btn').forEach(b=>b.addEventListener('click',()=>toast('No new notifications')));
+document.querySelectorAll('.btn.btn-secondary.btn-sm,.btn.btn-text.btn-sm').forEach(b=>b.addEventListener('click',()=>toast('Filter: '+b.textContent.trim())));
+document.querySelectorAll('.lst-card .fav').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();b.classList.toggle('on');b.querySelector('i').className=b.classList.contains('on')?'ri-heart-fill':'ri-heart-line';}));
+document.querySelectorAll('.view button').forEach((btn,i,arr)=>btn.addEventListener('click',()=>{arr.forEach(x=>x.classList.remove('on'));btn.classList.add('on');toast(i===0?'Grid view':'List view');}));
+
+// Tabs + search filtering
+const tabs=document.querySelectorAll('#houseTabs .tab');
+const cards=Array.from(document.querySelectorAll('#houseGrid .lst-card'));
+const searchInput=document.getElementById('houseSearch');
+const countEl=document.getElementById('houseCount');
+const emptyState=document.getElementById('emptyState');
+let activeType='all';let q='';
+function apply(){let n=0;cards.forEach(c=>{const okType=activeType==='all'||c.dataset.type===activeType;const okQ=!q||c.textContent.toLowerCase().includes(q);const show=okType&&okQ;c.style.display=show?'':'none';if(show)n++;});countEl.textContent=n;emptyState.hidden=n>0;}
+tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('on'));t.classList.add('on');activeType=t.dataset.type;apply();}));
+searchInput.addEventListener('input',()=>{q=searchInput.value.trim().toLowerCase();apply();});
+</script>
+<script src="_register-wizards.js"></script>
+</body>
+</html>

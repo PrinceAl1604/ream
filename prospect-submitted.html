@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Application submitted</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<style>
+  .sub-shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+
+  .sub-eyebrow {
+    font: 600 12px var(--font-sans);
+    color: var(--pub-brand);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  /* Success badge */
+  .success-mark {
+    display: flex; align-items: center; justify-content: center;
+    width: 96px; height: 96px;
+    margin: 0 auto 20px;
+    background: #E8EFFA;
+    border: 1px solid #C8D5EA;
+    border-radius: 50%;
+    color: var(--pub-brand-2);
+    font-size: 42px;
+    position: relative;
+  }
+  .success-mark::after {
+    content: "";
+    position: absolute; inset: -10px;
+    border: 1px dashed #C8D5EA;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse { 0%{transform:scale(1); opacity:.6} 100%{transform:scale(1.18); opacity:0} }
+
+  .sub-hero { text-align: center; margin-bottom: 40px; }
+  .sub-hero h1 {
+    font: 700 36px var(--font-sans);
+    color: var(--pub-ink-1);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0 0 14px;
+  }
+  .sub-hero .ref {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    background: var(--pub-canvas-2);
+    border: 1px solid var(--pub-line);
+    color: var(--pub-ink-2);
+    padding: 5px 12px; border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .sub-hero p {
+    font: 16px var(--font-sans);
+    color: var(--pub-ink-3);
+    line-height: 1.6;
+    max-width: 540px; margin: 0 auto;
+  }
+  .sub-hero p strong { color: var(--pub-ink-1); }
+
+  /* Cards */
+  .summary-card,
+  .next-card {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 26px 28px;
+    margin-bottom: 18px;
+  }
+
+  .summary-card h2 {
+    margin: 0 0 6px;
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--pub-ink-4);
+  }
+  .summary-card .land {
+    font: 600 19px var(--font-sans);
+    color: var(--pub-ink-1);
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+  }
+  .summary-card .grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px 32px;
+    border-top: 1px solid var(--pub-line-soft);
+    padding-top: 18px;
+  }
+  .summary-card .grid .row {
+    display: flex; justify-content: space-between; gap: 12px;
+    font: 13.5px var(--font-sans);
+  }
+  .summary-card .grid .row .k { color: var(--pub-ink-4); }
+  .summary-card .grid .row .v { color: var(--pub-ink-1); font-weight: 500; text-align: right; }
+
+  /* Stepper */
+  .next-card .h {
+    font: 600 16px var(--font-sans); color: var(--pub-ink-1);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .next-card .h-sub {
+    font: 13.5px var(--font-sans); color: var(--pub-ink-3);
+    margin-bottom: 22px;
+    line-height: 1.55;
+  }
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    display: grid; grid-template-columns: 36px 1fr auto;
+    align-items: start; gap: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    transition: background .15s;
+  }
+  .step.current { background: #E8EFFA; }
+  .step.pending { opacity: 0.65; }
+  .step .dot {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    font: 600 14px var(--font-sans);
+  }
+  .step.done .dot { background: var(--pub-success); color: #fff; }
+  .step.current .dot { background: var(--pub-brand-2); color: #fff; }
+  .step.pending .dot {
+    background: var(--pub-canvas-2); color: var(--pub-ink-4);
+    border: 1px solid var(--pub-line);
+  }
+  .step .body .t {
+    font: 600 14.5px var(--font-sans); color: var(--pub-ink-1);
+    margin-bottom: 3px;
+  }
+  .step .body .d {
+    font: 13px var(--font-sans); color: var(--pub-ink-3); line-height: 1.55;
+  }
+  .step .meta {
+    font: 11.5px var(--font-sans); color: var(--pub-ink-4);
+    text-align: right; white-space: nowrap;
+    margin-top: 4px;
+  }
+  .step.current .meta {
+    color: var(--pub-brand-2); font-weight: 600;
+  }
+
+  /* Side-by-side */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 24px;
+  }
+  .info-card {
+    background: var(--pub-paper);
+    border: 1px solid var(--pub-line);
+    border-radius: 14px;
+    padding: 22px 24px;
+  }
+  .info-card .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #E8EFFA; color: var(--pub-brand-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 14px;
+  }
+  .info-card .ic.amber { background: #fef3c7; color: #92400e; }
+  .info-card h3 {
+    margin: 0 0 6px; font: 600 15px var(--font-sans);
+    color: var(--pub-ink-1); letter-spacing: -0.01em;
+  }
+  .info-card p {
+    margin: 0; font: 13.5px var(--font-sans);
+    color: var(--pub-ink-3); line-height: 1.55;
+  }
+  .info-card .lnk {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 600 13px var(--font-sans); color: var(--pub-brand-2);
+    text-decoration: none;
+    margin-top: 12px;
+  }
+  .info-card .lnk:hover { color: var(--pub-ink-1); }
+
+  /* CTA row */
+  .ctas {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  /* Footer note */
+  .footer-note {
+    text-align: center;
+    font: 12.5px var(--font-sans);
+    color: var(--pub-ink-4);
+    line-height: 1.7;
+    margin-top: 32px;
+  }
+  .footer-note a { color: var(--pub-brand-2); text-decoration: none; }
+  .footer-note a:hover { text-decoration: underline; }
+
+  @media (max-width: 720px) {
+    .sub-shell { padding: 40px 20px 64px; }
+    .sub-hero h1 { font-size: 28px; }
+    .summary-card, .next-card, .info-card { padding: 22px 20px; }
+    .summary-card .grid { grid-template-columns: 1fr; gap: 10px; }
+    .two-col { grid-template-columns: 1fr; }
+    .step { grid-template-columns: 32px 1fr; }
+    .step .meta { grid-column: 2; text-align: left; margin-top: 6px; }
+  }
+</style>
+</head>
+<body class="pub-body" data-screen-label="Prospect — Submitted" data-variant="bold">
+
+<!-- ============== TOPBAR (shared) ============== -->
+<header class="pub-top">
+  <div class="pub-top-inner">
+    <a class="pub-brand" href="landing.html"><span class="dot" aria-hidden="true"></span>DIG</a>
+    <button class="pub-burger" type="button" aria-label="Menu" onclick="this.parentElement.querySelector('.pub-nav').classList.toggle('open'); this.parentElement.querySelector('.pub-top-right').classList.toggle('open');"><i class="ri-menu-line"></i></button>
+    <nav class="pub-nav" aria-label="Primary">
+      <a href="landing.html">Home</a>
+      <a href="browse-v2.html">Browse</a>
+      <a href="financing.html">Financing</a>
+      <a href="prospect-public.html">Get matched</a>
+      <a href="landing.html#faq">FAQ</a>
+    </nav>
+    <div class="pub-top-right">
+      <a class="pub-btn pub-btn-ghost" href="login.html">Sign in</a>
+      <a class="pub-btn pub-btn-primary" href="prospect-portal.html"><i class="ri-dashboard-line" aria-hidden="true"></i> My portal</a>
+    </div>
+  </div>
+</header>
+
+<main class="sub-shell">
+
+  <div class="sub-eyebrow">Application received</div>
+
+  <div class="sub-hero">
+    <div class="success-mark"><i class="ri-check-line"></i></div>
+    <h1>Your interest is in.</h1>
+    <div class="ref"><i class="ri-hashtag"></i> APP-2026-0143 · submitted Mar 15, 2026 · 2:47 PM</div>
+    <p>An advisor will follow up within <strong>1 business day</strong>. We've sent a confirmation to <strong>danyls@example.com</strong> with everything below — including your reference number.</p>
+  </div>
+
+  <!-- Summary -->
+  <section class="summary-card">
+    <h2>Application summary</h2>
+    <div class="land">Plot 14B · Riverstone Estate · Cape Coast</div>
+
+    <div class="grid">
+      <div class="row"><span class="k">Plot size</span><span class="v">650 m²</span></div>
+      <div class="row"><span class="k">List price</span><span class="v">$48,500</span></div>
+      <div class="row"><span class="k">Deposit you'll bring</span><span class="v">$9,700 (20%)</span></div>
+      <div class="row"><span class="k">Term you indicated</span><span class="v">10 years</span></div>
+      <div class="row"><span class="k">Estimated installment</span><span class="v">~$486 / mo</span></div>
+      <div class="row"><span class="k">Use case</span><span class="v">Family home</span></div>
+    </div>
+  </section>
+
+  <!-- Next steps -->
+  <section class="next-card">
+    <div class="h">What happens next</div>
+    <div class="h-sub">Five steps stand between you and the keys. We'll guide you through each one.</div>
+
+    <div class="steps">
+      <div class="step done">
+        <div class="dot"><i class="ri-check-line"></i></div>
+        <div class="body">
+          <div class="t">Interest submitted</div>
+          <div class="d">Your application is on our queue. Reference APP-2026-0143.</div>
+        </div>
+        <div class="meta">Just now</div>
+      </div>
+
+      <div class="step current">
+        <div class="dot">2</div>
+        <div class="body">
+          <div class="t">Advisor introduction call</div>
+          <div class="d">A licensed advisor will reach out by phone or email to confirm details and walk you through your options. They may suggest adjusting your deposit or term.</div>
+        </div>
+        <div class="meta">Within 1 business day</div>
+      </div>
+
+      <div class="step pending">
+        <div class="dot">3</div>
+        <div class="body">
+          <div class="t">Document upload</div>
+          <div class="d">You'll receive a secure link to upload your ID, proof of income, and bank statements. No paperwork to print.</div>
+        </div>
+        <div class="meta">Days 2–4</div>
+      </div>
+
+      <div class="step pending">
+        <div class="dot">4</div>
+        <div class="body">
+          <div class="t">Underwriting decision</div>
+          <div class="d">We'll review your file and present a final offer with the exact rate, term, and monthly amount.</div>
+        </div>
+        <div class="meta">Days 5–10</div>
+      </div>
+
+      <div class="step pending">
+        <div class="dot">5</div>
+        <div class="body">
+          <div class="t">Sign &amp; close</div>
+          <div class="d">E-sign the contract, pay your deposit, and receive your keys. We'll meet you at the plot for the handover.</div>
+        </div>
+        <div class="meta">Day 14 target</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Side info -->
+  <div class="two-col">
+    <div class="info-card">
+      <div class="ic"><i class="ri-account-circle-line"></i></div>
+      <h3>Set up your account</h3>
+      <p>You'll get an email with a link to set a password. Once you're in, you can track this application, upload documents, and message your advisor.</p>
+      <a class="lnk" href="prospect-portal.html">Open the customer portal <i class="ri-arrow-right-line"></i></a>
+    </div>
+    <div class="info-card">
+      <div class="ic amber"><i class="ri-information-line"></i></div>
+      <h3>Want to change something?</h3>
+      <p>You can revise your deposit, term, or use case until the offer is issued. After that, we'll need to re-run underwriting.</p>
+      <a class="lnk" href="#">Edit my application <i class="ri-edit-line"></i></a>
+    </div>
+  </div>
+
+  <div class="ctas">
+    <a class="pub-btn pub-btn-primary" href="prospect-portal.html"><i class="ri-arrow-right-line"></i> Open my portal</a>
+    <a class="pub-btn pub-btn-outline" href="browse-v2.html"><i class="ri-landscape-line"></i> Browse more plots</a>
+    <button class="pub-btn pub-btn-outline" type="button" onclick="window.print()"><i class="ri-printer-line"></i> Print summary</button>
+  </div>
+
+  <div class="footer-note">
+    Reference APP-2026-0143 · keep this for your records.<br>
+    Questions? Reply to your confirmation email or call <a href="tel:+12145550101">+1 (214) 555-0101</a> Mon–Fri 9am–6pm CT.
+  </div>
+
+</main>
+
+<!-- ============== FOOTER (shared) ============== -->
+<footer class="pub-foot">
+  <div class="pub-foot-inner">
+    <div class="pub-foot-brand">
+      <a class="pub-brand" href="landing.html"><span class="dot"></span>DIG</a>
+      <p>Dispensation Investment Group — pre-financing land &amp; homes across Texas. Real estate ownership made accessible.</p>
+      <div class="pub-foot-contact">
+        <span><i class="ri-map-pin-2-line"></i> 3232 McKinney Ave, Suite 512, Dallas, TX 75204</span>
+        <span><i class="ri-phone-line"></i> <a href="tel:+12147728720">+1 (214) 772-8720</a></span>
+        <span><i class="ri-mail-line"></i> <a href="mailto:info@dinvestgroup.com">info@dinvestgroup.com</a></span>
+      </div>
+      <div class="pub-foot-licenses">
+        <span><i class="ri-shield-check-line"></i> TREC License #9612045</span>
+        <span><i class="ri-bank-line"></i> Texas Owner-Finance Mortgage Servicer</span>
+        <span><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      </div>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Browse</h4>
+      <ul>
+        <li><a href="browse-v2.html">All listings</a></li>
+        <li><a href="browse-v2.html?type=land">Land</a></li>
+        <li><a href="browse-v2.html?type=house">Houses</a></li>
+        <li><a href="prospect-public.html">Get matched</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Financing</h4>
+      <ul>
+        <li><a href="financing.html">Why owner-financing</a></li>
+        <li><a href="financing.html#simulator">Payment simulator</a></li>
+        <li><a href="financing.html#qualify">How to qualify</a></li>
+        <li><a href="prospect-public.html">Pre-qualify now</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="landing.html#about">About</a></li>
+        <li><a href="landing.html#faq">FAQ</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="pub-foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="terms.html">Terms of service</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="legal.html">Disclosures</a></li>
+        <li><a href="#">Licensing</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="pub-foot-meta">
+    <span>© 2026 Dispensation Investment Group LLC · Dallas, TX</span>
+    <span class="lks">
+      <span class="pub-foot-eho"><i class="ri-home-heart-line"></i> Equal Housing Opportunity</span>
+      <a href="legal.html">Disclosures</a>
+      <a href="privacy.html">Privacy</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

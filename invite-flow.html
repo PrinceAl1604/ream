@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Invite flow</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f3f2ef; padding: 32px;
+    font: 14px/1.5 var(--font-sans);
+    color: var(--color-grey-900);
+  }
+  .page { max-width: 1320px; margin: 0 auto; }
+  .page > header { margin-bottom: 28px; }
+  .page > header h1 {
+    margin: 0 0 6px; font-size: 26px; letter-spacing: -0.02em; font-weight: 700;
+  }
+  .page > header p { margin: 0; color: var(--color-grey-600); font-size: 14px; }
+
+  /* The flow */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .step {
+    background: #fff; border: 1px solid var(--color-grey-200);
+    border-radius: 12px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative;
+  }
+  .step .step-meta {
+    display: flex; align-items: center; gap: 8px;
+    font: 600 11px var(--font-sans);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--color-grey-600);
+  }
+  .step .step-meta .num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px;
+  }
+  .step .step-meta.admin .num { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .step .step-meta.invitee .num { background: var(--color-success-100, #d1fae5); color: var(--color-success-700, #047857); }
+  .step .step-meta.system .num { background: var(--color-grey-200); color: var(--color-grey-700); }
+  .step h3 {
+    margin: 0; font-size: 14px; font-weight: 600;
+    line-height: 1.3; letter-spacing: -0.005em;
+  }
+  .step p {
+    margin: 0; font-size: 12.5px; color: var(--color-grey-600);
+    line-height: 1.5;
+  }
+
+  /* mini screen mockup */
+  .screen {
+    margin-top: auto;
+    background: #fafaf8;
+    border: 1px solid var(--color-grey-200);
+    border-radius: 8px;
+    padding: 10px;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    font-size: 10.5px;
+  }
+  .screen .chrome {
+    display: flex; gap: 4px; margin-bottom: 8px;
+  }
+  .screen .chrome span {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--color-grey-300);
+  }
+  .screen .chrome span:first-child { background: #ff5f57; }
+  .screen .chrome span:nth-child(2) { background: #febc2e; }
+  .screen .chrome span:nth-child(3) { background: #28c840; }
+
+  /* actor/lane labels */
+  .lanes {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 18px; margin-bottom: 8px;
+  }
+  .lane-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 10.5px var(--font-sans);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--color-grey-500);
+  }
+  .lane-label .swatch {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .lane-admin .swatch { background: var(--color-brand-600); }
+  .lane-invitee .swatch { background: var(--color-success-600, #16a34a); }
+  .lane-system .swatch { background: var(--color-grey-500); }
+
+  /* arrow connectors */
+  .arrow-row {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 18px; margin: -8px 0;
+    align-items: center;
+  }
+  .arrow {
+    height: 28px; position: relative;
+    display: flex; align-items: center;
+    grid-column: span 1;
+  }
+  .arrow::before {
+    content: ''; position: absolute;
+    left: 50%; right: -50%;
+    height: 2px; background: var(--color-grey-300);
+    top: 50%; transform: translateY(-50%);
+  }
+  .arrow .label {
+    background: #fff; border: 1px solid var(--color-grey-200);
+    padding: 3px 8px; border-radius: 999px;
+    font: 500 10.5px var(--font-sans);
+    color: var(--color-grey-700);
+    position: relative; z-index: 1;
+    margin: 0 auto;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .arrow .label i { color: var(--color-brand-700); font-size: 11px; }
+
+  /* === Mockup-specific styles === */
+  /* 1. Invite modal mini */
+  .mock-modal {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .mock-modal .row {
+    background: #fff; border: 1px solid var(--color-grey-200);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 9px; color: var(--color-grey-700);
+  }
+  .mock-modal .row strong { color: var(--color-grey-900); font-weight: 600; }
+  .mock-modal .row.email { background: #fff; border-color: var(--color-brand-300); }
+  .mock-modal .row.send {
+    background: var(--color-brand-700); color: white; text-align: center;
+    border: 0; font-weight: 600;
+  }
+
+  /* 2. Email */
+  .mock-email {
+    background: #fff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 10px;
+    color: var(--color-grey-800);
+    line-height: 1.45;
+    border: 1px solid var(--color-grey-200);
+    height: 100%;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .mock-email .from { color: var(--color-grey-500); font-size: 9px; }
+  .mock-email .subj { font-weight: 600; font-size: 10.5px; }
+  .mock-email .cta {
+    margin-top: auto;
+    background: var(--color-brand-700); color: white;
+    padding: 4px 8px; border-radius: 4px;
+    font: 600 9.5px var(--font-sans); text-align: center;
+    align-self: flex-start;
+  }
+
+  /* 3. Landing */
+  .mock-land {
+    background: linear-gradient(180deg, #fff, var(--color-brand-50));
+    text-align: center; padding: 12px 8px;
+    border-radius: 6px;
+    height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid var(--color-brand-100);
+  }
+  .mock-land .logo {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--color-brand-700); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+  }
+  .mock-land .title { font-weight: 600; font-size: 11px; color: var(--color-grey-900); }
+  .mock-land .who { font-size: 9.5px; color: var(--color-grey-600); }
+  .mock-land .role-pill {
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    padding: 2px 8px; border-radius: 999px;
+    font: 600 9px var(--font-sans);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .mock-land .accept-btn {
+    background: var(--color-brand-700); color: white;
+    padding: 5px 10px; border-radius: 4px;
+    font: 600 9.5px var(--font-sans);
+  }
+
+  /* 4. Account form */
+  .mock-form { display: flex; flex-direction: column; gap: 5px; }
+  .mock-form .input {
+    background: #fff; border: 1px solid var(--color-grey-200);
+    border-radius: 4px; padding: 4px 6px;
+    font: 9.5px var(--font-sans); color: var(--color-grey-500);
+  }
+  .mock-form .input.filled { color: var(--color-grey-900); border-color: var(--color-grey-300); }
+  .mock-form .submit {
+    background: var(--color-brand-700); color: white;
+    padding: 5px; border-radius: 4px;
+    font: 600 9.5px var(--font-sans); text-align: center;
+  }
+
+  /* 5. Welcome / dashboard */
+  .mock-dash {
+    background: #fff; border: 1px solid var(--color-grey-200); border-radius: 6px;
+    padding: 8px; height: 100%;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .mock-dash .header {
+    display: flex; align-items: center; gap: 5px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--color-grey-100);
+  }
+  .mock-dash .avatar {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--color-success-600, #16a34a); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 8px var(--font-sans);
+  }
+  .mock-dash .name { font: 600 10px var(--font-sans); color: var(--color-grey-900); }
+  .mock-dash .badge {
+    margin-left: auto;
+    background: var(--color-brand-100); color: var(--color-brand-700);
+    padding: 1px 6px; border-radius: 999px;
+    font: 600 8.5px var(--font-sans);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .mock-dash .stat {
+    display: flex; justify-content: space-between;
+    font: 10px var(--font-sans);
+    color: var(--color-grey-600);
+  }
+  .mock-dash .stat strong { color: var(--color-grey-900); font-weight: 600; }
+  .mock-dash .row-card {
+    background: var(--color-grey-50, #fafaf8);
+    border-radius: 4px; padding: 4px 6px;
+    font: 9.5px var(--font-sans); color: var(--color-grey-700);
+    display: flex; justify-content: space-between;
+  }
+
+  /* === Annotations row ===*/
+  .annotation {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+    margin-top: 14px;
+  }
+  .annotation .note {
+    background: var(--color-grey-50, #fafaf8);
+    border: 1px dashed var(--color-grey-300);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: 11.5px var(--font-sans); color: var(--color-grey-700);
+    line-height: 1.5;
+  }
+  .annotation .note strong { color: var(--color-grey-900); font-weight: 600; }
+  .annotation .note code {
+    background: #fff; border: 1px solid var(--color-grey-200);
+    padding: 1px 4px; border-radius: 3px;
+    font: 10.5px ui-monospace, monospace; color: var(--color-brand-800);
+  }
+
+  /* tags / chips */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    background: var(--color-grey-100); color: var(--color-grey-700);
+    padding: 2px 7px; border-radius: 999px;
+    font: 500 10px var(--font-sans);
+  }
+  .tag.brand { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .tag.success { background: #d1fae5; color: #047857; }
+
+  /* Section bar */
+  .section-bar {
+    margin-top: 36px; margin-bottom: 14px;
+    padding: 12px 16px;
+    background: var(--color-grey-900);
+    color: white;
+    border-radius: 8px;
+    font: 600 13px var(--font-sans);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-bar .num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: white; color: var(--color-grey-900);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 11px var(--font-sans);
+  }
+  .section-bar .small {
+    margin-left: auto; font-weight: 400; font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <h1>Invite flow — admin sends a link, invitee joins</h1>
+    <p>From the moment an admin clicks <em>Send invite link</em> to the new teammate landing on their dashboard.</p>
+  </header>
+
+  <!-- ============================================== -->
+  <!-- Lane labels                                   -->
+  <!-- ============================================== -->
+  <div class="lanes">
+    <div class="lane-label lane-admin"><span class="swatch"></span>Admin / manager</div>
+    <div class="lane-label lane-system"><span class="swatch"></span>Ream backend</div>
+    <div class="lane-label lane-system"><span class="swatch"></span>Email</div>
+    <div class="lane-label lane-invitee"><span class="swatch"></span>Invitee</div>
+    <div class="lane-label lane-invitee"><span class="swatch"></span>Invitee</div>
+    <div class="lane-label lane-invitee"><span class="swatch"></span>Invitee</div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- Steps row                                      -->
+  <!-- ============================================== -->
+  <div class="flow">
+
+    <!-- 1. Admin opens modal & sends -->
+    <div class="step">
+      <div class="step-meta admin"><span class="num">1</span> Admin sends</div>
+      <h3>Open invite modal, fill email + role, click Send</h3>
+      <p>Admin enters the invitee's email and picks Sales / Follow-up / Finance. Sets expiry. Hits send.</p>
+      <div class="screen">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="mock-modal">
+          <div class="row email">📧 <strong>jordan.evans@ream.example</strong></div>
+          <div class="row">Type · <strong>Sales</strong></div>
+          <div class="row">Expires · <strong>7 days</strong></div>
+          <div class="row" style="font-family: ui-monospace, monospace; font-size: 8px; color: var(--color-grey-600);">https://ream.example/invite/ag/X7K2…</div>
+          <div class="row send">Send via email</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Backend creates invite -->
+    <div class="step">
+      <div class="step-meta system"><span class="num">2</span> Backend</div>
+      <h3>Create pending invite row, mint token, queue email</h3>
+      <p>Server generates a single-use token bound to email + role + expiry, stores a pending user record, sends to mail provider.</p>
+      <div class="screen" style="background: var(--color-grey-900); color: #c0c0d4; font: 10px ui-monospace, monospace; padding: 10px; line-height: 1.5;">
+        <div style="color: #888; margin-bottom: 4px;">// invites table</div>
+        <div><span style="color: #ec5;">id</span>: inv_4a8e</div>
+        <div><span style="color: #ec5;">email</span>: jordan.evans@…</div>
+        <div><span style="color: #ec5;">token</span>: X7K2P9MNQR</div>
+        <div><span style="color: #ec5;">role</span>: agent</div>
+        <div><span style="color: #ec5;">type</span>: SALES</div>
+        <div><span style="color: #ec5;">expires</span>: +7d</div>
+        <div><span style="color: #ec5;">status</span>: <span style="color:#fcd34d;">pending</span></div>
+      </div>
+    </div>
+
+    <!-- 3. Email arrives -->
+    <div class="step">
+      <div class="step-meta system"><span class="num">3</span> Email</div>
+      <h3>Invite email lands in invitee's inbox</h3>
+      <p>Branded email with the inviting admin's name, the role, and a single Accept button that opens the link.</p>
+      <div class="screen">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="mock-email">
+          <div class="from">From: invites@ream.example</div>
+          <div class="subj">You've been invited to join Ream</div>
+          <div style="color: var(--color-grey-600);">Hi Jordan, Maria added you to the Sales team at Ream.</div>
+          <div class="cta">Accept invitation →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Invitee opens link -->
+    <div class="step">
+      <div class="step-meta invitee"><span class="num">4</span> Invitee opens link</div>
+      <h3>Click link → confirmation landing page</h3>
+      <p>Token validated server-side. Page shows who invited them, the role, and a single Accept button.</p>
+      <div class="screen">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="mock-land">
+          <div class="logo">R</div>
+          <div class="title">You're invited to Ream</div>
+          <div class="who">Maria Lopez · Dallas</div>
+          <div class="role-pill">Sales agent</div>
+          <div class="accept-btn">Accept &amp; continue →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Set up account -->
+    <div class="step">
+      <div class="step-meta invitee"><span class="num">5</span> Set up account</div>
+      <h3>Pick a password, confirm name + phone</h3>
+      <p>Email is pre-filled and locked (it must match the invite). Invitee sets password, optionally adds phone.</p>
+      <div class="screen">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="mock-form">
+          <div class="input filled">jordan.evans@ream.example 🔒</div>
+          <div class="input filled">Jordan Evans</div>
+          <div class="input filled">+1 (214) 555-0123</div>
+          <div class="input">Set a password</div>
+          <div class="input">Confirm password</div>
+          <div class="submit">Create account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. In the system -->
+    <div class="step">
+      <div class="step-meta invitee"><span class="num">6</span> In the system</div>
+      <h3>Logged in, role-scoped dashboard, token consumed</h3>
+      <p>Invite row flips to <code style="font:11px ui-monospace,monospace;background:#eee;padding:1px 4px;border-radius:3px;">accepted</code>. Invitee lands on their work queue.</p>
+      <div class="screen">
+        <div class="chrome"><span></span><span></span><span></span></div>
+        <div class="mock-dash">
+          <div class="header">
+            <span class="avatar">JE</span>
+            <span class="name">Jordan E.</span>
+            <span class="badge">Sales</span>
+          </div>
+          <div class="stat"><span>Open prospects</span><strong>0</strong></div>
+          <div class="row-card"><span>Welcome tour</span><span style="color: var(--color-brand-700);">Start →</span></div>
+          <div class="row-card"><span>Onboarding · 1 of 5</span><span>20%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrows between -->
+  <div class="arrow-row">
+    <div class="arrow"><span class="label"><i class="ri-arrow-right-line"></i> POST /invites</span></div>
+    <div class="arrow"><span class="label"><i class="ri-arrow-right-line"></i> SMTP send</span></div>
+    <div class="arrow"><span class="label"><i class="ri-arrow-right-line"></i> Click CTA</span></div>
+    <div class="arrow"><span class="label"><i class="ri-arrow-right-line"></i> GET /invite/:token</span></div>
+    <div class="arrow"><span class="label"><i class="ri-arrow-right-line"></i> POST /accept</span></div>
+    <div></div>
+  </div>
+
+  <!-- Annotations -->
+  <div class="annotation">
+    <div class="note">
+      <strong>What's stored:</strong> the invite row binds <code>token</code> to <code>email</code>, <code>role</code> &amp; <code>type</code>. Type is one of <code>SALES</code>, <code>FOLLOW_UP</code>, <code>FINANCE</code>.
+    </div>
+    <div class="note">
+      <strong>Single use:</strong> token is consumed at step 6. Re-clicking the link shows an "already used" page. Admin can rotate to issue a new one.
+    </div>
+    <div class="note">
+      <strong>If expired:</strong> step 4 shows an expired-link page with a "request a new invite" button that pings the inviter.
+    </div>
+    <div class="note">
+      <strong>Email mismatch:</strong> if the invitee tries to sign in with a different email, the request is rejected — invites are bound to the address the admin entered.
+    </div>
+    <div class="note">
+      <strong>What permissions:</strong> the role &amp; type from the token determine the dashboard the invitee lands on (Sales queue, Follow-up queue, or Finance ledger).
+    </div>
+    <div class="note">
+      <strong>Audit trail:</strong> the inviting admin, the timestamp, the IP that accepted, and the user-agent are all recorded against the invite row.
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- DETAILED STATE TABLE                           -->
+  <!-- ============================================== -->
+  <div class="section-bar">
+    <span class="num">A</span> Invite states &amp; transitions
+    <span class="small">What the invite row looks like at each step</span>
+  </div>
+
+  <div style="background:#fff; border:1px solid var(--color-grey-200); border-radius:12px; overflow:hidden;">
+    <table style="width:100%; border-collapse:collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: var(--color-grey-50, #fafaf8); text-align:left;">
+          <th style="padding:12px 16px; font: 600 11px var(--font-sans); text-transform:uppercase; letter-spacing:0.06em; color: var(--color-grey-600);">Step</th>
+          <th style="padding:12px 16px; font: 600 11px var(--font-sans); text-transform:uppercase; letter-spacing:0.06em; color: var(--color-grey-600);">Status</th>
+          <th style="padding:12px 16px; font: 600 11px var(--font-sans); text-transform:uppercase; letter-spacing:0.06em; color: var(--color-grey-600);">What's set</th>
+          <th style="padding:12px 16px; font: 600 11px var(--font-sans); text-transform:uppercase; letter-spacing:0.06em; color: var(--color-grey-600);">Visible to invitee</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">1 · Admin sends</td>
+          <td style="padding:14px 16px;"><span class="tag brand">pending</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">token, email, role, type, expires_at</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">—</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">3 · Email delivered</td>
+          <td style="padding:14px 16px;"><span class="tag brand">pending</span> <span class="tag">delivered</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">delivered_at, message_id</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">Email in inbox</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">4 · Link clicked</td>
+          <td style="padding:14px 16px;"><span class="tag brand">pending</span> <span class="tag">opened</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">opened_at, ip_address, user_agent</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">Confirmation landing page</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">6 · Account created</td>
+          <td style="padding:14px 16px;"><span class="tag success">accepted</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">accepted_at, user_id (linked)</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">Logged-in dashboard</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">— · Past expiry</td>
+          <td style="padding:14px 16px;"><span class="tag" style="background:#fee; color:#b91c1c;">expired</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">expired_at</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">"Link expired" page</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--color-grey-100);">
+          <td style="padding:14px 16px;">— · Admin revokes</td>
+          <td style="padding:14px 16px;"><span class="tag" style="background:#fee; color:#b91c1c;">revoked</span></td>
+          <td style="padding:14px 16px; color: var(--color-grey-700);">revoked_at, revoked_by</td>
+          <td style="padding:14px 16px; color: var(--color-grey-600);">"Link no longer valid" page</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

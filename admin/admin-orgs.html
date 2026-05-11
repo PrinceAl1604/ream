@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Organizations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+  :root { --font-sans: "Inter", system-ui, sans-serif; --font-display: "Fraunces", serif; --font-mono: "JetBrains Mono", monospace; }
+  .org-row td { padding-top: 10px; padding-bottom: 10px; }
+  .plan-pill { display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:6px;font:600 10.5px var(--font-sans);text-transform:uppercase;letter-spacing:0.04em;border:1px solid; }
+  .plan-trial { background:#f9fafb;color:#4b5563;border-color:#e5e7eb; }
+  .plan-starter { background:#eef2ff;color:#4338ca;border-color:#c7d2fe; }
+  .plan-growth { background:#ecfeff;color:#0e7490;border-color:#a5f3fc; }
+  .plan-enterprise { background:#1e1b4b;color:#fff;border-color:#312e81; }
+  .seg-bar { display:flex;background:white;border:1px solid var(--adm-border);border-radius:7px;overflow:hidden; }
+  .seg-bar button { background:transparent;border:0;padding:6px 12px;font:500 12px var(--font-sans);color:var(--adm-text-3);cursor:pointer;border-right:1px solid var(--adm-border); }
+  .seg-bar button:last-child { border-right:0; }
+  .seg-bar button.on { background:var(--adm-accent-50);color:var(--adm-accent-700);font-weight:600; }
+  .ent .ct { font:500 11px var(--font-mono);color:var(--adm-text-4); }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"orgs",
+    crumb:[{label:"Organizations"}],
+    title:"Organizations",
+    subtitle:"All tenants on the platform. Click a row to drill into licensing, members, audit, and admin controls.",
+    actions:`
+      <button class="adm-btn" id="orgsExport"><i class="material-symbols-rounded">file_download</i> Export CSV</button>
+      <button class="adm-btn adm-btn-primary" onclick="location.href='admin-invites.html'"><i class="material-symbols-rounded">mail</i> Invite organization</button>
+    `,
+    env:"STAGING",
+  });
+</script>
+<script>
+const ORGS = [
+  { id:"org_3a91", name:"Pinecrest Loans", slug:"pinecrest", plan:"growth", state:"active", users:42, loans:318, mrr:"$1,840", joined:"Mar 2024", flag:"PCL" },
+  { id:"org_7f0c", name:"Northgate Realty", slug:"northgate", plan:"trial", state:"readonly", users:6, loans:14, mrr:"$0", joined:"Apr 2026", flag:"NR", reason:"Trial expired" },
+  { id:"org_22b8", name:"Atlas Capital Partners", slug:"atlas-cap", plan:"enterprise", state:"active", users:118, loans:1204, mrr:"$8,950", joined:"Sep 2023", flag:"AC" },
+  { id:"org_0c41", name:"Greenline Properties", slug:"greenline", plan:"starter", state:"active", users:18, loans:88, mrr:"$390", joined:"Jan 2025", flag:"GP" },
+  { id:"org_9d62", name:"Maven Realty Group", slug:"maven", plan:"growth", state:"active", users:31, loans:212, mrr:"$1,420", joined:"Nov 2024", flag:"MR" },
+  { id:"org_4e07", name:"BlueRidge Land Co.", slug:"blueridge", plan:"starter", state:"active", users:8, loans:36, mrr:"$390", joined:"Feb 2025", flag:"BL" },
+  { id:"org_1188", name:"Sandcastle Holdings", slug:"sandcastle", plan:"trial", state:"locked", users:0, loans:0, mrr:"$0", joined:"Apr 2026", flag:"SH", reason:"Abuse: spam invites" },
+  { id:"org_6630", name:"Heritage Property Trust", slug:"heritage", plan:"enterprise", state:"active", users:84, loans:902, mrr:"$8,950", joined:"Jul 2023", flag:"HP" },
+  { id:"org_aa12", name:"Cobalt Lending", slug:"cobalt", plan:"growth", state:"active", users:24, loans:142, mrr:"$1,420", joined:"Aug 2024", flag:"CL" },
+  { id:"org_5511", name:"Westmark Realty", slug:"westmark", plan:"starter", state:"active", users:12, loans:54, mrr:"$390", joined:"Jun 2024", flag:"WR" },
+  { id:"org_dd88", name:"Foundry Capital", slug:"foundry", plan:"growth", state:"active", users:19, loans:108, mrr:"$1,420", joined:"Oct 2024", flag:"FC" },
+  { id:"org_ee44", name:"Lumen Lending Co.", slug:"lumen", plan:"trial", state:"active", users:3, loans:2, mrr:"$0", joined:"May 2026", flag:"LL" },
+  { id:"org_77aa", name:"Acme Mortgages", slug:"acme", plan:"starter", state:"readonly", users:4, loans:8, mrr:"$0", joined:"Mar 2026", flag:"AM", reason:"Trial expired" },
+  { id:"org_99ce", name:"Verity Realty Group", slug:"verity", plan:"growth", state:"active", users:38, loans:248, mrr:"$1,420", joined:"Dec 2024", flag:"VR" },
+];
+
+const COLORS = ["#6366f1","#0ea5e9","#10b981","#f59e0b","#ec4899","#8b5cf6","#ef4444","#14b8a6"];
+function colorFor(seed){ let h=0; for(const c of seed) h = (h*31 + c.charCodeAt(0))|0; return COLORS[Math.abs(h)%COLORS.length]; }
+
+const rows = ORGS.map(o => `
+  <tr class="org-row" onclick="location.href='admin-org-detail.html?org=${o.slug}'">
+    <td>
+      <div class="adm-ent">
+        <span class="adm-ava" style="background:${colorFor(o.slug)};">${o.flag}</span>
+        <div class="meta">
+          <div class="nm">${o.name}</div>
+          <div class="sub mono ct">${o.id}</div>
+        </div>
+      </div>
+    </td>
+    <td><span class="plan-pill plan-${o.plan}">${o.plan}</span></td>
+    <td>
+      <span class="adm-pill ${o.state}">${o.state === "readonly" ? "Read-only" : o.state}</span>
+      ${o.reason ? `<div class="muted tiny" style="margin-top:3px;">${o.reason}</div>` : ""}
+    </td>
+    <td class="right strong">${o.users}</td>
+    <td class="right strong">${o.loans.toLocaleString()}</td>
+    <td class="right strong mono">${o.mrr}</td>
+    <td class="muted">${o.joined}</td>
+    <td class="right" onclick="event.stopPropagation();">
+      <button class="adm-kebab" title="More" data-org-kebab="${o.slug}" data-org-name="${o.name}" data-org-state="${o.state}"><i class="material-symbols-rounded">more_horiz</i></button>
+    </td>
+  </tr>
+`).join("");
+
+document.getElementById("adm-content").innerHTML = `
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">Total orgs</div><div class="adm-kpi-value">142</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +6 (7d)</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Active</div><div class="adm-kpi-value">126</div><div class="adm-kpi-delta flat">88.7% of total</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Trial</div><div class="adm-kpi-value">18</div><div class="adm-kpi-delta down"><i class="material-symbols-rounded">arrow_downward</i> 3 expiring &lt; 7d</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">MRR</div><div class="adm-kpi-value">$148.2k</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +$8.4k MoM</div></div>
+  </div>
+
+  <div class="adm-filterbar">
+    <div class="grow">
+      <div class="adm-filter-input">
+        <i class="material-symbols-rounded">search</i>
+        <input placeholder="Search by name, slug, ID, owner email…" />
+      </div>
+    </div>
+    <div class="seg-bar">
+      <button class="on">All <span class="muted">142</span></button>
+      <button>Active <span class="muted">126</span></button>
+      <button>Trial <span class="muted">18</span></button>
+      <button>Read-only <span class="muted">14</span></button>
+      <button>Locked <span class="muted">2</span></button>
+    </div>
+    <button class="adm-pill-filter">Plan: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Joined: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter"><i class="material-symbols-rounded">view_column</i> Columns</button>
+  </div>
+
+  <div class="adm-table-wrap">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Organization</th>
+          <th>Plan</th>
+          <th>State</th>
+          <th class="right">Users</th>
+          <th class="right">Loans</th>
+          <th class="right">MRR</th>
+          <th>Joined</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <div class="adm-pager" id="orgsPager">
+    <span id="orgsCount">Showing 1–14 of 142</span>
+    <div class="controls">
+      <button data-pg="prev" disabled><i class="material-symbols-rounded">chevron_left</i></button>
+      <button class="num active" data-pg="1">1</button><button class="num" data-pg="2">2</button><button class="num" data-pg="3">3</button>
+      <button class="num" disabled>…</button>
+      <button class="num" data-pg="11">11</button>
+      <button data-pg="next"><i class="material-symbols-rounded">chevron_right</i></button>
+    </div>
+  </div>
+`;
+
+// ============== WIRING ==============
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const T = AdminShell.toast;
+
+// Export CSV
+$("#orgsExport").onclick = () => {
+  const header = "id,name,slug,plan,state,users,loans,mrr,joined\n";
+  const body = ORGS.map(o => `${o.id},"${o.name}",${o.slug},${o.plan},${o.state},${o.users},${o.loans},${o.mrr},"${o.joined}"`).join("\n");
+  const blob = new Blob([header + body], { type:"text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `ream-organizations-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  T(`Exported ${ORGS.length} organizations to CSV`, "success");
+};
+
+// Search
+const searchInput = $(".adm-filterbar .adm-filter-input input");
+searchInput.addEventListener("input", () => {
+  const q = searchInput.value.trim().toLowerCase();
+  let n = 0;
+  $$(".org-row").forEach(tr => {
+    const txt = tr.textContent.toLowerCase();
+    const show = !q || txt.includes(q);
+    tr.style.display = show ? "" : "none";
+    if (show) n++;
+  });
+  $("#orgsCount").textContent = q ? `Showing ${n} match${n===1?"":"es"} for "${searchInput.value}"` : `Showing 1–14 of 142`;
+});
+
+// Status segmented filter
+$$(".seg-bar button").forEach(btn => {
+  btn.onclick = () => {
+    $$(".seg-bar button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    const label = btn.firstChild.textContent.trim().toLowerCase();
+    let n = 0;
+    $$(".org-row").forEach(tr => {
+      let show = true;
+      if (label === "active") show = tr.querySelector(".adm-pill.active") && !tr.querySelector(".adm-pill.readonly") && !tr.querySelector(".adm-pill.locked");
+      else if (label === "trial") show = tr.querySelector(".plan-trial");
+      else if (label === "read-only") show = tr.querySelector(".adm-pill.readonly");
+      else if (label === "locked") show = tr.querySelector(".adm-pill.locked");
+      tr.style.display = show ? "" : "none";
+      if (show) n++;
+    });
+    $("#orgsCount").textContent = label === "all" ? `Showing 1–14 of 142` : `Showing ${n} ${label} org${n===1?"":"s"}`;
+  };
+});
+
+// Plan / Joined / Columns filter pills
+$$(".adm-pill-filter").forEach(pf => {
+  pf.onclick = (e) => {
+    const label = pf.textContent.trim().split(":")[0].trim();
+    if (label === "Plan") {
+      AdminShell.popMenu(pf, [
+        { label:"Any", icon:"check", onClick:() => { pf.querySelector(".v").textContent = "Any"; refilterByPlan(""); }},
+        { label:"Trial", icon:"science", onClick:() => { pf.querySelector(".v").textContent = "Trial"; refilterByPlan("trial"); }},
+        { label:"Starter", icon:"bolt", onClick:() => { pf.querySelector(".v").textContent = "Starter"; refilterByPlan("starter"); }},
+        { label:"Growth", icon:"trending_up", onClick:() => { pf.querySelector(".v").textContent = "Growth"; refilterByPlan("growth"); }},
+        { label:"Enterprise", icon:"corporate_fare", onClick:() => { pf.querySelector(".v").textContent = "Enterprise"; refilterByPlan("enterprise"); }},
+      ]);
+    } else if (label === "Joined") {
+      AdminShell.popMenu(pf, [
+        { label:"Any", icon:"check", onClick:() => pf.querySelector(".v").textContent = "Any" },
+        { label:"Last 7 days", onClick:() => pf.querySelector(".v").textContent = "Last 7d" },
+        { label:"Last 30 days", onClick:() => pf.querySelector(".v").textContent = "Last 30d" },
+        { label:"Last 90 days", onClick:() => pf.querySelector(".v").textContent = "Last 90d" },
+        { label:"This year", onClick:() => pf.querySelector(".v").textContent = "YTD" },
+      ]);
+    } else if (pf.textContent.includes("Columns")) {
+      AdminShell.popMenu(pf, [
+        { label:"Plan ✓", icon:"check_box", onClick:() => T("Toggled column: Plan", "info") },
+        { label:"State ✓", icon:"check_box", onClick:() => T("Toggled column: State", "info") },
+        { label:"Users ✓", icon:"check_box", onClick:() => T("Toggled column: Users", "info") },
+        { label:"Loans ✓", icon:"check_box", onClick:() => T("Toggled column: Loans", "info") },
+        { label:"MRR ✓", icon:"check_box", onClick:() => T("Toggled column: MRR", "info") },
+        { label:"Joined ✓", icon:"check_box", onClick:() => T("Toggled column: Joined", "info") },
+      ]);
+    }
+  };
+});
+
+function refilterByPlan(plan) {
+  let n = 0;
+  $$(".org-row").forEach(tr => {
+    const show = !plan || tr.querySelector(`.plan-${plan}`);
+    tr.style.display = show ? "" : "none";
+    if (show) n++;
+  });
+  $("#orgsCount").textContent = plan ? `Showing ${n} ${plan} org${n===1?"":"s"}` : `Showing 1–14 of 142`;
+}
+
+// Kebab per row
+$$("[data-org-kebab]").forEach(btn => {
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    const slug = btn.dataset.orgKebab;
+    const name = btn.dataset.orgName;
+    const state = btn.dataset.orgState;
+    AdminShell.popMenu(btn, [
+      { label:"Open", icon:"open_in_new", onClick:() => location.href=`admin-org-detail.html?org=${slug}` },
+      { label:"Impersonate owner", icon:"switch_account", onClick:() => T(`Impersonation session started for ${name}`, "warn") },
+      { label:"Copy org ID", icon:"content_copy", onClick:() => { navigator.clipboard.writeText(slug); T("Org ID copied", "success"); }},
+      "-",
+      state === "active"
+        ? { label:"Make read-only", icon:"lock_open", onClick:async () => {
+            const ok = await AdminShell.confirmDialog({ title:`Make ${name} read-only?`, body:"All users will lose write access until restored. They'll see a banner explaining the state.", confirmLabel:"Make read-only" });
+            if (ok) T(`${name} is now read-only`, "warn");
+          }}
+        : { label:"Restore to active", icon:"lock_open", onClick:() => T(`${name} restored to active`, "success") },
+      { label:"Lock organization", icon:"lock", danger:true, onClick:async () => {
+          const ok = await AdminShell.confirmDialog({ title:`Lock ${name}?`, body:"All access is suspended until manually restored. Use only for abuse, fraud, or compliance holds.", confirmLabel:"Lock org", danger:true });
+          if (ok) T(`${name} locked`, "danger");
+        }},
+    ]);
+  };
+});
+
+// Pager
+$$("#orgsPager [data-pg]").forEach(btn => {
+  btn.onclick = () => {
+    if (btn.disabled) return;
+    const v = btn.dataset.pg;
+    if (v === "next" || v === "prev") { T("Loading next page…", "info"); return; }
+    $$("#orgsPager .num").forEach(n => n.classList.remove("active"));
+    btn.classList.add("active");
+    T(`Page ${v}`, "info");
+  };
+});
+</script>
+</body>
+</html>

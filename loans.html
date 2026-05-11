@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Loans</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="row-actions.css" />
+<link rel="stylesheet" href="_loan-import-wizard.css" />
+<style>
+  /* Import dialog (keeps customers/team-shared lexicon) */
+  .imp-back { position:fixed; inset:0; background: rgba(15,23,42,.40); z-index: 80; display:none; align-items:center; justify-content:center; }
+  .imp-back.on { display:flex; }
+
+  /* New loan wizard */
+  .nlw-back { position:fixed; inset:0; background: rgba(15,23,42,.42); z-index: 90; display:none; align-items:center; justify-content:center; }
+  .nlw-back.on { display:flex; }
+  .nlw-dlg {
+    width: 720px; max-width: calc(100vw - 32px); max-height: calc(100vh - 48px);
+    background:#fff; border:1px solid var(--border-default); border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(15,23,42,.22); overflow:hidden;
+    display: flex; flex-direction: column;
+  }
+  .nlw-head { display:flex; align-items:center; gap:12px; padding: 14px 18px; border-bottom:1px solid var(--border-default); }
+  .nlw-head h2 { margin:0; font: 600 15px var(--font-sans); color: var(--color-grey-900); white-space: nowrap; }
+  .nlw-head .x { background:transparent; border:0; cursor:pointer; color: var(--fg3); padding:6px; border-radius:6px; }
+  .nlw-head .x:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+
+  /* Segmented progress bar */
+  .nlw-stepper {
+    flex:1; display:flex; flex-direction: column; align-items: stretch; gap: 6px;
+    max-width: 540px; margin: 0 auto;
+  }
+  .nlw-stepper .seg-row {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px;
+  }
+  .nlw-stepper .seg {
+    height: 4px; border-radius: 999px; background: var(--color-grey-200);
+    transition: background .25s ease;
+  }
+  .nlw-stepper .seg.done { background: var(--color-brand-400); }
+  .nlw-stepper .seg.on { background: var(--color-brand-600); }
+  .nlw-stepper .seg-cap {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+    font-variant-numeric: tabular-nums;
+  }
+  .nlw-stepper .seg-cap .cur {
+    font: 600 12px var(--font-sans); color: var(--color-brand-700);
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .nlw-stepper .seg-cap .cnt { color: var(--fg3); }
+  .nlw-body { padding: 22px 24px; overflow-y: auto; flex: 1 1 auto; }
+  .nlw-eyebrow { font: 600 11px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--fg3); margin-bottom: 6px; }
+  .nlw-h { margin: 0 0 6px; font: 600 18px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-p { margin: 0 0 16px; font: 500 13px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+  .nlw-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .nlw-tile {
+    appearance:none; cursor:pointer; text-align:left; padding: 16px;
+    background:white; border: 1.5px solid var(--color-grey-200); border-radius: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color .12s, background .12s, box-shadow .12s;
+  }
+  .nlw-tile:hover { border-color: var(--color-brand-300); background: var(--color-brand-50); }
+  .nlw-tile.active { border-color: var(--color-brand-500); background: var(--color-brand-50); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .nlw-tile .t-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--color-grey-100); color: var(--fg2); display:inline-flex; align-items:center; justify-content:center; font-size: 16px; }
+  .nlw-tile.active .t-ic { background: var(--color-brand-100); color: var(--color-brand-700); }
+  .nlw-tile .t-title { font: 600 14px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-tile .t-sub { font: 500 12px var(--font-sans); color: var(--fg3); line-height: 1.5; }
+  .nlw-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .nlw-lbl { display:block; font: 600 11px var(--font-sans); letter-spacing: .03em; text-transform: uppercase; color: var(--fg3); margin-bottom: 6px; }
+  .nlw-input { width: 100%; padding: 9px 10px; border: 1px solid var(--color-grey-200); border-radius: 8px; background: white; font: 500 13px var(--font-sans); color: var(--color-grey-900); transition: border-color .15s, box-shadow .15s; }
+  .nlw-input:focus { outline: none; border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .nlw-asset-card { margin-top: 14px; display:flex; gap: 12px; padding: 12px; border: 1px dashed var(--color-grey-200); border-radius: 10px; background: var(--color-grey-25); }
+  .nlw-asset-card .img { width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg,#7BAA5A,#4F7E36); color:white; display:inline-flex; align-items:center; justify-content:center; font-size: 20px; }
+  .nlw-asset-card .ti { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-asset-card .su { font: 500 12px var(--font-sans); color: var(--fg3); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  /* Borrower combobox */
+  .nlw-cmb { position: relative; }
+  .nlw-cmb-trigger {
+    appearance:none; cursor:pointer; width:100%; text-align:left;
+    display:flex; align-items:center; gap: 12px;
+    padding: 10px 14px; background:white;
+    border: 1px solid var(--color-grey-200); border-radius: 10px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .nlw-cmb-trigger:hover { border-color: var(--color-grey-300); }
+  .nlw-cmb-trigger[aria-expanded="true"] { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .nlw-cmb-trigger .ph { color: var(--fg3); font: 500 13px var(--font-sans); flex:1; }
+  .nlw-cmb-trigger .meta { flex:1; min-width:0; }
+  .nlw-cmb-trigger .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-cmb-trigger .em { font: 500 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .nlw-cmb-trigger .chev { color: var(--fg3); transition: transform .15s; }
+  .nlw-cmb-trigger[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .nlw-cmb-pop {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    z-index: 20; background: white; border: 1px solid var(--color-grey-200);
+    border-radius: 12px; box-shadow: 0 12px 32px rgba(15,23,42,.12);
+    display: none; flex-direction: column; overflow: hidden;
+  }
+  .nlw-cmb-pop[data-open="1"] { display: flex; }
+  .nlw-cmb-search { display:flex; align-items:center; gap:8px; padding: 10px 12px; border-bottom: 1px solid var(--color-grey-100); }
+  .nlw-cmb-search i { color: var(--fg3); }
+  .nlw-cmb-search input { flex:1; border:0; outline:0; padding: 0; font: 500 13px var(--font-sans); }
+  .nlw-borr-list { display:flex; flex-direction:column; gap: 0; max-height: 260px; overflow-y:auto; padding: 4px; }
+  .nlw-borr-empty { padding: 18px 14px; text-align:center; font: 500 12.5px var(--font-sans); color: var(--fg3); }
+  .nlw-cmb-foot {
+    border-top: 1px solid var(--color-grey-100);
+    background: var(--color-grey-50);
+  }
+  .nlw-cmb-add {
+    appearance:none; cursor:pointer; width:100%; text-align:left;
+    display:flex; align-items:center; gap: 10px;
+    padding: 10px 14px; background: transparent; border: 0;
+    font: 600 12.5px var(--font-sans); color: var(--color-brand-700);
+  }
+  .nlw-cmb-add:hover { background: var(--color-brand-50); }
+  .nlw-cmb-add i { font-size: 16px; }
+  .nlw-borr-row { appearance:none; cursor:pointer; text-align:left; display:flex; align-items:center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 8px; background: white; }
+  .nlw-borr-row:hover { background: var(--color-grey-50); }
+  .nlw-borr-row.active { background: var(--color-brand-50); }
+  .nlw-borr-row.active .nm { color: var(--color-brand-800); }
+  .nlw-borr-row .ava { width: 32px; height: 32px; border-radius: 50%; color: white; display:inline-flex; align-items:center; justify-content:center; font: 600 12px var(--font-sans); }
+  .nlw-borr-row .meta { flex:1; min-width:0; }
+  .nlw-borr-row .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-borr-row .em { font: 500 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .nlw-borr-row .badge { font: 600 10px var(--font-sans); padding: 2px 6px; border-radius: 4px; background: var(--color-success-50); color: var(--color-success-700); border: 1px solid var(--color-success-200); }
+  .nlw-borr-row .badge.prospect { background: var(--color-warning-50); color: var(--color-warning-700); border-color: var(--color-warning-200); }
+  .nlw-create-borr { margin-top: 10px; appearance:none; cursor:pointer; background: transparent; border: 1px dashed var(--color-grey-200); border-radius: 8px; padding: 9px 12px; font: 600 12.5px var(--font-sans); color: var(--color-brand-700); width: 100%; text-align: left; }
+  .nlw-create-borr:hover { background: var(--color-brand-50); border-color: var(--color-brand-300); }
+  .nlw-new-borr { margin-top: 10px; padding: 14px; background: var(--color-grey-25); border: 1px solid var(--color-grey-200); border-radius: 10px; display: flex; flex-direction: column; gap: 12px; }
+  .nlw-hint { margin-top: 12px; padding: 10px 12px; background: var(--color-brand-50); border: 1px solid var(--color-brand-200); border-radius: 8px; font: 500 12px var(--font-sans); color: var(--color-brand-800); display: flex; align-items: flex-start; gap: 8px; }
+  .nlw-hint i { color: var(--color-brand-700); }
+  .nlw-products { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .nlw-prod { appearance:none; cursor:pointer; text-align:left; padding: 14px; background: white; border: 1.5px solid var(--color-grey-200); border-radius: 10px; }
+  .nlw-prod:hover { border-color: var(--color-brand-300); background: var(--color-brand-50); }
+  .nlw-prod.active { border-color: var(--color-brand-500); background: var(--color-brand-50); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .nlw-prod .p-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+  .nlw-prod .p-ti { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .nlw-prod .p-pill { font: 600 9.5px var(--font-sans); padding: 2px 6px; border-radius: 4px; background: var(--color-success-50); color: var(--color-success-700); border: 1px solid var(--color-success-200); text-transform: uppercase; letter-spacing: .04em; }
+  .nlw-prod .p-pill.warn { background: var(--color-warning-50); color: var(--color-warning-700); border-color: var(--color-warning-200); }
+  .nlw-prod .p-row { display: flex; justify-content: space-between; gap: 8px; font: 500 11.5px var(--font-sans); color: var(--fg3); padding: 3px 0; border-bottom: 1px dashed var(--color-grey-100); }
+  .nlw-prod .p-row:last-child { border-bottom: 0; }
+  .nlw-prod .p-row b { color: var(--color-grey-900); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nlw-summary { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--color-grey-200); border-radius: 10px; overflow: hidden; }
+  .nlw-summary .s-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--color-grey-100); }
+  .nlw-summary .s-row:last-child { border-bottom: 0; background: var(--color-brand-50); }
+  .nlw-summary .s-row .k { font: 500 12px var(--font-sans); color: var(--fg3); }
+  .nlw-summary .s-row .v { font: 600 13px var(--font-sans); color: var(--color-grey-900); font-variant-numeric: tabular-nums; }
+  /* Summary editable cards */
+  .nlw-sum-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  @media (max-width: 640px) { .nlw-sum-cards { grid-template-columns: 1fr; } }
+  .nlw-sum-card { border: 1px solid var(--color-grey-200); border-radius: 12px; background: white; overflow: hidden; }
+  .nlw-sum-card.is-editing { border-color: var(--color-brand-300); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .nlw-sum-head { display:flex; align-items:center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--color-grey-100); font: 600 11px var(--font-sans); color: var(--color-grey-700); text-transform: uppercase; letter-spacing: .04em; }
+  .nlw-sum-head i:first-child { color: var(--color-brand-600); font-size: 14px; }
+  .nlw-sum-head > span { flex:1; }
+  .nlw-sum-edit { appearance:none; cursor:pointer; background: transparent; border: 0; color: var(--fg3); font: 600 11px var(--font-sans); display:inline-flex; align-items:center; gap: 4px; padding: 3px 6px; border-radius: 5px; }
+  .nlw-sum-edit:hover { background: var(--color-grey-50); color: var(--color-brand-700); }
+  .nlw-sum-card.is-editing .nlw-sum-edit { display: none; }
+  .nlw-sum-view { padding: 4px 14px; }
+  .nlw-sum-view .r { display:flex; justify-content:space-between; gap: 10px; padding: 9px 0; font: 500 13px var(--font-sans); }
+  .nlw-sum-view .r + .r { border-top: 1px solid var(--color-grey-100); }
+  .nlw-sum-view .k { color: var(--fg3); }
+  .nlw-sum-view .v { color: var(--color-grey-900); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .nlw-sum-edit-form { padding: 12px 14px; }
+  .nlw-sum-card.is-editing .nlw-sum-view { display: none; }
+  .nlw-sum-edit-actions { display:flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .nlw-foot { display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border-default); background: var(--color-grey-25); }
+  .nlw-foot-spacer { flex: 1; }
+  @media (max-width: 720px) {
+    .nlw-tiles, .nlw-grid2, .nlw-products { grid-template-columns: 1fr; }
+  }
+
+  .imp-dlg {
+    width: 540px; max-width: calc(100vw - 32px); background:#fff; border:1px solid var(--border-default);
+    border-radius: 14px; box-shadow: 0 24px 60px rgba(15,23,42,.18); overflow:hidden;
+  }
+  .imp-dlg header { display:flex; align-items:center; gap:10px; padding: 14px 18px; border-bottom:1px solid var(--border-default); }
+  .imp-dlg header h2 { margin:0; font: 600 15px var(--font-sans); color: var(--color-grey-900); flex:1; }
+  .imp-dlg header .x { background:transparent; border:0; cursor:pointer; color: var(--fg3); padding:6px; border-radius:6px; }
+  .imp-dlg header .x:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+  .imp-body { padding: 18px; }
+  .imp-help { font-size: 12.5px; color: var(--fg3); line-height: 1.5; margin: 0 0 14px; }
+  .imp-source {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+  }
+  .imp-source label {
+    display:flex; align-items:flex-start; gap:10px; padding:12px;
+    border:1.5px solid var(--border-default); border-radius:10px; cursor:pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .imp-source label:hover { border-color: var(--color-brand-200); background: var(--color-brand-50); }
+  .imp-source input[type=radio] { margin-top: 2px; accent-color: var(--color-brand-600); }
+  .imp-source label.on { border-color: var(--color-brand-600); background: var(--color-brand-50); }
+  .imp-source .src-ti { font: 600 13px var(--font-sans); color: var(--color-grey-900); display:flex; align-items:center; gap:6px; }
+  .imp-source .src-sb { font-size: 11.5px; color: var(--fg3); margin-top: 2px; line-height: 1.4; }
+  .imp-drop {
+    border: 1.5px dashed var(--color-grey-300); border-radius: 10px; padding: 22px; text-align:center;
+    color: var(--fg3); cursor:pointer; transition: border-color .15s, background .15s;
+  }
+  .imp-drop:hover, .imp-drop.over { border-color: var(--color-brand-500); background: var(--color-brand-50); color: var(--color-brand-700); }
+  .imp-drop i { font-size: 24px; display:block; margin-bottom: 6px; color: var(--color-brand-600); }
+  .imp-drop b { color: var(--color-grey-900); font-weight: 600; }
+  .imp-fmt { display:flex; gap:6px; flex-wrap:wrap; margin-top: 10px; justify-content:center; }
+  .imp-fmt .fmt {
+    font: 600 10px var(--font-sans); padding: 2px 8px; border-radius: 999px;
+    background: var(--color-grey-100); color: var(--color-grey-700); letter-spacing: .04em;
+  }
+  .imp-opts { display:flex; flex-direction:column; gap:8px; margin-top: 14px; }
+  .imp-opts label { display:flex; align-items:center; gap:8px; font-size:13px; color: var(--color-grey-800); }
+  .imp-opts input[type=checkbox] { accent-color: var(--color-brand-600); }
+  .imp-foot { padding: 12px 18px; border-top:1px solid var(--border-default); display:flex; justify-content:flex-end; gap:8px; background: var(--color-grey-50); }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Loans</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-text-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item active" href="loans.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="#"><i class="ri-calendar-check-line"></i> Repayments <span class="nav-dot"></span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="#"><i class="ri-shield-check-line"></i> Payment review <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Migrations</span><span class="urg">6</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="migrations.html"><i class="ri-shield-user-line"></i> Pending verification <span class="nav-badge urgent">4</span></a>
+          <a class="nav-item" href="migrations.html?tab=failed"><i class="ri-error-warning-line"></i> Reconciliation failed <span class="nav-badge urgent">2</span></a>
+          <a class="nav-item" href="migrations.html?tab=drift"><i class="ri-pulse-line"></i> Drift watch <span class="nav-badge">3</span></a>
+          <a class="nav-item" href="migrations.html?tab=materialized"><i class="ri-check-double-line"></i> Recently materialized</a>
+          <a class="nav-item" href="migrations.html?tab=rejected"><i class="ri-archive-line"></i> Rejected (audit)</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="portfolio.html"><i class="ri-pie-chart-2-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Loans</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search loans, customers, IDs…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px;">
+          <div>
+            <h1 class="page-title">Loans</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:620px;">
+              Active and inactive loan accounts originated by Goldcrest. Filter by health to surface accounts behind on payment or use Import to bring in a loan book from another system.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" id="btnExport"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-secondary" id="btnImport"><i class="ri-upload-cloud-2-line"></i> Import</button>
+            <button class="btn btn-secondary" data-rw-open="loan"><i class="ri-archive-line"></i> Register existing</button>
+            <button class="btn btn-primary" id="btnNewLoan"><i class="ri-add-line"></i> New loan</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="team-kpis">
+          <div class="card">
+            <div class="card-title">Active loans</div>
+            <div class="card-value">89</div>
+            <div class="delta up">+4 this month</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Outstanding principal</div>
+            <div class="card-value">$4.82M</div>
+            <div class="delta muted">avg $54.1k / loan</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Behind</div>
+            <div class="card-value" style="color: var(--color-warning-700);">11</div>
+            <div class="delta muted">12% of book · $312k at risk</div>
+          </div>
+          <div class="card">
+            <div class="card-title">On-time rate</div>
+            <div class="card-value" style="color: var(--color-success-700);">93%</div>
+            <div class="delta up">+2pt vs last month</div>
+          </div>
+        </div>
+
+        <!-- Status tabs -->
+        <div class="type-tabs" role="tablist" id="typeTabs">
+          <button class="type-tab active" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">8</span></button>
+          <button class="type-tab" data-type="CURRENT"><span class="type-chip t-finance" style="padding:1px 6px; font-size:9px;">CURRENT</span> <span class="cnt">4</span></button>
+          <button class="type-tab" data-type="AHEAD"><span class="type-chip t-sales" style="padding:1px 6px; font-size:9px;">AHEAD</span> <span class="cnt">1</span></button>
+          <button class="type-tab" data-type="BEHIND"><span class="type-chip t-followup" style="padding:1px 6px; font-size:9px;">BEHIND</span> <span class="cnt">2</span></button>
+          <button class="type-tab" data-type="CLOSED"><span class="type-chip" style="padding:1px 6px; font-size:9px; background: var(--color-grey-100); color: var(--color-grey-700); border:1px solid var(--color-grey-200);">CLOSED</span> <span class="cnt">1</span></button>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-secondary btn-sm">Site: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Originator: Any ▾</button>
+          <button class="btn btn-secondary btn-sm">Term: Any ▾</button>
+          <button class="btn btn-secondary btn-sm">Originated: All time ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <div style="flex:1;"></div>
+          <span style="font-size:12px; color: var(--fg3);"><span id="visibleCount">8</span> loans</span>
+        </div>
+
+        <!-- Loans table -->
+        <div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>Loan</th>
+                <th>Customer</th>
+                <th>Health</th>
+                <th>Outstanding</th>
+                <th>Term · rate</th>
+                <th>Next due</th>
+                <th>Originator</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="loanRows">
+              <tr class="row-link" data-type="CURRENT" data-id="L-2294">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2294</div><div class="em">Sunridge · Lot 14B</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-brand-700);">AT</span><div><div class="nm">Anna Thompson</div><div class="em">anna.t@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-checkbox-circle-line"></i> Current</span></td>
+                <td>$48,200<div style="font-size:11px; color: var(--fg3);">36% paid</div></td>
+                <td>15 yr · 9.5%</td>
+                <td>Jun 25</td>
+                <td>Kevin Manga</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="AHEAD" data-id="L-2287">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2287</div><div class="em">Riverbend · Lot 7A</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-700);">KN</span><div><div class="nm">Kim Nguyen</div><div class="em">kim.n@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-arrow-up-line"></i> Ahead 4 mo</span></td>
+                <td>$31,840<div style="font-size:11px; color: var(--fg3);">58% paid</div></td>
+                <td>10 yr · 8.75%</td>
+                <td>auto-debit</td>
+                <td>Marcus Owusu</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="BEHIND" data-id="L-2271">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2271</div><div class="em">Tema Heights · Lot 22</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-700);">DM</span><div><div class="nm">Daniel Mensah</div><div class="em">d.mensah@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-error-warning-line"></i> 32 d late</span></td>
+                <td>$58,910 <span style="color: var(--color-warning-700); font-size:11px;">+$240 fee</span><div style="font-size:11px; color: var(--fg3);">21% paid</div></td>
+                <td>20 yr · 10.25%</td>
+                <td><span style="color: var(--color-warning-700);">May 25 (overdue)</span></td>
+                <td>Aïssa Diallo</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="CURRENT" data-id="L-2266">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2266</div><div class="em">Sunridge · Lot 9C</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-blue-700);">SR</span><div><div class="nm">Sofia Rodríguez</div><div class="em">sofia.r@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-checkbox-circle-line"></i> Current</span></td>
+                <td>$72,400<div style="font-size:11px; color: var(--fg3);">19% paid</div></td>
+                <td>20 yr · 9.0%</td>
+                <td>Jun 25</td>
+                <td>Sara Ndong</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="CURRENT" data-id="L-2240">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2240</div><div class="em">Dakar Bay · Lot 3</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-pink-700);">FY</span><div><div class="nm">Fatou Yansané</div><div class="em">fatou.y@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-checkbox-circle-line"></i> Current</span></td>
+                <td>$41,150<div style="font-size:11px; color: var(--fg3);">42% paid</div></td>
+                <td>12 yr · 9.25%</td>
+                <td>Jun 30</td>
+                <td>Sara Ndong</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="BEHIND" data-id="L-2228">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2228</div><div class="em">Phoenix Mesa · Lot 18</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-orange-700);">RB</span><div><div class="nm">Ravi Banerjee</div><div class="em">ravi.b@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-error-warning-line"></i> 14 d late</span></td>
+                <td>$26,300 <span style="color: var(--color-warning-700); font-size:11px;">+$110 fee</span><div style="font-size:11px; color: var(--fg3);">63% paid</div></td>
+                <td>8 yr · 9.5%</td>
+                <td><span style="color: var(--color-warning-700);">Jun 12 (overdue)</span></td>
+                <td>Nora Achebe</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="CURRENT" data-id="L-2204">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono);">L-2204</div><div class="em">Riverbend · Lot 11</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-grey-700);">MC</span><div><div class="nm">Marcus Chen</div><div class="em">m.chen@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-checkbox-circle-line"></i> Current</span></td>
+                <td>$54,720<div style="font-size:11px; color: var(--fg3);">29% paid</div></td>
+                <td>15 yr · 9.0%</td>
+                <td>Jun 28</td>
+                <td>Daniel Park</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="CLOSED" data-id="L-1998">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div><div class="nm" style="font: 600 13.5px var(--font-mono); color: var(--fg3);">L-1998</div><div class="em">Eastview · Plot 04</div></div></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-800);">EK</span><div><div class="nm">Esi Kwarteng</div><div class="em">esi.k@example.com</div></div></div></td>
+                <td><span class="type-chip" style="padding:2px 8px; font-size:10px; background: var(--color-grey-100); color: var(--color-grey-700); border:1px solid var(--color-grey-200);"><i class="ri-checkbox-circle-fill"></i> Paid off</span></td>
+                <td style="color: var(--fg3);">$0<div style="font-size:11px; color: var(--fg3);">100% paid</div></td>
+                <td style="color: var(--fg3);">5 yr · 8.5%</td>
+                <td style="color: var(--fg3);">—</td>
+                <td>Adwoa Boateng</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+     IMPORT DIALOG
+     ============================================================ -->
+<div class="imp-back" id="impBack" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="imp-dlg">
+    <header>
+      <i class="ri-upload-cloud-2-line" style="color: var(--color-brand-600); font-size: 18px;"></i>
+      <h2 id="impTitle">Import loan accounts</h2>
+      <button class="x" id="impClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+    <div class="imp-body">
+      <p class="imp-help">Bring in a loan book from an Excel spreadsheet exported from your banking core or previous origination system. Each row becomes a loan account; we'll match customers and listings by ID, email, or name and queue ambiguous rows for review.</p>
+
+      <div class="imp-drop" id="impDrop">
+        <i class="ri-upload-cloud-2-line"></i>
+        <div><b>Drop your Excel file here</b> or click to browse</div>
+        <div style="font-size:11.5px; margin-top:4px;">We'll validate columns before anything is created · up to 25 MB</div>
+        <div class="imp-fmt"><span class="fmt">.XLSX</span><a href="#" id="impTemplate" style="font-size:11.5px; margin-left:4px; align-self:center;">Download template</a></div>
+        <input type="file" id="impFile" hidden accept=".xlsx" />
+      </div>
+
+      <div class="imp-opts">
+        <label><input type="checkbox" checked /> First row contains column headers</label>
+        <label><input type="checkbox" checked /> Match customers by email or national ID</label>
+        <label><input type="checkbox" /> Send a welcome email to customers without one on file</label>
+        <label><input type="checkbox" /> Auto-create payment schedule from term &amp; rate</label>
+      </div>
+    </div>
+    <div class="imp-foot">
+      <button class="btn btn-text btn-sm" id="impCancel">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="impStart"><i class="ri-arrow-right-line"></i> Validate &amp; preview</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NEW LOAN WIZARD
+     ============================================================ -->
+<div class="nlw-back" id="nlwBack" role="dialog" aria-modal="true" aria-labelledby="nlwTitle">
+  <div class="nlw-dlg">
+    <header class="nlw-head">
+      <i class="ri-file-add-line" style="color: var(--color-brand-600); font-size: 18px;"></i>
+      <h2 id="nlwTitle">New loan</h2>
+      <div class="nlw-stepper" id="nlwDots"></div>
+      <button class="x" id="nlwClose" aria-label="Close"><i class="ri-close-line"></i></button>
+    </header>
+
+    <div class="nlw-body">
+
+      <!-- STEP 1 — type -->
+      <section class="nlw-step" data-step="type">
+        <h3 class="nlw-h">Is this a new loan or an existing one?</h3>
+        <p class="nlw-p">Pick "New loan" to originate a fresh contract, or "Existing loan" to register a loan that already started outside Ream (paper records, another system).</p>
+        <div class="nlw-tiles" id="nlwTypeTiles">
+          <button type="button" class="nlw-tile active" data-type="new">
+            <span class="t-ic"><i class="ri-add-line"></i></span>
+            <div class="t-title">New loan</div>
+            <div class="t-sub">Originate from scratch — pick land, borrower, product. Generates a contract you can send to the borrower for signature.</div>
+          </button>
+          <button type="button" class="nlw-tile" data-type="existing">
+            <span class="t-ic"><i class="ri-archive-line"></i></span>
+            <div class="t-title">Existing loan</div>
+            <div class="t-sub">Bring a loan that already exists into Ream — manual import of borrower, balance, schedule, and payment history.</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 2 — asset -->
+      <section class="nlw-step" data-step="asset" hidden>
+        <h3 class="nlw-h">Which land is the borrower buying?</h3>
+        <p class="nlw-p">Choose the site and how many parcels. Total price comes from the site's per-parcel price.</p>
+        <div class="nlw-grid2">
+          <div>
+            <label class="nlw-lbl">Site</label>
+            <select class="nlw-input" id="nlwSite">
+              <option value="brookfield" data-price="62167">Brookfield · $62,167 / parcel</option>
+              <option value="sunridge" data-price="58400">Sunridge · $58,400 / parcel</option>
+              <option value="riverbend" data-price="71250">Riverbend · $71,250 / parcel</option>
+              <option value="tema-heights" data-price="44900">Tema Heights · $44,900 / parcel</option>
+              <option value="dakar-bay" data-price="52800">Dakar Bay · $52,800 / parcel</option>
+            </select>
+          </div>
+          <div>
+            <label class="nlw-lbl">Number of parcels</label>
+            <input class="nlw-input" id="nlwParcels" type="number" min="1" max="20" value="1" />
+          </div>
+        </div>
+        <div class="nlw-asset-card" id="nlwAssetPreview">
+          <div class="img"><i class="ri-landscape-line"></i></div>
+          <div class="meta">
+            <div class="ti" id="nlwAssetTi">Brookfield</div>
+            <div class="su"><span id="nlwAssetParcels">1 parcel</span> · <span id="nlwAssetTotal">$62,167</span> total</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 — borrower -->
+      <section class="nlw-step" data-step="borrower" hidden>
+        <h3 class="nlw-h">Who is the borrower?</h3>
+        <p class="nlw-p">Pick an existing customer, or attach a not-yet-saved person — they'll only become a customer record once the contract is sent or saved.</p>
+        <label class="nlw-lbl">Borrower</label>
+        <div class="nlw-cmb" id="nlwBorrCmb">
+          <button type="button" class="nlw-cmb-trigger" id="nlwBorrTrigger" aria-expanded="false" aria-haspopup="listbox">
+            <span class="ava" id="nlwBorrTrigAva" style="width:32px;height:32px;border-radius:50%;color:white;display:inline-flex;align-items:center;justify-content:center;font:600 12px var(--font-sans);background:var(--color-brand-700);">AT</span>
+            <div class="meta">
+              <div class="nm" id="nlwBorrTrigNm">Anna Thompson</div>
+              <div class="em" id="nlwBorrTrigEm">anna.t@example.com · +1 555 014 8821 · Customer</div>
+            </div>
+            <i class="ri-arrow-down-s-line chev"></i>
+          </button>
+          <div class="nlw-cmb-pop" id="nlwBorrPop" role="listbox">
+            <div class="nlw-cmb-search">
+              <i class="ri-search-line"></i>
+              <input type="text" id="nlwBorrSearch" placeholder="Search by name, email, or phone…" autocomplete="off" />
+            </div>
+            <div class="nlw-borr-list" id="nlwBorrList">
+              <button type="button" class="nlw-borr-row active" data-id="C-1042" data-search="anna thompson anna.t@example.com 5550148821">
+                <span class="ava" style="background:var(--color-brand-700);">AT</span>
+                <div class="meta"><div class="nm">Anna Thompson</div><div class="em">anna.t@example.com · +1 555 014 8821</div></div>
+                <span class="badge">Customer</span>
+              </button>
+              <button type="button" class="nlw-borr-row" data-id="C-1108" data-search="kim nguyen kim.n@example.com 5552209013">
+                <span class="ava" style="background:var(--color-success-700);">KN</span>
+                <div class="meta"><div class="nm">Kim Nguyen</div><div class="em">kim.n@example.com · +1 555 220 9013</div></div>
+                <span class="badge">Customer</span>
+              </button>
+              <button type="button" class="nlw-borr-row" data-id="P-1290" data-search="joseph owusu joseph.o@example.com 233245550142">
+                <span class="ava" style="background:var(--color-warning-700);">JO</span>
+                <div class="meta"><div class="nm">Joseph Owusu</div><div class="em">joseph.o@example.com · +233 24 555 0142</div></div>
+                <span class="badge prospect">Prospect</span>
+              </button>
+              <button type="button" class="nlw-borr-row" data-id="P-1335" data-search="sofia rodriguez rodríguez sofia.r@example.com 34612884902">
+                <span class="ava" style="background:var(--color-blue-700);">SR</span>
+                <div class="meta"><div class="nm">Sofia Rodríguez</div><div class="em">sofia.r@example.com · +34 612 884 902</div></div>
+                <span class="badge prospect">Prospect</span>
+              </button>
+            </div>
+            <div class="nlw-borr-empty" id="nlwBorrEmpty" hidden>No matches. Add them as a new person below.</div>
+            <div class="nlw-cmb-foot">
+              <button type="button" class="nlw-cmb-add" id="nlwCreateBorr">
+                <i class="ri-user-add-line"></i> <span id="nlwCreateBorrLbl">Add a new person — won't be saved as a customer yet</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="nlw-new-borr" id="nlwNewBorr" hidden>
+          <div class="nlw-grid2">
+            <div><label class="nlw-lbl">Full name</label><input class="nlw-input" id="nlwNbName" placeholder="e.g. Daniel Mensah" /></div>
+            <div><label class="nlw-lbl">Email</label><input class="nlw-input" id="nlwNbEmail" type="email" placeholder="daniel@example.com" /></div>
+            <div><label class="nlw-lbl">Phone</label><input class="nlw-input" id="nlwNbPhone" placeholder="+233 24 555 0000" /></div>
+            <div><label class="nlw-lbl">National ID</label><input class="nlw-input" id="nlwNbNid" placeholder="GHA-…" /></div>
+          </div>
+          <div class="nlw-hint"><i class="ri-information-line"></i> They'll only be created as a customer if you save this loan as a draft or send it.</div>
+        </div>
+      </section>
+
+      <!-- STEP 4 — schedule -->
+      <section class="nlw-step" data-step="schedule" hidden>
+        <h3 class="nlw-h">Payment schedule</h3>
+        <p class="nlw-p">When does the borrower start paying, and on which day each month?</p>
+        <div class="nlw-grid2">
+          <div>
+            <label class="nlw-lbl">First payment date</label>
+            <input class="nlw-input" type="date" id="nlwFirstPay" value="2026-06-25" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">When the first scheduled payment is due. Usually 30 days after origination.</div>
+          </div>
+          <div>
+            <label class="nlw-lbl">Payment day of month</label>
+            <select class="nlw-input" id="nlwPayDay">
+              <option value="1">1st</option>
+              <option value="5">5th</option>
+              <option value="10">10th</option>
+              <option value="15">15th</option>
+              <option value="20">20th</option>
+              <option value="25" selected>25th</option>
+              <option value="28">28th (last business day)</option>
+            </select>
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Recurring monthly due day. Defaults to the day-of-month of the first payment.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 5 — state (existing only) -->
+      <section class="nlw-step" data-step="state" hidden>
+        <h3 class="nlw-h">Current state of the loan</h3>
+        <p class="nlw-p">For loans that already started outside Ream, capture what's been paid so far so the schedule and balance reconcile from day one.</p>
+        <div class="nlw-grid2">
+          <div>
+            <label class="nlw-lbl">Current installment number</label>
+            <input class="nlw-input" type="number" min="0" step="1" id="nlwStInst" value="0" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Which installment is next due (e.g. 7 means installments 1–6 are paid).</div>
+          </div>
+          <div>
+            <label class="nlw-lbl">Already paid in current installment</label>
+            <input class="nlw-input" type="number" min="0" step="0.01" id="nlwStCurPaid" value="0" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Partial amount already collected toward the installment that's next due.</div>
+          </div>
+          <div>
+            <label class="nlw-lbl">Late fee outstanding</label>
+            <input class="nlw-input" type="number" min="0" step="0.01" id="nlwStLate" value="0" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Late fees accrued and not yet paid. Use 0 if none.</div>
+          </div>
+          <div>
+            <label class="nlw-lbl">Interest paid to date</label>
+            <input class="nlw-input" type="number" min="0" step="0.01" id="nlwStIntPaid" value="0" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Sum of interest portion across paid installments.</div>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label class="nlw-lbl">Escrow paid to date</label>
+            <input class="nlw-input" type="number" min="0" step="0.01" id="nlwStEscPaid" value="0" />
+            <div style="margin-top:4px;font:500 11.5px var(--font-sans);color:var(--fg3);">Property taxes / insurance reserves collected and held in escrow.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 6 — summary -->
+      <section class="nlw-step" data-step="summary" hidden>
+        <h3 class="nlw-h">Contract summary</h3>
+        <p class="nlw-p">Confirm before saving or sending. Click any value to edit in place.</p>
+        <div class="nlw-sum-cards">
+          <div class="nlw-sum-card" id="nlwSumAsset">
+            <div class="nlw-sum-head">
+              <i class="ri-landscape-line"></i><span>Asset</span>
+              <button type="button" class="nlw-sum-edit" data-edit="asset"><i class="ri-pencil-line"></i> Edit</button>
+            </div>
+            <div class="nlw-sum-view" data-view="asset">
+              <div class="r"><span class="k">Site</span><span class="v" data-s="asset">Brookfield · 1 parcel</span></div>
+              <div class="r"><span class="k">Total price</span><span class="v" data-s="price">$62,167</span></div>
+            </div>
+            <div class="nlw-sum-edit-form" data-form="asset" hidden>
+              <div class="nlw-grid2">
+                <div><label class="nlw-lbl">Site</label><select class="nlw-input" id="nlwSumSite"><option value="brookfield" data-price="62167">Brookfield · $62,167 / parcel</option><option value="sunridge" data-price="58400">Sunridge · $58,400 / parcel</option><option value="riverbend" data-price="71250">Riverbend · $71,250 / parcel</option><option value="tema-heights" data-price="44900">Tema Heights · $44,900 / parcel</option><option value="dakar-bay" data-price="52800">Dakar Bay · $52,800 / parcel</option></select></div>
+                <div><label class="nlw-lbl">Parcels</label><input class="nlw-input" type="number" min="1" max="20" id="nlwSumParcels" value="1" /></div>
+              </div>
+              <div class="nlw-sum-edit-actions">
+                <button type="button" class="btn btn-text btn-sm" data-cancel="asset">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" data-save="asset">Save changes</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="nlw-sum-card" id="nlwSumBorrower">
+            <div class="nlw-sum-head">
+              <i class="ri-user-3-line"></i><span>Borrower</span>
+              <button type="button" class="nlw-sum-edit" data-edit="borrower"><i class="ri-pencil-line"></i> Change</button>
+            </div>
+            <div class="nlw-sum-view" data-view="borrower">
+              <div class="r"><span class="k">Name</span><span class="v" data-s="borrower">Anna Thompson</span></div>
+              <div class="r"><span class="k">Status</span><span class="v" data-s="borrowerStatus">Existing customer</span></div>
+            </div>
+            <div class="nlw-sum-edit-form" data-form="borrower" hidden>
+              <p class="nlw-p" style="margin:0 0 10px;font-size:12.5px;">Switching the borrower returns to step 3 so you can pick or create a different person.</p>
+              <div class="nlw-sum-edit-actions">
+                <button type="button" class="btn btn-text btn-sm" data-cancel="borrower">Cancel</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-save="borrower"><i class="ri-arrow-go-back-line"></i> Change borrower</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="nlw-sum-card" id="nlwSumSchedule" style="grid-column:1 / -1;">
+            <div class="nlw-sum-head">
+              <i class="ri-calendar-event-line"></i><span>Payment schedule</span>
+              <button type="button" class="nlw-sum-edit" data-edit="schedule"><i class="ri-pencil-line"></i> Edit</button>
+            </div>
+            <div class="nlw-sum-view" data-view="schedule">
+              <div class="r"><span class="k">First payment</span><span class="v" data-s="firstPay">Jun 25, 2026</span></div>
+              <div class="r"><span class="k">Payment day</span><span class="v" data-s="payDay">25th of each month</span></div>
+            </div>
+            <div class="nlw-sum-edit-form" data-form="schedule" hidden>
+              <div class="nlw-grid2">
+                <div><label class="nlw-lbl">First payment date</label><input class="nlw-input" type="date" id="nlwSumFirstPay" /></div>
+                <div><label class="nlw-lbl">Payment day</label><select class="nlw-input" id="nlwSumPayDay"><option value="1">1st</option><option value="5">5th</option><option value="10">10th</option><option value="15">15th</option><option value="20">20th</option><option value="25">25th</option><option value="28">28th (last business day)</option></select></div>
+              </div>
+              <div class="nlw-sum-edit-actions">
+                <button type="button" class="btn btn-text btn-sm" data-cancel="schedule">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" data-save="schedule">Save changes</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="nlw-sum-card" id="nlwSumState" style="grid-column:1 / -1;" hidden>
+            <div class="nlw-sum-head">
+              <i class="ri-history-line"></i><span>Loan state at takeover</span>
+              <button type="button" class="nlw-sum-edit" data-edit="state"><i class="ri-pencil-line"></i> Edit</button>
+            </div>
+            <div class="nlw-sum-view" data-view="state">
+              <div class="r"><span class="k">Current installment</span><span class="v" data-s="stInst">#0</span></div>
+              <div class="r"><span class="k">Already paid in current installment</span><span class="v" data-s="stCurPaid">$0.00</span></div>
+              <div class="r"><span class="k">Interest paid to date</span><span class="v" data-s="stIntPaid">$0.00</span></div>
+              <div class="r"><span class="k">Escrow paid to date</span><span class="v" data-s="stEscPaid">$0.00</span></div>
+              <div class="r"><span class="k">Late fee outstanding</span><span class="v" data-s="stLate">$0.00</span></div>
+            </div>
+            <div class="nlw-sum-edit-form" data-form="state" hidden>
+              <div class="nlw-grid2">
+                <div><label class="nlw-lbl">Current installment #</label><input class="nlw-input" type="number" min="0" step="1" id="nlwSumStInst" /></div>
+                <div><label class="nlw-lbl">Already paid in current installment</label><input class="nlw-input" type="number" min="0" step="0.01" id="nlwSumStCurPaid" /></div>
+                <div><label class="nlw-lbl">Late fee outstanding</label><input class="nlw-input" type="number" min="0" step="0.01" id="nlwSumStLate" /></div>
+                <div><label class="nlw-lbl">Interest paid to date</label><input class="nlw-input" type="number" min="0" step="0.01" id="nlwSumStIntPaid" /></div>
+                <div style="grid-column:1/-1;"><label class="nlw-lbl">Escrow paid to date</label><input class="nlw-input" type="number" min="0" step="0.01" id="nlwSumStEscPaid" /></div>
+              </div>
+              <div class="nlw-sum-edit-actions">
+                <button type="button" class="btn btn-text btn-sm" data-cancel="state">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm" data-save="state">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nlw-hint"><i class="ri-shield-check-line"></i> Saving as draft creates the customer record (if new) and the loan, but no contract is sent. Saving and sending generates the contract PDF and queues it on DocuSign for signature.</div>
+      </section>
+
+    </div>
+
+    <footer class="nlw-foot">
+      <button type="button" class="btn btn-text btn-sm" id="nlwDiscard"><i class="ri-delete-bin-6-line"></i> Discard</button>
+      <div class="nlw-foot-spacer"></div>
+      <button type="button" class="btn btn-text btn-sm" id="nlwBack" hidden><i class="ri-arrow-left-line"></i> Back</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="nlwDraft" hidden><i class="ri-draft-line"></i> Save as draft</button>
+      <button type="button" class="btn btn-primary btn-sm" id="nlwNext"><span class="lbl">Continue</span><i class="ri-arrow-right-line"></i></button>
+    </footer>
+  </div>
+</div>
+
+<script src="row-actions.js"></script>
+<script>
+RowActions.mount({ role: 'customer', table: '#loanRows' });
+
+// Wire row click → loan detail
+document.querySelectorAll('#loanRows tr.row-link').forEach(tr => {
+  tr.addEventListener('click', (e) => {
+    if (e.target.closest('input,button,a,.dr-row-actions')) return;
+    window.location.href = 'loan-detail.html?id=' + (tr.dataset.id || '');
+  });
+});
+
+// Toast
+function toast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s';
+  document.body.appendChild(t); requestAnimationFrame(()=>t.style.opacity='1');
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2200);
+}
+
+// Import dialog
+const impBack = document.getElementById('impBack');
+const impDrop = document.getElementById('impDrop');
+const impFile = document.getElementById('impFile');
+function openImport() { impBack.classList.add('on'); }
+function closeImport() { impBack.classList.remove('on'); }
+document.getElementById('btnImport').addEventListener('click', openImport);
+document.getElementById('impClose').addEventListener('click', closeImport);
+document.getElementById('impCancel').addEventListener('click', closeImport);
+impBack.addEventListener('click', (e) => { if (e.target === impBack) closeImport(); });
+// (source picker removed — Excel-only)
+impDrop.addEventListener('click', () => impFile.click());
+['dragenter','dragover'].forEach(ev => impDrop.addEventListener(ev, (e) => { e.preventDefault(); impDrop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => impDrop.addEventListener(ev, (e) => { e.preventDefault(); impDrop.classList.remove('over'); }));
+impDrop.addEventListener('drop', (e) => {
+  const f = e.dataTransfer?.files?.[0];
+  if (f) { closeImport(); toast('Validating ' + f.name + '…'); }
+});
+impFile.addEventListener('change', (e) => {
+  const f = e.target.files?.[0];
+  if (f) { closeImport(); toast('Validating ' + f.name + '…'); }
+});
+document.getElementById('impStart').addEventListener('click', () => { closeImport(); toast('No file selected — choose one to continue'); });
+document.getElementById('impTemplate').addEventListener('click', (e) => { e.preventDefault(); toast('Template downloaded · loans-import-template.xlsx'); });
+
+// Header buttons
+document.getElementById('btnExport').addEventListener('click', () => {
+  const rows = [['Loan ID','Customer','Site','Status','Balance','Next due']];
+  document.querySelectorAll('#loanRows tr').forEach(tr => {
+    const id = tr.dataset.id || '';
+    const cust = tr.querySelector('.person-cell .nm')?.textContent.trim() || '';
+    const site = tr.querySelector('td:nth-child(2) .em')?.textContent.trim() || '';
+    const status = tr.dataset.type || '';
+    rows.push([id, cust, site, status, '', '']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'loans.csv' });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+  toast('Exported ' + (rows.length - 1) + ' loans as CSV');
+});
+document.getElementById('btnNewLoan').addEventListener('click', () => openWizard());
+
+// ============================================================
+// New loan wizard
+// ============================================================
+const NLW_STEPS_NEW = ['type','asset','borrower','schedule','summary'];
+const NLW_STEPS_EXISTING = ['type','asset','borrower','schedule','state','summary'];
+const STEP_LABELS = { type:'Type', asset:'Land', borrower:'Borrower', schedule:'Schedule', state:'State', summary:'Review' };
+function nlwSteps() { return nlwState.type === 'existing' ? NLW_STEPS_EXISTING : NLW_STEPS_NEW; }
+let nlwIdx = 0;
+const nlwBack = document.getElementById('nlwBack');
+const nlwState = {
+  type: 'new',
+  site: 'brookfield', sitePrice: 62167, parcels: 1,
+  borrowerId: 'C-1042', borrowerName: 'Anna Thompson', isNewBorr: false,
+  firstPay: '2026-06-25', payDay: 25,
+  // existing-only state of loan
+  stInst: 0, stCurPaid: 0, stIntPaid: 0, stEscPaid: 0, stLate: 0
+};
+
+function openWizard() {
+  nlwIdx = 0;
+  nlwBack.classList.add('on');
+  renderWiz();
+}
+function closeWizard() { nlwBack.classList.remove('on'); }
+
+function renderWiz() {
+  const steps = nlwSteps();
+  const cur = steps[nlwIdx];
+  // Steps
+  document.querySelectorAll('.nlw-step').forEach(s => {
+    s.hidden = (s.dataset.step !== cur);
+  });
+  // Segmented progress bar
+  const dots = document.getElementById('nlwDots');
+  const segs = steps.map((_, i) => {
+    const cls = i < nlwIdx ? 'done' : i === nlwIdx ? 'on' : '';
+    return `<div class="seg ${cls}"></div>`;
+  }).join('');
+  dots.innerHTML = `
+    <div class="seg-row">${segs}</div>
+    <div class="seg-cap">
+      <span class="cur">${STEP_LABELS[cur] || ''}</span>
+      <span class="cnt">Step ${nlwIdx + 1} of ${steps.length}</span>
+    </div>`;
+  // Footer
+  document.querySelector('.nlw-foot #nlwBack')?.toggleAttribute('hidden', nlwIdx === 0);
+  document.getElementById('nlwDraft').hidden = !(nlwIdx >= 2);
+  const next = document.getElementById('nlwNext');
+  if (cur === 'summary') {
+    next.querySelector('.lbl').textContent = nlwState.type === 'existing' ? 'Save loan' : 'Save & send';
+    next.querySelector('i').className = nlwState.type === 'existing' ? 'ri-save-line' : 'ri-send-plane-line';
+  } else {
+    next.querySelector('.lbl').textContent = 'Continue';
+    next.querySelector('i').className = 'ri-arrow-right-line';
+  }
+  if (cur === 'summary') renderSummary();
+}
+
+function renderSummary() {
+  const totalPrice = nlwState.sitePrice * nlwState.parcels;
+  const sites = { brookfield:'Brookfield', sunridge:'Sunridge', riverbend:'Riverbend', 'tema-heights':'Tema Heights', 'dakar-bay':'Dakar Bay' };
+  const set = (k, v) => { const el = document.querySelector(`[data-s="${k}"]`); if (el) el.textContent = v; };
+  const fmt = (n) => '$' + Number(n||0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  set('asset', `${sites[nlwState.site]} · ${nlwState.parcels} parcel${nlwState.parcels>1?'s':''}`);
+  set('price', '$' + totalPrice.toLocaleString());
+  set('borrower', nlwState.borrowerName + (nlwState.isNewBorr ? ' (new)' : ''));
+  set('borrowerStatus', nlwState.isNewBorr ? 'New person — not yet a customer' : 'Existing customer');
+  // Schedule
+  const fp = document.getElementById('nlwFirstPay');
+  if (fp && fp.value) {
+    nlwState.firstPay = fp.value;
+    const d = new Date(fp.value);
+    set('firstPay', d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }));
+  }
+  const pd = document.getElementById('nlwPayDay');
+  if (pd) {
+    nlwState.payDay = +pd.value;
+    const v = pd.value;
+    const suf = (v==='1'||v==='21') ? 'st' : (v==='2'||v==='22') ? 'nd' : (v==='3'||v==='23') ? 'rd' : 'th';
+    set('payDay', (pd.options[pd.selectedIndex].text.includes('last') ? pd.options[pd.selectedIndex].text : v + suf + ' of each month'));
+  }
+  // State (existing only)
+  const stCard = document.getElementById('nlwSumState');
+  if (nlwState.type === 'existing') {
+    stCard.hidden = false;
+    // Pull values from step inputs (if user advanced through state step)
+    const stInstEl = document.getElementById('nlwStInst');
+    const stLateEl = document.getElementById('nlwStLate');
+    const stCurPaidEl = document.getElementById('nlwStCurPaid');
+    const stIntPaidEl = document.getElementById('nlwStIntPaid');
+    const stEscPaidEl = document.getElementById('nlwStEscPaid');
+    if (stInstEl) nlwState.stInst = parseInt(stInstEl.value, 10) || 0;
+    if (stLateEl) nlwState.stLate = +stLateEl.value || 0;
+    if (stCurPaidEl) nlwState.stCurPaid = +stCurPaidEl.value || 0;
+    if (stIntPaidEl) nlwState.stIntPaid = +stIntPaidEl.value || 0;
+    if (stEscPaidEl) nlwState.stEscPaid = +stEscPaidEl.value || 0;
+    set('stInst', '#' + nlwState.stInst);
+    set('stCurPaid', fmt(nlwState.stCurPaid));
+    set('stIntPaid', fmt(nlwState.stIntPaid));
+    set('stEscPaid', fmt(nlwState.stEscPaid));
+    set('stLate', fmt(nlwState.stLate));
+  } else {
+    stCard.hidden = true;
+  }
+}
+
+document.querySelectorAll('#nlwTypeTiles .nlw-tile').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#nlwTypeTiles .nlw-tile').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    nlwState.type = t.dataset.type;
+    renderWiz();
+  });
+});
+function refreshAssetPreview() {
+  const sel = document.getElementById('nlwSite');
+  const opt = sel.options[sel.selectedIndex];
+  const price = +opt.dataset.price;
+  const parcels = +document.getElementById('nlwParcels').value || 1;
+  nlwState.site = sel.value; nlwState.sitePrice = price; nlwState.parcels = parcels;
+  document.getElementById('nlwAssetTi').textContent = opt.text.split(' · ')[0];
+  document.getElementById('nlwAssetParcels').textContent = parcels + ' parcel' + (parcels > 1 ? 's' : '');
+  document.getElementById('nlwAssetTotal').textContent = '$' + (price * parcels).toLocaleString();
+}
+document.getElementById('nlwSite').addEventListener('change', refreshAssetPreview);
+document.getElementById('nlwParcels').addEventListener('input', refreshAssetPreview);
+// Summary editable cards
+document.querySelectorAll('.nlw-sum-edit[data-edit]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.edit;
+    const card = btn.closest('.nlw-sum-card');
+    card.classList.add('is-editing');
+    card.querySelector(`[data-form="${key}"]`).hidden = false;
+    if (key === 'asset') {
+      document.getElementById('nlwSumSite').value = nlwState.site;
+      document.getElementById('nlwSumParcels').value = nlwState.parcels;
+    }
+  });
+});
+document.querySelectorAll('.nlw-sum-edit-form [data-cancel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.cancel;
+    const card = btn.closest('.nlw-sum-card');
+    card.classList.remove('is-editing');
+    card.querySelector(`[data-form="${key}"]`).hidden = true;
+  });
+});
+document.querySelector('[data-save="asset"]')?.addEventListener('click', () => {
+  const siteSel = document.getElementById('nlwSumSite');
+  nlwState.site = siteSel.value;
+  nlwState.sitePrice = +siteSel.options[siteSel.selectedIndex].dataset.price;
+  nlwState.parcels = +document.getElementById('nlwSumParcels').value || 1;
+  // Sync the step-2 inputs too
+  document.getElementById('nlwSite').value = nlwState.site;
+  document.getElementById('nlwParcels').value = nlwState.parcels;
+  refreshAssetPreview();
+  document.querySelector('[data-cancel="asset"]').click();
+  renderWiz();
+});
+document.querySelector('[data-save="borrower"]')?.addEventListener('click', () => {
+  document.querySelector('[data-cancel="borrower"]').click();
+  nlwIdx = nlwSteps().indexOf('borrower');
+  renderWiz();
+});
+document.querySelector('[data-save="schedule"]')?.addEventListener('click', () => {
+  const fp = document.getElementById('nlwSumFirstPay');
+  const pd = document.getElementById('nlwSumPayDay');
+  if (fp.value) { document.getElementById('nlwFirstPay').value = fp.value; nlwState.firstPay = fp.value; }
+  document.getElementById('nlwPayDay').value = pd.value;
+  nlwState.payDay = +pd.value;
+  document.querySelector('[data-cancel="schedule"]').click();
+  renderSummary();
+});
+document.querySelector('[data-edit="schedule"]')?.addEventListener('click', () => {
+  document.getElementById('nlwSumFirstPay').value = document.getElementById('nlwFirstPay').value;
+  document.getElementById('nlwSumPayDay').value = document.getElementById('nlwPayDay').value;
+});
+document.querySelector('[data-save="state"]')?.addEventListener('click', () => {
+  const inst = parseInt(document.getElementById('nlwSumStInst').value, 10) || 0;
+  const late = +document.getElementById('nlwSumStLate').value || 0;
+  const cp = +document.getElementById('nlwSumStCurPaid').value || 0;
+  const itp = +document.getElementById('nlwSumStIntPaid').value || 0;
+  const ep = +document.getElementById('nlwSumStEscPaid').value || 0;
+  nlwState.stInst = inst; nlwState.stLate = late; nlwState.stCurPaid = cp; nlwState.stIntPaid = itp; nlwState.stEscPaid = ep;
+  // Sync step inputs too
+  const sync = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  sync('nlwStInst', inst); sync('nlwStLate', late);
+  sync('nlwStCurPaid', cp); sync('nlwStIntPaid', itp); sync('nlwStEscPaid', ep);
+  document.querySelector('[data-cancel="state"]').click();
+  renderSummary();
+});
+document.querySelector('[data-edit="state"]')?.addEventListener('click', () => {
+  document.getElementById('nlwSumStInst').value = nlwState.stInst;
+  document.getElementById('nlwSumStLate').value = nlwState.stLate;
+  document.getElementById('nlwSumStCurPaid').value = nlwState.stCurPaid;
+  document.getElementById('nlwSumStIntPaid').value = nlwState.stIntPaid;
+  document.getElementById('nlwSumStEscPaid').value = nlwState.stEscPaid;
+});
+const nlwBorrTrigger = document.getElementById('nlwBorrTrigger');
+const nlwBorrPop = document.getElementById('nlwBorrPop');
+const nlwBorrSearch = document.getElementById('nlwBorrSearch');
+const nlwBorrEmpty = document.getElementById('nlwBorrEmpty');
+const nlwBorrTrigAva = document.getElementById('nlwBorrTrigAva');
+const nlwBorrTrigNm = document.getElementById('nlwBorrTrigNm');
+const nlwBorrTrigEm = document.getElementById('nlwBorrTrigEm');
+const nlwCreateBorrLbl = document.getElementById('nlwCreateBorrLbl');
+
+function openBorrPop() {
+  nlwBorrPop.dataset.open = '1';
+  nlwBorrTrigger.setAttribute('aria-expanded', 'true');
+  setTimeout(() => nlwBorrSearch.focus(), 30);
+}
+function closeBorrPop() {
+  nlwBorrPop.dataset.open = '0';
+  nlwBorrTrigger.setAttribute('aria-expanded', 'false');
+}
+nlwBorrTrigger.addEventListener('click', () => {
+  if (nlwBorrPop.dataset.open === '1') closeBorrPop(); else openBorrPop();
+});
+document.addEventListener('click', e => {
+  if (!document.getElementById('nlwBorrCmb').contains(e.target)) closeBorrPop();
+});
+nlwBorrSearch.addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('#nlwBorrList .nlw-borr-row').forEach(r => {
+    const hit = !q || (r.dataset.search || '').toLowerCase().includes(q);
+    r.style.display = hit ? '' : 'none';
+    if (hit) visible++;
+  });
+  nlwBorrEmpty.hidden = visible !== 0;
+  nlwCreateBorrLbl.textContent = q && visible === 0
+    ? `Add "${e.target.value.trim()}" as a new person`
+    : "Add a new person — won't be saved as a customer yet";
+});
+document.querySelectorAll('#nlwBorrList .nlw-borr-row').forEach(r => {
+  r.addEventListener('click', () => {
+    document.querySelectorAll('#nlwBorrList .nlw-borr-row').forEach(x => x.classList.remove('active'));
+    r.classList.add('active');
+    nlwState.borrowerId = r.dataset.id;
+    nlwState.borrowerName = r.querySelector('.nm').textContent;
+    nlwState.isNewBorr = false;
+    // Update trigger
+    const ava = r.querySelector('.ava');
+    nlwBorrTrigAva.textContent = ava.textContent;
+    nlwBorrTrigAva.style.background = ava.style.background;
+    nlwBorrTrigNm.textContent = r.querySelector('.nm').textContent;
+    const em = r.querySelector('.em').textContent;
+    const badge = r.querySelector('.badge').textContent;
+    nlwBorrTrigEm.textContent = `${em} · ${badge}`;
+    document.getElementById('nlwNewBorr').hidden = true;
+    closeBorrPop();
+  });
+});
+document.getElementById('nlwCreateBorr').addEventListener('click', () => {
+  const form = document.getElementById('nlwNewBorr');
+  form.hidden = false;
+  document.querySelectorAll('#nlwBorrList .nlw-borr-row').forEach(x => x.classList.remove('active'));
+  nlwState.isNewBorr = true;
+  // Prefill name from search query if used
+  const q = nlwBorrSearch.value.trim();
+  if (q) {
+    const nameInput = document.getElementById('nlwNbName');
+    if (!nameInput.value) nameInput.value = q;
+    nlwState.borrowerName = q;
+  }
+  // Reflect on trigger
+  nlwBorrTrigAva.textContent = '+';
+  nlwBorrTrigAva.style.background = 'var(--color-grey-300)';
+  nlwBorrTrigNm.textContent = nlwState.borrowerName || 'New person';
+  nlwBorrTrigEm.textContent = "Won't be saved as a customer until contract is sent or saved";
+  closeBorrPop();
+});
+document.getElementById('nlwNbName').addEventListener('input', e => {
+  nlwState.borrowerName = e.target.value || 'New person';
+  nlwState.isNewBorr = true;
+});
+// Product picker removed — schedule step now drives this part of the wizard.
+document.getElementById('nlwClose').addEventListener('click', closeWizard);
+nlwBack.addEventListener('click', e => { if (e.target === nlwBack) closeWizard(); });
+document.getElementById('nlwDiscard').addEventListener('click', () => { closeWizard(); toast('Loan discarded'); });
+document.querySelector('.nlw-foot #nlwBack').addEventListener('click', () => { if (nlwIdx > 0) { nlwIdx--; renderWiz(); } });
+document.getElementById('nlwDraft').addEventListener('click', () => {
+  closeWizard();
+  toast('Saved as draft · L-DRAFT');
+  setTimeout(() => { window.location.href = 'loan-detail.html?id=L-DRAFT&state=draft'; }, 600);
+});
+document.getElementById('nlwNext').addEventListener('click', () => {
+  const steps = nlwSteps();
+  if (nlwIdx < steps.length - 1) { nlwIdx++; renderWiz(); }
+  else {
+    closeWizard();
+    toast('Contract sent to ' + nlwState.borrowerName + ' for signature');
+    setTimeout(() => { window.location.href = 'loan-detail.html?id=L-DRAFT&state=sent'; }, 600);
+  }
+});
+document.querySelectorAll('.icon-btn').forEach(b => b.addEventListener('click', () => toast('No new notifications')));
+
+// Filter dropdowns
+document.querySelectorAll('.btn.btn-secondary.btn-sm, .btn.btn-text.btn-sm').forEach(b => {
+  b.addEventListener('click', () => toast('Filter: ' + b.textContent.trim()));
+});
+
+// Status tabs
+const tabs = document.querySelectorAll('#typeTabs .type-tab');
+const rows = document.querySelectorAll('#loanRows tr');
+const visibleCount = document.getElementById('visibleCount');
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  const type = t.dataset.type;
+  let n = 0;
+  rows.forEach(r => {
+    const show = type === 'all' || r.dataset.type === type;
+    r.style.display = show ? '' : 'none';
+    if (show) n++;
+  });
+  visibleCount.textContent = n;
+}));
+
+// Esc to close dialog
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeImport(); });
+</script>
+<script src="_loan-import-wizard.js"></script>
+<script src="_register-wizards.js"></script>
+</body>
+</html>

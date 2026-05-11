@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Tina Wu</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .user-hero { display:grid;grid-template-columns:64px 1fr auto;gap:18px;padding:18px 20px;background:white;border:1px solid var(--adm-border);border-radius:10px;align-items:center;margin-bottom:18px; }
+  .user-hero h2 { font:600 20px var(--font-display);margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+  .user-hero .meta-row { display:flex;gap:14px;font:500 12px var(--font-sans);color:var(--adm-text-3);margin-top:4px;flex-wrap:wrap; }
+  .lock-banner { display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 18px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:18px; }
+  .lock-banner i.warn-i { color:var(--adm-danger);font-size:24px; }
+  .lock-banner .t { font:600 14px var(--font-sans);color:var(--adm-danger-700); }
+  .lock-banner .s { font:500 12.5px var(--font-sans);color:#7f1d1d;margin-top:2px; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"users",
+    crumb:[{label:"Users",href:"admin-users.html"},{label:"Tina Wu"}],
+    env:"STAGING",
+  });
+</script>
+<script>
+document.getElementById("adm-page").innerHTML = `
+  <div class="lock-banner" id="lockBanner">
+    <i class="material-symbols-rounded warn-i">lock</i>
+    <div>
+      <div class="t">User is locked</div>
+      <div class="s">Locked by <b>Marc Olsen</b> on May 6, 2026 · reason: <code style="background:#fee2e2;padding:1px 6px;border-radius:4px;">ABUSE</code> · note: "Reported by 4 prospects for harassment via SMS composer"</div>
+    </div>
+    <div class="row gap-2">
+      <button class="adm-btn adm-btn-sm" id="viewReport">View report</button>
+      <button class="adm-btn adm-btn-sm adm-btn-primary" data-act="unlock">Unlock…</button>
+    </div>
+  </div>
+
+  <div class="user-hero">
+    <span class="adm-ava xl round" style="background:#ec4899;font-size:24px;">TW</span>
+    <div>
+      <h2>Tina Wu <span class="adm-pill locked">Locked</span></h2>
+      <div class="meta-row">
+        <span class="mono">usr_8c12 · tina@atlascap.com</span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">domain</i> <a href="admin-org-detail.html" style="color:var(--adm-stripe);text-decoration:none;font-weight:500;">Atlas Capital Partners</a> · Admin</span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">verified_user</i> MFA: TOTP enrolled</span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">schedule</i> Joined Oct 2023</span>
+      </div>
+    </div>
+    <div class="row gap-2">
+      <button class="adm-btn" data-act="impersonate"><i class="material-symbols-rounded">login</i> Impersonate</button>
+      <button class="adm-btn" data-act="reset-mfa"><i class="material-symbols-rounded">key</i> Reset MFA</button>
+      <button class="adm-btn" data-act="pw-reset"><i class="material-symbols-rounded">forward_to_inbox</i> Send password reset</button>
+      <button class="adm-kebab" data-act="user-more" style="width:36px;height:36px;border:1px solid var(--adm-border);"><i class="material-symbols-rounded">more_horiz</i></button>
+    </div>
+  </div>
+
+  <div class="adm-tabs">
+    <a class="adm-tab active">Overview</a>
+    <a class="adm-tab">Sessions <span class="ct">12</span></a>
+    <a class="adm-tab">Audit <span class="ct">418</span></a>
+    <a class="adm-tab">Reports <span class="ct">4</span></a>
+    <a class="adm-tab">Notes</a>
+  </div>
+
+  <div class="adm-detail-grid">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">history</i> Recent activity</h3></div>
+        <div class="adm-card-body" style="padding:0 18px;">
+          ${[
+            {t:"Locked by admin", i:"lock", k:"crit", actor:"Marc Olsen", body:'reason <code class="mono">ABUSE</code> · "Reported by 4 prospects"', ts:"4 days ago"},
+            {t:"Reported by prospect", i:"flag", k:"crit", actor:"sjones@gmail.com", body:'Inappropriate SMS content · message ID <code class="mono">msg_2k81</code>', ts:"5 days ago"},
+            {t:"Sent SMS",        i:"sms",     k:"warn", actor:"Tina Wu", body:'to <span class="mono">+1 (555) 412-0033</span> · "Buy now or lose your spot"', ts:"5 days ago"},
+            {t:"Logged in",       i:"login",   k:"info", actor:"Tina Wu", body:'from <span class="mono">98.176.0.41</span> · Chicago, IL · Chrome / macOS', ts:"5 days ago"},
+            {t:"Changed role",    i:"shield",  k:"info", actor:"Karoline Steiner", body:'on <a href="#">Tina Wu</a>: Loan officer → Admin', ts:"3 weeks ago"},
+            {t:"Enrolled MFA",    i:"verified_user", k:"ok", actor:"Tina Wu", body:"TOTP via Authy", ts:"6 mo ago"},
+          ].map(a => `
+            <div class="adm-audit-row">
+              <span class="ts">${a.ts}</span>
+              <span class="icon ${a.k}"><i class="material-symbols-rounded">${a.i}</i></span>
+              <div class="body">
+                <div><span class="actor">${a.actor}</span> <span class="verb">${a.t.toLowerCase()}</span></div>
+                <div class="meta">${a.body}</div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+        <div class="adm-card-foot"><a class="adm-btn adm-btn-ghost adm-btn-sm">Open full audit</a><span></span></div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">devices</i> Active sessions</h3>
+          <button class="adm-btn adm-btn-sm adm-btn-danger">Revoke all</button>
+        </div>
+        <table class="adm-table">
+          <thead><tr><th>Device</th><th>IP</th><th>Location</th><th>Started</th><th></th></tr></thead>
+          <tbody>
+            ${[
+              {d:"Chrome 124 · macOS Sonoma",ip:"98.176.0.41",loc:"Chicago, IL",s:"5d ago"},
+              {d:"Safari · iOS 17.4",       ip:"172.58.224.9",loc:"Chicago, IL",s:"5d ago"},
+              {d:"Chrome 124 · Windows 11",  ip:"203.0.113.7", loc:"Lagos, NG (suspicious)",s:"6d ago",susp:true},
+            ].map(s => `
+              <tr>
+                <td>${s.d}${s.susp?'<span class="adm-pill warn no-dot" style="margin-left:8px;">UNUSUAL</span>':""}</td>
+                <td class="mono">${s.ip}</td>
+                <td>${s.loc}</td>
+                <td class="muted">${s.s}</td>
+                <td class="right"><button class="adm-btn adm-btn-sm adm-btn-danger">Revoke</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">person</i> Identity</h3></div>
+        <div class="adm-card-body">
+          <dl class="adm-dl">
+            <dt>User ID</dt><dd><code>usr_8c12</code></dd>
+            <dt>Email</dt><dd>tina@atlascap.com <span class="adm-pill active no-dot" style="margin-left:6px;">verified</span></dd>
+            <dt>Phone</dt><dd>+1 (312) 555-0188</dd>
+            <dt>Locale</dt><dd>en-US</dd>
+            <dt>Auth method</dt><dd>Email · Password + TOTP</dd>
+            <dt>Last login</dt><dd>5 days ago · 98.176.0.41</dd>
+            <dt>Failed logins (24h)</dt><dd>0</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">domain</i> Org membership</h3></div>
+        <div class="adm-card-body">
+          <div class="adm-stat-row"><span class="lbl">Atlas Capital Partners</span><span class="val">Admin</span></div>
+          <div class="adm-stat-row"><span class="lbl">Joined</span><span class="val">Oct 14, 2023</span></div>
+          <div class="adm-stat-row"><span class="lbl">Invited by</span><span class="val">Karoline Steiner</span></div>
+          <button class="adm-btn adm-btn-sm" style="margin-top:10px;width:100%;">Open Atlas Capital</button>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3 style="color:var(--adm-danger-700);"><i class="material-symbols-rounded">warning</i> Danger zone</h3></div>
+        <div class="adm-card-body" style="padding:0;">
+          <div class="adm-stat-row" style="padding:11px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">Reset password</span><button class="adm-btn adm-btn-sm" data-d="pw">Send link</button></div>
+          <div class="adm-stat-row" style="padding:11px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">Reset MFA</span><button class="adm-btn adm-btn-sm" data-d="mfa">Reset…</button></div>
+          <div class="adm-stat-row" style="padding:11px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">Force sign-out</span><button class="adm-btn adm-btn-sm" data-d="signout">Sign out</button></div>
+          <div class="adm-stat-row" style="padding:11px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">Unlock</span><button class="adm-btn adm-btn-sm adm-btn-primary" data-d="unlock">Unlock…</button></div>
+          <div class="adm-stat-row" style="padding:11px 16px;"><span class="lbl">Delete user</span><button class="adm-btn adm-btn-sm adm-btn-danger" data-d="delete">Delete…</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const T = AdminShell.toast;
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const NAME = "Tina Wu", EMAIL = "tina@atlascap.com";
+
+// Lock banner
+$("#viewReport").onclick = () => T("Opening abuse report #ar_4f12…", "info");
+async function doUnlock() {
+  const ok = await AdminShell.confirmDialog({ title: `Unlock ${NAME}?`, body: "They regain immediate access. Reason and note are required and recorded in audit. The reporters are notified that the report was reviewed.", confirmLabel: "Unlock", danger: false });
+  if (ok) {
+    T(`${NAME} unlocked`, "success");
+    $("#lockBanner").style.display = "none";
+    $$(".adm-pill.locked").forEach(p => { p.textContent = "Active"; p.className = "adm-pill active"; });
+  }
+}
+$$('[data-act="unlock"]').forEach(b => b.onclick = doUnlock);
+$$('[data-d="unlock"]').forEach(b => b.onclick = doUnlock);
+
+// Hero actions
+$('[data-act="impersonate"]').onclick = async () => {
+  const ok = await AdminShell.confirmDialog({ title: `Impersonate ${NAME}?`, body: "User is currently locked — impersonation is allowed for investigation only. Every action is recorded. The org owner is notified.", confirmLabel: "Start session", danger: true });
+  if (ok) T(`Impersonation session started for ${NAME}`, "warn");
+};
+async function doMfaReset() {
+  const ok = await AdminShell.confirmDialog({ title: `Reset MFA for ${NAME}?`, body: "They'll be required to re-enroll on next login. TOTP secret is destroyed immediately.", confirmLabel: "Reset MFA" });
+  if (ok) T(`MFA reset for ${NAME}`, "warn");
+}
+$('[data-act="reset-mfa"]').onclick = doMfaReset;
+$$('[data-d="mfa"]').forEach(b => b.onclick = doMfaReset);
+
+async function doPwReset() {
+  const ok = await AdminShell.confirmDialog({ title: `Send password reset to ${NAME}?`, body: `A reset link will be emailed to ${EMAIL}. Link expires in 60 minutes.`, confirmLabel: "Send reset" });
+  if (ok) T(`Password reset sent to ${EMAIL}`, "success");
+}
+$('[data-act="pw-reset"]').onclick = doPwReset;
+$$('[data-d="pw"]').forEach(b => b.onclick = doPwReset);
+
+$('[data-act="user-more"]').onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+  { label: "Copy user ID", icon: "content_copy", onClick: () => { navigator.clipboard.writeText("usr_8c12"); T("usr_8c12 copied", "success"); }},
+  { label: "Copy email",   icon: "content_copy", onClick: () => { navigator.clipboard.writeText(EMAIL); T("Email copied", "success"); }},
+  { label: "Open in CRM",  icon: "open_in_new",  onClick: () => T("Opening CRM record…", "info") },
+  "-",
+  { label: "Export user data", icon: "file_download", onClick: () => T("Export queued · email when ready", "info") },
+  { label: "View audit (418)", icon: "fact_check", onClick: () => location.href = "admin-audit.html" },
+]);
+
+// Danger zone — force sign-out & delete
+$$('[data-d="signout"]').forEach(b => b.onclick = async () => {
+  const ok = await AdminShell.confirmDialog({ title: `Force sign-out for ${NAME}?`, body: "All 3 active sessions will be revoked immediately. Next page-load will redirect to login.", confirmLabel: "Sign out", danger: true });
+  if (ok) {
+    T(`${NAME} signed out of all devices`, "warn");
+    $$('.adm-table .adm-btn-danger').forEach(b => { b.disabled = true; b.style.opacity = "0.4"; });
+  }
+});
+$$('[data-d="delete"]').forEach(b => b.onclick = async () => {
+  const ok = await AdminShell.confirmDialog({ title: `Delete ${NAME}?`, body: "Permanently destroys the user account after a 30-day grace period. Their authored records (loans, messages, audit entries) remain attributed but unlinked. Requires two-person approval.", confirmLabel: "Schedule deletion", danger: true });
+  if (ok) T(`Deletion scheduled · grace expires June 9 · awaiting approval`, "danger");
+});
+
+// Tabs visual swap
+$$('.adm-tab').forEach(t => t.onclick = () => {
+  $$('.adm-tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  T(`Tab: ${t.textContent.trim()}`, "info");
+});
+
+// Open full audit + Open Atlas Capital
+$$('.adm-btn-ghost').forEach(b => { if (b.textContent.includes("Open full audit")) b.onclick = () => location.href = "admin-audit.html"; });
+$$('.adm-btn-sm').forEach(b => { if (b.textContent.trim() === "Open Atlas Capital") b.onclick = () => location.href = "admin-org-detail.html?org=atlas-capital"; });
+
+// Revoke all sessions
+$$('.adm-card-head .adm-btn-danger').forEach(b => b.onclick = async () => {
+  const ok = await AdminShell.confirmDialog({ title: `Revoke all ${NAME}'s sessions?`, body: "All 3 active sessions terminate immediately. They'll need to log in again on every device.", confirmLabel: "Revoke all", danger: true });
+  if (ok) { T(`All sessions revoked`, "warn"); $$('.adm-table .adm-btn-danger').forEach(rb => { rb.disabled = true; rb.style.opacity = "0.4"; }); }
+});
+// Single-session revoke
+$$('.adm-table .adm-btn-danger').forEach(b => b.onclick = async () => {
+  const tr = b.closest('tr');
+  const dev = tr.querySelector('td').textContent.trim();
+  const ok = await AdminShell.confirmDialog({ title: `Revoke session?`, body: `Terminates the ${dev} session immediately.`, confirmLabel: "Revoke", danger: true });
+  if (ok) { tr.style.opacity = "0.4"; b.disabled = true; T("Session revoked", "warn"); }
+});
+</script>
+</body>
+</html>

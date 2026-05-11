@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Land detail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="_listings.css" />
+<link rel="stylesheet" href="_detail.css" />
+<style>
+  /* History pane — borderless list */
+  #paneHistory .dt-panel { border: 0; background: transparent; padding: 0; box-shadow: none; }
+
+  /* Next-due banner (compact echo of loan-detail's qa-dock) */
+  .ld-next-due {
+    margin-top: 16px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+    background: white; border: 1px solid var(--color-grey-200); border-left: 3px solid var(--color-brand-700);
+    padding: 14px 18px; border-radius: 10px;
+  }
+  .ld-next-due .nd-meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .ld-next-due .nd-label { font: 600 11px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--fg3); }
+  .ld-next-due .nd-val { font: 500 14px var(--font-sans); color: var(--color-grey-900); font-variant-numeric: tabular-nums; }
+  .ld-next-due .nd-val strong { font-weight: 700; }
+  .ld-next-due .nd-pill { font: 600 11px var(--font-sans); padding: 2px 8px; border-radius: 999px; background: var(--color-success-50); color: var(--color-success-700); border: 1px solid var(--color-success-200); }
+  .ld-next-due .nd-sub { font: 500 12px var(--font-sans); color: var(--fg3); margin-top: 4px; }
+  .ld-next-due .nd-cta { display: flex; align-items: center; gap: 14px; }
+  .ld-next-due .nd-primary { appearance: none; cursor: pointer; background: var(--color-brand-700); color: white; border: 0; border-radius: 8px; padding: 9px 14px; font: 600 13px var(--font-sans); display: inline-flex; align-items: center; gap: 7px; }
+  .ld-next-due .nd-primary:hover { background: var(--color-brand-800); }
+  .ld-next-due .nd-link { appearance: none; cursor: pointer; background: transparent; border: 0; font: 600 12.5px var(--font-sans); color: var(--fg2); display: inline-flex; align-items: center; gap: 5px; padding: 4px 6px; }
+  .ld-next-due .nd-link:hover { color: var(--color-brand-700); }
+  @media (max-width: 1080px) { .ld-next-due { grid-template-columns: 1fr; gap: 10px; } }
+
+  /* Amortization mini-table */
+  .ld-amo { width: 100%; border-collapse: collapse; font: 13px var(--font-sans); }
+  .ld-amo th, .ld-amo td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--color-grey-100); }
+  .ld-amo th { font: 600 11px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--fg3); background: var(--color-grey-25); }
+  .ld-amo td.num, .ld-amo th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .ld-amo tbody tr.current td { background: var(--color-warning-50); }
+  .ld-amo tbody tr.paid td { color: var(--fg2); }
+  .ld-amo .pill-s { font: 600 11px var(--font-sans); padding: 2px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; }
+  .ld-amo .pill-s[data-s="paid"] { background: var(--color-success-50); color: var(--color-success-700); border: 1px solid var(--color-success-200); }
+  .ld-amo .pill-s[data-s="pending"] { background: var(--color-warning-50); color: var(--color-warning-700); border: 1px solid var(--color-warning-200); }
+  .ld-amo .pill-s[data-s="declined"] { background: var(--color-danger-50); color: var(--color-danger-700); border: 1px solid var(--color-danger-200); }
+  .ld-amo .pill-s[data-s="scheduled"] { background: var(--color-grey-50); color: var(--fg2); border: 1px solid var(--color-grey-200); }
+  .ld-amo .pill-s[data-s="current"] { background: var(--color-brand-50); color: var(--color-brand-700); border: 1px solid var(--color-brand-200); }
+
+  .ld-link-row { display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 14px; background: var(--color-grey-25); border-top: 1px solid var(--color-grey-100); border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; }
+  .ld-link-row a { font: 600 13px var(--font-sans); color: var(--color-brand-700); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .ld-link-row a:hover { text-decoration: underline; }
+  .ld-link-row .l-meta { font: 500 12px var(--font-sans); color: var(--fg3); }
+</style>
+</head>
+<body>
+<div data-screen-label="Land Detail">
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Land/HL-009</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar" data-active="lands"></aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="ream.html"><i class="ri-home-5-line"></i></a>
+          <span class="sep">/</span>
+          <span>Listings</span>
+          <span class="sep">/</span>
+          <a href="lands.html">Land</a>
+          <span class="sep">/</span>
+          <span class="current">Hillside · Plot 09</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ===================== HERO with GALLERY ===================== -->
+        <div class="dt-hero with-gallery" data-img="hillside">
+          <div class="dt-photo"></div>
+          <div class="dt-gallery" id="gallery">
+            <div class="main" id="galMain" style="background-image: linear-gradient(180deg, #4a3520 0%, #8b6f3a 35%, #c4a263 70%, #5e7a3f 100%);">
+              <span class="badge" data-tone="reserved"><i class="ri-time-line"></i> RESERVED · DEPOSIT PAID</span>
+              <span class="count" id="galCount"><i class="ri-image-line"></i> 1 / 4</span>
+            </div>
+            <div class="dt-thumbs" id="galThumbs">
+              <div class="dt-thumb on" data-kind="image" data-bg="linear-gradient(180deg, #4a3520 0%, #8b6f3a 35%, #c4a263 70%, #5e7a3f 100%)" data-cap="Aerial · Plot 09 · north view"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 50%, #f59e0b 100%)" data-cap="Boundary stones · east side"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(135deg, #134e4a 0%, #34d399 60%, #84cc16 100%)" data-cap="Front lot line · road frontage"></div>
+              <div class="dt-thumb" data-kind="image" data-bg="linear-gradient(180deg, #7c2d12 0%, #ea580c 50%, #fbbf24 100%)" data-cap="Sunset over the parcel"></div>
+              <div class="dt-thumb" data-kind="video" data-cap="Walk-through video · 1 min"><i class="ri-play-circle-fill"></i><span class="vlab">Video</span></div>
+            </div>
+          </div>
+          <div class="dt-head">
+            <div class="eyebrow">HL-009 · LAND PARCEL</div>
+            <h1>Hillside · Plot 09</h1>
+            <div class="loc"><i class="ri-map-pin-line"></i> Hillside Phase II, Block C · Accra, Ghana</div>
+            <div class="pills">
+              <span class="pill" data-tone="success"><i class="ri-shield-check-line"></i> Title registered</span>
+              <span class="pill" data-tone="brand"><i class="ri-map-2-line"></i> Sunridge Estate</span>
+              <span class="pill"><i class="ri-ruler-2-line"></i> 480&nbsp;m²</span>
+              <span class="pill"><i class="ri-home-4-line"></i> Residential</span>
+              <span class="pill"><i class="ri-landscape-line"></i> Hilltop</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" id="btnConvert"><i class="ri-bank-line"></i> Start financing</button>
+              <button class="btn btn-secondary" id="btnPlayTour"><i class="ri-play-circle-line"></i> Play tour</button>
+              <button class="btn btn-secondary"><i class="ri-share-line"></i> Share listing</button>
+              <button class="btn btn-secondary" id="btnHeaderEdit"><i class="ri-pencil-line"></i> Edit</button>
+              <div class="dt-kebab" id="heroKebab">
+                <button class="btn btn-secondary icon-only" aria-label="More" data-kebab-trigger><i class="ri-more-2-line"></i></button>
+                <div class="dt-kebab-menu" role="menu">
+                  <button role="menuitem" data-kebab="replace-media"><i class="ri-image-edit-line"></i> Replace cover &amp; gallery…</button>
+                  <button role="menuitem" data-kebab="video"><i class="ri-video-add-line"></i> Manage video tour…</button>
+                  <button role="menuitem" data-kebab="public"><i class="ri-external-link-line"></i> Open public listing</button>
+                  <button role="menuitem" data-kebab="export"><i class="ri-download-2-line"></i> Export parcel sheet (PDF)</button>
+                  <button role="menuitem" data-kebab="duplicate"><i class="ri-file-copy-line"></i> Duplicate listing</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="hold"><i class="ri-pause-circle-line"></i> Release reservation</button>
+                  <button role="menuitem" data-kebab="unlist"><i class="ri-eye-off-line"></i> Unlist parcel</button>
+                  <div class="sep"></div>
+                  <button role="menuitem" data-kebab="archive" data-tone="danger"><i class="ri-archive-line"></i> Archive parcel…</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== KPIs ===================== -->
+        <div class="dt-kpis">
+          <div class="card">
+            <div class="card-title">List price</div>
+            <div class="card-value">$48,500</div>
+            <div class="delta">$101 / m²</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Deposit</div>
+            <div class="card-value success">$4,850</div>
+            <div class="delta up"><i class="ri-check-line"></i> Paid May 22</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Reserved by</div>
+            <div class="card-value" style="font-size: 16px;">Anna Thompson</div>
+            <div class="delta">Hold expires <b>Jul 22</b></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Days listed</div>
+            <div class="card-value">31</div>
+            <div class="delta">Listed <b>May 09, 2025</b></div>
+          </div>
+        </div>
+
+        <!-- ===================== NEXT DUE INSTALLMENT (active financing) ===================== -->
+        <div class="ld-next-due" id="ldNextDue">
+          <div class="nd-meta">
+            <div class="nd-meta-row">
+              <span class="nd-label">Next due</span>
+              <span class="nd-val"><strong>$385.42</strong> · Jul 25</span>
+              <span class="nd-pill">In 21 days</span>
+              <span style="color: var(--color-grey-300);">·</span>
+              <span class="nd-val" style="color: var(--fg3);">Loan <a href="loan-detail.html?id=L-2294" style="color: var(--color-brand-700); text-decoration: none; font-weight: 600;">L-2294</a> · payment 2 of 144</span>
+            </div>
+            <div class="nd-sub">Auto-debit from ECG-Bank ••4471 · skip to pay manually</div>
+          </div>
+          <div class="nd-cta">
+            <button type="button" class="nd-primary" data-toast="Pay installment"><i class="ri-flashlight-line"></i> Pay installment</button>
+            <button type="button" class="nd-link" data-toast="Pay extra"><i class="ri-arrow-up-line"></i> Pay extra</button>
+            <button type="button" class="nd-link" data-toast="Payoff quote"><i class="ri-file-text-line"></i> Payoff quote</button>
+          </div>
+        </div>
+
+        <!-- ===================== TABS ===================== -->
+        <div class="dt-tabs" id="dtTabs">
+          <button class="dt-tab on" data-tab="overview"><i class="ri-information-line"></i> Overview</button>
+          <button class="dt-tab" data-tab="activity"><i class="ri-pulse-line"></i> Activity <span class="cnt">8</span></button>
+          <button class="dt-tab" data-tab="documents"><i class="ri-file-text-line"></i> Documents <span class="cnt">5</span></button>
+          <button class="dt-tab" data-tab="financing"><i class="ri-bank-line"></i> Financing</button>
+          <button class="dt-tab" data-tab="history"><i class="ri-history-line"></i> History</button>
+        </div>
+
+        <!-- ===================== OVERVIEW PANE ===================== -->
+        <div class="dt-pane" id="paneOverview">
+          <div class="dt-grid">
+            <!-- LEFT -->
+            <section>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-information-line lead"></i> Description</h3></header>
+                <div class="body">
+                  <div class="dt-prose">
+                    <p>Premium hilltop plot at the entrance of Hillside Phase II, with sweeping views over the Aburi range and graded access from the new estate boulevard. Power and water mains run along the front lot line; storm-drain easement is on the east boundary.</p>
+                    <p>Title is registered with the Lands Commission (GHA-LT-2024-00211) and stamped for residential use. Buyer can break ground immediately on closing — no further approvals are needed for a single-family dwelling under 2 storeys.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-ruler-line lead"></i> Specifications</h3></header>
+                <div class="body flush">
+                  <div class="dt-specs">
+                    <div>
+                      <span class="ic"><i class="ri-ruler-2-line"></i></span>
+                      <span class="num">480 m²</span>
+                      <span class="lab">Lot size · 0.119 ac</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-shape-2-line"></i></span>
+                      <span class="num">18 × 27 m</span>
+                      <span class="lab">Frontage × depth</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-compass-3-line"></i></span>
+                      <span class="num">North-east</span>
+                      <span class="lab">Lot orientation</span>
+                    </div>
+                    <div>
+                      <span class="ic"><i class="ri-road-map-line"></i></span>
+                      <span class="num">Paved</span>
+                      <span class="lab">Road access</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header><h3><i class="ri-flashlight-line lead"></i> Utilities &amp; features</h3></header>
+                <div class="body">
+                  <div class="dt-tags">
+                    <span class="tag"><i class="ri-flashlight-line"></i> Grid power at boundary</span>
+                    <span class="tag"><i class="ri-drop-line"></i> Mains water</span>
+                    <span class="tag"><i class="ri-cloud-line"></i> Storm drainage</span>
+                    <span class="tag"><i class="ri-wifi-line"></i> Fibre-ready</span>
+                    <span class="tag"><i class="ri-shield-line"></i> Gated estate</span>
+                    <span class="tag"><i class="ri-tree-line"></i> 14 m setback (front)</span>
+                    <span class="tag"><i class="ri-mountain-line"></i> Aburi view</span>
+                    <span class="tag"><i class="ri-route-line"></i> 800 m to N1 highway</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-map-pin-line lead"></i> Location</h3>
+                  <span class="meta">5°43'12"N · 0°10'48"W</span>
+                </header>
+                <div class="body" style="padding: 14px;">
+                  <div class="dt-map">
+                    <div class="pin-pop">📍 Hillside · Plot 09</div>
+                  </div>
+                </div>
+              </div>
+
+            </section>
+
+            <!-- RIGHT -->
+            <section>
+              <div class="dt-stack">
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-bank-line lead"></i> Pricing &amp; financing</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>List price</dt>      <dd><span class="num">$48,500</span></dd>
+                      <dt>Per&nbsp;m²</dt>     <dd><span class="num">$101</span></dd>
+                      <dt>Deposit (10%)</dt>   <dd><span class="num">$4,850</span></dd>
+                      <dt>Monthly est.</dt>    <dd><span class="num">$385</span> · 12 yr · 9.50% APR</dd>
+                      <dt>Financing offer</dt> <dd><a href="loan-create-v2.html">12-yr Hilltop plan →</a></dd>
+                    </dl>
+                  </div>
+                </div>
+
+                <div class="dt-panel">
+                  <header>
+                    <h3><i class="ri-time-line lead"></i> Reservation</h3>
+                    <span class="meta"><a href="#">View hold →</a></span>
+                  </header>
+                  <div class="dt-person">
+                    <span class="ava">AT</span>
+                    <div>
+                      <div class="nm">Anna Thompson</div>
+                      <div class="sb">Reserved May 22 · expires Jul 22</div>
+                    </div>
+                    <a class="icon-btn" href="customer-detail.html" aria-label="Open"><i class="ri-arrow-right-line"></i></a>
+                  </div>
+                  <div style="padding: 0 16px 14px;">
+                    <div class="dt-progress">
+                      <div class="lab"><span>Hold remaining</span><b>40 / 60 days</b></div>
+                      <div class="bar"><span style="width: 67%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-map-2-line lead"></i> Site</h3></header>
+                  <a class="dt-link-card" href="site-detail.html" style="text-decoration:none;">
+                    <span class="img" style="background-image: linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%);"></span>
+                    <div>
+                      <div class="nm">Sunridge Estate</div>
+                      <div class="sb">Phase 2 · 14 ha · 48 lots</div>
+                    </div>
+                    <i class="ri-arrow-right-line" style="color: var(--fg4);"></i>
+                  </a>
+                </div>
+
+                <div class="dt-panel">
+                  <header><h3><i class="ri-user-star-line lead"></i> Listing agent</h3></header>
+                  <div class="dt-person">
+                    <span class="ava" data-color="green">JE</span>
+                    <div>
+                      <div class="nm">Jordan Evans</div>
+                      <div class="sb">jordan.e@goldcrest.com · +233 24 555 0102</div>
+                    </div>
+                    <button class="icon-btn" aria-label="Message"><i class="ri-message-3-line"></i></button>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== ACTIVITY PANE ===================== -->
+        <div class="dt-pane" id="paneActivity" hidden>
+          <div class="dt-panel">
+            <div class="dt-activity">
+              <div class="item">
+                <span class="ic" data-tone="success"><i class="ri-check-line"></i></span>
+                <div><div class="ti">Deposit received — $4,850</div>
+                <div class="sb">Bank transfer · Anna Thompson · cleared via GCB Bank</div></div>
+                <span class="when">May 22</span>
+              </div>
+              <div class="item">
+                <span class="ic" data-tone="brand"><i class="ri-time-line"></i></span>
+                <div><div class="ti">Reserved by Anna Thompson</div>
+                <div class="sb">60-day hold placed by Jordan Evans</div></div>
+                <span class="when">May 22</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-walk-line"></i></span>
+                <div><div class="ti">Site visit — 2 prospects</div>
+                <div class="sb">Walk-through with Anna Thompson and Marcus Doe</div></div>
+                <span class="when">May 18</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-file-line"></i></span>
+                <div><div class="ti">Title certificate uploaded</div>
+                <div class="sb">GHA-LT-2024-00211 · stamped &amp; verified</div></div>
+                <span class="when">May 12</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-camera-line"></i></span>
+                <div><div class="ti">3 photos added</div>
+                <div class="sb">Drone shoot · north and east elevations</div></div>
+                <span class="when">May 11</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-pencil-line"></i></span>
+                <div><div class="ti">Listing published</div>
+                <div class="sb">By Kevin Manga · marked Available</div></div>
+                <span class="when">May 09</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-ruler-line"></i></span>
+                <div><div class="ti">Survey completed</div>
+                <div class="sb">Boundary stones placed by Adjei &amp; Co.</div></div>
+                <span class="when">Apr 28</span>
+              </div>
+              <div class="item">
+                <span class="ic"><i class="ri-add-line"></i></span>
+                <div><div class="ti">Lot created</div>
+                <div class="sb">Sub-divided from Hillside Block C parent parcel</div></div>
+                <span class="when">Apr 22</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== DOCUMENTS PANE ===================== -->
+        <div class="dt-pane" id="paneDocuments" hidden>
+          <div class="dt-panel">
+            <div class="dt-docs">
+              <div class="doc">
+                <i class="ri-file-shield-2-line lead"></i>
+                <div><div class="nm">Land title certificate</div><div class="sb">GHA-LT-2024-00211 · 1.4 MB · uploaded May 12</div></div>
+                <span class="pill" data-state="registered">Registered</span>
+                <button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button>
+              </div>
+              <div class="doc">
+                <i class="ri-map-2-line lead"></i>
+                <div><div class="nm">Cadastral survey plan</div><div class="sb">Adjei &amp; Co. · PDF · 820 KB</div></div>
+                <span class="pill" data-state="received">Received</span>
+                <button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button>
+              </div>
+              <div class="doc">
+                <i class="ri-flashlight-line lead"></i>
+                <div><div class="nm">Utilities clearance letter</div><div class="sb">ECG &amp; GWCL · received May 14</div></div>
+                <span class="pill" data-state="received">Received</span>
+                <button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button>
+              </div>
+              <div class="doc">
+                <i class="ri-government-line lead"></i>
+                <div><div class="nm">Stamp duty receipt</div><div class="sb">$485 paid · Lands Commission</div></div>
+                <span class="pill" data-state="received">Received</span>
+                <button class="icon-btn" aria-label="Download"><i class="ri-download-2-line"></i></button>
+              </div>
+              <div class="doc">
+                <i class="ri-leaf-line lead"></i>
+                <div><div class="nm">Environmental impact memo</div><div class="sb">Pending — requested May 20</div></div>
+                <span class="pill" data-state="awaiting">Awaiting</span>
+                <button class="icon-btn" aria-label="Remind"><i class="ri-notification-line"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== HISTORY PANE ===================== -->
+        <div class="dt-pane" id="paneHistory" hidden>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <div style="font: 13px var(--font-sans); color: var(--fg3);"><b style="color:var(--color-grey-900);">14</b> changes · all time</div>
+            <select class="dt-select" style="padding:6px 10px; border:1px solid var(--color-grey-200); border-radius:8px; font:13px var(--font-sans); background:white;">
+              <option>Newest first</option><option>Oldest first</option>
+            </select>
+          </div>
+          <div class="dt-panel">
+            <div class="dt-history">
+              <div class="day">May 2025</div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-check-line"></i></span><div><div class="ti"><b>Jordan Evans</b> recorded deposit payment</div><div class="diff"><span class="to">$4,850 · cleared</span></div><div class="who"><span class="ava" data-color="green">JE</span> Jordan Evans</div></div><div class="when">May 22 · 14:08</div></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-edit-line"></i></span><div><div class="ti"><b>Jordan Evans</b> changed status</div><div class="diff"><span class="from">AVAILABLE</span><span class="arr">→</span><span class="to">RESERVED</span></div><div class="who"><span class="ava" data-color="green">JE</span> Jordan Evans</div></div><div class="when">May 22 · 13:50</div></div>
+              <div class="item"><span class="ic"><i class="ri-user-add-line"></i></span><div><div class="ti"><b>Jordan Evans</b> linked customer</div><div class="diff"><span class="to">Anna Thompson</span></div><div class="who"><span class="ava" data-color="green">JE</span> Jordan Evans</div></div><div class="when">May 22 · 13:48</div></div>
+              <div class="item"><span class="ic"><i class="ri-file-add-line"></i></span><div><div class="ti"><b>Kevin Manga</b> uploaded document</div><div class="diff"><span class="to">title-certificate.pdf</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">May 12 · 09:21</div></div>
+              <div class="item"><span class="ic"><i class="ri-image-add-line"></i></span><div><div class="ti"><b>Kevin Manga</b> added 3 photos</div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">May 11 · 16:42</div></div>
+              <div class="item"><span class="ic" data-tone="brand"><i class="ri-edit-line"></i></span><div><div class="ti"><b>Kevin Manga</b> updated price</div><div class="diff"><span class="from">$45,000</span><span class="arr">→</span><span class="to">$48,500</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">May 09 · 11:05</div></div>
+              <div class="item"><span class="ic" data-tone="success"><i class="ri-eye-line"></i></span><div><div class="ti"><b>Kevin Manga</b> published listing</div><div class="diff"><span class="from">DRAFT</span><span class="arr">→</span><span class="to">AVAILABLE</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">May 09 · 10:58</div></div>
+              <div class="day">April 2025</div>
+              <div class="item"><span class="ic"><i class="ri-ruler-line"></i></span><div><div class="ti"><b>Kevin Manga</b> updated specifications</div><div class="diff"><span class="from">450 m²</span><span class="arr">→</span><span class="to">480 m²</span></div><div class="who"><span class="ava">KM</span> Kevin Manga</div></div><div class="when">Apr 28 · 15:12</div></div>
+              <div class="item"><span class="ic"><i class="ri-add-line"></i></span><div><div class="ti"><b>System</b> created parcel</div><div class="diff"><span class="to">HL-009 · sub-divided from Hillside Block C</span></div><div class="who"><span class="ava" data-color="purple">SY</span> System</div></div><div class="when">Apr 22 · 08:00</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================== FINANCING PANE ===================== -->
+        <div class="dt-pane" id="paneFinancing" hidden>
+          <div class="dt-grid">
+            <section>
+
+              <!-- Loan terms (mirrors loan-detail Terms tab) -->
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-file-list-3-line lead"></i> Loan terms</h3>
+                  <span class="meta" style="font: 12px var(--font-sans); color: var(--fg3);">Originated Jun 25, 2025</span>
+                </header>
+                <div class="body">
+                  <dl class="dt-kv">
+                    <dt>Loan ID</dt>           <dd><a href="loan-detail.html?id=L-2294" style="color: var(--color-brand-700); text-decoration: none; font-weight: 600;">L-2294</a></dd>
+                    <dt>Product</dt>           <dd>Hilltop Plan · 12-year fixed</dd>
+                    <dt>Principal</dt>         <dd><span class="num">$43,650.00</span></dd>
+                    <dt>Down payment</dt>      <dd><span class="num">$4,850.00</span> · 10%</dd>
+                    <dt>Term</dt>              <dd>144 months · matures Jun 25, 2037</dd>
+                    <dt>APR</dt>               <dd><span class="num">9.50%</span> fixed</dd>
+                    <dt>Payment</dt>           <dd><span class="num">$385.42 / month</span></dd>
+                    <dt>Payment day</dt>       <dd>25th of each month</dd>
+                    <dt>First payment</dt>     <dd>Jul 25, 2025</dd>
+                    <dt>Total interest</dt>    <dd><span class="num">$11,860.78</span> over life of loan</dd>
+                    <dt>Total to pay</dt>      <dd><span class="num">$55,510.78</span></dd>
+                    <dt>Late fee</dt>          <dd>$240 after 30 d delinquent</dd>
+                    <dt>Prepayment</dt>        <dd>Allowed without penalty</dd>
+                    <dt>Method</dt>            <dd>Auto-debit · ECG-Bank ····4471</dd>
+                  </dl>
+                </div>
+                <div class="ld-link-row">
+                  <span class="l-meta">Full terms, schedule and statements</span>
+                  <a href="loan-detail.html?id=L-2294">Open loan L-2294 <i class="ri-arrow-right-up-line"></i></a>
+                </div>
+              </div>
+
+              <!-- Amortization for active year -->
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-line-chart-line lead"></i> Amortization · Year 1</h3>
+                  <span class="meta" style="font: 12px var(--font-sans); color: var(--fg3);">Jul 2025 – Jun 2026 · 12 of 144</span>
+                </header>
+                <div class="body flush">
+                  <table class="ld-amo">
+                    <thead>
+                      <tr>
+                        <th style="width:30px;">#</th>
+                        <th>Due</th>
+                        <th class="num">Principal</th>
+                        <th class="num">Interest</th>
+                        <th class="num">Payment</th>
+                        <th class="num">Balance</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="paid"><td>1</td><td>Jul 25, 2025</td><td class="num">$39.78</td><td class="num">$345.64</td><td class="num">$385.42</td><td class="num">$43,610.22</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Paid</span></td></tr>
+                      <tr class="current"><td>2</td><td>Aug 25, 2025</td><td class="num">$40.10</td><td class="num">$345.32</td><td class="num">$385.42</td><td class="num">$43,570.12</td><td><span class="pill-s" data-s="current"><i class="ri-time-line"></i> Current</span></td></tr>
+                      <tr><td>3</td><td>Sep 25, 2025</td><td class="num">$40.41</td><td class="num">$345.01</td><td class="num">$385.42</td><td class="num">$43,529.71</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>4</td><td>Oct 25, 2025</td><td class="num">$40.73</td><td class="num">$344.69</td><td class="num">$385.42</td><td class="num">$43,488.98</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>5</td><td>Nov 25, 2025</td><td class="num">$41.06</td><td class="num">$344.37</td><td class="num">$385.42</td><td class="num">$43,447.92</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>6</td><td>Dec 25, 2025</td><td class="num">$41.38</td><td class="num">$344.04</td><td class="num">$385.42</td><td class="num">$43,406.54</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>7</td><td>Jan 25, 2026</td><td class="num">$41.71</td><td class="num">$343.72</td><td class="num">$385.42</td><td class="num">$43,364.83</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>8</td><td>Feb 25, 2026</td><td class="num">$42.04</td><td class="num">$343.39</td><td class="num">$385.42</td><td class="num">$43,322.79</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>9</td><td>Mar 25, 2026</td><td class="num">$42.37</td><td class="num">$343.05</td><td class="num">$385.42</td><td class="num">$43,280.42</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>10</td><td>Apr 25, 2026</td><td class="num">$42.71</td><td class="num">$342.72</td><td class="num">$385.42</td><td class="num">$43,237.71</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>11</td><td>May 25, 2026</td><td class="num">$43.04</td><td class="num">$342.38</td><td class="num">$385.42</td><td class="num">$43,194.67</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                      <tr><td>12</td><td>Jun 25, 2026</td><td class="num">$43.39</td><td class="num">$342.04</td><td class="num">$385.42</td><td class="num">$43,151.28</td><td><span class="pill-s" data-s="scheduled">Scheduled</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="ld-link-row">
+                  <span class="l-meta">144-period schedule · Year 2 → Year 12</span>
+                  <a href="loan-detail.html?id=L-2294#schedule">Open full schedule <i class="ri-arrow-right-up-line"></i></a>
+                </div>
+              </div>
+
+              <!-- Last 12 payments -->
+              <div class="dt-panel">
+                <header>
+                  <h3><i class="ri-bank-card-line lead"></i> Last 12 payments</h3>
+                  <span class="meta" style="font: 12px var(--font-sans); color: var(--fg3);">$1,547.21 received · 1 declined</span>
+                </header>
+                <div class="body flush">
+                  <table class="ld-amo">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th class="num">Amount</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>May 22, 2025</td><td>Bank wire · ECG-Bank</td><td><span class="num">TX-DEP-9912</span></td><td class="num">$4,850.00</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Jul 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-10204</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Aug 02, 2025</td><td>Manual · MoMo</td><td><span class="num">TX-10311</span></td><td class="num">$50.00</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Aug 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-10488</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="declined">Declined · NSF</span></td></tr>
+                      <tr><td>Aug 27, 2025</td><td>Manual · Bank wire</td><td><span class="num">TX-10491</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Sep 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-10677</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Oct 14, 2025</td><td>Manual · MoMo</td><td><span class="num">TX-10812</span></td><td class="num">$120.00</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Oct 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-10903</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Nov 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-11077</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Dec 25, 2025</td><td>Auto-debit · ••4471</td><td><span class="num">TX-11241</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Jan 25, 2026</td><td>Auto-debit · ••4471</td><td><span class="num">TX-11420</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="paid"><i class="ri-check-line"></i> Approved</span></td></tr>
+                      <tr><td>Feb 25, 2026</td><td>Auto-debit · ••4471</td><td><span class="num">TX-11603</span></td><td class="num">$385.42</td><td><span class="pill-s" data-s="pending"><i class="ri-time-line"></i> Pending</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="ld-link-row">
+                  <span class="l-meta">Includes deposit + 11 installments</span>
+                  <a href="loan-detail.html?id=L-2294#payments">Open full payment ledger <i class="ri-arrow-right-up-line"></i></a>
+                </div>
+              </div>
+
+            </section>
+            <section>
+              <div class="dt-stack">
+                <div class="dt-panel">
+                  <header><h3><i class="ri-rocket-2-line lead"></i> Loan summary</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>Status</dt>          <dd><span class="pill" data-tone="success" style="display:inline-flex; align-items:center; gap:4px;"><i class="ri-circle-fill" style="font-size:8px;"></i> Active</span></dd>
+                      <dt>Paid to date</dt>    <dd><span class="num">$7,358.78</span></dd>
+                      <dt>Remaining</dt>       <dd><span class="num">$48,152.00</span></dd>
+                      <dt>Progress</dt>        <dd>12 of 144 · 8.3%</dd>
+                      <dt>Next due</dt>        <dd><span class="num">$385.42</span> · Jul 25</dd>
+                      <dt>Streak</dt>          <dd>11 on-time · 1 retried</dd>
+                    </dl>
+                    <a href="loan-detail.html?id=L-2294" class="btn btn-primary" style="margin-top:14px; width:100%; text-decoration:none; justify-content:center;"><i class="ri-bank-line"></i> Open loan L-2294</a>
+                  </div>
+                </div>
+                <div class="dt-panel">
+                  <header><h3><i class="ri-calculator-line lead"></i> Quick payoff calc</h3></header>
+                  <div class="body">
+                    <dl class="dt-kv">
+                      <dt>If 10% extra/yr</dt> <dd>Pays off in <b>~9 yr 4 mo</b></dd>
+                      <dt>Saves</dt>           <dd><span class="num">$3,420</span> in interest</dd>
+                      <dt>If 20% extra/yr</dt> <dd>Pays off in <b>~7 yr 8 mo</b></dd>
+                      <dt>Saves</dt>           <dd><span class="num">$5,940</span> in interest</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+</div>
+
+<script src="_listings-sidebar.js"></script>
+<script>
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:8px;font:500 13px system-ui;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.18)';document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+(function(){
+  var tabs = document.querySelectorAll('#dtTabs .dt-tab');
+  var panes = { overview: document.getElementById('paneOverview'),
+                activity: document.getElementById('paneActivity'),
+                documents: document.getElementById('paneDocuments'),
+                financing: document.getElementById('paneFinancing'),
+                history:  document.getElementById('paneHistory') };
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      Object.keys(panes).forEach(function(k){ panes[k].hidden = (k !== t.dataset.tab); });
+    });
+  });
+})();
+document.getElementById('btnConvert')?.addEventListener('click', function(){ window.location.href='loan-create-v2.html'; });
+
+// -------- Hero kebab dropdown --------
+(function(){
+  var kebab = document.getElementById('heroKebab');
+  if (!kebab) return;
+  var trig = kebab.querySelector('[data-kebab-trigger]');
+  trig.addEventListener('click', function(e){ e.stopPropagation(); kebab.classList.toggle('open'); });
+  document.addEventListener('click', function(e){ if (!kebab.contains(e.target)) kebab.classList.remove('open'); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') kebab.classList.remove('open'); });
+  kebab.querySelectorAll('[data-kebab]').forEach(function(item){
+    item.addEventListener('click', function(){
+      kebab.classList.remove('open');
+      var act = item.dataset.kebab;
+      if (act === 'archive') { if (!confirm('Archive this parcel? It will be hidden from listings.')) return; toast('Parcel archived'); }
+      else toast(item.textContent.trim().replace('…',''));
+    });
+  });
+})();
+
+// -------- Header edit pencil --------
+document.getElementById('btnHeaderEdit')?.addEventListener('click', function(){
+  document.querySelector('#dtTabs .dt-tab[data-tab="overview"]')?.click();
+  toast('Click any panel\u2019s edit \u270e to inline-edit');
+});
+
+// -------- Hero gallery (click thumb to swap) --------
+(function(){
+  var thumbs = document.querySelectorAll('#galThumbs .dt-thumb');
+  var main = document.getElementById('galMain');
+  var count = document.getElementById('galCount');
+  thumbs.forEach(function(t){ if (t.dataset.bg) t.style.backgroundImage = t.dataset.bg; });
+  var imgs = Array.prototype.filter.call(thumbs, function(t){ return t.dataset.kind === 'image'; });
+  thumbs.forEach(function(t, i){
+    t.addEventListener('click', function(){
+      thumbs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      if (t.dataset.kind === 'video') { toast('Video tour player'); return; }
+      main.style.backgroundImage = t.dataset.bg;
+      var idx = imgs.indexOf(t);
+      if (count) count.innerHTML = '<i class="ri-image-line"></i> ' + (idx+1) + ' / ' + imgs.length;
+    });
+  });
+  document.getElementById('btnPlayTour')?.addEventListener('click', function(){ toast('Video tour player'); });
+})();
+document.querySelectorAll('[data-toast]').forEach(function(b){ b.addEventListener('click', function(){ toast(b.dataset.toast); }); });
+document.querySelectorAll('.icon-btn').forEach(function(b){ b.addEventListener('click', function(e){ if(b.tagName==='A') return; toast('Action: ' + (b.getAttribute('aria-label')||'…')); }); });
+document.querySelectorAll('.btn.btn-secondary').forEach(function(b){ b.addEventListener('click', function(){ if(b.onclick) return; toast(b.textContent.trim()); }); });
+</script>
+</body>
+</html>

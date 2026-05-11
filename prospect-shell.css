@@ -1,0 +1,379 @@
+/* =================================================================
+   Ream · Prospect-shell
+   ream-style sidebar nav, but tuned for the LOGGED-IN PROSPECT view.
+   Layered on top of ream.css — every prospect-* page loads:
+     ream.css   →  base shell (.app, .sidebar, .main, .topbar, .content)
+     dialog.css →  dialogs + portals
+     prospect-shell.css   →  this file (sidebar additions + page chrome)
+     prospect-portal.css  →  card primitives reused across portal pages
+   ================================================================= */
+
+/* The sidebar styles below mirror what ream.html embeds inline.
+   Extracted here so every prospect-* page renders identical chrome. */
+
+/* --- Org pill (replaces simple wordmark in the brand slot) --- */
+.sidebar .brand.org-pill {
+  padding: 8px 8px 12px;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-grey-800);
+  letter-spacing: 0;
+  border-radius: 8px;
+  transition: background .12s;
+}
+.sidebar .brand.org-pill:hover { background: var(--color-grey-50); }
+.sidebar .brand.org-pill .org-logo {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 13px var(--font-sans); color: white;
+  background: var(--color-brand-600);
+  letter-spacing: -0.02em;
+}
+.sidebar .brand.org-pill .org-meta { line-height: 1.2; min-width: 0; }
+.sidebar .brand.org-pill .org-name {
+  font: 600 13px var(--font-sans);
+  color: var(--color-grey-900);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sidebar .brand.org-pill .org-plan {
+  font: 500 10.5px var(--font-sans);
+  color: var(--fg3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.sidebar .brand.org-pill .org-caret { color: var(--fg3); font-size: 14px; }
+
+/* --- Collapsible group label --- */
+.sidebar button.group-label {
+  background: transparent; border: 0;
+  width: 100%;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 10px 4px;
+  text-align: left;
+}
+.sidebar button.group-label:hover { background: var(--color-grey-50); color: var(--color-grey-700); }
+.sidebar button.group-label .chev {
+  font-size: 14px; color: var(--fg4);
+  transition: transform .15s ease;
+}
+.sidebar .nav-group[data-collapsed="true"] button.group-label .chev { transform: rotate(-90deg); }
+.sidebar .nav-group[data-collapsed="true"] .nav-group-items { display: none; }
+.sidebar .nav-group .nav-group-items { display: flex; flex-direction: column; gap: 0; }
+.sidebar button.group-label .urg {
+  font: 600 9.5px var(--font-sans);
+  color: var(--color-error-700, #b91c1c);
+  background: var(--color-error-100, #fee2e2);
+  padding: 1px 6px;
+  border-radius: 999px;
+  visibility: hidden;
+}
+.sidebar .nav-group[data-collapsed="true"][data-has-urgent="true"] button.group-label .urg { visibility: visible; }
+
+/* --- nav-item badges + helpers --- */
+.sidebar .nav-item .nav-badge {
+  margin-left: auto;
+  font: 600 10.5px var(--font-sans);
+  background: var(--color-grey-100);
+  color: var(--color-grey-700);
+  padding: 1px 7px;
+  border-radius: 999px;
+  min-width: 18px; text-align: center;
+}
+.sidebar .nav-item.active .nav-badge { background: var(--color-brand-100); color: var(--color-brand-700); }
+.sidebar .nav-item .nav-badge.urgent { background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); }
+.sidebar .nav-item .nav-badge.live   { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+.sidebar .nav-item .nav-badge.brand  { background: var(--color-brand-100); color: var(--color-brand-700); }
+.sidebar .nav-item .nav-dot {
+  margin-left: auto;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-warning-500, #f59e0b);
+}
+
+/* Locked nav items — visible-but-greyed (gates that unlock after offer-accept) */
+.sidebar .nav-item.locked {
+  color: var(--fg4);
+  pointer-events: none;
+}
+.sidebar .nav-item.locked i { color: var(--fg4); }
+.sidebar .nav-item.locked .lock-ic {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--fg4);
+  width: auto;
+}
+
+/* --- Bottom rail: notifications + help --- */
+.sidebar .sb-rail {
+  display: flex; gap: 4px;
+  padding: 0 4px 6px;
+}
+.sidebar .sb-rail-btn {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent; border: 0;
+  color: var(--fg3); cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.sidebar .sb-rail-btn:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+.sidebar .sb-rail-btn i { font-size: 16px; }
+.sidebar .sb-rail-btn .nb {
+  position: absolute; top: 2px; right: 8px;
+  background: var(--color-error-600, #dc2626);
+  color: white;
+  font: 700 9.5px var(--font-sans);
+  padding: 1px 5px; border-radius: 999px;
+  min-width: 16px; text-align: center; line-height: 1.4;
+  box-shadow: 0 0 0 2px var(--color-base-white);
+}
+
+/* --- Augment .user pill with role chip + presence --- */
+.sidebar .user.with-menu {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+}
+.sidebar .user.with-menu:hover { background: var(--color-grey-50); }
+.sidebar .user.with-menu .avatar { position: relative; }
+.sidebar .user.with-menu .avatar .presence {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--color-base-white);
+  background: #10b981;
+}
+.sidebar .user.with-menu .meta { min-width: 0; line-height: 1.2; }
+.sidebar .user.with-menu .role-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; min-width: 0; }
+.sidebar .user.with-menu .role-chip {
+  font: 600 10px var(--font-sans);
+  background: var(--color-grey-100);
+  color: var(--color-grey-700);
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px;
+}
+.sidebar .user.with-menu .more { color: var(--fg3); font-size: 14px; align-self: center; }
+
+/* =================================================================
+   Page-level chrome inside .content — replaces the public-shell
+   eyebrow/h1/p header used previously.
+   ================================================================= */
+
+.pp-page-head-2 {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; margin-bottom: 4px; flex-wrap: wrap;
+}
+.pp-page-head-2 .ti .eyebrow {
+  font: 600 11px var(--font-sans);
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--color-brand-600);
+  margin-bottom: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.pp-page-head-2 .ti h1 {
+  margin: 0 0 6px; font: 600 25px var(--font-sans);
+  color: var(--color-grey-900); letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.pp-page-head-2 .ti p {
+  margin: 0; font: 14px var(--font-sans);
+  color: var(--fg2); line-height: 1.55;
+  max-width: 600px;
+}
+.pp-page-head-2 .actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+/* Reference-id pill in the topbar (right side) */
+.topbar .ref-pill {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 11.5px ui-monospace, monospace;
+  color: var(--fg3);
+  background: var(--color-grey-100);
+  padding: 4px 10px; border-radius: 999px;
+  flex-shrink: 0;
+}
+.topbar .ref-pill i { font-size: 12px; }
+
+/* Stage pill (sits in topbar between breadcrumb and ref-pill) */
+.topbar .stage-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 600 11.5px var(--font-sans);
+  background: var(--color-brand-50);
+  color: var(--color-brand-700);
+  padding: 4px 10px; border-radius: 999px;
+  flex-shrink: 0;
+}
+.topbar .stage-pill i { font-size: 12px; }
+
+/* =================================================================
+   Responsive — collapse sidebar to off-canvas on tablet/mobile
+   ================================================================= */
+.sb-toggle {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--color-base-white);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  color: var(--fg2); cursor: pointer;
+  flex-shrink: 0;
+}
+.sb-toggle i { font-size: 18px; }
+.sb-toggle:hover { background: var(--color-grey-50); }
+.sb-scrim {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.45);
+  z-index: 49;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.app.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 1024px) {
+  .sb-toggle { display: inline-flex; }
+  .topbar { gap: 10px; flex-wrap: wrap; }
+  .topbar .ref-pill, .topbar .stage-pill { font-size: 11px; }
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 280px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .22s ease;
+    box-shadow: 0 12px 32px rgba(15,23,42,0.18);
+  }
+  .app.sb-open .sidebar { transform: translateX(0); }
+  .main { margin-left: 0 !important; }
+  .content { padding: 16px !important; }
+}
+
+@media (max-width: 720px) {
+  .pp-page-head-2 { gap: 12px; }
+  .pp-page-head-2 .ti h1 { font-size: 21px; }
+  .pp-page-head-2 .ti p { font-size: 13px; }
+  .pp-page-head-2 .actions { width: 100%; }
+  .pp-page-head-2 .actions > * { flex: 1; justify-content: center; }
+  .topbar .breadcrumb, .topbar .ref-pill { display: none; }
+}
+
+/* =================================================================
+   Sidebar sign-up CTA — refined, shared across prospect pages
+   ================================================================= */
+.sb-signup {
+  position: relative; overflow: hidden;
+  margin: 8px 12px 4px;
+  padding: 14px 14px 12px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(212,168,88,0.28) 0%, transparent 55%),
+    linear-gradient(160deg, #122a4f 0%, #1A3868 50%, #244a8a 100%);
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 4px 12px -6px rgba(15,23,42,0.4);
+}
+.sb-signup::before {
+  content: ""; position: absolute; right: -28px; bottom: -34px;
+  width: 88px; height: 88px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sb-signup .sb-mark {
+  position: absolute; top: 12px; right: 12px;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: rgba(212,168,88,0.20);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #E8C887;
+}
+.sb-signup .sb-mark i { font-size: 12px; }
+.sb-signup .sb-eyebrow {
+  font: 700 9px var(--font-sans); text-transform: uppercase; letter-spacing: 0.12em;
+  color: #E8C887; margin-bottom: 5px;
+}
+.sb-signup .sb-title {
+  font: 600 13px var(--font-sans); margin-bottom: 10px; line-height: 1.3;
+  letter-spacing: -0.005em; max-width: 180px;
+}
+.sb-signup .sb-perks {
+  list-style: none; padding: 0; margin: 0 0 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  position: relative; z-index: 1;
+}
+.sb-signup .sb-perks li {
+  display: flex; align-items: center; gap: 6px;
+  font: 11px var(--font-sans); color: rgba(255,255,255,0.84);
+}
+.sb-signup .sb-perks i { color: #E8C887; font-size: 11px; flex-shrink: 0; }
+.sb-signup .sb-cta {
+  display: flex; width: 100%; align-items: center; justify-content: center; gap: 5px;
+  background: #fff; color: #1A3868;
+  font: 700 11.5px var(--font-sans); padding: 8px 10px; border-radius: 7px;
+  text-align: center; text-decoration: none; cursor: pointer; border: 0;
+  transition: transform .12s, background .12s;
+  position: relative; z-index: 1;
+}
+.sb-signup .sb-cta:hover { background: #FBF7EE; }
+.sb-signup .sb-cta:active { transform: translateY(1px); }
+.sb-signup .sb-cta i { font-size: 12px; }
+.sb-signup .sb-signin {
+  display: block; text-align: center; margin-top: 8px;
+  font: 11px var(--font-sans); color: rgba(255,255,255,0.62);
+  text-decoration: none;
+  position: relative; z-index: 1;
+}
+.sb-signup .sb-signin u { text-decoration: underline; color: rgba(255,255,255,0.85); }
+.sb-signup .sb-signin:hover { color: #fff; }
+.sb-signup .sb-signin:hover u { color: #fff; }
+
+/* Support button — sits below the sign-up CTA */
+.sb-support {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 10px; align-items: center;
+  margin: 8px 12px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-default);
+  background: var(--color-base-white);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color .12s, background .12s;
+}
+.sb-support:hover { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+.sb-support .ic {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--color-brand-50); color: var(--color-brand-700);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.sb-support .ic i { font-size: 16px; }
+.sb-support .lbl { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.sb-support .t1 { font: 600 12.5px var(--font-sans); color: var(--color-grey-900); }
+.sb-support .t2 { font: 11px var(--font-sans); color: var(--fg3); }
+.sb-support .caret { font-size: 14px; color: var(--fg3); }
+.sb-support:hover .caret { color: var(--color-brand-700); }

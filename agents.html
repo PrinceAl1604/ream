@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Agents</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="team-shared.css" />
+<link rel="stylesheet" href="invite-modal.css" />
+<link rel="stylesheet" href="row-actions.css" />
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Agents</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Ream <span class="collapse"><i class="ri-side-bar-line"></i></span></div>
+
+      <div class="group-label">Overview</div>
+      <a class="nav-item" href="dashboard-customer.html"><i class="ri-dashboard-line"></i> Dashboard</a>
+      <a class="nav-item" href="site-detail.html"><i class="ri-map-2-line"></i> Sites</a>
+
+      <div class="group-label">Pipeline</div>
+      <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects</a>
+      <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers</a>
+      <a class="nav-item active" href="agents.html"><i class="ri-user-star-line"></i> Agents</a>
+      <a class="nav-item" href="managers.html"><i class="ri-shield-user-line"></i> Managers</a>
+      <a class="nav-item" href="admins.html"><i class="ri-vip-crown-line"></i> Admins</a>
+
+      <div class="group-label">Finance</div>
+      <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+      <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans</a>
+      <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+      <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+      <a class="nav-item" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+      <a class="nav-item" href="activity.html"><i class="ri-history-line"></i> Activity</a>
+
+      <div class="spacer"></div>
+
+      <div class="group-label">Account</div>
+      <a class="nav-item" href="settings-organization.html"><i class="ri-settings-3-line"></i> Settings</a>
+      <div class="user">
+        <div class="avatar" style="background: var(--color-brand-700);">KM</div>
+        <div class="meta"><div class="name">Kevin Manga</div><div class="status">Online</div></div>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="portfolio.html"><i class="ri-pie-chart-2-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Agents</span>
+        </div>
+        <div class="actions">
+          <div class="search"><i class="ri-search-line"></i><input placeholder="Search agents…" /></div>
+          <button class="icon-btn"><i class="ri-notification-3-line"></i></button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px;">
+          <div>
+            <h1 class="page-title">Agents</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:620px;">
+              Front-line teammates assigned to prospects, follow-ups, and payment recovery. Each agent has a single <strong>type</strong> — SALES, FOLLOW_UP, or FINANCE — that routes work automatically.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary"><i class="ri-download-2-line"></i> Export</button>
+            <button class="btn btn-primary" id="openInvite"><i class="ri-user-add-line"></i> Add agent</button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="team-kpis">
+          <div class="card">
+            <div class="card-title">Active agents</div>
+            <div class="card-value">14</div>
+            <div class="delta up">+2 this month</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Open assignments</div>
+            <div class="card-value">38</div>
+            <div class="delta muted">avg 2.7 per agent</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Avg. response</div>
+            <div class="card-value">2.4h</div>
+            <div class="delta up">−18min vs target</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Conv. rate</div>
+            <div class="card-value">28%</div>
+            <div class="delta up">+3pt MoM</div>
+          </div>
+        </div>
+
+        <!-- Type tabs -->
+        <div class="type-tabs" role="tablist" id="typeTabs">
+          <button class="type-tab active" data-type="all"><i class="ri-list-check"></i> All <span class="cnt">14</span></button>
+          <button class="type-tab" data-type="SALES"><span class="type-chip t-sales" style="padding:1px 6px; font-size:9px;">SALES</span> <span class="cnt">6</span></button>
+          <button class="type-tab" data-type="FOLLOW_UP"><span class="type-chip t-followup" style="padding:1px 6px; font-size:9px;">FOLLOW_UP</span> <span class="cnt">5</span></button>
+          <button class="type-tab" data-type="FINANCE"><span class="type-chip t-finance" style="padding:1px 6px; font-size:9px;">FINANCE</span> <span class="cnt">3</span></button>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-secondary btn-sm">Region: All ▾</button>
+          <button class="btn btn-secondary btn-sm">Status: Active ▾</button>
+          <button class="btn btn-secondary btn-sm">Workload: Any ▾</button>
+          <button class="btn btn-text btn-sm">Reset</button>
+          <div style="flex:1;"></div>
+          <span style="font-size:12px; color: var(--fg3);"><span id="visibleCount">14</span> agents</span>
+        </div>
+
+        <!-- Agents table -->
+        <div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>Agent</th>
+                <th>Type</th>
+                <th>Region</th>
+                <th>Open work</th>
+                <th>Conv. rate</th>
+                <th>Avg. response</th>
+                <th>Last active</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="agentRows">
+              <!-- PENDING — email-only invite -->
+              <tr class="row-link is-pending" data-type="SALES" data-href="invitee-views.html?focus=email">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background:var(--color-grey-200); color: var(--color-grey-500); border:1.5px dashed var(--color-grey-400);"><i class="ri-user-line"></i></span><div><div class="nm" style="color: var(--fg3); font-style: italic; font-weight: 500;">Awaiting name</div><div class="em">jordan.evans@ream.example</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td><span class="status-pill s-pending"><i class="ri-mail-send-line"></i> Invite sent · 6d left</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td style="color: var(--fg4); font-size:12px;">Never</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <!-- PENDING — prefilled invite -->
+              <tr class="row-link is-pending" data-type="FOLLOW_UP" data-href="invitee-views.html?focus=prefilled">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-600);">PM</span><div><div class="nm">Priya Mehta <span class="pending-tag"><i class="ri-time-line"></i> pending</span></div><div class="em">priya.mehta@ream.example</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Accra, GH</td>
+                <td><span class="status-pill s-pending"><i class="ri-mail-send-line"></i> Setup email sent · 6d left</span></td>
+                <td style="color: var(--fg4);">—</td>
+                <td style="color: var(--fg4); font-size:12px;">Never</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <!-- SALES -->
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-brand-700);">JE</span><div><div class="nm">Jordan Evans</div><div class="em">agent.evans@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Austin, TX</td>
+                <td><strong>9</strong> prospects</td>
+                <td>32%</td>
+                <td>1.8h</td>
+                <td style="color: var(--fg3); font-size:12px;">12 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-blue-600);">MO</span><div><div class="nm">Marcus Owusu</div><div class="em">agent.owusu@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Accra, GH</td>
+                <td><strong>7</strong> prospects</td>
+                <td>29%</td>
+                <td>2.1h</td>
+                <td style="color: var(--fg3); font-size:12px;">38 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-pink-600);">SN</span><div><div class="nm">Sara Ndong</div><div class="em">sara.ndong@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Dakar, SN</td>
+                <td><strong>11</strong> prospects</td>
+                <td>34%</td>
+                <td>1.5h</td>
+                <td style="color: var(--fg3); font-size:12px;">2 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-orange-600);">DP</span><div><div class="nm">Daniel Park</div><div class="em">daniel.park@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Houston, TX</td>
+                <td><strong>5</strong> prospects</td>
+                <td>24%</td>
+                <td>3.2h</td>
+                <td style="color: var(--fg3); font-size:12px;">1 h ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-700);">AB</span><div><div class="nm">Adwoa Boateng</div><div class="em">adwoa.b@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Tema, GH</td>
+                <td><strong>8</strong> prospects</td>
+                <td>30%</td>
+                <td>2.0h</td>
+                <td style="color: var(--fg3); font-size:12px;">5 h ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="SALES">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-grey-600);">RC</span><div><div class="nm">Rosa Chen</div><div class="em">rosa.chen@example.com</div></div></div></td>
+                <td><span class="type-chip t-sales"><i class="ri-megaphone-line"></i> Sales</span></td>
+                <td>Seattle, WA</td>
+                <td><strong>4</strong> prospects</td>
+                <td>22%</td>
+                <td>4.1h</td>
+                <td style="color: var(--color-warning-700); font-size:12px;">2 d ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <!-- FOLLOW_UP -->
+              <tr class="row-link" data-type="FOLLOW_UP">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-600);">SK</span><div><div class="nm">Sarah Kim</div><div class="em">agent.kim@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Houston, TX</td>
+                <td><strong>14</strong> stale leads</td>
+                <td>41%</td>
+                <td>0.9h</td>
+                <td style="color: var(--fg3); font-size:12px;">8 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FOLLOW_UP">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-700);">PM</span><div><div class="nm">Priya Mehta</div><div class="em">priya.m@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Accra, GH</td>
+                <td><strong>11</strong> stale leads</td>
+                <td>38%</td>
+                <td>1.1h</td>
+                <td style="color: var(--fg3); font-size:12px;">22 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FOLLOW_UP">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-500);">YG</span><div><div class="nm">Yaa Gyasi</div><div class="em">yaa.g@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Kumasi, GH</td>
+                <td><strong>9</strong> stale leads</td>
+                <td>44%</td>
+                <td>0.8h</td>
+                <td style="color: var(--fg3); font-size:12px;">3 h ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FOLLOW_UP">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-orange-700);">TI</span><div><div class="nm">Tomás Iglesias</div><div class="em">tomas.i@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Phoenix, AZ</td>
+                <td><strong>7</strong> stale leads</td>
+                <td>33%</td>
+                <td>1.4h</td>
+                <td style="color: var(--fg3); font-size:12px;">45 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FOLLOW_UP">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-warning-800);">LO</span><div><div class="nm">Linda Owusu</div><div class="em">linda.o@example.com</div></div></div></td>
+                <td><span class="type-chip t-followup"><i class="ri-phone-line"></i> Follow-up</span></td>
+                <td>Tamale, GH</td>
+                <td><strong>6</strong> stale leads</td>
+                <td>36%</td>
+                <td>1.2h</td>
+                <td style="color: var(--color-warning-700); font-size:12px;">1 d ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+
+              <!-- FINANCE -->
+              <tr class="row-link" data-type="FINANCE">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-700);">AD</span><div><div class="nm">Aïssa Diallo</div><div class="em">agent.diallo@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-bank-card-line"></i> Finance</span></td>
+                <td>Dallas, TX</td>
+                <td><strong>22</strong> in arrears</td>
+                <td>62% recover</td>
+                <td>4.0h</td>
+                <td style="color: var(--fg3); font-size:12px;">15 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FINANCE">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-600);">NA</span><div><div class="nm">Nora Achebe</div><div class="em">nora.a@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-bank-card-line"></i> Finance</span></td>
+                <td>Lagos, NG</td>
+                <td><strong>18</strong> in arrears</td>
+                <td>58% recover</td>
+                <td>4.6h</td>
+                <td style="color: var(--fg3); font-size:12px;">1 h ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+              <tr class="row-link" data-type="FINANCE">
+                <td onclick="event.stopPropagation();"><input type="checkbox" /></td>
+                <td><div class="person-cell"><span class="ava" style="background: var(--color-success-800);">EM</span><div><div class="nm">Emeka Mwangi</div><div class="em">emeka.m@example.com</div></div></div></td>
+                <td><span class="type-chip t-finance"><i class="ri-bank-card-line"></i> Finance</span></td>
+                <td>Nairobi, KE</td>
+                <td><strong>15</strong> in arrears</td>
+                <td>71% recover</td>
+                <td>3.2h</td>
+                <td style="color: var(--fg3); font-size:12px;">5 min ago</td>
+                <td><i class="ri-more-2-fill" style="color: var(--fg4);"></i></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div>Rows per page <strong>15 ▾</strong></div>
+            <div class="pager">
+              <span>Page 1 of 1</span>
+              <button class="icon-btn"><i class="ri-arrow-left-double-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-left-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-s-line"></i></button>
+              <button class="icon-btn"><i class="ri-arrow-right-double-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="invite-modal.js"></script>
+<script src="row-actions.js"></script>
+<script>
+InviteModal.mount({ role: 'agent' });
+RowActions.mount({ role: 'agent', table: '#agentRows' });
+document.getElementById('openInvite').addEventListener('click', () => InviteModal.open());
+const tabs = document.querySelectorAll('#typeTabs .type-tab');
+const rows = document.querySelectorAll('#agentRows tr');
+const visibleCount = document.getElementById('visibleCount');
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  const type = t.dataset.type;
+  let n = 0;
+  rows.forEach(r => {
+    const show = type === 'all' || r.dataset.type === type;
+    r.style.display = show ? '' : 'none';
+    if (show) n++;
+  });
+  visibleCount.textContent = n;
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,1751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Document templates</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  body { background: #f6f5f9; }
+
+  /* =========================================================
+     Page chrome (mirrors email-template.html)
+     ========================================================= */
+  .et-page { max-width: 1320px; margin: 0 auto; padding: 32px 24px 80px; }
+  .et-eyebrow { color: var(--color-brand-600); font: 700 11px/1 var(--font-sans); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+  .et-title { font: 700 32px/1.15 var(--font-display); color: #1a1626; margin: 0 0 8px; letter-spacing: -.02em; }
+  .et-lede { font: 400 15px/1.6 var(--font-sans); color: #5b5670; margin: 0 0 28px; max-width: 780px; }
+
+  .et-toc { background: white; border: 1px solid var(--border-default); border-radius: 12px; padding: 14px 18px; margin-bottom: 28px; display: flex; flex-wrap: wrap; gap: 8px 18px; font: 500 13px var(--font-sans); }
+  .et-toc a { color: #5b5670; text-decoration: none; padding: 4px 0; }
+  .et-toc a:hover { color: var(--color-brand-600); }
+  .et-toc .sep { color: #d4d2db; }
+
+  .et-section { margin: 48px 0 0; }
+  .et-section-head { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; }
+  .et-section-head .num { width: 28px; height: 28px; border-radius: 8px; background: var(--color-brand-50); color: var(--color-brand-700); display: flex; align-items: center; justify-content: center; font: 700 13px var(--font-sans); }
+  .et-section-head h2 { font: 700 22px/1.2 var(--font-display); margin: 0; color: #1a1626; }
+  .et-section-head p { margin: 0 0 0 8px; font: 400 13px var(--font-sans); color: #7a7589; }
+
+  /* Topbar */
+  .et-topbar { background: white; border-bottom: 1px solid var(--border-default); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .et-topbar .crumb { font: 500 13px var(--font-sans); color: #7a7589; }
+  .et-topbar .crumb a { color: var(--color-brand-600); text-decoration: none; }
+  .et-topbar .actions { display: flex; gap: 8px; }
+  .et-topbar .btn { background: white; border: 1px solid var(--border-default); border-radius: 8px; padding: 7px 14px; font: 600 13px var(--font-sans); color: #4a4659; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .et-topbar .btn.primary { background: var(--color-brand-600); border-color: var(--color-brand-600); color: white; }
+  .et-topbar .btn:hover { border-color: var(--color-brand-400); }
+  .et-topbar .btn.primary:hover { background: var(--color-brand-700); }
+
+  /* =========================================================
+     Showcase grid
+     ========================================================= */
+  .et-showcase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  @media (max-width: 1100px) { .et-showcase { grid-template-columns: 1fr; } }
+
+  .et-showcase-card { background: white; border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .et-showcase-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-default); background: #fafaff; flex-wrap: wrap; }
+  .et-showcase-head .code { font: 700 10.5px/1 var(--font-sans); letter-spacing: .08em; background: var(--color-brand-50); color: var(--color-brand-700); border-radius: 4px; padding: 4px 7px; }
+  .et-showcase-head .label { font: 600 13px var(--font-sans); color: #1a1626; }
+  .et-showcase-head .meta { margin-left: auto; font: 400 11.5px var(--font-sans); color: #7a7589; }
+  .et-showcase-head .stage { font: 600 10.5px/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; padding: 4px 7px; border-radius: 4px; }
+  .et-showcase-head .stage.orig { background: #ddf7ea; color: #166534; }
+  .et-showcase-head .stage.serv { background: #dbeafe; color: #1e40af; }
+  .et-showcase-head .stage.def  { background: #fef3c7; color: #92400e; }
+  .et-showcase-head .stage.close{ background: #ede9fe; color: #5b21b6; }
+
+  .et-paper-stage { background: #ecebef; padding: 28px; }
+
+  /* =========================================================
+     The DOCUMENT shell — paper layout used by every template
+     ========================================================= */
+  .doc-page {
+    background: white;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 12px 32px rgba(26, 22, 38, 0.18), 0 2px 4px rgba(26,22,38,.04);
+    border-radius: 2px;
+    color: #1a1626;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.55;
+    overflow: hidden;
+    position: relative;
+  }
+  .doc-page::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, var(--color-brand-600), var(--color-brand-800));
+  }
+
+  /* Letterhead */
+  .doc-head {
+    padding: 28px 36px 18px 42px;
+    border-bottom: 1px solid #e8e4ef;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .doc-head .logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #2a1d4f, #874ffa);
+    border-radius: 8px;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font: 800 18px var(--font-display);
+  }
+  .doc-head .lh-name { font: 700 18px var(--font-display); color: #1a1626; letter-spacing: .02em; }
+  .doc-head .lh-tag { font: 400 10.5px var(--font-sans); color: #7a7589; letter-spacing: .04em; margin-top: 1px; }
+  .doc-head .lh-meta { font: 400 10px var(--font-sans); color: #7a7589; margin-top: 6px; line-height: 1.5; }
+  .doc-head .lh-meta b { color: #4a4659; font-weight: 600; }
+
+  /* Doc title strip */
+  .doc-title-strip {
+    padding: 18px 36px 14px 42px;
+    border-bottom: 1px solid #e8e4ef;
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  }
+  .doc-title-strip .ti {
+    font: 700 17px/1.25 var(--font-display);
+    color: #1a1626;
+    letter-spacing: -.005em;
+    text-transform: uppercase;
+  }
+  .doc-title-strip .sub { font: 400 11px var(--font-sans); color: #7a7589; margin-top: 2px; }
+  .doc-title-strip .ref-block { text-align: right; font: 400 10px/1.4 var(--font-sans); color: #7a7589; flex-shrink: 0; }
+  .doc-title-strip .ref-block .k { display: block; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: #9a93a8; }
+  .doc-title-strip .ref-block .v { font: 600 11.5px var(--font-mono, "JetBrains Mono", monospace); color: #1a1626; }
+  .doc-title-strip .ref-block .row { margin-bottom: 4px; }
+
+  /* Parties block */
+  .doc-parties {
+    padding: 14px 36px 14px 42px;
+    border-bottom: 1px solid #e8e4ef;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    background: #faf9fc;
+  }
+  .doc-parties .party .lbl { font: 700 9px var(--font-sans); letter-spacing: .1em; color: #9a93a8; text-transform: uppercase; margin-bottom: 4px; }
+  .doc-parties .party .nm { font: 600 12.5px var(--font-sans); color: #1a1626; }
+  .doc-parties .party .det { font: 400 11px/1.55 var(--font-sans); color: #4a4659; margin-top: 2px; }
+  .doc-parties .party .det b { color: #1a1626; font-weight: 600; }
+
+  /* Document body */
+  .doc-body { padding: 18px 36px 18px 42px; }
+  .doc-body p { font: 400 12px/1.65 var(--font-sans); color: #1a1626; margin: 0 0 10px; text-align: justify; }
+  .doc-body p strong { font-weight: 600; color: #1a1626; }
+  .doc-body .legalese { font-size: 10.5px; color: #4a4659; line-height: 1.55; }
+
+  /* Section headers — numbered legal style */
+  .doc-h {
+    font: 700 11.5px var(--font-sans);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--color-brand-700);
+    margin: 18px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e8e4ef;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .doc-h .roman {
+    font: 700 11.5px var(--font-sans);
+    color: #1a1626;
+    background: #f4f1fb;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: .02em;
+  }
+
+  /* Terms table — key/value grid */
+  .doc-terms {
+    border: 1px solid #e8e4ef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0 4px;
+  }
+  .doc-terms .tr {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    border-bottom: 1px solid #e8e4ef;
+    font-size: 11px;
+  }
+  .doc-terms .tr:last-child { border-bottom: none; }
+  .doc-terms .tr:nth-child(odd) { background: #faf9fc; }
+  .doc-terms .tr .k {
+    padding: 8px 12px;
+    color: #4a4659;
+    font-weight: 500;
+    border-right: 1px solid #e8e4ef;
+  }
+  .doc-terms .tr .v {
+    padding: 8px 12px;
+    color: #1a1626;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .doc-terms .tr.emph { background: #f4f1fb !important; }
+  .doc-terms .tr.emph .v { color: var(--color-brand-700); font-size: 12px; }
+
+  /* Schedule table */
+  .doc-table { width: 100%; border-collapse: collapse; font: 11px var(--font-sans); margin-top: 8px; }
+  .doc-table thead th {
+    background: #1a1626;
+    color: white;
+    font: 700 9.5px var(--font-sans);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .doc-table tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e8e4ef;
+    color: #1a1626;
+    font-variant-numeric: tabular-nums;
+  }
+  .doc-table tbody tr:nth-child(even) td { background: #faf9fc; }
+  .doc-table .num { text-align: right; }
+  .doc-table tfoot td {
+    padding: 9px 10px;
+    border-top: 2px solid #1a1626;
+    background: #f4f1fb;
+    color: #1a1626;
+    font-weight: 700;
+  }
+
+  /* Money "headline" callout (e.g. payoff, balance, total) */
+  .doc-money {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #2a1d4f 0%, #4a2bb8 50%, #874ffa 100%);
+    color: white;
+    border-radius: 8px;
+    margin: 14px 0;
+  }
+  .doc-money .lbl { font: 600 10px var(--font-sans); letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+  .doc-money .val { font: 700 22px var(--font-display); letter-spacing: -.01em; margin-top: 2px; }
+  .doc-money .aux { font: 400 10.5px var(--font-sans); opacity: .85; line-height: 1.4; max-width: 220px; text-align: right; align-self: center; }
+
+  /* Stamp / status badge */
+  .doc-stamp {
+    position: absolute;
+    top: 22px; right: 26px;
+    padding: 6px 14px;
+    border: 2px solid #166534;
+    color: #166534;
+    border-radius: 4px;
+    font: 700 11px var(--font-sans);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    background: #ddf7ea;
+    transform: rotate(-4deg);
+    box-shadow: 0 1px 0 rgba(22,101,52,.2) inset;
+  }
+  .doc-stamp.warn { border-color: #92400e; color: #92400e; background: #fef3c7; }
+  .doc-stamp.danger { border-color: #991b1b; color: #991b1b; background: #fee2e2; }
+  .doc-stamp.info { border-color: #1e40af; color: #1e40af; background: #dbeafe; }
+
+  /* Notice / disclosure callout */
+  .doc-notice {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 14px;
+    font: 400 11px/1.55 var(--font-sans);
+    color: #78350f;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .doc-notice strong { font-weight: 700; }
+  .doc-notice.danger { background: #fee2e2; border-left-color: #dc2626; color: #7f1d1d; }
+  .doc-notice.info { background: #dbeafe; border-left-color: #2563eb; color: #1e3a8a; }
+  .doc-notice.legal { background: #f4f1fb; border-left-color: var(--color-brand-600); color: #2a1d4f; font-size: 10px; }
+
+  /* Signature block */
+  .doc-sigs {
+    margin-top: 22px;
+    padding: 16px 36px 18px 42px;
+    border-top: 1px solid #e8e4ef;
+    background: #fbfafd;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .doc-sig .lbl { font: 700 9px var(--font-sans); letter-spacing: .1em; color: #9a93a8; text-transform: uppercase; margin-bottom: 16px; }
+  .doc-sig .line {
+    border-bottom: 1.5px solid #1a1626;
+    padding: 16px 0 4px;
+    font: italic 600 13px "Brush Script MT", "Lucida Handwriting", cursive;
+    color: #4a2bb8;
+    min-height: 22px;
+  }
+  .doc-sig .who { font: 600 11.5px var(--font-sans); color: #1a1626; margin-top: 6px; }
+  .doc-sig .role { font: 400 10.5px var(--font-sans); color: #7a7589; }
+  .doc-sig .date { font: 400 10.5px var(--font-sans); color: #7a7589; margin-top: 4px; }
+
+  /* Notary block */
+  .doc-notary {
+    margin: 14px 36px 0 42px;
+    padding: 12px 14px;
+    border: 1.5px dashed #c9c4d4;
+    border-radius: 4px;
+    font: 400 10.5px/1.6 var(--font-sans);
+    color: #4a4659;
+  }
+  .doc-notary .nti { font: 700 9.5px var(--font-sans); letter-spacing: .1em; color: #1a1626; text-transform: uppercase; margin-bottom: 6px; }
+  .doc-notary .seal {
+    float: right;
+    width: 70px; height: 70px;
+    border: 2px solid #c9c4d4;
+    border-radius: 50%;
+    color: #9a93a8;
+    font: 700 8.5px/1.2 var(--font-sans);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px;
+    margin-left: 12px;
+  }
+
+  /* Footer */
+  .doc-foot {
+    padding: 14px 36px 18px 42px;
+    background: #1a1626;
+    color: rgba(255,255,255,0.6);
+    font: 400 9.5px/1.5 var(--font-sans);
+    display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+  }
+  .doc-foot .brand { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .doc-foot .addr { color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .doc-foot .legal { color: rgba(255,255,255,0.5); margin-top: 4px; font-size: 9px; }
+  .doc-foot .pg { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+  /* =========================================================
+     Anatomy guide
+     ========================================================= */
+  .et-anatomy { display: grid; grid-template-columns: minmax(0, 700px) minmax(0, 1fr); gap: 32px; align-items: start; }
+  @media (max-width: 1100px) { .et-anatomy { grid-template-columns: 1fr; } }
+  .et-anatomy .preview { background: #ecebef; border-radius: 14px; padding: 24px; }
+
+  .et-callouts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .et-callouts li { background: white; border: 1px solid var(--border-default); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; }
+  .et-callouts li .num { width: 24px; height: 24px; border-radius: 50%; background: var(--color-brand-600); color: white; display: flex; align-items: center; justify-content: center; font: 700 11px var(--font-sans); }
+  .et-callouts li h4 { margin: 0 0 3px; font: 600 13px var(--font-sans); color: #1a1626; }
+  .et-callouts li p { margin: 0; font: 400 12px/1.5 var(--font-sans); color: #5b5670; }
+  .et-callouts li code { font: 500 11px var(--font-mono, "JetBrains Mono", monospace); background: #f4f3f7; padding: 1px 5px; border-radius: 4px; color: #4a2bb8; }
+
+  /* =========================================================
+     Block library
+     ========================================================= */
+  .et-blocks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 920px) { .et-blocks { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .et-blocks { grid-template-columns: 1fr; } }
+
+  .et-block { background: white; border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; }
+  .et-block .ico { width: 36px; height: 36px; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-700); display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+  .et-block h4 { margin: 0 0 4px; font: 600 14px var(--font-sans); color: #1a1626; }
+  .et-block .class { font: 500 11px var(--font-mono, monospace); background: #f4f3f7; color: #4a2bb8; padding: 1px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+  .et-block p { margin: 0 0 6px; font: 400 12.5px/1.5 var(--font-sans); color: #5b5670; }
+  .et-block .uses { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-default); font: 400 11.5px/1.5 var(--font-sans); color: #7a7589; }
+  .et-block .uses b { color: #4a4659; font-weight: 600; }
+
+  /* =========================================================
+     Catalog / index list
+     ========================================================= */
+  .et-catalog { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 760px) { .et-catalog { grid-template-columns: 1fr; } }
+  .cat-row { background: white; border: 1px solid var(--border-default); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+  .cat-row .ico { width: 36px; height: 36px; border-radius: 8px; background: var(--color-brand-50); color: var(--color-brand-700); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .cat-row .meta { min-width: 0; }
+  .cat-row .id { font: 700 10.5px/1 var(--font-sans); letter-spacing: .08em; color: var(--color-brand-700); margin-bottom: 4px; }
+  .cat-row .nm { font: 600 13.5px var(--font-sans); color: #1a1626; }
+  .cat-row .desc { font: 400 11.5px/1.4 var(--font-sans); color: #7a7589; margin-top: 2px; }
+  .cat-row .stage { font: 600 10px/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; padding: 4px 7px; border-radius: 4px; flex-shrink: 0; }
+  .cat-row .stage.orig { background: #ddf7ea; color: #166534; }
+  .cat-row .stage.serv { background: #dbeafe; color: #1e40af; }
+  .cat-row .stage.def  { background: #fef3c7; color: #92400e; }
+  .cat-row .stage.close{ background: #ede9fe; color: #5b21b6; }
+  .cat-row .req { font: 500 10px var(--font-sans); color: #9a93a8; margin-top: 4px; }
+
+  /* =========================================================
+     Token table
+     ========================================================= */
+  .et-tokens { background: white; border: 1px solid var(--border-default); border-radius: 12px; overflow: hidden; }
+  .et-tokens table { width: 100%; border-collapse: collapse; }
+  .et-tokens th, .et-tokens td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--border-default); font: 400 13px var(--font-sans); color: #4a4659; }
+  .et-tokens th { background: #faf9fc; font-weight: 600; color: #1a1626; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  .et-tokens .swatch { display: inline-block; width: 18px; height: 18px; border-radius: 4px; vertical-align: middle; margin-right: 8px; border: 1px solid rgba(0,0,0,0.06); }
+  .et-tokens code { font: 500 12px var(--font-mono, monospace); color: #4a2bb8; }
+  .et-tokens tr:last-child td { border-bottom: none; }
+
+  /* Placeholder spans — visible on the template page so the dev sees fields */
+  .tpl {
+    background: #fff7d6;
+    color: #92400e;
+    padding: 0 4px;
+    border-radius: 3px;
+    font: 600 10.5px/1.4 var(--font-mono, "JetBrains Mono", monospace);
+    border: 1px dashed #f59e0b;
+  }
+  .doc-terms .tr .v .tpl,
+  .doc-money .val .tpl,
+  .doc-table .tpl { font-size: inherit; }
+
+  /* QR + verify block */
+  .doc-verify {
+    margin: 14px 36px 0 42px;
+    padding: 12px 14px;
+    border: 1px solid #e8e4ef;
+    border-radius: 6px;
+    background: #fbfafd;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .doc-verify .qr-render { width: 76px; height: 76px; background: white; border: 1px solid #e8e4ef; border-radius: 4px; padding: 3px; }
+  .doc-verify .qr-render svg { width: 100%; height: 100%; display: block; }
+  .doc-verify .vt { font: 700 10px var(--font-sans); letter-spacing: .1em; color: #1a1626; text-transform: uppercase; margin-bottom: 4px; }
+  .doc-verify .vd { font: 400 10.5px/1.5 var(--font-sans); color: #4a4659; }
+  .doc-verify .vu { font: 600 10.5px var(--font-mono, monospace); color: var(--color-brand-700); margin-top: 4px; word-break: break-all; }
+
+  /* Legal disclosure block */
+  .doc-legal {
+    margin: 14px 36px 18px 42px;
+    padding: 10px 12px;
+    background: #f4f1fb;
+    border-left: 3px solid var(--color-brand-600);
+    border-radius: 0 4px 4px 0;
+    font: 400 9.5px/1.5 var(--font-sans);
+    color: #4a4659;
+  }
+  .doc-legal .lt { font: 700 9px var(--font-sans); letter-spacing: .12em; color: #1a1626; text-transform: uppercase; margin-bottom: 4px; }
+  .doc-legal p { margin: 0 0 4px; font: 400 9.5px/1.5 var(--font-sans); color: #4a4659; text-align: left; }
+  .doc-legal p:last-child { margin-bottom: 0; }
+
+  /* =========================================================
+     Alt layout — "Banking dashboard" statement
+     ========================================================= */
+  .alt-stmt {
+    background: white; max-width: 700px; margin: 0 auto;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 12px 32px rgba(26,22,38,.18);
+    color: #1a1626; font-family: var(--font-sans);
+  }
+  .alt-stmt .head {
+    background: linear-gradient(135deg, #2a1d4f 0%, #4a2bb8 60%, #874ffa 100%);
+    color: white; padding: 22px 26px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+  }
+  .alt-stmt .head .lg { width: 38px; height: 38px; background: rgba(255,255,255,.18); backdrop-filter: blur(6px); border-radius: 9px; display: flex; align-items: center; justify-content: center; font: 800 17px var(--font-display); }
+  .alt-stmt .head .b { font: 700 13px var(--font-sans); }
+  .alt-stmt .head .s { font: 400 10.5px var(--font-sans); opacity: .8; margin-top: 1px; }
+  .alt-stmt .head .ref { text-align: right; font: 400 10px var(--font-sans); opacity: .85; }
+  .alt-stmt .head .ref b { font: 700 11.5px var(--font-mono, monospace); display: block; opacity: 1; letter-spacing: .04em; }
+  .alt-stmt .hero {
+    padding: 22px 26px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px;
+    border-bottom: 1px solid #eee9f4;
+  }
+  .alt-stmt .hero .due-lbl { font: 600 10px var(--font-sans); color: #7a7589; letter-spacing: .12em; text-transform: uppercase; }
+  .alt-stmt .hero .due-val { font: 800 32px var(--font-display); color: #1a1626; letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .alt-stmt .hero .due-meta { font: 400 11px var(--font-sans); color: #4a4659; margin-top: 6px; }
+  .alt-stmt .hero .due-meta .pill { display: inline-block; background: #ddf7ea; color: #166534; font-weight: 600; font-size: 10px; padding: 2px 7px; border-radius: 100px; margin-left: 4px; vertical-align: 1px; }
+  .alt-stmt .hero .stat { display: grid; grid-template-rows: repeat(3, auto); gap: 6px; }
+  .alt-stmt .hero .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e8e4ef; font-size: 11.5px; }
+  .alt-stmt .hero .stat-row:last-child { border-bottom: none; }
+  .alt-stmt .hero .stat-row .k { color: #7a7589; }
+  .alt-stmt .hero .stat-row .v { color: #1a1626; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .alt-stmt .progress { height: 6px; background: #eee9f4; border-radius: 100px; overflow: hidden; margin: 8px 0 0; }
+  .alt-stmt .progress > i { display: block; height: 100%; background: linear-gradient(90deg, #874ffa, #4a2bb8); }
+  .alt-stmt .body { padding: 18px 26px; }
+  .alt-stmt h3 { font: 700 11px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: #1a1626; margin: 0 0 10px; }
+  .alt-stmt .pay-table { width: 100%; border-collapse: collapse; font: 11px var(--font-sans); }
+  .alt-stmt .pay-table th { background: #faf9fc; color: #7a7589; font: 600 9.5px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; padding: 8px 10px; text-align: left; border-bottom: 1px solid #e8e4ef; }
+  .alt-stmt .pay-table td { padding: 9px 10px; border-bottom: 1px solid #f4f1fb; font-variant-numeric: tabular-nums; }
+  .alt-stmt .pay-table td.num { text-align: right; }
+  .alt-stmt .breakdown { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .alt-stmt .bd { padding: 10px 12px; background: #fbfafd; border: 1px solid #eee9f4; border-radius: 6px; font-size: 11px; }
+  .alt-stmt .bd .lbl { color: #7a7589; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+  .alt-stmt .bd .val { color: #1a1626; font: 700 14px var(--font-display); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .alt-stmt .foot { background: #1a1626; color: rgba(255,255,255,.65); padding: 12px 26px; font: 400 9.5px var(--font-sans); display: flex; justify-content: space-between; }
+  .alt-stmt .foot b { color: rgba(255,255,255,.92); font-weight: 600; }
+
+  /* =========================================================
+     Alt layout — "Ledger" classic banking statement
+     ========================================================= */
+  .alt-ledger {
+    background: white; max-width: 700px; margin: 0 auto;
+    border: 1px solid #1a1626;
+    color: #1a1626; font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 11px; line-height: 1.55;
+  }
+  .alt-ledger .lh { padding: 14px 22px; border-bottom: 2px solid #1a1626; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; }
+  .alt-ledger .lh .name { font: 800 16px var(--font-display); }
+  .alt-ledger .lh .meta { font: 400 9.5px var(--font-mono, monospace); color: #4a4659; }
+  .alt-ledger .lh .doctype { font: 700 11px var(--font-mono, monospace); letter-spacing: .12em; text-transform: uppercase; text-align: right; }
+  .alt-ledger .lh .doctype small { display: block; font: 400 9px var(--font-mono, monospace); color: #4a4659; margin-top: 2px; letter-spacing: .04em; }
+  .alt-ledger .grid {
+    display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #1a1626;
+  }
+  .alt-ledger .grid > div { padding: 12px 22px; }
+  .alt-ledger .grid > div + div { border-left: 1px solid #1a1626; }
+  .alt-ledger .grid .lbl { font: 700 9px var(--font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: #4a4659; margin-bottom: 6px; }
+  .alt-ledger .grid .row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .alt-ledger .grid .row .k { color: #4a4659; }
+  .alt-ledger .grid .row .v { color: #1a1626; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .alt-ledger .activity { padding: 14px 22px; border-bottom: 1px solid #1a1626; }
+  .alt-ledger .activity h4 { margin: 0 0 8px; font: 700 9px var(--font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; }
+  .alt-ledger .actbl { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  .alt-ledger .actbl th { padding: 4px 6px; text-align: left; border-bottom: 1px solid #1a1626; font: 700 9px var(--font-mono, monospace); letter-spacing: .08em; text-transform: uppercase; color: #4a4659; }
+  .alt-ledger .actbl td { padding: 5px 6px; border-bottom: 1px dotted #c9c4d4; font-variant-numeric: tabular-nums; }
+  .alt-ledger .actbl td.r { text-align: right; }
+  .alt-ledger .actbl tfoot td { border-top: 2px solid #1a1626; border-bottom: 0; font-weight: 700; padding-top: 7px; }
+  .alt-ledger .stub { display: grid; grid-template-columns: 1fr 1fr; padding: 12px 22px; gap: 18px; border-top: 1px dashed #1a1626; background: #fbfafd; }
+  .alt-ledger .stub .lbl { font: 700 9px var(--font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: #4a4659; margin-bottom: 4px; }
+  .alt-ledger .stub .v { font: 700 12px var(--font-mono, monospace); font-variant-numeric: tabular-nums; }
+  .alt-ledger .lf { padding: 10px 22px; font: 400 8.5px var(--font-mono, monospace); color: #4a4659; background: #1a1626; color: rgba(255,255,255,.75); display: flex; justify-content: space-between; }
+
+  /* =========================================================
+     Alt layout — "Mobile card" receipt
+     ========================================================= */
+  .alt-card {
+    background: white;
+    width: 360px; max-width: 100%; margin: 0 auto;
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 22px 50px rgba(26,22,38,.22);
+    font-family: var(--font-sans);
+    color: #1a1626;
+  }
+  .alt-card .hero {
+    background: linear-gradient(160deg, #2a1d4f 0%, #4a2bb8 50%, #874ffa 100%);
+    color: white;
+    padding: 28px 24px 28px;
+    text-align: center;
+    position: relative;
+  }
+  .alt-card .check {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+    border: 2px solid rgba(255,255,255,.45);
+    margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .alt-card .hero .ti { font: 700 13px var(--font-sans); letter-spacing: .04em; opacity: .9; }
+  .alt-card .hero .amt { font: 800 36px var(--font-display); margin-top: 6px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .alt-card .hero .sub { font: 400 11.5px var(--font-sans); opacity: .85; margin-top: 4px; }
+  .alt-card .meta { padding: 18px 24px; }
+  .alt-card .meta-row {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px dashed #e8e4ef;
+    font-size: 12px;
+  }
+  .alt-card .meta-row:last-child { border-bottom: none; }
+  .alt-card .meta-row .k { color: #7a7589; }
+  .alt-card .meta-row .v { color: #1a1626; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; max-width: 60%; }
+  .alt-card .meta-row .v.success { color: #166534; }
+  .alt-card .qr-wrap {
+    background: #f4f1fb;
+    padding: 18px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+  .alt-card .qr-wrap .qr-render { width: 84px; height: 84px; background: white; border-radius: 8px; padding: 6px; }
+  .alt-card .qr-wrap .qr-render svg { width: 100%; height: 100%; display: block; }
+  .alt-card .qr-wrap .qrt { font: 700 10px var(--font-sans); letter-spacing: .12em; text-transform: uppercase; color: #1a1626; }
+  .alt-card .qr-wrap .qrd { font: 400 11px/1.5 var(--font-sans); color: #4a4659; margin-top: 3px; }
+  .alt-card .qr-wrap .qru { font: 600 10.5px var(--font-mono, monospace); color: var(--color-brand-700); margin-top: 4px; word-break: break-all; }
+  .alt-card .ft { padding: 12px 24px 16px; background: #1a1626; color: rgba(255,255,255,.6); font: 400 9.5px/1.5 var(--font-sans); text-align: center; }
+  .alt-card .ft b { color: rgba(255,255,255,.85); font-weight: 600; display: block; }
+
+  /* =========================================================
+     Alt layout — "Thermal till" receipt
+     ========================================================= */
+  .alt-till {
+    width: 320px; max-width: 100%; margin: 0 auto;
+    background: white;
+    padding: 22px 26px 28px;
+    font-family: var(--font-mono, "JetBrains Mono", "Courier New", monospace);
+    font-size: 11px;
+    line-height: 1.6;
+    color: #1a1626;
+    box-shadow: 0 18px 40px rgba(26,22,38,.18);
+    position: relative;
+  }
+  .alt-till::before, .alt-till::after {
+    content: ""; display: block; height: 14px;
+    background: radial-gradient(circle at 7px 7px, transparent 6px, white 7px) 0 0/14px 14px;
+    margin: 0 -26px;
+  }
+  .alt-till::before { margin-bottom: 10px; }
+  .alt-till::after { margin-top: 10px; }
+  .alt-till .center { text-align: center; }
+  .alt-till .brand { font: 800 14px var(--font-display); letter-spacing: .04em; }
+  .alt-till .sub { font-size: 10px; color: #4a4659; margin-bottom: 8px; }
+  .alt-till .div { border-top: 1px dashed #1a1626; margin: 8px 0; }
+  .alt-till .row { display: flex; justify-content: space-between; gap: 10px; }
+  .alt-till .row .k { color: #4a4659; }
+  .alt-till .row .v { color: #1a1626; font-variant-numeric: tabular-nums; }
+  .alt-till .row.bold .v, .alt-till .row.bold .k { font-weight: 700; }
+  .alt-till .total { font: 800 18px var(--font-mono, monospace); margin: 8px 0 4px; font-variant-numeric: tabular-nums; text-align: center; }
+  .alt-till .lblc { font: 600 9px var(--font-mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: #4a4659; text-align: center; }
+  .alt-till .qr-render { width: 90px; height: 90px; margin: 8px auto 0; background: white; }
+  .alt-till .qr-render svg { width: 100%; height: 100%; display: block; }
+  .alt-till .ft { font-size: 9.5px; color: #4a4659; text-align: center; margin-top: 8px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="et-topbar">
+  <div class="crumb">
+    <a href="index.html">Index</a>
+    &nbsp;/&nbsp;
+    <span>Document templates</span>
+  </div>
+  <div class="actions">
+    <a href="email-template.html" class="btn"><i class="ri-mail-send-line"></i> Email template</a>
+    <a href="#catalog" class="btn primary"><i class="ri-file-list-3-line"></i> Catalog (13)</a>
+  </div>
+</div>
+
+<div class="et-page">
+
+  <!-- Intro -->
+  <p class="et-eyebrow">Loan documents · Brand · Layout</p>
+  <h1 class="et-title">REAM document template — paper-grade for every loan event.</h1>
+  <p class="et-lede">
+    A single, modular paper layout used by every legally significant document the platform issues — application,
+    estimate, agreement, amortization, payoff and beyond. Brand-consistent letterhead, tokenised type, optional
+    notarisation and stamp blocks, and a reference-number system that ties every document back to its loan ledger.
+  </p>
+
+  <nav class="et-toc">
+    <a href="#anatomy">1. Anatomy</a><span class="sep">·</span>
+    <a href="#blocks">2. Block library</a><span class="sep">·</span>
+    <a href="#tokens">3. Brand tokens</a><span class="sep">·</span>
+    <a href="#catalog">4. Catalog</a><span class="sep">·</span>
+    <a href="#examples">5. Live examples</a><span class="sep">·</span>
+    <a href="#alts">6. Alternative layouts</a>
+  </nav>
+
+  <!-- ===========================================================
+       1. ANATOMY
+       =========================================================== -->
+  <section class="et-section" id="anatomy">
+    <div class="et-section-head">
+      <span class="num">1</span>
+      <h2>Anatomy</h2>
+      <p>The canonical layout — letterhead, title, parties, body, signatures, footer.</p>
+    </div>
+
+    <div class="et-anatomy">
+      <div class="preview">
+        <div class="doc-page">
+          <div class="doc-stamp info">Sample</div>
+
+          <!-- 1. Letterhead -->
+          <div class="doc-head">
+            <div class="logo">R</div>
+            <div>
+              <div class="lh-name">REAM Lending, Inc.</div>
+              <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+              <div class="lh-meta">
+                2101 Ross Avenue, Suite 1900 · Dallas, TX 75201<br/>
+                <b>T</b> +1 (214) 555-0182 &nbsp; <b>E</b> lending@ream.com &nbsp; <b>W</b> ream.com
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Title strip -->
+          <div class="doc-title-strip">
+            <div>
+              <div class="ti">Document title</div>
+              <div class="sub">Sub-title or short context line</div>
+            </div>
+            <div class="ref-block">
+              <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+              <div class="row"><span class="k">Doc ref</span><span class="v">DOC-LE-014</span></div>
+              <div class="row"><span class="k">Issued</span><span class="v">May 7, 2026</span></div>
+            </div>
+          </div>
+
+          <!-- 3. Parties -->
+          <div class="doc-parties">
+            <div class="party">
+              <div class="lbl">Borrower</div>
+              <div class="nm">Marcus Lee</div>
+              <div class="det">3402 Elmwood Trail<br/>Dallas, TX 75223<br/><b>SSN</b> ●●●-●●-4471</div>
+            </div>
+            <div class="party">
+              <div class="lbl">Lender</div>
+              <div class="nm">REAM Lending, Inc.</div>
+              <div class="det">2101 Ross Avenue, Ste 1900<br/>Dallas, TX 75201<br/><b>NMLS</b> #2389471</div>
+            </div>
+          </div>
+
+          <!-- 4. Body -->
+          <div class="doc-body">
+            <div class="doc-h"><span class="roman">I</span> Section heading</div>
+            <p>The body holds narrative legal copy, recitals, and any free-form clauses. Keep it short and clear; legalese is fine but every document should be skimmable.</p>
+
+            <div class="doc-h"><span class="roman">II</span> Key terms</div>
+            <div class="doc-terms">
+              <div class="tr"><div class="k">Principal amount</div><div class="v">$184,500.00</div></div>
+              <div class="tr"><div class="k">Term</div><div class="v">180 months · 15 years</div></div>
+              <div class="tr emph"><div class="k">Annual percentage rate</div><div class="v">8.250%</div></div>
+              <div class="tr"><div class="k">Monthly payment (P+I)</div><div class="v">$1,431.04</div></div>
+            </div>
+
+            <div class="doc-notice legal"><strong>Required disclosure.</strong> Optional callout for regulatory text (TRID, ECOA, Reg Z). Use the <code>.legal</code> variant for fine print.</div>
+          </div>
+
+          <!-- 5. Signatures -->
+          <div class="doc-sigs">
+            <div class="doc-sig">
+              <div class="lbl">Borrower signature</div>
+              <div class="line">Marcus Lee</div>
+              <div class="who">Marcus Lee</div>
+              <div class="role">Borrower</div>
+              <div class="date">Signed May 7, 2026 · 11:42 AM CST</div>
+            </div>
+            <div class="doc-sig">
+              <div class="lbl">Lender signature</div>
+              <div class="line">Sarah Johnson</div>
+              <div class="who">Sarah Johnson</div>
+              <div class="role">Senior Loan Officer · NMLS #1129488</div>
+              <div class="date">Signed May 7, 2026 · 11:43 AM CST</div>
+            </div>
+          </div>
+
+          <!-- 6. Footer -->
+          <div class="doc-foot">
+            <div>
+              <div class="brand">REAM Lending, Inc.</div>
+              <div class="addr">2101 Ross Ave, Suite 1900 · Dallas, TX 75201</div>
+              <div class="legal">© 2026 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div>
+            </div>
+            <div class="pg">Page 1 of 1</div>
+          </div>
+        </div>
+      </div>
+
+      <ol class="et-callouts">
+        <li><span class="num">1</span><div><h4>Letterhead</h4><p>Brand strip with logo, legal entity name, NMLS, address, contact. Same across every document so the issuer is always identifiable.</p></div></li>
+        <li><span class="num">2</span><div><h4>Title &amp; reference</h4><p>Document title, optional sub-line, and the cross-reference block — <code>Loan ID</code>, <code>Doc ref</code>, <code>Issued</code>. The Doc ref encodes the type (<code>LE</code>, <code>CD</code>, <code>NOTE</code>...).</p></div></li>
+        <li><span class="num">3</span><div><h4>Parties</h4><p>Borrower &amp; lender (and co-borrower / guarantor when present). Identifiers are masked (<code>SSN ●●●-●●-####</code>) per banking PII rules.</p></div></li>
+        <li><span class="num">4</span><div><h4>Body</h4><p>Numbered sections (Roman or Arabic) with narrative copy, terms tables, schedules, and <code>.doc-notice</code> callouts for required disclosures.</p></div></li>
+        <li><span class="num">5</span><div><h4>Signatures</h4><p>Per-party signature lines with name, role, NMLS (where required), and timestamped audit row. Notary block sits underneath when applicable.</p></div></li>
+        <li><span class="num">6</span><div><h4>Footer</h4><p>Legal entity, mailing address, NMLS, copyright, "Equal Housing Lender", and page numbering. Required by lender regulations.</p></div></li>
+        <li><span class="num">★</span><div><h4>Status stamp (optional)</h4><p>Rotated stamp pinned to the top-right — <code>SAMPLE</code>, <code>DRAFT</code>, <code>EXECUTED</code>, <code>VOID</code>, <code>PAID IN FULL</code>. Visual shorthand for document state.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       2. BLOCK LIBRARY
+       =========================================================== -->
+  <section class="et-section" id="blocks">
+    <div class="et-section-head">
+      <span class="num">2</span>
+      <h2>Block library</h2>
+      <p>Modular pieces — mix per document type.</p>
+    </div>
+
+    <div class="et-blocks">
+      <div class="et-block"><div class="ico"><i class="ri-flag-line"></i></div><h4>Letterhead</h4><span class="class">.doc-head</span><p>Logo + entity + NMLS + address. Always present.</p><div class="uses"><b>Used in:</b> all 12</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-bookmark-line"></i></div><h4>Title strip</h4><span class="class">.doc-title-strip</span><p>Doc name + reference block (Loan ID, Doc ref, Issued).</p><div class="uses"><b>Used in:</b> all 12</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-team-line"></i></div><h4>Parties</h4><span class="class">.doc-parties</span><p>Borrower / Lender / Co-borrower / Guarantor blocks.</p><div class="uses"><b>Used in:</b> 11 / 12</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-list-ordered"></i></div><h4>Section header</h4><span class="class">.doc-h</span><p>Roman / numbered legal section heading.</p><div class="uses"><b>Used in:</b> agreements, disclosures</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-table-line"></i></div><h4>Terms table</h4><span class="class">.doc-terms</span><p>Two-column key/value grid, with <code>.emph</code> highlight rows.</p><div class="uses"><b>Used in:</b> LE, CD, payoff, modification</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-bar-chart-grouped-line"></i></div><h4>Schedule</h4><span class="class">.doc-table</span><p>Tabular schedule (amortization, payment history).</p><div class="uses"><b>Used in:</b> amortization, statement, history</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-coin-line"></i></div><h4>Money headline</h4><span class="class">.doc-money</span><p>Large-format figure for payoff totals, balances, demand amounts.</p><div class="uses"><b>Used in:</b> payoff, demand, payoff letter</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-error-warning-line"></i></div><h4>Notice / disclosure</h4><span class="class">.doc-notice</span><p>Inline callout for required disclosures (TRID, ECOA, FDCPA).</p><div class="uses"><b>Used in:</b> 9 / 12</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-quill-pen-line"></i></div><h4>Signature block</h4><span class="class">.doc-sigs / .doc-sig</span><p>Per-party signature line with timestamp audit.</p><div class="uses"><b>Used in:</b> all executable docs</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-stamp-line"></i></div><h4>Notary block</h4><span class="class">.doc-notary</span><p>Notary acknowledgment with seal placeholder.</p><div class="uses"><b>Used in:</b> note, mortgage, lien release</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-medal-line"></i></div><h4>Status stamp</h4><span class="class">.doc-stamp</span><p>Rotated badge — <code>EXECUTED</code>, <code>PAID IN FULL</code>, <code>VOID</code>, <code>DEMAND</code>.</p><div class="uses"><b>Used in:</b> as needed</div></div>
+      <div class="et-block"><div class="ico"><i class="ri-government-line"></i></div><h4>Compliance footer</h4><span class="class">.doc-foot</span><p>Entity, address, NMLS, ECOA, page numbers.</p><div class="uses"><b>Used in:</b> all 12</div></div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       3. TOKENS
+       =========================================================== -->
+  <section class="et-section" id="tokens">
+    <div class="et-section-head">
+      <span class="num">3</span>
+      <h2>Brand tokens</h2>
+      <p>Same tokens as the email shell — paper-friendly hex values that survive black-and-white printing.</p>
+    </div>
+
+    <div class="et-tokens">
+      <table>
+        <thead><tr><th style="width:40px;"></th><th>Token</th><th>Value</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#874ffa;"></span></td><td><code>--color-brand-600</code></td><td>#874FFA</td><td>Letterhead accent, signature ink, money headline</td></tr>
+          <tr><td><span class="swatch" style="background:#6e3fce;"></span></td><td><code>--color-brand-700</code></td><td>#6E3FCE</td><td>Section headers, emphasized term values</td></tr>
+          <tr><td><span class="swatch" style="background:#2a1d4f;"></span></td><td>Brand deep</td><td>#2A1D4F</td><td>Letterhead logo gradient start</td></tr>
+          <tr><td><span class="swatch" style="background:#1a1626;"></span></td><td>Foreground</td><td>#1A1626</td><td>Body copy, table headers, footer</td></tr>
+          <tr><td><span class="swatch" style="background:#4a4659;"></span></td><td>Body text</td><td>#4A4659</td><td>Paragraphs, party details</td></tr>
+          <tr><td><span class="swatch" style="background:#7a7589;"></span></td><td>Muted</td><td>#7A7589</td><td>Captions, ref labels, footer addr</td></tr>
+          <tr><td><span class="swatch" style="background:#faf9fc;border-color:var(--border-default);"></span></td><td>Subtle surface</td><td>#FAF9FC</td><td>Parties row, alt rows in tables</td></tr>
+          <tr><td><span class="swatch" style="background:#f4f1fb;"></span></td><td>Brand tint</td><td>#F4F1FB</td><td>Emphasized terms, totals row</td></tr>
+          <tr><td><span class="swatch" style="background:#fef3c7;"></span></td><td>Warn surface</td><td>#FEF3C7</td><td>Required-disclosure notice</td></tr>
+          <tr><td><span class="swatch" style="background:#fee2e2;"></span></td><td>Danger surface</td><td>#FEE2E2</td><td>Default / demand notices &amp; stamps</td></tr>
+          <tr><td><span class="swatch" style="background:#ddf7ea;"></span></td><td>Success surface</td><td>#DDF7EA</td><td>Executed / paid-in-full stamps</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       4. CATALOG
+       =========================================================== -->
+  <section class="et-section" id="catalog">
+    <div class="et-section-head">
+      <span class="num">4</span>
+      <h2>Catalog</h2>
+      <p>33 documents covering the full loan lifecycle — origination, servicing, default, closure. The lower section is action-driven, generated by LMS operations on the loan-detail page.</p>
+    </div>
+
+    <div class="et-catalog">
+      <div class="cat-row">
+        <div class="ico"><i class="ri-file-text-line"></i></div>
+        <div class="meta"><div class="id">DOC-APP</div><div class="nm">Loan Application</div><div class="desc">Borrower's request — personal, employment, and property details.</div><div class="req">Required at intake · Reg B (ECOA)</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-shield-check-line"></i></div>
+        <div class="meta"><div class="id">DOC-PA</div><div class="nm">Pre-Approval Letter</div><div class="desc">Conditional approval issued before underwriting completes.</div><div class="req">Used for offers · 60-day validity</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-coins-line"></i></div>
+        <div class="meta"><div class="id">DOC-LE</div><div class="nm">Loan Estimate (LE)</div><div class="desc">Standardized 3-page TRID disclosure of costs &amp; terms.</div><div class="req">Required &lt;3 days from application · TRID / Reg Z</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-quill-pen-line"></i></div>
+        <div class="meta"><div class="id">DOC-NOTE</div><div class="nm">Promissory Note</div><div class="desc">Borrower's signed promise to repay — the core debt instrument.</div><div class="req">Notarized · executed at closing</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-key-2-line"></i></div>
+        <div class="meta"><div class="id">DOC-MTG</div><div class="nm">Mortgage / Deed of Trust</div><div class="desc">Security instrument — pledges the property as collateral.</div><div class="req">Notarized · recorded with county</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-file-list-3-line"></i></div>
+        <div class="meta"><div class="id">DOC-CD</div><div class="nm">Closing Disclosure (CD)</div><div class="desc">Final 5-page settlement statement issued ≥3 days before closing.</div><div class="req">TRID / Reg Z · borrower must acknowledge</div></div>
+        <span class="stage orig">Origination</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-calendar-2-line"></i></div>
+        <div class="meta"><div class="id">DOC-AMT</div><div class="nm">Amortization Schedule</div><div class="desc">Full month-by-month breakdown of principal, interest, balance.</div><div class="req">Issued at funding · regenerated on modification</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-bill-line"></i></div>
+        <div class="meta"><div class="id">DOC-STMT</div><div class="nm">Monthly Statement</div><div class="desc">Periodic statement — balance, payment due, year-to-date totals.</div><div class="req">Reg Z §1026.41 · monthly</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-receipt-line"></i></div>
+        <div class="meta"><div class="id">DOC-RCPT</div><div class="nm">Installment Payment Receipt</div><div class="desc">Per-payment receipt — amount, breakdown, method, resulting balance, next due.</div><div class="req">Issued automatically on every successful payment</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-alarm-warning-line"></i></div>
+        <div class="meta"><div class="id">DOC-LATE</div><div class="nm">Late Payment Notice</div><div class="desc">First-stage dunning letter — past-due balance + late fee notice.</div><div class="req">After 15-day grace · FDCPA compliant</div></div>
+        <span class="stage def">Default</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-error-warning-fill"></i></div>
+        <div class="meta"><div class="id">DOC-DMD</div><div class="nm">Demand / Acceleration Letter</div><div class="desc">Pre-foreclosure demand — entire balance due, cure period, rights.</div><div class="req">90+ days delinquent · state-specific</div></div>
+        <span class="stage def">Default</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-refresh-line"></i></div>
+        <div class="meta"><div class="id">DOC-MOD</div><div class="nm">Loan Modification Agreement</div><div class="desc">Restructure of terms — new rate, term, or payment.</div><div class="req">Notarized · recorded as amendment</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-checkbox-circle-fill"></i></div>
+        <div class="meta"><div class="id">DOC-PIF</div><div class="nm">Payoff Statement &amp; Lien Release</div><div class="desc">Final balance quote and satisfaction of mortgage on full payment.</div><div class="req">Recorded with county to clear title</div></div>
+        <span class="stage close">Closure</span>
+      </div>
+
+      <!-- ============================================================
+           Action-driven documents — generated by LMS operations on
+           the loan-detail page. Each entry says when it's emitted.
+           ============================================================ -->
+      <div class="cat-row">
+        <div class="ico"><i class="ri-bill-line"></i></div>
+        <div class="meta"><div class="id">DOC-INV</div><div class="nm">Installment Invoice</div><div class="desc">Single-installment invoice — period, due date, breakdown, paid status.</div><div class="req">Emitted by Schedule row → "View / send invoice"</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-add-circle-line"></i></div>
+        <div class="meta"><div class="id">DOC-CHG</div><div class="nm">Charge Notice</div><div class="desc">One-time fee added to a loan or installment — type, amount, when due.</div><div class="req">Emitted by Add ad-hoc charge (loan or installment)</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-coupon-3-line"></i></div>
+        <div class="meta"><div class="id">DOC-CR</div><div class="nm">Credit Memo</div><div class="desc">Credit applied to the loan — source, amount, what it offsets.</div><div class="req">Emitted by Apply credit memo / Apply credit to installment</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-percent-line"></i></div>
+        <div class="meta"><div class="id">DOC-WV</div><div class="nm">Fee Waiver Confirmation</div><div class="desc">Confirms one-time waiver of late or other fees — reason and amount.</div><div class="req">Emitted by Waive late fees</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-pencil-line"></i></div>
+        <div class="meta"><div class="id">DOC-ADJ</div><div class="nm">Installment Adjustment Notice</div><div class="desc">Single installment changed — old vs new amount, rebalance impact.</div><div class="req">Emitted by Adjust scheduled amount</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-calendar-event-line"></i></div>
+        <div class="meta"><div class="id">DOC-DDC</div><div class="nm">Due-Date Change Notice</div><div class="desc">One installment moved to a new date — old / new date, reason.</div><div class="req">Emitted by Change due date · also covers Change payment day</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-skip-forward-line"></i></div>
+        <div class="meta"><div class="id">DOC-DEF</div><div class="nm">Deferral Confirmation</div><div class="desc">Skipped installment appended to end of term — new maturity date.</div><div class="req">Emitted by Defer to next period · also Cancel installment</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-error-warning-line"></i></div>
+        <div class="meta"><div class="id">DOC-DSP</div><div class="nm">Dispute Acknowledgement</div><div class="desc">Confirms an installment is under dispute — late fees paused, next step.</div><div class="req">Emitted by Mark in dispute · FDCPA / Reg E timing rules</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-arrow-go-back-line"></i></div>
+        <div class="meta"><div class="id">DOC-NSF</div><div class="nm">Returned Payment Notice</div><div class="desc">Bank-returned payment — return code, fee assessed, schedule rollback.</div><div class="req">Emitted by Reverse (NSF / bounced)</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-arrow-left-right-line"></i></div>
+        <div class="meta"><div class="id">DOC-RLC</div><div class="nm">Re-allocation Notice</div><div class="desc">Payment moved between installments — from / to, before-after balances.</div><div class="req">Emitted by Re-allocate to period(s)</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-refund-2-line"></i></div>
+        <div class="meta"><div class="id">DOC-RFD</div><div class="nm">Refund Notice</div><div class="desc">Refund issued to borrower — amount, destination, schedule impact.</div><div class="req">Emitted by Issue refund / Refund payment</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-percent-line"></i></div>
+        <div class="meta"><div class="id">DOC-RTC</div><div class="nm">Rate Change Notice</div><div class="desc">Interest rate modified — old / new APR, new payment, effective date.</div><div class="req">Emitted by Modify interest rate · disclosure required</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-pause-circle-line"></i></div>
+        <div class="meta"><div class="id">DOC-FRB</div><div class="nm">Forbearance Agreement</div><div class="desc">Plan to pause / reduce payments — duration, type, repayment plan.</div><div class="req">Emitted by Apply forbearance plan · borrower signature required</div></div>
+        <span class="stage def">Default</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-shuffle-line"></i></div>
+        <div class="meta"><div class="id">DOC-REFI</div><div class="nm">Restructure / Refinance Agreement</div><div class="desc">Closes the current loan and opens a successor with new terms.</div><div class="req">Emitted by Restructure / refinance · notarized + executed</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-user-shared-line"></i></div>
+        <div class="meta"><div class="id">DOC-COL</div><div class="nm">Collections / Validation Notice</div><div class="desc">Hand-off to collections — debt validation, contact info, dispute rights.</div><div class="req">Emitted by Send to collections · FDCPA / Reg F (5-day)</div></div>
+        <span class="stage def">Default</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-arrow-go-back-line"></i></div>
+        <div class="meta"><div class="id">DOC-REI</div><div class="nm">Reinstatement Notice</div><div class="desc">Loan returned to active status — from default / collections / charge-off.</div><div class="req">Emitted by Reinstate loan</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-error-warning-line"></i></div>
+        <div class="meta"><div class="id">DOC-WO</div><div class="nm">Charge-Off / 1099-C Notice</div><div class="desc">Receivable written off — GL impact, possible 1099-C tax form to borrower.</div><div class="req">Emitted by Write off · accounting + tax reporting</div></div>
+        <span class="stage close">Closure</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-close-circle-line"></i></div>
+        <div class="meta"><div class="id">DOC-CLS</div><div class="nm">Account Closure Letter</div><div class="desc">Confirms loan is closed — final balance, reason, next steps.</div><div class="req">Emitted by Mark as closed</div></div>
+        <span class="stage close">Closure</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-file-add-line"></i></div>
+        <div class="meta"><div class="id">DOC-REQ</div><div class="nm">Document Request Notice</div><div class="desc">Asks the borrower to submit a document — title, deadline, upload link.</div><div class="req">Emitted by Request document</div></div>
+        <span class="stage serv">Servicing</span>
+      </div>
+      <div class="cat-row">
+        <div class="ico"><i class="ri-price-tag-3-line"></i></div>
+        <div class="meta"><div class="id">DOC-POQ</div><div class="nm">Payoff Quote</div><div class="desc">Time-bound (10-30 day) payoff figure — principal + interest + fees.</div><div class="req">Emitted by Generate payoff quote · precedes DOC-PIF</div></div>
+        <span class="stage close">Closure</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       5. EXAMPLES
+       =========================================================== -->
+  <section class="et-section" id="examples">
+    <div class="et-section-head">
+      <span class="num">5</span>
+      <h2>Live examples</h2>
+      <p>Same shell, six very different documents — across the full loan lifecycle.</p>
+    </div>
+
+    <div class="et-showcase">
+
+      <!-- LOAN ESTIMATE -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-LE</span>
+          <span class="label">Loan Estimate (TRID)</span>
+          <span class="stage orig">Origination</span>
+          <span class="meta">Required ≤3 days · 3 pp</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-stamp info">Issued</div>
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201<br/><b>T</b> +1 (214) 555-0182 &nbsp; <b>E</b> lending@ream.com</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Loan Estimate</div><div class="sub">Standard TRID disclosure — page 1 of 3</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">DOC-LE-001</span></div>
+                <div class="row"><span class="k">Issued</span><span class="v">May 7, 2026</span></div>
+              </div>
+            </div>
+            <div class="doc-parties">
+              <div class="party"><div class="lbl">Applicant</div><div class="nm">Marcus Lee</div><div class="det">3402 Elmwood Trail<br/>Dallas, TX 75223</div></div>
+              <div class="party"><div class="lbl">Property</div><div class="nm">3402 Elmwood Trail</div><div class="det">East Dallas, TX 75223<br/><b>Sale price</b> $184,500</div></div>
+            </div>
+            <div class="doc-body">
+              <div class="doc-h"><span class="roman">I</span> Loan terms</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Loan amount</div><div class="v">$165,000.00</div></div>
+                <div class="tr"><div class="k">Interest rate</div><div class="v">8.250% · Fixed</div></div>
+                <div class="tr"><div class="k">Loan term</div><div class="v">15 years (180 months)</div></div>
+                <div class="tr"><div class="k">Loan type</div><div class="v">Conventional · Purchase</div></div>
+                <div class="tr emph"><div class="k">Annual percentage rate (APR)</div><div class="v">8.412%</div></div>
+                <div class="tr emph"><div class="k">Total interest percentage (TIP)</div><div class="v">75.42% of loan amount</div></div>
+              </div>
+              <div class="doc-h"><span class="roman">II</span> Projected payments</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Principal &amp; interest</div><div class="v">$1,431.04</div></div>
+                <div class="tr"><div class="k">Estimated escrow (T+I)</div><div class="v">$427.18</div></div>
+                <div class="tr emph"><div class="k">Estimated total monthly payment</div><div class="v">$1,858.22</div></div>
+              </div>
+              <div class="doc-h"><span class="roman">III</span> Costs at closing</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Estimated closing costs</div><div class="v">$5,847.00</div></div>
+                <div class="tr"><div class="k">Estimated cash to close</div><div class="v">$25,347.00</div></div>
+              </div>
+              <div class="doc-notice"><strong>This is not a loan approval.</strong> Save this Loan Estimate to compare with your Closing Disclosure. The numbers above may change before closing — see TRID tolerance rules in section IV.</div>
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2026 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROMISSORY NOTE -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-NOTE</span>
+          <span class="label">Promissory Note</span>
+          <span class="stage orig">Origination</span>
+          <span class="meta">Notarized · Executed</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-stamp">Executed</div>
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Promissory Note</div><div class="sub">Fixed Rate · Amortizing · Texas</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">DOC-NOTE-001</span></div>
+                <div class="row"><span class="k">Date</span><span class="v">May 7, 2026</span></div>
+              </div>
+            </div>
+            <div class="doc-parties">
+              <div class="party"><div class="lbl">Borrower</div><div class="nm">Marcus Lee</div><div class="det">3402 Elmwood Trail<br/>Dallas, TX 75223<br/><b>SSN</b> ●●●-●●-4471</div></div>
+              <div class="party"><div class="lbl">Lender / Holder</div><div class="nm">REAM Lending, Inc.</div><div class="det">2101 Ross Ave, Ste 1900<br/>Dallas, TX 75201<br/><b>NMLS</b> #2389471</div></div>
+            </div>
+            <div class="doc-body">
+              <div class="doc-h"><span class="roman">1</span> Promise to pay</div>
+              <p class="legalese">For value received, the undersigned (the <strong>"Borrower"</strong>) promises to pay to the order of <strong>REAM Lending, Inc.</strong> (the <strong>"Lender"</strong>), the principal sum of <strong>One hundred sixty-five thousand and 00/100 U.S. dollars ($165,000.00)</strong>, with interest on the unpaid principal balance from the date hereof at the rate of <strong>8.250% per annum</strong>, until paid.</p>
+
+              <div class="doc-h"><span class="roman">2</span> Payment</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Principal</div><div class="v">$165,000.00</div></div>
+                <div class="tr"><div class="k">Interest rate</div><div class="v">8.250% (fixed)</div></div>
+                <div class="tr"><div class="k">Term</div><div class="v">180 months</div></div>
+                <div class="tr emph"><div class="k">Monthly payment</div><div class="v">$1,431.04</div></div>
+                <div class="tr"><div class="k">First payment due</div><div class="v">June 1, 2026</div></div>
+                <div class="tr"><div class="k">Maturity date</div><div class="v">May 1, 2041</div></div>
+                <div class="tr"><div class="k">Late charge</div><div class="v">5.0% of overdue P+I</div></div>
+              </div>
+
+              <div class="doc-h"><span class="roman">3</span> Default &amp; remedies</div>
+              <p class="legalese">If any monthly payment is not received within fifteen (15) days after the date it is due, the Lender may declare the entire unpaid principal balance immediately due and payable, together with accrued interest and any other charges. Borrower waives presentment, notice of dishonor, and protest.</p>
+
+              <div class="doc-notice legal"><strong>Governed by Texas law.</strong> This Note is secured by a Deed of Trust of even date over the property at 3402 Elmwood Trail, Dallas, TX 75223 (DOC-MTG-001).</div>
+            </div>
+            <div class="doc-sigs">
+              <div class="doc-sig">
+                <div class="lbl">Borrower</div>
+                <div class="line">Marcus Lee</div>
+                <div class="who">Marcus Lee</div>
+                <div class="role">Borrower</div>
+                <div class="date">Signed May 7, 2026 · 11:42 AM CST · IP 73.142.0.18</div>
+              </div>
+              <div class="doc-sig">
+                <div class="lbl">Lender</div>
+                <div class="line">Sarah Johnson</div>
+                <div class="who">Sarah Johnson</div>
+                <div class="role">Senior Loan Officer · NMLS #1129488</div>
+                <div class="date">Signed May 7, 2026 · 11:43 AM CST</div>
+              </div>
+            </div>
+            <div class="doc-notary">
+              <div class="seal">Notary<br/>Seal</div>
+              <div class="nti">Notary acknowledgment</div>
+              State of Texas, County of Dallas. On <b>May 7, 2026</b>, before me personally appeared <b>Marcus Lee</b>, proved on the basis of satisfactory evidence to be the person whose name is subscribed to the within instrument, and acknowledged that he executed the same.<br/><br/>
+              <b>Notary:</b> Patricia M. Alvarez · Comm. #133-2891 · Exp. 03/2029
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2026 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AMORTIZATION SCHEDULE -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-AMT</span>
+          <span class="label">Amortization Schedule</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Year 1 · Periods 1–12</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Amortization Schedule</div><div class="sub">Loan L-2046 · Marcus Lee · Year 1 of 15</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">DOC-AMT-001</span></div>
+                <div class="row"><span class="k">Issued</span><span class="v">May 7, 2026</span></div>
+              </div>
+            </div>
+            <div class="doc-body" style="padding-top:14px;">
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Original principal</div><div class="v">$165,000.00</div></div>
+                <div class="tr"><div class="k">Rate · Term</div><div class="v">8.250% · 180 months</div></div>
+                <div class="tr emph"><div class="k">Monthly P+I</div><div class="v">$1,431.04</div></div>
+              </div>
+              <table class="doc-table" style="margin-top:14px;">
+                <thead><tr><th>#</th><th>Due date</th><th class="num">Payment</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Balance</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>Jun 01, 2026</td><td class="num">1,431.04</td><td class="num">296.79</td><td class="num">1,134.25</td><td class="num">164,703.21</td></tr>
+                  <tr><td>2</td><td>Jul 01, 2026</td><td class="num">1,431.04</td><td class="num">298.83</td><td class="num">1,132.21</td><td class="num">164,404.38</td></tr>
+                  <tr><td>3</td><td>Aug 01, 2026</td><td class="num">1,431.04</td><td class="num">300.88</td><td class="num">1,130.16</td><td class="num">164,103.50</td></tr>
+                  <tr><td>4</td><td>Sep 01, 2026</td><td class="num">1,431.04</td><td class="num">302.95</td><td class="num">1,128.09</td><td class="num">163,800.55</td></tr>
+                  <tr><td>5</td><td>Oct 01, 2026</td><td class="num">1,431.04</td><td class="num">305.04</td><td class="num">1,126.00</td><td class="num">163,495.51</td></tr>
+                  <tr><td>6</td><td>Nov 01, 2026</td><td class="num">1,431.04</td><td class="num">307.13</td><td class="num">1,123.91</td><td class="num">163,188.38</td></tr>
+                  <tr><td>7</td><td>Dec 01, 2026</td><td class="num">1,431.04</td><td class="num">309.25</td><td class="num">1,121.79</td><td class="num">162,879.13</td></tr>
+                  <tr><td>8</td><td>Jan 01, 2027</td><td class="num">1,431.04</td><td class="num">311.37</td><td class="num">1,119.67</td><td class="num">162,567.76</td></tr>
+                  <tr><td>9</td><td>Feb 01, 2027</td><td class="num">1,431.04</td><td class="num">313.51</td><td class="num">1,117.53</td><td class="num">162,254.25</td></tr>
+                  <tr><td>10</td><td>Mar 01, 2027</td><td class="num">1,431.04</td><td class="num">315.67</td><td class="num">1,115.37</td><td class="num">161,938.58</td></tr>
+                  <tr><td>11</td><td>Apr 01, 2027</td><td class="num">1,431.04</td><td class="num">317.84</td><td class="num">1,113.20</td><td class="num">161,620.74</td></tr>
+                  <tr><td>12</td><td>May 01, 2027</td><td class="num">1,431.04</td><td class="num">320.02</td><td class="num">1,111.02</td><td class="num">161,300.72</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2">Year 1 totals</td><td class="num">17,172.48</td><td class="num">3,699.28</td><td class="num">13,473.20</td><td class="num">—</td></tr></tfoot>
+              </table>
+              <div class="doc-notice info" style="margin-top:14px;"><strong>Continued.</strong> Years 2–15 follow on subsequent pages. Re-issued automatically on any modification, prepayment, or partial paydown.</div>
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2026 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 15</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY STATEMENT -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-STMT</span>
+          <span class="label">Monthly Statement</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Reg Z §1026.41</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Monthly Statement</div><div class="sub">Statement period · April 1 – April 30, 2027</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">STMT-2027-04</span></div>
+                <div class="row"><span class="k">Issued</span><span class="v">May 1, 2027</span></div>
+              </div>
+            </div>
+            <div class="doc-body" style="padding-top:14px;">
+              <div class="doc-money">
+                <div><div class="lbl">Payment due May 1</div><div class="val">$1,431.04</div></div>
+                <div class="aux">Includes $1,431.04 P+I.<br/>Late after May 16, 2027.</div>
+              </div>
+              <div class="doc-h"><span class="roman">I</span> Account summary</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Outstanding principal</div><div class="v">$161,300.72</div></div>
+                <div class="tr"><div class="k">Interest rate</div><div class="v">8.250% (fixed)</div></div>
+                <div class="tr"><div class="k">Maturity date</div><div class="v">May 1, 2041</div></div>
+                <div class="tr"><div class="k">Year-to-date interest</div><div class="v">$5,594.79</div></div>
+                <div class="tr"><div class="k">Year-to-date principal</div><div class="v">$1,556.90</div></div>
+              </div>
+              <div class="doc-h"><span class="roman">II</span> Last payment</div>
+              <table class="doc-table">
+                <thead><tr><th>Date</th><th>Reference</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Late fee</th><th class="num">Total</th></tr></thead>
+                <tbody>
+                  <tr><td>Apr 01, 2027</td><td>REC-2046-011</td><td class="num">317.84</td><td class="num">1,113.20</td><td class="num">0.00</td><td class="num">1,431.04</td></tr>
+                </tbody>
+              </table>
+              <div class="doc-notice"><strong>Past-due amount:</strong> $0.00. <strong>Late fee:</strong> 5.0% of overdue P+I assessed after a 15-day grace period.</div>
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2026 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSTALLMENT PAYMENT RECEIPT -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-RCPT</span>
+          <span class="label">Installment Payment Receipt · Template</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Auto-issued on success</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-stamp">Paid</div>
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201<br/><b>T</b> +1 (214) 555-0182 &nbsp; <b>E</b> servicing@ream.com</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Payment Receipt</div><div class="sub">Installment <span class="tpl">{{installment_number}}</span> of <span class="tpl">{{total_installments}}</span> · Confirmed</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v"><span class="tpl">{{loan_id}}</span></span></div>
+                <div class="row"><span class="k">Receipt</span><span class="v"><span class="tpl">{{receipt_number}}</span></span></div>
+                <div class="row"><span class="k">Posted</span><span class="v"><span class="tpl">{{posted_date}}</span></span></div>
+              </div>
+            </div>
+            <div class="doc-parties">
+              <div class="party"><div class="lbl">Paid by</div><div class="nm"><span class="tpl">{{borrower_name}}</span></div><div class="det"><span class="tpl">{{borrower_address}}</span><br/><b>Acct on file</b> <span class="tpl">{{funding_account_masked}}</span></div></div>
+              <div class="party"><div class="lbl">Received by</div><div class="nm">REAM Lending, Inc.</div><div class="det">Servicing operations<br/>2101 Ross Ave, Ste 1900<br/>Dallas, TX 75201</div></div>
+            </div>
+            <div class="doc-body">
+              <div class="doc-money">
+                <div><div class="lbl">Amount received</div><div class="val"><span class="tpl">{{amount_received}}</span></div></div>
+                <div class="aux">Posted <span class="tpl">{{posted_date}}</span><br/><span class="tpl">{{posted_time}}</span> · <span class="tpl">{{payment_method_short}}</span></div>
+              </div>
+
+              <div class="doc-h"><span class="roman">I</span> Payment breakdown</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Principal</div><div class="v"><span class="tpl">{{principal_amount}}</span></div></div>
+                <div class="tr"><div class="k">Interest</div><div class="v"><span class="tpl">{{interest_amount}}</span></div></div>
+                <div class="tr"><div class="k">Escrow (taxes &amp; insurance)</div><div class="v"><span class="tpl">{{escrow_amount}}</span></div></div>
+                <div class="tr"><div class="k">Late fee</div><div class="v"><span class="tpl">{{late_fee_amount}}</span></div></div>
+                <div class="tr"><div class="k">Other charges</div><div class="v"><span class="tpl">{{other_charges}}</span></div></div>
+                <div class="tr"><div class="k">Suspense applied</div><div class="v"><span class="tpl">{{suspense_applied}}</span></div></div>
+                <div class="tr emph"><div class="k">Total received</div><div class="v"><span class="tpl">{{amount_received}}</span></div></div>
+              </div>
+
+              <div class="doc-h"><span class="roman">II</span> Payment method</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Method</div><div class="v"><span class="tpl">{{payment_method}}</span></div></div>
+                <div class="tr"><div class="k">Funding account</div><div class="v"><span class="tpl">{{funding_account_masked}}</span></div></div>
+                <div class="tr"><div class="k">Routing</div><div class="v"><span class="tpl">{{routing_masked}}</span></div></div>
+                <div class="tr"><div class="k">Confirmation</div><div class="v"><span class="tpl">{{confirmation_number}}</span></div></div>
+                <div class="tr"><div class="k">Status</div><div class="v" style="color:#166534;"><span class="tpl">{{payment_status}}</span></div></div>
+              </div>
+
+              <div class="doc-h"><span class="roman">III</span> Account after this payment</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Previous balance</div><div class="v"><span class="tpl">{{previous_balance}}</span></div></div>
+                <div class="tr"><div class="k">Principal applied</div><div class="v">(<span class="tpl">{{principal_amount}}</span>)</div></div>
+                <div class="tr emph"><div class="k">New outstanding principal</div><div class="v"><span class="tpl">{{new_outstanding_principal}}</span></div></div>
+                <div class="tr"><div class="k">Past-due balance</div><div class="v" style="color:#166534;"><span class="tpl">{{past_due_balance}}</span> · current</div></div>
+                <div class="tr"><div class="k">Next payment due</div><div class="v"><span class="tpl">{{next_payment_due_date}}</span> · <span class="tpl">{{next_payment_amount}}</span></div></div>
+              </div>
+            </div>
+
+            <!-- QR verification -->
+            <div class="doc-verify">
+              <div class="qr-render" data-seed="RCP-template"></div>
+              <div>
+                <div class="vt">Scan to verify</div>
+                <div class="vd">This receipt's QR code resolves to a tamper-evident verification page on REAM Servicing. Compare loan, amount, and posted date to confirm authenticity.</div>
+                <div class="vu">https://ream.com/r/<span class="tpl">{{receipt_number}}</span></div>
+              </div>
+            </div>
+
+            <!-- Legal -->
+            <div class="doc-legal">
+              <div class="lt">Legal &amp; tax notice</div>
+              <p>This receipt is computer-generated and valid without signature. Payment is applied per the order of priority in the Promissory Note (Note <span class="tpl">{{note_ref}}</span>): late fees → escrow advances → interest → principal. Year-to-date interest paid will be reported on IRS Form 1098.</p>
+              <p>If any returned-item, NSF, or chargeback affects the funding source, the payment may be reversed and additional fees assessed under the Note. Disputes must be raised within 60 days per Reg E (12 CFR §1005.11) or Reg Z (12 CFR §1026.13) where applicable.</p>
+              <p>REAM Lending, Inc. is an Equal Housing Lender. NMLS #2389471. This communication is from a debt collector attempting to collect a debt; any information obtained will be used for that purpose.</p>
+            </div>
+
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© <span class="tpl">{{year}}</span> REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMAND LETTER -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-DMD</span>
+          <span class="label">Demand &amp; Acceleration Letter</span>
+          <span class="stage def">Default</span>
+          <span class="meta">90+ DPD · Pre-foreclosure</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-stamp danger">Demand</div>
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Notice of Default &amp; Demand</div><div class="sub">Texas Property Code §51.002 · Sent certified mail</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">DMD-2027-09</span></div>
+                <div class="row"><span class="k">Issued</span><span class="v">Sep 14, 2027</span></div>
+              </div>
+            </div>
+            <div class="doc-parties">
+              <div class="party"><div class="lbl">Borrower</div><div class="nm">Marcus Lee</div><div class="det">3402 Elmwood Trail<br/>Dallas, TX 75223</div></div>
+              <div class="party"><div class="lbl">Lender</div><div class="nm">REAM Lending, Inc.</div><div class="det">2101 Ross Ave, Ste 1900<br/>Dallas, TX 75201</div></div>
+            </div>
+            <div class="doc-body">
+              <p>Dear Mr. Lee,</p>
+              <p>You are in default on your loan with REAM Lending, Inc. As of the date of this letter, you have failed to make the monthly installments due July 1, August 1 and September 1, 2027.</p>
+              <div class="doc-money">
+                <div><div class="lbl">Total amount to cure</div><div class="val">$4,484.62</div></div>
+                <div class="aux">As of Sep 14, 2027.<br/>Interest accrues daily.</div>
+              </div>
+              <div class="doc-h"><span class="roman">I</span> Cure your default</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Past-due principal &amp; interest</div><div class="v">$4,293.12</div></div>
+                <div class="tr"><div class="k">Late fees</div><div class="v">$214.66</div></div>
+                <div class="tr"><div class="k">Other charges</div><div class="v">$0.00</div></div>
+                <div class="tr"><div class="k">Less: suspense balance</div><div class="v">($23.16)</div></div>
+                <div class="tr emph"><div class="k">Cure amount (by Oct 14, 2027)</div><div class="v">$4,484.62</div></div>
+              </div>
+              <p>You have <strong>thirty (30) days</strong> from the date of this notice to cure the default by paying the amount above to the address shown. If you fail to cure, the Lender will accelerate the full unpaid balance and may initiate foreclosure proceedings.</p>
+              <div class="doc-notice danger"><strong>Acceleration warning.</strong> If not cured by <strong>October 14, 2027</strong>, the entire balance of <strong>$160,184.27</strong> plus accrued interest and costs will become immediately due. You may have the right to bring a court action and present any defenses you may have to the acceleration and sale.</div>
+              <div class="doc-notice legal"><strong>FDCPA disclosure.</strong> This is an attempt to collect a debt and any information obtained will be used for that purpose. If you have received a discharge in bankruptcy, this letter is for informational purposes only and is not an attempt to collect a debt against you personally.</div>
+            </div>
+            <div class="doc-sigs">
+              <div class="doc-sig">
+                <div class="lbl">Servicer</div>
+                <div class="line">Diane Park</div>
+                <div class="who">Diane Park</div>
+                <div class="role">Default Servicing · REAM Dallas</div>
+                <div class="date">Sent Sep 14, 2027 · USPS Certified RR 7019-1640-0000-1842-9837</div>
+              </div>
+              <div class="doc-sig" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                <div class="lbl">Cure remittance address</div>
+                <div style="font:600 11.5px var(--font-sans); color:#1a1626; line-height:1.5;">REAM Lending, Inc.<br/>P.O. Box 88231<br/>Dallas, TX 75221-8231</div>
+                <div class="date" style="margin-top:8px;">Or pay online at ream.com/pay · ref L-2046</div>
+              </div>
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2027 REAM Lending, Inc. NMLS #2389471. This communication is from a debt collector.</div></div>
+              <div class="pg">Page 1 of 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYOFF / LIEN RELEASE -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-PIF</span>
+          <span class="label">Payoff &amp; Satisfaction of Mortgage</span>
+          <span class="stage close">Closure</span>
+          <span class="meta">Recorded with county</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="doc-page">
+            <div class="doc-stamp">Paid in full</div>
+            <div class="doc-head">
+              <div class="logo">R</div>
+              <div>
+                <div class="lh-name">REAM Lending, Inc.</div>
+                <div class="lh-tag">Real Estate, Reimagined · NMLS #2389471</div>
+                <div class="lh-meta">2101 Ross Avenue, Ste 1900 · Dallas, TX 75201</div>
+              </div>
+            </div>
+            <div class="doc-title-strip">
+              <div><div class="ti">Payoff Statement &amp; Lien Release</div><div class="sub">Final · Loan closed and lien released</div></div>
+              <div class="ref-block">
+                <div class="row"><span class="k">Loan</span><span class="v">L-2046</span></div>
+                <div class="row"><span class="k">Doc ref</span><span class="v">DOC-PIF-001</span></div>
+                <div class="row"><span class="k">Issued</span><span class="v">May 1, 2041</span></div>
+              </div>
+            </div>
+            <div class="doc-parties">
+              <div class="party"><div class="lbl">Borrower</div><div class="nm">Marcus Lee</div><div class="det">3402 Elmwood Trail<br/>Dallas, TX 75223</div></div>
+              <div class="party"><div class="lbl">Property released</div><div class="nm">3402 Elmwood Trail</div><div class="det">East Dallas, TX 75223<br/><b>Recorded</b> Vol 2026 / Pg 1841</div></div>
+            </div>
+            <div class="doc-body">
+              <div class="doc-money">
+                <div><div class="lbl">Payoff amount received</div><div class="val">$1,431.04</div></div>
+                <div class="aux">Final installment 180/180.<br/>Account closed.</div>
+              </div>
+              <div class="doc-h"><span class="roman">I</span> Final accounting</div>
+              <div class="doc-terms">
+                <div class="tr"><div class="k">Original principal</div><div class="v">$165,000.00</div></div>
+                <div class="tr"><div class="k">Total principal paid</div><div class="v">$165,000.00</div></div>
+                <div class="tr"><div class="k">Total interest paid</div><div class="v">$92,587.20</div></div>
+                <div class="tr"><div class="k">Late / other fees paid</div><div class="v">$0.00</div></div>
+                <div class="tr emph"><div class="k">Loan balance</div><div class="v">$0.00 · CLOSED</div></div>
+              </div>
+
+              <div class="doc-h"><span class="roman">II</span> Satisfaction of mortgage</div>
+              <p class="legalese">REAM Lending, Inc., the holder of the Promissory Note (DOC-NOTE-001) and Deed of Trust (DOC-MTG-001) executed by <strong>Marcus Lee</strong> on May 7, 2026, recorded in Volume 2026, Page 1841, Dallas County, Texas, hereby acknowledges that the indebtedness has been <strong>paid in full</strong> and the lien created by the Deed of Trust is <strong>fully released and discharged</strong>.</p>
+              <div class="doc-notice info"><strong>Recording.</strong> A copy of this document will be filed with the Dallas County Clerk within 30 days. The borrower will receive the recorded original by mail.</div>
+            </div>
+            <div class="doc-sigs">
+              <div class="doc-sig">
+                <div class="lbl">Lender</div>
+                <div class="line">Sarah Johnson</div>
+                <div class="who">Sarah Johnson</div>
+                <div class="role">Senior Loan Officer · NMLS #1129488</div>
+                <div class="date">Signed May 1, 2041 · 10:14 AM CST</div>
+              </div>
+              <div class="doc-sig">
+                <div class="lbl">Released to</div>
+                <div class="line">Marcus Lee</div>
+                <div class="who">Marcus Lee</div>
+                <div class="role">Borrower · Title vested free and clear</div>
+                <div class="date">Acknowledged May 1, 2041</div>
+              </div>
+            </div>
+            <div class="doc-notary">
+              <div class="seal">Notary<br/>Seal</div>
+              <div class="nti">Notary acknowledgment</div>
+              State of Texas, County of Dallas. On <b>May 1, 2041</b>, before me personally appeared <b>Sarah Johnson</b>, on behalf of REAM Lending, Inc., proved to me on the basis of satisfactory evidence to be the person whose name is subscribed to the within instrument, and acknowledged executing the same.<br/><br/>
+              <b>Notary:</b> Patricia M. Alvarez · Comm. #133-2891 · Exp. 03/2049
+            </div>
+            <div class="doc-foot">
+              <div><div class="brand">REAM Lending, Inc.</div><div class="addr">2101 Ross Ave, Ste 1900 · Dallas, TX 75201</div><div class="legal">© 2041 REAM Lending, Inc. NMLS #2389471. Equal Housing Lender.</div></div>
+              <div class="pg">Page 1 of 1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       6. ALTERNATIVE LAYOUTS
+       =========================================================== -->
+  <section class="et-section" id="alts">
+    <div class="et-section-head">
+      <span class="num">6</span>
+      <h2>Alternative layouts</h2>
+      <p>Two more design directions each — monthly statement and payment receipt.</p>
+    </div>
+
+    <div class="et-showcase">
+
+      <!-- ALT STATEMENT — Dashboard style -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-STMT · ALT A</span>
+          <span class="label">Monthly Statement — Dashboard</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Hero KPI + compact table</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="alt-stmt">
+            <div class="head">
+              <div class="lg">R</div>
+              <div><div class="b">REAM Lending</div><div class="s">Monthly statement · <span class="tpl">{{period_start}}</span> – <span class="tpl">{{period_end}}</span></div></div>
+              <div class="ref">Loan <b><span class="tpl">{{loan_id}}</span></b><span class="tpl">{{statement_ref}}</span></div>
+            </div>
+            <div class="hero">
+              <div>
+                <div class="due-lbl">Payment due <span class="tpl">{{due_date}}</span></div>
+                <div class="due-val"><span class="tpl">{{payment_due}}</span></div>
+                <div class="due-meta">Status <span class="pill">Current</span> · Late after <span class="tpl">{{late_after_date}}</span></div>
+                <div class="progress"><i style="width:35%"></i></div>
+                <div class="due-meta" style="margin-top:8px;"><span class="tpl">{{periods_paid}}</span> of <span class="tpl">{{total_periods}}</span> payments completed</div>
+              </div>
+              <div class="stat">
+                <div class="stat-row"><span class="k">Outstanding principal</span><span class="v"><span class="tpl">{{outstanding_principal}}</span></span></div>
+                <div class="stat-row"><span class="k">Interest rate</span><span class="v"><span class="tpl">{{interest_rate}}</span></span></div>
+                <div class="stat-row"><span class="k">Maturity</span><span class="v"><span class="tpl">{{maturity_date}}</span></span></div>
+              </div>
+            </div>
+            <div class="body">
+              <h3>Activity this period</h3>
+              <table class="pay-table">
+                <thead><tr><th>Date</th><th>Description</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Total</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="tpl">{{tx_date}}</span></td><td>ACH payment · <span class="tpl">{{tx_ref}}</span></td><td class="num"><span class="tpl">{{tx_principal}}</span></td><td class="num"><span class="tpl">{{tx_interest}}</span></td><td class="num"><span class="tpl">{{tx_total}}</span></td></tr>
+                </tbody>
+              </table>
+              <div class="breakdown">
+                <div class="bd"><div class="lbl">YTD interest</div><div class="val"><span class="tpl">{{ytd_interest}}</span></div></div>
+                <div class="bd"><div class="lbl">YTD principal</div><div class="val"><span class="tpl">{{ytd_principal}}</span></div></div>
+              </div>
+            </div>
+            <div class="foot"><span><b>REAM Lending, Inc.</b> · NMLS #2389471 · Equal Housing Lender</span><span>Page 1 of 1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALT STATEMENT — Ledger style -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-STMT · ALT B</span>
+          <span class="label">Monthly Statement — Ledger</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Classic mono · banking-style</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="alt-ledger">
+            <div class="lh">
+              <div><div class="name">REAM LENDING, INC.</div><div class="meta">NMLS #2389471 · 2101 Ross Ave Ste 1900, Dallas TX 75201</div></div>
+              <div class="doctype">Mortgage statement<small>Period <span class="tpl">{{period_start}}</span> – <span class="tpl">{{period_end}}</span></small></div>
+            </div>
+            <div class="grid">
+              <div>
+                <div class="lbl">Account</div>
+                <div class="row"><span class="k">Loan</span><span class="v"><span class="tpl">{{loan_id}}</span></span></div>
+                <div class="row"><span class="k">Borrower</span><span class="v"><span class="tpl">{{borrower_name}}</span></span></div>
+                <div class="row"><span class="k">Property</span><span class="v"><span class="tpl">{{property_short}}</span></span></div>
+                <div class="row"><span class="k">Maturity</span><span class="v"><span class="tpl">{{maturity_date}}</span></span></div>
+              </div>
+              <div>
+                <div class="lbl">Balances</div>
+                <div class="row"><span class="k">Principal</span><span class="v"><span class="tpl">{{outstanding_principal}}</span></span></div>
+                <div class="row"><span class="k">Escrow</span><span class="v"><span class="tpl">{{escrow_balance}}</span></span></div>
+                <div class="row"><span class="k">Suspense</span><span class="v"><span class="tpl">{{suspense_balance}}</span></span></div>
+                <div class="row"><span class="k">Past due</span><span class="v"><span class="tpl">{{past_due_balance}}</span></span></div>
+              </div>
+            </div>
+            <div class="activity">
+              <h4>Activity — credits and charges</h4>
+              <table class="actbl">
+                <thead><tr><th>Date</th><th>Description</th><th class="r">Charge</th><th class="r">Credit</th><th class="r">Balance</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="tpl">{{period_start}}</span></td><td>Beginning balance</td><td class="r">—</td><td class="r">—</td><td class="r"><span class="tpl">{{begin_balance}}</span></td></tr>
+                  <tr><td><span class="tpl">{{accrual_date}}</span></td><td>Interest accrual</td><td class="r"><span class="tpl">{{interest_accrued}}</span></td><td class="r">—</td><td class="r"><span class="tpl">{{post_accrual_balance}}</span></td></tr>
+                  <tr><td><span class="tpl">{{tx_date}}</span></td><td>ACH pmt · <span class="tpl">{{tx_ref}}</span></td><td class="r">—</td><td class="r">(<span class="tpl">{{tx_total}}</span>)</td><td class="r"><span class="tpl">{{post_payment_balance}}</span></td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2">Ending balance</td><td class="r">—</td><td class="r">—</td><td class="r"><span class="tpl">{{outstanding_principal}}</span></td></tr></tfoot>
+              </table>
+            </div>
+            <div class="stub">
+              <div><div class="lbl">Amount due</div><div class="v"><span class="tpl">{{payment_due}}</span></div></div>
+              <div><div class="lbl">Due date</div><div class="v"><span class="tpl">{{due_date}}</span></div></div>
+            </div>
+            <div class="lf"><span>REAM Lending, Inc. · NMLS #2389471</span><span>Page 1 of 1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALT RECEIPT — Mobile card -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-RCPT · ALT A</span>
+          <span class="label">Payment Receipt — Mobile card</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Email / app friendly</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="alt-card">
+            <div class="hero">
+              <div class="check"><i class="ri-check-line"></i></div>
+              <div class="ti">Payment received</div>
+              <div class="amt"><span class="tpl">{{amount_received}}</span></div>
+              <div class="sub">Installment <span class="tpl">{{installment_number}}</span> of <span class="tpl">{{total_installments}}</span> · Loan <span class="tpl">{{loan_id}}</span></div>
+            </div>
+            <div class="meta">
+              <div class="meta-row"><span class="k">Posted</span><span class="v"><span class="tpl">{{posted_date}}</span> · <span class="tpl">{{posted_time}}</span></span></div>
+              <div class="meta-row"><span class="k">Method</span><span class="v"><span class="tpl">{{payment_method}}</span></span></div>
+              <div class="meta-row"><span class="k">Account</span><span class="v"><span class="tpl">{{funding_account_masked}}</span></span></div>
+              <div class="meta-row"><span class="k">Confirmation</span><span class="v"><span class="tpl">{{confirmation_number}}</span></span></div>
+              <div class="meta-row"><span class="k">Status</span><span class="v success"><span class="tpl">{{payment_status}}</span></span></div>
+              <div class="meta-row"><span class="k">New balance</span><span class="v"><span class="tpl">{{new_outstanding_principal}}</span></span></div>
+              <div class="meta-row"><span class="k">Next due</span><span class="v"><span class="tpl">{{next_payment_due_date}}</span> · <span class="tpl">{{next_payment_amount}}</span></span></div>
+            </div>
+            <div class="qr-wrap">
+              <div class="qr-render" data-seed="RCP-card"></div>
+              <div>
+                <div class="qrt">Verify</div>
+                <div class="qrd">Scan to view a tamper-evident copy on REAM Servicing.</div>
+                <div class="qru">ream.com/r/<span class="tpl">{{receipt_number}}</span></div>
+              </div>
+            </div>
+            <div class="ft"><b>REAM Lending, Inc. · NMLS #2389471</b>Computer-generated receipt · Equal Housing Lender</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALT RECEIPT — Thermal till -->
+      <div class="et-showcase-card">
+        <div class="et-showcase-head">
+          <span class="code">DOC-RCPT · ALT B</span>
+          <span class="label">Payment Receipt — Thermal till</span>
+          <span class="stage serv">Servicing</span>
+          <span class="meta">Print · in-person teller</span>
+        </div>
+        <div class="et-paper-stage">
+          <div class="alt-till">
+            <div class="center">
+              <div class="brand">REAM LENDING</div>
+              <div class="sub">NMLS #2389471 · (214) 555-0182</div>
+            </div>
+            <div class="div"></div>
+            <div class="center lblc">— Payment Receipt —</div>
+            <div class="total"><span class="tpl">{{amount_received}}</span></div>
+            <div class="center sub">Installment <span class="tpl">{{installment_number}}</span>/<span class="tpl">{{total_installments}}</span></div>
+            <div class="div"></div>
+            <div class="row"><span class="k">Loan</span><span class="v"><span class="tpl">{{loan_id}}</span></span></div>
+            <div class="row"><span class="k">Borrower</span><span class="v"><span class="tpl">{{borrower_short}}</span></span></div>
+            <div class="row"><span class="k">Posted</span><span class="v"><span class="tpl">{{posted_date}}</span></span></div>
+            <div class="row"><span class="k">Time</span><span class="v"><span class="tpl">{{posted_time}}</span></span></div>
+            <div class="row"><span class="k">Receipt#</span><span class="v"><span class="tpl">{{receipt_number}}</span></span></div>
+            <div class="div"></div>
+            <div class="row"><span class="k">Principal</span><span class="v"><span class="tpl">{{principal_amount}}</span></span></div>
+            <div class="row"><span class="k">Interest</span><span class="v"><span class="tpl">{{interest_amount}}</span></span></div>
+            <div class="row"><span class="k">Escrow</span><span class="v"><span class="tpl">{{escrow_amount}}</span></span></div>
+            <div class="row"><span class="k">Late fee</span><span class="v"><span class="tpl">{{late_fee_amount}}</span></span></div>
+            <div class="row bold"><span class="k">TOTAL</span><span class="v"><span class="tpl">{{amount_received}}</span></span></div>
+            <div class="div"></div>
+            <div class="row"><span class="k">Method</span><span class="v"><span class="tpl">{{payment_method_short}}</span></span></div>
+            <div class="row"><span class="k">Acct</span><span class="v"><span class="tpl">{{funding_account_masked}}</span></span></div>
+            <div class="row"><span class="k">Conf#</span><span class="v"><span class="tpl">{{confirmation_number}}</span></span></div>
+            <div class="div"></div>
+            <div class="row"><span class="k">Prev bal</span><span class="v"><span class="tpl">{{previous_balance}}</span></span></div>
+            <div class="row bold"><span class="k">New bal</span><span class="v"><span class="tpl">{{new_outstanding_principal}}</span></span></div>
+            <div class="row"><span class="k">Next due</span><span class="v"><span class="tpl">{{next_payment_due_date}}</span></span></div>
+            <div class="div"></div>
+            <div class="qr-render" data-seed="RCP-till"></div>
+            <div class="center lblc" style="margin-top:6px;">Scan to verify</div>
+            <div class="center sub" style="margin-top:2px;">ream.com/r/<span class="tpl">{{receipt_number}}</span></div>
+            <div class="div"></div>
+            <div class="ft">Computer-generated. Valid without signature.<br/>This is a debt collection communication.<br/>Thank you — keep this receipt for your records.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Render plausible-looking QR placeholders. Deterministic per seed so previews are stable.
+  (function(){
+    const N = 25;
+    function svgFor(seed){
+      let h = 0; for (const c of (seed||'x')) h = (h * 131 + c.charCodeAt(0)) >>> 0;
+      function rnd(){ h = (h * 1103515245 + 12345) >>> 0; return (h >>> 16) / 65536; }
+      const cells = [];
+      for (let y=0; y<N; y++) for (let x=0; x<N; x++){
+        const tl = (x<8 && y<8), tr = (x>=N-8 && y<8), bl = (x<8 && y>=N-8);
+        if (tl || tr || bl) continue;
+        // alignment block bottom-right
+        if (x>=N-6 && x<=N-2 && y>=N-6 && y<=N-2) continue;
+        if (rnd() < 0.46) cells.push('<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="#0a0816"/>');
+      }
+      function finder(fx,fy){
+        return '<rect x="'+fx+'" y="'+fy+'" width="7" height="7" fill="#0a0816"/>'+
+               '<rect x="'+(fx+1)+'" y="'+(fy+1)+'" width="5" height="5" fill="#fff"/>'+
+               '<rect x="'+(fx+2)+'" y="'+(fy+2)+'" width="3" height="3" fill="#0a0816"/>';
+      }
+      function align(ax,ay){
+        return '<rect x="'+ax+'" y="'+ay+'" width="5" height="5" fill="#0a0816"/>'+
+               '<rect x="'+(ax+1)+'" y="'+(ay+1)+'" width="3" height="3" fill="#fff"/>'+
+               '<rect x="'+(ax+2)+'" y="'+(ay+2)+'" width="1" height="1" fill="#0a0816"/>';
+      }
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+N+' '+N+'" shape-rendering="crispEdges">'+
+             '<rect width="'+N+'" height="'+N+'" fill="#fff"/>'+
+             finder(0,0)+finder(N-7,0)+finder(0,N-7)+
+             align(N-6, N-6)+
+             cells.join('')+
+             '</svg>';
+    }
+    document.querySelectorAll('.qr-render').forEach(el => {
+      el.innerHTML = svgFor(el.dataset.seed || 'default');
+    });
+  })();
+</script>
+
+</body>
+</html>

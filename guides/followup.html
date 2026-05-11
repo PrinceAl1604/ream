@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Follow-up · REAM operator manual</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="_shared.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  .tier-banner { background: var(--color-grey-900); color: white; padding: 12px 18px; border-radius: 10px 10px 0 0; font: 600 12px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px; }
+  .tier-banner .dot { width: 6px; height: 6px; border-radius: 50%; background: #2c4ea1; }
+  .tier-card { background: white; border: 1px solid var(--border-default); border-top: 0; border-radius: 0 0 10px 10px; padding: 18px 22px; margin-bottom: 18px; }
+  .tier-card h4 { margin: 0 0 10px; }
+  .role-icon-strip { display: flex; gap: 12px; margin: 18px 0 6px; }
+  .role-icon-strip .ic { width: 56px; height: 56px; border-radius: 12px; background: #2c4ea1; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+</style>
+</head>
+<body>
+
+<header class="gd-topbar">
+  <div class="gd-topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>REAM <span class="sub">User guides</span></a>
+    <div class="spacer"></div>
+    <nav class="switcher">
+      <span class="grp">External</span>
+      <a href="public-visitor.html">Public</a>
+      <a href="prospect.html">Prospect</a>
+      <a href="customer.html">Customer</a>
+      <span class="sep"></span>
+      <span class="grp">Internal</span>
+      <a href="sales.html">Sales</a>
+      <a href="finance.html">Finance</a>
+      <a class="on" href="followup.html">Follow-up</a>
+      <a href="org-admin.html">Org admin</a>
+    </nav>
+    <div class="actions"><a href="../customers.html"><i class="ri-arrow-right-up-line"></i> Open app</a></div>
+  </div>
+</header>
+
+<div class="gd-shell internal">
+
+  <aside class="gd-toc">
+    <div class="lbl">Follow-up manual</div>
+    <ol>
+      <li><a href="#about" class="toc-link" data-toc>About the role</a></li>
+      <li><a href="#start" class="toc-link" data-toc>Onboarding</a></li>
+      <li><a href="#daily" class="toc-link" data-toc>Daily flows</a></li>
+      <li><a href="#cadence" class="toc-link" data-toc>Contact cadence</a></li>
+      <li><a href="#screens" class="toc-link" data-toc>Screens</a></li>
+      <li><a href="#perms" class="toc-link" data-toc>Permissions</a></li>
+      <li><a href="#glossary" class="toc-link" data-toc>Glossary</a></li>
+      <li><a href="#faq" class="toc-link" data-toc>FAQ &amp; gotchas</a></li>
+      <li><a href="#escalation" class="toc-link" data-toc>Escalation</a></li>
+    </ol>
+  </aside>
+
+  <main class="gd-main">
+
+    <div class="gd-hero">
+      <div class="role-tag"><span class="dot"></span>Follow-up line · Internal</div>
+      <h1>Follow-up operator manual.</h1>
+      <p class="lede">Follow-up owns the post-signing customer relationship. When Sales hands over a freshly-signed customer, Follow-up becomes their single point of contact — for the life of the loan, often 10–20 years. This manual covers all three tiers and the daily, weekly, and seasonal flows: retention calls, hardship handling, satisfaction surveys, restructure conversations, payoff support.</p>
+      <div class="meta">
+        <span><i class="ri-time-line"></i> Read time <b>20 min</b></span>
+        <span><i class="ri-shield-user-line"></i> Three tiers <b>Agent · Manager · Admin</b></span>
+        <span><i class="ri-flow-chart"></i> Flows <b>7</b></span>
+        <span><i class="ri-calendar-line"></i> Updated <b>May 2026</b></span>
+      </div>
+    </div>
+
+    <div class="gd-video">
+      <div class="play"><i class="ri-play-circle-fill"></i><span>Follow-up tour<em>Handover, retention calls, hardships, restructures</em></span></div>
+      <div class="caption">Video walkthrough · 6:15</div>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about" class="gd-section">
+      <span class="sec-num">01 · About the role</span>
+      <h2>Who Follow-up is, and what each tier owns.</h2>
+      <p class="lede-p">Follow-up is the third internal line. The signature pattern: <strong>one follow-up agent per customer, for the whole loan</strong>. Continuity matters here more than anywhere else in the org — every interaction goes on the timeline so context survives when an agent moves on.</p>
+
+      <div class="role-icon-strip">
+        <div class="ic"><i class="ri-customer-service-2-line"></i></div>
+        <div class="ic"><i class="ri-heart-pulse-line"></i></div>
+        <div class="ic"><i class="ri-line-chart-line"></i></div>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Agent</div>
+      <div class="tier-card">
+        <h4>Follow-up agent</h4>
+        <p>Owns a <strong>portfolio of signed customers</strong>. Runs the contact cadence (welcome, check-ins, anniversary, hardship calls), works the watch/delinquent list, fields routine portal questions, files deferral requests. The customer's named human contact.</p>
+        <p><strong>Owns:</strong> their customers' experience. <strong>Sees:</strong> their portfolio, payment status (read-only), document history, full timeline.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Manager</div>
+      <div class="tier-card">
+        <h4>Follow-up manager</h4>
+        <p>Runs a <strong>team of follow-up agents</strong>. Owns retention metrics, satisfaction scores, and the hardship escalation queue. Reassigns customers when an agent leaves; approves out-of-policy deferrals before they go to Finance.</p>
+        <p><strong>Owns:</strong> the team's retention. <strong>Sees:</strong> everything an agent sees + team rollup + retention dashboard + escalation queues.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Admin</div>
+      <div class="tier-card">
+        <h4>Follow-up admin</h4>
+        <p>Owns the <strong>retention surface</strong> — contact cadence policy, satisfaction survey design, hardship playbooks, agent capacity model. Coordinates with Finance admin on deferral / restructure / write-off thresholds.</p>
+        <p><strong>Owns:</strong> the function. <strong>Sees:</strong> all customers, all teams, all configuration. Cannot edit the loan ledger (Finance) or invite users (Org admin).</p>
+      </div>
+    </section>
+
+    <!-- ONBOARDING -->
+    <section id="start" class="gd-section">
+      <span class="sec-num">02 · Onboarding</span>
+      <h2>Your first day on REAM.</h2>
+      <p class="lede-p">Like Sales and Finance, you join via an Org admin invite. Your dashboard shows your portfolio, your watchlist, today's scheduled calls, and customer satisfaction signals.</p>
+
+      <div class="gd-shot">
+        <div class="gd-shot-frame">
+          <div class="gd-shot-bar"><span class="dots"><span></span><span></span><span></span></span><span class="url"><i class="ri-lock-line"></i>app.ream.com/customers</span><a class="open" href="../customers.html" target="_blank">Open in app <i class="ri-arrow-right-up-line"></i></a></div>
+          <div class="gd-shot-stage">
+            <iframe src="../customers.html" title="Customer list"></iframe>
+            <div class="gd-pins">
+              <div class="gd-pin" style="left:18%;top:18%;">1</div>
+              <div class="gd-pin" style="left:50%;top:32%;">2</div>
+              <div class="gd-pin" style="left:78%;top:32%;">3</div>
+              <div class="gd-pin" style="left:42%;top:72%;">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="gd-legend">
+          <ol>
+            <li><div><b>Portfolio filters</b> — by lifecycle, last contact, days overdue, satisfaction signal.</div></li>
+            <li><div><b>Customer name + lifecycle</b> — Current, Watch, Delinquent, Paid off.</div></li>
+            <li><div><b>Days since last contact</b> — your most actionable column.</div></li>
+            <li><div><b>Today's calls</b> — scheduled outreach due today.</div></li>
+          </ol>
+        </div>
+      </div>
+
+      <ol class="gd-steps">
+        <li><div class="s-ttl">Accept your invite</div><div class="s-det">From Org admin.</div></li>
+        <li><div class="s-ttl">Walk your inherited portfolio</div><div class="s-det">If you're new, customers may have been bulk-reassigned to you. Read the handover summaries.</div></li>
+        <li><div class="s-ttl">Learn the cadence</div><div class="s-det">Section 4 below. Your job rhythms around it.</div></li>
+        <li><div class="s-ttl">Bookmark Watch / Delinquent</div><div class="s-det">Customers → filter <code>Lifecycle: Watch</code>. Your daily action list.</div></li>
+        <li><div class="s-ttl">Open Reports → Satisfaction</div><div class="s-det">See where customers are happy or grumbling.</div></li>
+      </ol>
+    </section>
+
+    <!-- DAILY FLOWS -->
+    <section id="daily" class="gd-section">
+      <span class="sec-num">03 · Daily flows</span>
+      <h2>What Follow-up does, end-to-end.</h2>
+      <p class="lede-p">Seven flows cover the cadence — from welcoming a fresh handover to negotiating a restructure with a customer in trouble.</p>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">01</div><div class="ttl">Receive a handover from Sales</div><div class="meta">15 min · Within 48h of signing</div></div>
+        <div class="gd-flow-body">
+          <p>You'll get a notification when Sales books a new loan and assigns you. The handover summary is the most important document — read it before you call.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the handover notification</div><div class="s-det">Links to the customer detail page.</div></li>
+            <li><div class="s-ttl">Read the handover summary</div><div class="s-det">Three lines: who they are, what closed the deal, what they're sensitive about.</div></li>
+            <li><div class="s-ttl">Scroll the timeline</div><div class="s-det">Catch up on the full pre-signing context — calls, visits, the offer back-and-forth.</div></li>
+            <li><div class="s-ttl">Send welcome message</div><div class="s-det">Use the "Welcome from Follow-up" template. Introduces you by name.</div></li>
+            <li><div class="s-ttl">Schedule the 30-day check-in</div><div class="s-det">Set a task. Auto-included in your cadence but pin it.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">02</div><div class="ttl">Run the watch list (Agent)</div><div class="meta">Daily · 30 min</div></div>
+        <div class="gd-flow-body">
+          <p>Customers transition into Watch the day after their installment is missed. Catching them early — before they progress to Delinquent — is the highest-leverage thing Follow-up does.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Customers → Watch</div><div class="s-det">Filter pre-applied. Sorted by days-since-due descending.</div></li>
+            <li><div class="s-ttl">Call each one</div><div class="s-det">Empathy first, then ask. Don't lead with consequences.</div></li>
+            <li><div class="s-ttl">Log outcome</div><div class="s-det">Connected → outcome; No answer → schedule retry; Promised pay → set follow-up.</div></li>
+            <li><div class="s-ttl">File deferral if appropriate</div><div class="s-det">If hardship is real, start the deferral flow (flow 04).</div></li>
+          </ol>
+          <div class="gd-callout warn"><div class="ttl"><i class="ri-error-warning-line"></i> Three-no-answer rule</div><p>After three unanswered call attempts on different days, escalate to your manager. Don't keep dialing without a different tactic — try SMS, then email, then a registered letter via Documents.</p></div>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">03</div><div class="ttl">Answer a portal message</div><div class="meta">Throughout day · 2–10 min each</div></div>
+        <div class="gd-flow-body">
+          <p>Customers DM you from their portal. SLA varies by org but same-day response is standard.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the message</div><div class="s-det">Notification or sidebar → Messages.</div></li>
+            <li><div class="s-ttl">Identify the ask</div><div class="s-det">Routine question → answer in-thread. Payment-posting question → route to Finance. Hardship → start the deferral flow.</div></li>
+            <li><div class="s-ttl">Reply</div><div class="s-det">Use email/message templates where they fit. Always sign with your name.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">04</div><div class="ttl">File a deferral</div><div class="meta">15 min</div></div>
+        <div class="gd-flow-body">
+          <p>When a customer can't pay a specific installment. Deferral moves that one installment's due date forward; the rest of the schedule is untouched.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Customer detail → Actions → Deferral</div><div class="s-det">Pick the installment(s) to defer, new due date, reason code.</div></li>
+            <li><div class="s-ttl">Add narrative note</div><div class="s-det">Free text: what the customer said. Survives forever on the timeline.</div></li>
+            <li><div class="s-ttl">Submit for approval</div><div class="s-det">Manager review if within agent guardrails; admin if out of policy.</div></li>
+            <li><div class="s-ttl">Generate deferral letter</div><div class="s-det">Auto-generated from template; customer e-signs in portal.</div></li>
+            <li><div class="s-ttl">Confirm with customer</div><div class="s-det">Call or message once the new schedule posts. Don't leave them wondering.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">05</div><div class="ttl">Negotiate a restructure (Manager)</div><div class="meta">60+ min · Multi-session</div></div>
+        <div class="gd-flow-body">
+          <p>When a customer's circumstances have changed permanently — job loss, household change, income reduction — a deferral isn't enough. Restructure recomputes the whole schedule.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Schedule a hardship call</div><div class="s-det">Block 45 minutes. Often emotional; not a sales call.</div></li>
+            <li><div class="s-ttl">Gather updated financials</div><div class="s-det">Document request for current income/expenses. Customer uploads.</div></li>
+            <li><div class="s-ttl">Run restructure scenarios</div><div class="s-det">Customer detail → Actions → Restructure. Try extending term, reducing rate, both.</div></li>
+            <li><div class="s-ttl">Bring Finance into the loop</div><div class="s-det">Restructure needs Finance manager + Finance admin sign-off.</div></li>
+            <li><div class="s-ttl">Sign the new schedule</div><div class="s-det">Generate addendum to loan agreement; customer e-signs.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">06</div><div class="ttl">Support a payoff request</div><div class="meta">20 min</div></div>
+        <div class="gd-flow-body">
+          <p>Customer asks to pay off. Your role: confirm intent, route the quote request to Finance, walk them through the wire instructions, celebrate the close.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Confirm intent on a call</div><div class="s-det">Sometimes payoff is exploratory. Don't pull Finance until the customer is serious.</div></li>
+            <li><div class="s-ttl">Trigger the quote</div><div class="s-det">Customer detail → Request payoff quote. Routes to Finance.</div></li>
+            <li><div class="s-ttl">Send wire instructions</div><div class="s-det">From the generated quote PDF, automatically emailed.</div></li>
+            <li><div class="s-ttl">Send graduation message</div><div class="s-det">When payoff posts, send the "You're paid off" template + thank-you. Refer them to refer others.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">07</div><div class="ttl">Run satisfaction survey review (Manager)</div><div class="meta">Weekly · 45 min</div></div>
+        <div class="gd-flow-body">
+          <p>Surveys go out automatically at 30 days post-handover, then yearly. Manager reviews the responses and coaches agents on patterns.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Reports → Satisfaction</div><div class="s-det">Filter by date range, agent, score.</div></li>
+            <li><div class="s-ttl">Read the low-scorers</div><div class="s-det">Negative comments are the actionable ones. Identify common themes.</div></li>
+            <li><div class="s-ttl">1:1 coaching</div><div class="s-det">Bring specific examples to agent 1:1s. Always assume goodwill; specificity helps.</div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <!-- CADENCE -->
+    <section id="cadence" class="gd-section">
+      <span class="sec-num">04 · Contact cadence</span>
+      <h2>The rhythm.</h2>
+      <p>Your default contact cadence per customer. Configured by Follow-up admin; agent executes.</p>
+      <ul>
+        <li><b>Day 0 (signing)</b> — Welcome message from Follow-up agent.</li>
+        <li><b>Day 30</b> — Check-in call. "How's the first month been?"</li>
+        <li><b>Day 90</b> — Satisfaction survey + status check.</li>
+        <li><b>Day 180</b> — Light-touch SMS check-in.</li>
+        <li><b>Annually</b> — Phone call + relationship review.</li>
+        <li><b>Anniversary of signing</b> — Personal note.</li>
+        <li><b>When Watch lifecycle triggers</b> — Same-day or next-day call.</li>
+        <li><b>When portal message arrives</b> — Same-day response.</li>
+      </ul>
+    </section>
+
+    <!-- SCREENS -->
+    <section id="screens" class="gd-section">
+      <span class="sec-num">05 · Screens</span>
+      <h2>Every page Follow-up touches.</h2>
+      <div class="gd-screens">
+        <a class="gd-screen-card" href="../dashboards.html" target="_blank"><div class="head"><div class="ico"><i class="ri-dashboard-line"></i></div><h4>Dashboard</h4></div><span class="url">/dashboard</span><p>Tier-specific. Agent: today's calls. Manager: retention.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../customers.html" target="_blank"><div class="head"><div class="ico"><i class="ri-team-line"></i></div><h4>Customers</h4></div><span class="url">/customers</span><p>Your portfolio. Filter by lifecycle, days since contact.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../customer-detail.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-3-line"></i></div><h4>Customer detail</h4></div><span class="url">/customers/:id</span><p>One customer; full timeline, status, actions.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../loan-detail.html" target="_blank"><div class="head"><div class="ico"><i class="ri-bank-card-line"></i></div><h4>Loan detail (admin)</h4></div><span class="url">/loans/:id</span><p>Read-only for Follow-up: schedule, ledger, history.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../document-requests.html" target="_blank"><div class="head"><div class="ico"><i class="ri-file-search-line"></i></div><h4>Document requests</h4></div><span class="url">/document-requests</span><p>Ask for updated documents (hardship financials, etc).</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../activity-templates.html" target="_blank"><div class="head"><div class="ico"><i class="ri-pencil-ruler-2-line"></i></div><h4>Templates</h4></div><span class="url">/activity-templates</span><p>Email/call scripts: welcome, check-in, hardship, payoff.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../reports.html" target="_blank"><div class="head"><div class="ico"><i class="ri-bar-chart-2-line"></i></div><h4>Reports</h4></div><span class="url">/reports</span><p>Retention, satisfaction, deferrals, restructures.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../agents.html" target="_blank"><div class="head"><div class="ico"><i class="ri-group-line"></i></div><h4>Team (Manager+)</h4></div><span class="url">/agents</span><p>Roster, portfolio sizes, coaching notes.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+      </div>
+    </section>
+
+    <!-- PERMS -->
+    <section id="perms" class="gd-section">
+      <span class="sec-num">06 · Permissions</span>
+      <h2>What each tier can do.</h2>
+      <table class="gd-perm">
+        <thead><tr><th>Action</th><th>Agent</th><th>Manager</th><th>Admin</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>View own portfolio</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>View team portfolios</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>View org-wide portfolios</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Log activities &amp; messages</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>File a deferral</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Goes to Finance approval</td></tr>
+          <tr><td>Approve out-of-policy deferral</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Before Finance</td></tr>
+          <tr><td>Initiate restructure</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Finance + admin sign-off</td></tr>
+          <tr><td>Reassign customers</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Manager within team</td></tr>
+          <tr><td>Edit cadence policy</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td>Admin only</td></tr>
+          <tr><td>Edit satisfaction survey</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Edit loan ledger</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="no">No</span></td><td>Finance only</td></tr>
+          <tr><td>Invite / remove users</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="no">No</span></td><td>Org admin only</td></tr>
+          <tr><td>Run reports</td><td><span class="lim">Own</span></td><td><span class="yes">Team</span></td><td><span class="yes">Org</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section id="glossary" class="gd-section">
+      <span class="sec-num">07 · Glossary</span>
+      <h2>The vocabulary of REAM.</h2>
+      <p>The complete glossary every guide carries — Lifecycle terms are most relevant here.</p>
+      <div class="gd-glossary-search"><i class="ri-search-line"></i><input type="text" placeholder="Filter terms…" oninput="filterGlossary(this.value)" /></div>
+      <dl class="gd-glossary" id="glossary"></dl>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="gd-section">
+      <span class="sec-num">08 · FAQ &amp; gotchas</span>
+      <h2>Things that trip people up.</h2>
+      <div class="gd-faq">
+        <details><summary>A customer says they were promised something by their Sales agent.</summary><div class="a"><p>Check the timeline — every promise should be logged. If it's documented, honor it (escalate to manager if it exceeds policy). If undocumented and unreasonable, gently redirect; if undocumented and small, often easier to honor and coach Sales separately.</p></div></details>
+        <details><summary>The customer wants to talk to Finance directly.</summary><div class="a"><p>You're the front door. For payment-posting questions you can usually answer (read-only access to the ledger). For allocation/reversal questions, loop Finance via the customer detail page — they reply in-thread.</p></div></details>
+        <details><summary>A customer asks for multiple deferrals in a year.</summary><div class="a"><p>Once is normal. Twice — flag for manager review. Three+ — that's a restructure conversation, not more deferrals. Be honest with the customer about the difference.</p></div></details>
+        <details><summary>Customer is going through divorce, both parties on the loan.</summary><div class="a"><p>Don't take sides. Document everything in writing. Loop in Org admin — there's usually a legal flag to set on the account so neither party can act unilaterally.</p></div></details>
+        <details><summary>I inherited a customer with no handover notes.</summary><div class="a"><p>Read the timeline cover-to-cover before your first call. Open the offer to see what they bought and why. Acknowledge on the call that you're new — "I'm getting up to speed on your account" is honest and lands well.</p></div></details>
+        <details><summary>A customer says they can't reach me. But my logs show I've tried.</summary><div class="a"><p>SMS your number from a logged activity so they have it in writing. Add a calendar link to your email signature. Confirm their preferred contact channel and switch — sometimes a customer who screens calls reads every WhatsApp.</p></div></details>
+        <details><summary>What if a customer needs payment plan but won't pick up the phone?</summary><div class="a"><p>Document outreach attempts (call → SMS → email → registered letter). After three of each, escalate to manager. Persistence is required but futility isn't — manager may decide to engage a different agent or escalate to legal.</p></div></details>
+      </div>
+    </section>
+
+    <!-- ESCALATION -->
+    <section id="escalation" class="gd-section">
+      <span class="sec-num">09 · Escalation</span>
+      <h2>Who to ask.</h2>
+      <div class="gd-esc">
+        <div class="gd-esc-row"><div class="ico"><i class="ri-user-3-line"></i></div><div class="who">Your Follow-up manager<small>Out-of-policy deferrals, three-no-answer escalations, hardship calls.</small></div><div class="contact">In app · DM<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-shield-star-line"></i></div><div class="who">Your Follow-up admin<small>Cadence policy, survey design, agent capacity.</small></div><div class="contact">In app · DM<small>1–2 days</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-bank-card-2-line"></i></div><div class="who">Finance agent on the loan<small>Payment posting questions, allocations, fee disputes.</small></div><div class="contact">Customer detail<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-megaphone-line"></i></div><div class="who">Originating Sales agent<small>Pre-signing context — only when you genuinely need their memory.</small></div><div class="contact">Customer detail<small>Don't over-loop</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-vip-crown-line"></i></div><div class="who">Org admin<small>Legal flags (divorce, death, transfer of ownership). Access issues.</small></div><div class="contact">Org admin contact<small>Or main line</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-tools-line"></i></div><div class="who">REAM support<small>Platform issues — calls not logging, missing data, broken portal links.</small></div><div class="contact">support@ream.com<small>24h</small></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="gd-footer">
+  <span>Follow-up operator manual · v1 · May 2026</span>
+  <span><a href="index.html">← All role guides</a></span>
+</footer>
+
+<script src="_glossary.js"></script>
+<script>
+  renderGlossary();
+  (function(){var links=Array.from(document.querySelectorAll('.toc-link'));var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});function s(){var y=window.scrollY+140;var cur=sections[0];for(var i=0;i<sections.length;i++){if(sections[i]&&sections[i].offsetTop<=y)cur=sections[i];}links.forEach(function(a){a.classList.remove('on');});var m=links.find(function(a){return cur&&a.getAttribute('href')==='#'+cur.id;});if(m)m.classList.add('on');}window.addEventListener('scroll',s,{passive:true});s();})();
+</script>
+</body>
+</html>

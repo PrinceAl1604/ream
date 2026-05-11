@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Activate your agency</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-grey-800);
+    background: var(--color-grey-50);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* ===== Top utility bar ===== */
+  .or-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--color-base-white);
+  }
+  .or-brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; }
+  .or-brand .lg {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--color-brand-700); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 14px var(--font-sans); letter-spacing: -0.02em;
+  }
+  .or-brand .nm { font: 700 17px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.015em; }
+  .or-help {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 500 13px var(--font-sans); color: var(--fg2); text-decoration: none;
+  }
+  .or-help:hover { color: var(--color-brand-700); }
+
+  /* ===== Page layout ===== */
+  .or-page {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 0;
+    align-items: stretch;
+  }
+  .or-main {
+    display: flex; flex-direction: column;
+    padding: 56px 64px;
+    background: var(--color-base-white);
+    overflow: auto;
+  }
+  .or-rail {
+    background: linear-gradient(180deg, var(--color-brand-700) 0%, var(--color-brand-800) 60%, var(--color-brand-900) 100%);
+    color: #fff;
+    padding: 56px 36px;
+    display: flex; flex-direction: column; gap: 24px;
+    position: relative; overflow: hidden;
+  }
+  .or-rail::after {
+    content: ""; position: absolute; right: -120px; bottom: -120px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ===== Form column ===== */
+  .or-form-wrap { width: 100%; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+  .or-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+    background: var(--color-brand-50); color: var(--color-brand-700);
+    border: 1px solid var(--color-brand-100);
+    border-radius: 999px; padding: 4px 10px;
+    font: 600 10.5px var(--font-sans);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .or-h1 { margin: 0; font: 700 30px var(--font-sans); letter-spacing: -0.025em; color: var(--color-grey-900); line-height: 1.15; }
+  .or-lede { margin: 8px 0 0; font: 15px var(--font-sans); color: var(--fg2); line-height: 1.5; max-width: 44ch; }
+
+  .or-form { display: flex; flex-direction: column; gap: 18px; }
+  .or-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 540px) { .or-row-2 { grid-template-columns: 1fr; } }
+  .or-field { display: flex; flex-direction: column; gap: 6px; }
+  .or-field label {
+    font: 600 12px var(--font-sans); color: var(--color-grey-800);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .or-field label .opt { font: 500 11.5px var(--font-sans); color: var(--fg3); }
+  .or-input-wrap { position: relative; display: flex; }
+  .or-input {
+    width: 100%; min-height: 44px;
+    background: var(--color-base-white);
+    border: 1px solid var(--color-grey-300);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font: 14px var(--font-sans);
+    color: var(--color-grey-900);
+    outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .or-input::placeholder { color: var(--fg4); }
+  .or-input:hover { border-color: var(--color-grey-400); }
+  .or-input:focus { border-color: var(--color-brand-600); box-shadow: 0 0 0 3px rgba(59, 91, 217, 0.12); }
+  .or-input.locked { background: var(--color-grey-50); color: var(--fg2); padding-right: 38px; }
+  .or-lock {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--fg3); font: 500 11px var(--font-sans);
+  }
+  .or-lock i { font-size: 13px; }
+
+  /* Password input + toggle + strength */
+  .or-pw { position: relative; }
+  .or-pw .toggle {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: 0;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px; cursor: pointer; color: var(--fg3);
+  }
+  .or-pw .toggle:hover { background: var(--color-grey-100); color: var(--color-grey-800); }
+  .or-pw input { padding-right: 44px; }
+  .or-strength {
+    display: flex; align-items: center; gap: 10px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .or-strength .bars { display: flex; gap: 3px; flex: 1; }
+  .or-strength .bars span {
+    height: 4px; flex: 1; background: var(--color-grey-200); border-radius: 2px;
+    transition: background .12s;
+  }
+  .or-strength[data-level="weak"] .bars span:nth-child(1) { background: var(--color-error-500, #dc2626); }
+  .or-strength[data-level="weak"] .lbl { color: var(--color-error-700, #b91c1c); }
+  .or-strength[data-level="ok"] .bars span:nth-child(-n+2) { background: var(--color-warning-500, #f59e0b); }
+  .or-strength[data-level="ok"] .lbl { color: var(--color-warning-700); }
+  .or-strength[data-level="good"] .bars span:nth-child(-n+3) { background: var(--color-success-500, #10b981); }
+  .or-strength[data-level="good"] .lbl { color: var(--color-success-700); }
+  .or-strength[data-level="strong"] .bars span { background: var(--color-success-500, #10b981); }
+  .or-strength[data-level="strong"] .lbl { color: var(--color-success-700); }
+
+  .or-rules {
+    list-style: none; padding: 0; margin: 4px 0 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .or-rules li { display: flex; align-items: center; gap: 6px; }
+  .or-rules li i { font-size: 13px; }
+  .or-rules li.met { color: var(--color-success-700); }
+  .or-rules li.met i { color: var(--color-success-600); }
+  .or-rules li:not(.met) i { color: var(--fg4); }
+
+  /* Checkboxes */
+  .or-checks { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .or-check { display: flex; align-items: flex-start; gap: 10px; font: 13px var(--font-sans); color: var(--color-grey-800); line-height: 1.5; cursor: pointer; }
+  .or-check input { accent-color: var(--color-brand-600); width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; }
+  .or-check a { color: var(--color-brand-700); font-weight: 500; text-decoration: none; }
+  .or-check a:hover { text-decoration: underline; }
+  .or-check .req { color: var(--color-error-600, #dc2626); }
+
+  /* Buttons */
+  .or-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    background: var(--color-brand-600);
+    color: #fff;
+    border: 1px solid var(--color-brand-600);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font: 600 14.5px var(--font-sans);
+    cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  .or-cta:hover:not([disabled]) { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .or-cta[disabled] { opacity: 0.6; cursor: not-allowed; }
+  .or-cta i { font-size: 16px; }
+
+  .or-foot-link {
+    margin-top: 20px;
+    font: 13px var(--font-sans); color: var(--fg3);
+    text-align: center;
+  }
+  .or-foot-link a { color: var(--color-brand-700); font-weight: 600; text-decoration: none; }
+  .or-foot-link a:hover { color: var(--color-grey-900); }
+
+  /* ===== Right rail content ===== */
+  .or-rail-eyebrow {
+    font: 700 10.5px var(--font-sans);
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: rgba(255,255,255,0.62);
+  }
+  .or-rail h2 { margin: 0; font: 700 22px var(--font-sans); color: #fff; letter-spacing: -0.02em; line-height: 1.25; }
+  .or-rail .sub { margin: 0; font: 14px var(--font-sans); color: rgba(255,255,255,0.78); line-height: 1.55; }
+
+  .or-invite {
+    display: flex; gap: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative; z-index: 1;
+  }
+  .or-invite .av {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--color-brand-100); color: var(--color-brand-800);
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 15px var(--font-sans); flex-shrink: 0;
+  }
+  .or-invite .who { line-height: 1.3; min-width: 0; }
+  .or-invite .who b { display: block; font: 600 14px var(--font-sans); color: #fff; }
+  .or-invite .who span { font: 12.5px var(--font-sans); color: rgba(255,255,255,0.7); }
+
+  .or-meta {
+    display: flex; flex-direction: column; gap: 0;
+    padding: 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    position: relative; z-index: 1;
+  }
+  .or-meta > div {
+    display: grid; grid-template-columns: 90px 1fr;
+    gap: 12px; align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+  .or-meta dt {
+    font: 600 11px var(--font-sans);
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 0;
+  }
+  .or-meta dd { font: 500 13.5px var(--font-sans); color: #fff; margin: 0; word-break: break-word; }
+  .or-meta .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.14); color: #fff;
+    padding: 3px 8px; border-radius: 999px;
+    font: 600 11.5px var(--font-sans);
+  }
+  .or-meta code {
+    font: 12px ui-monospace, monospace;
+    background: rgba(255,255,255,0.10); color: #fff;
+    padding: 2px 7px; border-radius: 5px;
+  }
+
+  .or-perks {
+    list-style: none; padding: 0; margin: auto 0 0;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; z-index: 1;
+  }
+  .or-perks li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font: 500 13px var(--font-sans); color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+  }
+  .or-perks li i {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: rgba(255,255,255,0.14); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 960px) {
+    .or-page { grid-template-columns: 1fr; }
+    .or-rail { display: none; }
+    .or-main { padding: 40px 24px; }
+  }
+  @media (max-width: 540px) {
+    .or-topbar { padding: 14px 18px; }
+    .or-main { padding: 28px 18px; }
+    .or-h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="or-topbar">
+    <a class="or-brand" href="#" aria-label="Ream">
+      <span class="lg">R</span>
+      <span class="nm">Ream</span>
+    </a>
+    <a class="or-help" href="#"><i class="ri-question-line"></i> Need help?</a>
+  </header>
+
+  <main class="or-page">
+
+    <!-- ===== FORM COLUMN ===== -->
+    <section class="or-main">
+      <div class="or-form-wrap">
+
+        <header>
+          <span class="or-eyebrow"><i class="ri-shield-check-line"></i> Invite verified</span>
+          <h1 class="or-h1" style="margin-top: 14px;">Activate your agency on Ream.</h1>
+          <p class="or-lede">Set up your owner credentials, then we'll walk you through getting your agency live in about five minutes.</p>
+        </header>
+
+        <form class="or-form" id="orForm" novalidate>
+
+          <div class="or-field">
+            <label for="or-email">Work email
+              <span class="opt"><i class="ri-lock-line" style="font-size: 12px;"></i> from your invite</span>
+            </label>
+            <div class="or-input-wrap">
+              <input id="or-email" class="or-input locked" type="email" value="amara.osei@goldenacres.gh" readonly />
+              <span class="or-lock"><i class="ri-lock-line"></i> Locked</span>
+            </div>
+          </div>
+
+          <div class="or-row-2">
+            <div class="or-field">
+              <label for="or-fname">First name</label>
+              <input id="or-fname" class="or-input" type="text" placeholder="Amara" autocomplete="given-name" />
+            </div>
+            <div class="or-field">
+              <label for="or-lname">Last name</label>
+              <input id="or-lname" class="or-input" type="text" placeholder="Osei" autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="or-field">
+            <label for="or-pw">Password</label>
+            <div class="or-pw">
+              <input id="or-pw" class="or-input" type="password" placeholder="At least 10 characters" autocomplete="new-password" />
+              <button type="button" class="toggle" id="orPwToggle" aria-label="Show password"><i class="ri-eye-line"></i></button>
+            </div>
+            <div class="or-strength" id="orStrength" data-level="">
+              <div class="bars"><span></span><span></span><span></span><span></span></div>
+              <span class="lbl" id="orStrengthLbl">Strength</span>
+            </div>
+            <ul class="or-rules" id="orRules">
+              <li data-rule="len"><i class="ri-checkbox-blank-circle-line"></i> 10+ characters</li>
+              <li data-rule="upper"><i class="ri-checkbox-blank-circle-line"></i> 1 uppercase</li>
+              <li data-rule="num"><i class="ri-checkbox-blank-circle-line"></i> 1 number</li>
+              <li data-rule="sym"><i class="ri-checkbox-blank-circle-line"></i> 1 symbol</li>
+            </ul>
+          </div>
+
+          <div class="or-checks">
+            <label class="or-check">
+              <input id="or-terms" type="checkbox" />
+              <span>I agree to Ream's <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>. <span class="req">*</span></span>
+            </label>
+            <label class="or-check">
+              <input id="or-marketing" type="checkbox" />
+              <span>Send me product updates, market insights, and best-practice guides. You can unsubscribe at any time.</span>
+            </label>
+          </div>
+
+          <button type="submit" class="or-cta" id="orCta" disabled>
+            <i class="ri-rocket-2-line"></i> Create my agency account
+          </button>
+
+          <div class="or-foot-link">Already have an account? <a href="#">Sign in</a></div>
+
+        </form>
+
+      </div>
+    </section>
+
+    <!-- ===== INVITE CONTEXT RAIL ===== -->
+    <aside class="or-rail">
+      <div class="or-rail-eyebrow">You're invited as the agency owner</div>
+      <h2>Golden Acres Realty</h2>
+      <p class="sub">You'll be the principal admin — full control over listings, agents, financing terms, and billing.</p>
+
+      <div class="or-invite">
+        <span class="av">DM</span>
+        <div class="who">
+          <b>David Mensah</b>
+          <span>Ream onboarding · david.mensah@ream.example</span>
+        </div>
+      </div>
+
+      <dl class="or-meta">
+        <div><dt>Role</dt><dd><span class="pill"><i class="ri-vip-crown-line"></i> Agency owner</span></dd></div>
+        <div><dt>Country</dt><dd>🇬🇭 Ghana</dd></div>
+        <div><dt>Plan</dt><dd>Studio · 14-day trial</dd></div>
+        <div><dt>Invite</dt><dd><code>INV-7K2X4M</code></dd></div>
+      </dl>
+
+      <ul class="or-perks">
+        <li><i class="ri-check-line"></i> Invite up to 25 teammates with role-scoped access</li>
+        <li><i class="ri-check-line"></i> Bank-grade SSL, SOC 2 controls, daily backups</li>
+        <li><i class="ri-check-line"></i> Cancel any time during your trial — no card needed today</li>
+      </ul>
+    </aside>
+
+  </main>
+
+<script>
+  // Password strength + rules
+  const pw = document.getElementById('or-pw');
+  const meter = document.getElementById('orStrength');
+  const lbl = document.getElementById('orStrengthLbl');
+  const rules = document.getElementById('orRules');
+  const cta = document.getElementById('orCta');
+  const terms = document.getElementById('or-terms');
+  const fname = document.getElementById('or-fname');
+  const lname = document.getElementById('or-lname');
+  const tog = document.getElementById('orPwToggle');
+
+  tog.addEventListener('click', () => {
+    const isText = pw.type === 'text';
+    pw.type = isText ? 'password' : 'text';
+    tog.querySelector('i').className = isText ? 'ri-eye-line' : 'ri-eye-off-line';
+    tog.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
+  });
+
+  function evalPw(v) {
+    return {
+      len:   v.length >= 10,
+      upper: /[A-Z]/.test(v),
+      num:   /\d/.test(v),
+      sym:   /[^A-Za-z0-9]/.test(v),
+    };
+  }
+  function update() {
+    const v = pw.value;
+    const r = evalPw(v);
+    rules.querySelectorAll('li').forEach(li => {
+      const ok = r[li.dataset.rule];
+      li.classList.toggle('met', !!ok);
+      li.querySelector('i').className = ok ? 'ri-checkbox-circle-line' : 'ri-checkbox-blank-circle-line';
+    });
+    const score = r.len + r.upper + r.num + r.sym;
+    let level = '', text = 'Strength';
+    if (!v.length) { level = ''; text = 'Strength'; }
+    else if (score <= 1) { level = 'weak'; text = 'Weak'; }
+    else if (score === 2) { level = 'ok'; text = 'OK'; }
+    else if (score === 3) { level = 'good'; text = 'Good'; }
+    else { level = 'strong'; text = 'Strong'; }
+    meter.dataset.level = level;
+    lbl.textContent = text;
+
+    const allMet = r.len && r.upper && r.num && r.sym;
+    cta.disabled = !(allMet && terms.checked && fname.value.trim().length >= 1 && lname.value.trim().length >= 1);
+  }
+  pw.addEventListener('input', update);
+  terms.addEventListener('change', update);
+  fname.addEventListener('input', update);
+  lname.addEventListener('input', update);
+
+  document.getElementById('orForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (cta.disabled) return;
+    cta.innerHTML = '<i class="ri-loader-4-line" style="animation:orspin 1s linear infinite;"></i> Creating account…';
+    cta.disabled = true;
+    setTimeout(() => { location.href = 'owner-dashboard.html?welcome=1'; }, 700);
+  });
+</script>
+<style>@keyframes orspin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>

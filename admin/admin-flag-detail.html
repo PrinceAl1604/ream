@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · portal_v2_redesign</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .flag-hero { background:white;border:1px solid var(--adm-border);border-radius:10px;padding:18px 22px;margin-bottom:18px; }
+  .flag-hero h2 { font:600 22px var(--font-mono);color:var(--adm-text-1);margin:0 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+  .flag-hero p { margin:0;font:400 13px var(--font-sans);color:var(--adm-text-3);max-width:800px; }
+  .roll-control { display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:center;padding:18px 0;border-top:1px solid var(--adm-border);margin-top:14px; }
+  .roll-bar-l { height:8px;border-radius:999px;background:#f3f4f6;position:relative;overflow:hidden; }
+  .roll-bar-l > .fill { height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6); }
+  .marks { display:flex;justify-content:space-between;margin-top:6px;font:500 11px var(--font-mono);color:var(--adm-text-4); }
+  .ramp-btns { display:flex;gap:6px;flex-wrap:wrap;margin-top:10px; }
+  .ramp-btns .adm-btn-sm.cur { background:var(--adm-stripe);color:white;border-color:var(--adm-stripe); }
+  .target-table tr td { vertical-align:top;padding:10px 12px; }
+  .twoperson { background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start; }
+  .twoperson i { color:var(--adm-danger);font-size:18px; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"flags",
+    crumb:[{label:"Feature flags",href:"admin-flags.html"},{label:"portal_v2_redesign"}],
+    env:"STAGING",
+  });
+</script>
+<script>
+document.getElementById("adm-page").innerHTML = `
+  <div class="flag-hero">
+    <h2>portal_v2_redesign <span class="adm-pill indigo no-dot">50% ROLLOUT</span> <span class="adm-pill muted no-dot">BOOLEAN</span></h2>
+    <p>Redesigned prospect portal navigation, offer screens, and document upload. Behind this flag since Apr 14, 2026.</p>
+    <dl class="adm-dl" style="margin-top:14px;grid-template-columns:120px 1fr 120px 1fr;gap:8px 14px;">
+      <dt>Owner</dt><dd>Daria Kim · Product</dd>
+      <dt>Created</dt><dd>Apr 14, 2026 by Daria Kim</dd>
+      <dt>Default</dt><dd><code>false</code></dd>
+      <dt>Last changed</dt><dd>2 min ago by Daria Kim</dd>
+      <dt>Type</dt><dd>Boolean</dd>
+      <dt>Eval volume</dt><dd>~412k/day</dd>
+    </dl>
+
+    <div class="roll-control">
+      <div>
+        <div class="row" style="justify-content:space-between;margin-bottom:4px;">
+          <span class="adm-label" style="margin:0;">Global rollout</span>
+          <span class="mono" style="font:600 13px var(--font-mono);color:var(--adm-text-1);">50%</span>
+        </div>
+        <div class="roll-bar-l"><div class="fill" style="width:50%;"></div></div>
+        <div class="marks"><span>0</span><span>10</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+        <div class="ramp-btns">
+          <button class="adm-btn adm-btn-sm">0%</button>
+          <button class="adm-btn adm-btn-sm">5%</button>
+          <button class="adm-btn adm-btn-sm">10%</button>
+          <button class="adm-btn adm-btn-sm">25%</button>
+          <button class="adm-btn adm-btn-sm cur">50%</button>
+          <button class="adm-btn adm-btn-sm">75%</button>
+          <button class="adm-btn adm-btn-sm">100%</button>
+        </div>
+      </div>
+      <div class="row gap-2" style="justify-content:flex-end;">
+        <button class="adm-btn"><i class="material-symbols-rounded">history</i> Revert</button>
+        <button class="adm-btn adm-btn-primary"><i class="material-symbols-rounded">trending_up</i> Promote to 100%</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-tabs">
+    <a class="adm-tab active">Targeting</a>
+    <a class="adm-tab">Evaluations <span class="ct">412k</span></a>
+    <a class="adm-tab">Rollout history <span class="ct">14</span></a>
+    <a class="adm-tab">Settings</a>
+  </div>
+
+  <div class="adm-detail-grid">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">domain</i> Org overrides <span class="adm-pill indigo no-dot" style="margin-left:8px;">3</span></h3>
+          <button class="adm-btn adm-btn-sm"><i class="material-symbols-rounded">add</i> Add override</button>
+        </div>
+        <table class="adm-table target-table">
+          <thead><tr><th>Organization</th><th>Override</th><th>Set by</th><th>When</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><a style="color:var(--adm-stripe);text-decoration:none;font-weight:600;">Pinecrest Loans</a><div class="muted tiny">org_3a91</div></td><td><span class="adm-pill active no-dot">FORCE ON</span></td><td>Daria Kim</td><td class="muted">2 days ago</td><td class="right"><button class="adm-btn adm-btn-sm adm-btn-danger">Remove</button></td></tr>
+            <tr><td><a style="color:var(--adm-stripe);text-decoration:none;font-weight:600;">Atlas Capital</a><div class="muted tiny">org_22b8</div></td><td><span class="adm-pill active no-dot">FORCE ON</span></td><td>Marc Olsen</td><td class="muted">5 days</td><td class="right"><button class="adm-btn adm-btn-sm adm-btn-danger">Remove</button></td></tr>
+            <tr><td><a style="color:var(--adm-stripe);text-decoration:none;font-weight:600;">Northgate Realty</a><div class="muted tiny">org_7f0c</div></td><td><span class="adm-pill muted no-dot">FORCE OFF</span></td><td>Engineering</td><td class="muted">1 week</td><td class="right"><button class="adm-btn adm-btn-sm adm-btn-danger">Remove</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">group</i> User overrides <span class="adm-pill indigo no-dot" style="margin-left:8px;">8</span></h3>
+          <button class="adm-btn adm-btn-sm"><i class="material-symbols-rounded">add</i> Add user</button>
+        </div>
+        <div class="adm-card-body" style="padding:14px 18px;">
+          <div class="row gap-2" style="flex-wrap:wrap;">
+            ${["dkim@ream.com","molsen@ream.com","jvasquez@pinecrest.com","mtanaka@pinecrest.com","kst@atlascap.com","aaron@greenline.io","priya@maven.com","beta1@ream.com"].map(e => `
+              <span class="adm-pill indigo" style="padding:4px 9px;border-radius:7px;">${e} <i class="material-symbols-rounded" style="font-size:13px;margin-left:4px;cursor:pointer;">close</i></span>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">groups</i> Cohorts</h3>
+          <button class="adm-btn adm-btn-sm"><i class="material-symbols-rounded">add</i> Add cohort</button>
+        </div>
+        <div class="adm-card-body" style="padding:0;">
+          <div class="row" style="padding:12px 18px;border-bottom:1px solid var(--adm-border-2);justify-content:space-between;">
+            <div>
+              <div class="strong" style="font:600 13px var(--font-sans);color:var(--adm-text-1);">Beta program</div>
+              <div class="muted tiny" style="margin-top:2px;">14 orgs · 142 users · created Apr 12</div>
+            </div>
+            <span class="adm-pill active no-dot">FORCE ON</span>
+          </div>
+          <div class="row" style="padding:12px 18px;justify-content:space-between;">
+            <div>
+              <div class="strong" style="font:600 13px var(--font-sans);color:var(--adm-text-1);">Enterprise plan</div>
+              <div class="muted tiny" style="margin-top:2px;">Auto-include any org on Enterprise plan · 14 orgs</div>
+            </div>
+            <span class="adm-pill active no-dot">FORCE ON</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="twoperson"><i class="material-symbols-rounded">policy</i><div><b style="display:block;color:var(--adm-danger-700);">2-person rule does not apply</b><span class="muted tiny">This flag is not marked critical. Promotions ≥ 75% will require approval.</span></div></div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">monitoring</i> Last 24h evaluations</h3></div>
+        <div class="adm-card-body">
+          <div style="font:600 26px var(--font-display);color:var(--adm-text-1);margin-bottom:6px;">412,820</div>
+          <svg viewBox="0 0 280 80" style="width:100%;height:80px;">
+            <defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.4"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,60 L20,58 L40,52 L60,46 L80,42 L100,38 L120,32 L140,28 L160,30 L180,24 L200,26 L220,18 L240,22 L260,14 L280,10 L280,80 L0,80 Z" fill="url(#fg)"/>
+            <path d="M0,60 L20,58 L40,52 L60,46 L80,42 L100,38 L120,32 L140,28 L160,30 L180,24 L200,26 L220,18 L240,22 L260,14 L280,10" fill="none" stroke="#6366f1" stroke-width="2"/>
+          </svg>
+          <div class="adm-stat-row"><span class="lbl">Returned <code>true</code></span><span class="val">206,142 (49.9%)</span></div>
+          <div class="adm-stat-row"><span class="lbl">Avg latency</span><span class="val">2.1 ms</span></div>
+          <div class="adm-stat-row"><span class="lbl">Errors</span><span class="val">0</span></div>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">code</i> SDK snippet</h3></div>
+        <div class="adm-card-body">
+          <pre class="adm-code"><span class="c">// Server (Node)</span>
+<span class="k">const</span> show = <span class="k">await</span> flags.eval(<span class="s">"portal_v2_redesign"</span>, ctx);
+<span class="k">if</span> (show) renderV2();</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+// ============ WIRING ============
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const T = AdminShell.toast;
+const FLAG = "portal_v2_redesign";
+
+function setRollout(pct) {
+  $(".roll-bar-l .fill").style.width = pct + "%";
+  const label = $(".roll-control .row .mono");
+  if (label) label.textContent = pct + "%";
+  $$(".ramp-btns .adm-btn-sm").forEach(b => {
+    b.classList.toggle("cur", b.textContent.trim() === pct + "%");
+  });
+}
+
+// Ramp buttons
+$$(".ramp-btns .adm-btn-sm").forEach(b => {
+  b.onclick = async () => {
+    const pct = parseInt(b.textContent);
+    const cur = parseInt($(".roll-control .row .mono").textContent);
+    if (pct === cur) return;
+    if (pct >= 75 && cur < 75) {
+      const ok = await AdminShell.confirmDialog({
+        title: `Promote ${FLAG} to ${pct}%?`,
+        body: "Rollouts at or above 75% require a second admin to approve within 5 minutes.",
+        confirmLabel: "Request approval"
+      });
+      if (!ok) return;
+      T(`Promotion to ${pct}% requested · awaiting second admin`, "warn");
+      return;
+    }
+    setRollout(pct);
+    T(`Rollout set to ${pct}%`, pct > cur ? "success" : "info");
+  };
+});
+
+// Revert + Promote to 100%
+$$(".roll-control .adm-btn").forEach(b => {
+  if (b.textContent.includes("Revert")) {
+    b.onclick = async () => {
+      const ok = await AdminShell.confirmDialog({
+        title: "Revert last rollout change?",
+        body: "Restore the previous value (25%) and log a revert event in the audit trail.",
+        confirmLabel: "Revert"
+      });
+      if (ok) { setRollout(25); T("Reverted to 25%", "info"); }
+    };
+  } else if (b.textContent.includes("Promote")) {
+    b.onclick = async () => {
+      const ok = await AdminShell.confirmDialog({
+        title: `Promote ${FLAG} to 100%?`,
+        body: "All users will receive the new behavior. Requires second-admin approval.",
+        confirmLabel: "Request approval"
+      });
+      if (ok) T("Promotion to 100% requested · awaiting second admin", "warn");
+    };
+  }
+});
+
+// Tabs
+$$(".adm-tabs .adm-tab").forEach(t => {
+  t.onclick = (e) => {
+    e.preventDefault();
+    $$(".adm-tabs .adm-tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    T(`${t.textContent.trim().split(/\s+/)[0]} tab — coming soon`, "info");
+  };
+});
+
+// Add override / Add user / Add cohort
+$$(".adm-card-head .adm-btn-sm").forEach(b => {
+  const label = b.textContent.trim();
+  if (label.includes("Add override")) {
+    b.onclick = () => T("Override picker — coming soon", "info");
+  } else if (label.includes("Add user")) {
+    b.onclick = () => {
+      const em = prompt("User email to force-include:");
+      if (!em || !em.includes("@")) return;
+      const wrap = $(".adm-card-body .row.gap-2");
+      const chip = document.createElement("span");
+      chip.className = "adm-pill indigo";
+      chip.style.cssText = "padding:4px 9px;border-radius:7px;";
+      chip.innerHTML = `${em} <i class="material-symbols-rounded" style="font-size:13px;margin-left:4px;cursor:pointer;">close</i>`;
+      chip.querySelector("i").onclick = () => { chip.remove(); T(`${em} removed`, "info"); };
+      wrap.appendChild(chip);
+      T(`${em} added to user overrides`, "success");
+    };
+  } else if (label.includes("Add cohort")) {
+    b.onclick = () => T("Cohort picker — coming soon", "info");
+  }
+});
+
+// User pill close buttons
+$$(".adm-card-body .row.gap-2 .adm-pill.indigo i").forEach(x => {
+  x.onclick = () => {
+    const chip = x.closest(".adm-pill");
+    const em = chip.textContent.trim();
+    chip.remove();
+    T(`${em} removed from user overrides`, "info");
+  };
+});
+
+// Remove buttons (org overrides)
+$$(".target-table .adm-btn-danger").forEach(b => {
+  b.onclick = async () => {
+    const tr = b.closest("tr");
+    const orgName = tr.querySelector("a").textContent;
+    const ok = await AdminShell.confirmDialog({
+      title: `Remove override for ${orgName}?`,
+      body: "The org will fall back to the global rollout value.",
+      confirmLabel: "Remove override",
+      danger: true
+    });
+    if (ok) { tr.remove(); T(`Override removed for ${orgName}`, "info"); }
+  };
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Finance · REAM operator manual</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link rel="stylesheet" href="_shared.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<style>
+  .tier-banner { background: var(--color-grey-900); color: white; padding: 12px 18px; border-radius: 10px 10px 0 0; font: 600 12px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px; }
+  .tier-banner .dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
+  .tier-card { background: white; border: 1px solid var(--border-default); border-top: 0; border-radius: 0 0 10px 10px; padding: 18px 22px; margin-bottom: 18px; }
+  .tier-card h4 { margin: 0 0 10px; }
+  .role-icon-strip { display: flex; gap: 12px; margin: 18px 0 6px; }
+  .role-icon-strip .ic { width: 56px; height: 56px; border-radius: 12px; background: var(--color-grey-900); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .role-icon-strip .ic.fin { background: #047857; }
+</style>
+</head>
+<body>
+
+<header class="gd-topbar">
+  <div class="gd-topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>REAM <span class="sub">User guides</span></a>
+    <div class="spacer"></div>
+    <nav class="switcher">
+      <span class="grp">External</span>
+      <a href="public-visitor.html">Public</a>
+      <a href="prospect.html">Prospect</a>
+      <a href="customer.html">Customer</a>
+      <span class="sep"></span>
+      <span class="grp">Internal</span>
+      <a href="sales.html">Sales</a>
+      <a class="on" href="finance.html">Finance</a>
+      <a href="followup.html">Follow-up</a>
+      <a href="org-admin.html">Org admin</a>
+    </nav>
+    <div class="actions"><a href="../payment-review.html"><i class="ri-arrow-right-up-line"></i> Open app</a></div>
+  </div>
+</header>
+
+<div class="gd-shell internal">
+
+  <aside class="gd-toc">
+    <div class="lbl">Finance manual</div>
+    <ol>
+      <li><a href="#about" class="toc-link" data-toc>About the role</a></li>
+      <li><a href="#start" class="toc-link" data-toc>Onboarding</a></li>
+      <li><a href="#daily" class="toc-link" data-toc>Daily flows</a></li>
+      <li><a href="#cadence" class="toc-link" data-toc>Period close</a></li>
+      <li><a href="#screens" class="toc-link" data-toc>Screens</a></li>
+      <li><a href="#perms" class="toc-link" data-toc>Permissions</a></li>
+      <li><a href="#glossary" class="toc-link" data-toc>Glossary</a></li>
+      <li><a href="#faq" class="toc-link" data-toc>FAQ &amp; gotchas</a></li>
+      <li><a href="#escalation" class="toc-link" data-toc>Escalation</a></li>
+    </ol>
+  </aside>
+
+  <main class="gd-main">
+
+    <div class="gd-hero">
+      <div class="role-tag"><span class="dot"></span>Finance line · Internal</div>
+      <h1>Finance operator manual.</h1>
+      <p class="lede">Finance owns the loan ledger after signing — every dollar in and out, every installment posted, every aging bucket. This manual covers all three tiers and the daily / monthly flows: confirming payments, reconciling against the bank, running aging, generating payoff quotes, closing the period.</p>
+      <div class="meta">
+        <span><i class="ri-time-line"></i> Read time <b>24 min</b></span>
+        <span><i class="ri-shield-user-line"></i> Three tiers <b>Agent · Manager · Admin</b></span>
+        <span><i class="ri-flow-chart"></i> Flows <b>7</b></span>
+        <span><i class="ri-calendar-line"></i> Updated <b>May 2026</b></span>
+      </div>
+    </div>
+
+    <div class="gd-video">
+      <div class="play"><i class="ri-play-circle-fill"></i><span>Finance tour<em>Review queue, reconciliation, aging, payoffs</em></span></div>
+      <div class="caption">Video walkthrough · 7:08</div>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about" class="gd-section">
+      <span class="sec-num">01 · About the role</span>
+      <h2>Who Finance is, and what each tier owns.</h2>
+      <p class="lede-p">Finance is the second of the three internal lines. The single defining rule: <strong>nothing posts to a loan ledger without a Finance action</strong>. Payments enter a review queue first; an agent (or above) confirms and allocates.</p>
+
+      <div class="role-icon-strip">
+        <div class="ic fin"><i class="ri-coins-line"></i></div>
+        <div class="ic fin"><i class="ri-scales-3-line"></i></div>
+        <div class="ic fin"><i class="ri-bank-line"></i></div>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Agent</div>
+      <div class="tier-card">
+        <h4>Finance agent</h4>
+        <p>Works the <strong>payment review queue</strong>. Confirms incoming payments, allocates them across installments / fees / principal, posts receipts. Investigates NSFs and bounced auto-debits. Answers payment-posting questions routed from Follow-up.</p>
+        <p><strong>Owns:</strong> the day-to-day queue. <strong>Sees:</strong> all loan accounts, all transactions; can post and allocate but cannot write off or restructure.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Manager</div>
+      <div class="tier-card">
+        <h4>Finance manager</h4>
+        <p>Owns <strong>aging, reconciliation, and approvals</strong>. Runs the bank-statement reconciliation, signs off on write-offs, approves payoff quotes and deferrals. Coaches finance agents on allocation rules.</p>
+        <p><strong>Owns:</strong> the ledger's health. <strong>Sees:</strong> everything an agent sees + aging report + reconciliation tools + approval queues.</p>
+      </div>
+
+      <div class="tier-banner"><span class="dot"></span>Admin</div>
+      <div class="tier-card">
+        <h4>Finance admin</h4>
+        <p>Owns the <strong>financial configuration</strong>: loan products (term, interest, deposit, fees), interest models, fee policies, the period-close mechanism, write-off rules, payoff quote logic. Coordinates with Org admin on chart of accounts.</p>
+        <p><strong>Owns:</strong> the function. <strong>Sees:</strong> everything + configuration. Cannot create users (Org admin) or build offers (Sales).</p>
+      </div>
+    </section>
+
+    <!-- ONBOARDING -->
+    <section id="start" class="gd-section">
+      <span class="sec-num">02 · Onboarding</span>
+      <h2>Your first day on REAM.</h2>
+      <p class="lede-p">Your invite comes from the Org admin. Once you set your password, your dashboard loads showing the payment review queue front-and-center.</p>
+
+      <div class="gd-shot">
+        <div class="gd-shot-frame">
+          <div class="gd-shot-bar"><span class="dots"><span></span><span></span><span></span></span><span class="url"><i class="ri-lock-line"></i>app.ream.com/payment-review</span><a class="open" href="../payment-review.html" target="_blank">Open in app <i class="ri-arrow-right-up-line"></i></a></div>
+          <div class="gd-shot-stage">
+            <iframe src="../payment-review.html" title="Payment review"></iframe>
+            <div class="gd-pins">
+              <div class="gd-pin" style="left:14%;top:18%;">1</div>
+              <div class="gd-pin" style="left:46%;top:32%;">2</div>
+              <div class="gd-pin" style="left:78%;top:32%;">3</div>
+              <div class="gd-pin" style="left:50%;top:80%;">4</div>
+            </div>
+          </div>
+        </div>
+        <div class="gd-legend">
+          <ol>
+            <li><div><b>Queue filters</b> — by date, source (bank/card/manual), amount, suggested match confidence.</div></li>
+            <li><div><b>Incoming payment</b> — amount, reference, payer name as it came from the bank.</div></li>
+            <li><div><b>Suggested loan match</b> — REAM's best guess. Confirm or pick another.</div></li>
+            <li><div><b>Allocation</b> — split across installments, late fees, and principal.</div></li>
+          </ol>
+        </div>
+      </div>
+
+      <ol class="gd-steps">
+        <li><div class="s-ttl">Accept your invite</div><div class="s-det">From Org admin. Confirms profile, role, tier, timezone.</div></li>
+        <li><div class="s-ttl">Walk the queue once</div><div class="s-det">Open Payment review. Even if you don't process, scroll the list to understand what arrives.</div></li>
+        <li><div class="s-ttl">Open a loan detail</div><div class="s-det">From Loans → click any. The schedule, ledger, and history make sense.</div></li>
+        <li><div class="s-ttl">Read the allocation policy</div><div class="s-det">Your Org's posting rules: oldest-first, principal-priority, etc.</div></li>
+        <li><div class="s-ttl">Bookmark Aging</div><div class="s-det">It's your weekly review. Open Reports → Aging.</div></li>
+      </ol>
+    </section>
+
+    <!-- DAILY FLOWS -->
+    <section id="daily" class="gd-section">
+      <span class="sec-num">03 · Daily flows</span>
+      <h2>What Finance does, end-to-end.</h2>
+      <p class="lede-p">Seven flows cover daily queue work through monthly period close.</p>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">01</div><div class="ttl">Confirm a payment (Agent)</div><div class="meta">Daily · 2 min each</div></div>
+        <div class="gd-flow-body">
+          <p>The default work of a Finance agent. Payments arrive automatically from bank feeds, card processors, and manual entries. Your job: identify the loan, allocate the money, post.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open Payment review</div><div class="s-det">Sidebar → Payment review. New payments highlighted.</div></li>
+            <li><div class="s-ttl">Verify the suggested match</div><div class="s-det">REAM matches by reference, amount, and customer name. High confidence (&gt; 90%) → confirm with one click. Lower → manual.</div></li>
+            <li><div class="s-ttl">Allocate</div><div class="s-det">Default: oldest installment first, then late fees, then principal. Override if instructed by customer note.</div></li>
+            <li><div class="s-ttl">Post</div><div class="s-det">Hits the ledger. Customer's portal updates within seconds; receipt emails.</div></li>
+          </ol>
+          <div class="gd-callout warn"><div class="ttl"><i class="ri-error-warning-line"></i> Don't guess on ambiguous matches</div><p>If you're not sure which loan a payment belongs to, leave it in the queue with a note and route to the manager. Mis-allocation is much harder to undo than to defer.</p></div>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">02</div><div class="ttl">Handle a bounced / NSF payment</div><div class="meta">Daily · 5 min</div></div>
+        <div class="gd-flow-body">
+          <p>Bank feed posts a "returned" entry. The original posting is auto-reversed; the loan goes back to its prior state; an NSF fee applies per loan-product config.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the Reversals queue</div><div class="s-det">Auto-collected. Each row links back to the original posting.</div></li>
+            <li><div class="s-ttl">Verify reason</div><div class="s-det">NSF, account-closed, payment-stopped — each triggers different downstream behavior.</div></li>
+            <li><div class="s-ttl">Add internal note &amp; notify Follow-up</div><div class="s-det">Loop the follow-up agent so they can call the customer same-day.</div></li>
+            <li><div class="s-ttl">Confirm fee posting</div><div class="s-det">Some orgs auto-assess NSF fees; some require Finance action.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">03</div><div class="ttl">Run reconciliation (Manager)</div><div class="meta">Weekly · 30 min</div></div>
+        <div class="gd-flow-body">
+          <p>Match the loan ledger against the bank statement. REAM auto-matches by reference and amount; unmatched items go to a worklist.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Reports → Reconciliation</div><div class="s-det">Upload or auto-fetch the bank statement.</div></li>
+            <li><div class="s-ttl">Review auto-matches</div><div class="s-det">Sample a few; the rest are bulk-confirmed.</div></li>
+            <li><div class="s-ttl">Investigate unmatched</div><div class="s-det">Bank entries without a ledger record (could be a misposted incoming payment) and ledger records without a bank entry (could be a pending or fraudulent posting).</div></li>
+            <li><div class="s-ttl">Close the rec</div><div class="s-det">Click Mark reconciled. Locks the period for that bank account.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">04</div><div class="ttl">Review the aging report (Manager)</div><div class="meta">Weekly · 20 min</div></div>
+        <div class="gd-flow-body">
+          <p>Aging buckets all overdue installments by days past due: 1–30, 31–60, 61–90, 91+. Each bucket triggers different escalation in Follow-up.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Reports → Aging</div><div class="s-det">Defaults to current as-of date.</div></li>
+            <li><div class="s-ttl">Look at the 31+ buckets</div><div class="s-det">These are the actionable ones. Verify Follow-up is engaged on each.</div></li>
+            <li><div class="s-ttl">Flag for write-off review</div><div class="s-det">91+ rows that have had no contact in 30 days → manager review for charge-off.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">05</div><div class="ttl">Generate a payoff quote</div><div class="meta">15 min</div></div>
+        <div class="gd-flow-body">
+          <p>Customer requests one through their portal; it arrives in your queue. You set the effective date and the system computes principal + accrued interest + fees as of that date.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Open the loan detail</div><div class="s-det">From the payoff request notification.</div></li>
+            <li><div class="s-ttl">Click Payoff calculator</div><div class="s-det">Set effective date (today through +14 days).</div></li>
+            <li><div class="s-ttl">Review and approve (Manager)</div><div class="s-det">Tier check: agents can compute, managers approve.</div></li>
+            <li><div class="s-ttl">Send PDF quote</div><div class="s-det">Auto-emailed to customer with wire instructions. Logged on timeline.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">06</div><div class="ttl">Approve a write-off (Admin)</div><div class="meta">30 min · Rare</div></div>
+        <div class="gd-flow-body">
+          <p>When a loan can't be collected and Follow-up has exhausted contact attempts. Admin moves the loan to write-off status; ledger keeps the audit trail.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Loan detail → Actions → Write off</div><div class="s-det">Requires reason code and supporting notes.</div></li>
+            <li><div class="s-ttl">Choose write-off amount</div><div class="s-det">Full balance, principal only, or fees only.</div></li>
+            <li><div class="s-ttl">Confirm</div><div class="s-det">Loan moves to Charged-off. Customer portal becomes read-only with a "Closed" banner.</div></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="gd-flow">
+        <div class="gd-flow-head"><div class="num">07</div><div class="ttl">Close the period (Admin)</div><div class="meta">Monthly · 2 hours</div></div>
+        <div class="gd-flow-body">
+          <p>End-of-month: lock the period, run statements, deliver investor / leadership reports. Once closed, nothing in the period can be edited without an admin reversal.</p>
+          <ol class="gd-steps">
+            <li><div class="s-ttl">Verify reconciliation is complete</div><div class="s-det">Every bank account marked reconciled for the month.</div></li>
+            <li><div class="s-ttl">Run pre-close report</div><div class="s-det">Validates no orphans, no unposted payments, no broken allocations.</div></li>
+            <li><div class="s-ttl">Lock the period</div><div class="s-det">Admin action. Stamps every transaction.</div></li>
+            <li><div class="s-ttl">Generate statements</div><div class="s-det">Customer statements emailed; portfolio summary to leadership; investor report exported.</div></li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <!-- CADENCE -->
+    <section id="cadence" class="gd-section">
+      <span class="sec-num">04 · Period close</span>
+      <h2>Monthly rhythm.</h2>
+      <ul>
+        <li><b>Daily (Agent)</b> — Clear payment review queue. Target: zero items older than 24h.</li>
+        <li><b>Daily (Agent)</b> — Process reversals; loop in Follow-up.</li>
+        <li><b>Weekly (Manager)</b> — Reconciliation. Aging review. Approvals queue.</li>
+        <li><b>Mid-month (Admin)</b> — Interim portfolio report to leadership.</li>
+        <li><b>Month-end (Admin)</b> — Period close: rec → lock → statements → reports.</li>
+        <li><b>Quarterly (Admin)</b> — Loan-product review with Sales admin. Fee policy review.</li>
+        <li><b>Annually (Admin)</b> — Interest model review. Charge-off policy review with Org admin.</li>
+      </ul>
+    </section>
+
+    <!-- SCREENS -->
+    <section id="screens" class="gd-section">
+      <span class="sec-num">05 · Screens</span>
+      <h2>Every page Finance touches.</h2>
+      <div class="gd-screens">
+        <a class="gd-screen-card" href="../dashboards.html" target="_blank"><div class="head"><div class="ico"><i class="ri-dashboard-line"></i></div><h4>Dashboard</h4></div><span class="url">/dashboard</span><p>Tier-specific. Agent sees queue; manager sees aging; admin sees portfolio.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../payment-review.html" target="_blank"><div class="head"><div class="ico"><i class="ri-checkbox-circle-line"></i></div><h4>Payment review</h4></div><span class="url">/payment-review</span><p>The daily queue. Confirm, allocate, post.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../loans.html" target="_blank"><div class="head"><div class="ico"><i class="ri-bank-card-line"></i></div><h4>Loans</h4></div><span class="url">/loans</span><p>All active loan accounts.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../loan-detail.html" target="_blank"><div class="head"><div class="ico"><i class="ri-file-list-3-line"></i></div><h4>Loan detail (admin)</h4></div><span class="url">/loans/:id</span><p>Schedule, ledger, history, actions.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../repayments.html" target="_blank"><div class="head"><div class="ico"><i class="ri-list-check"></i></div><h4>Repayments</h4></div><span class="url">/repayments</span><p>Org-wide installment view by status.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../customers.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-line"></i></div><h4>Customers</h4></div><span class="url">/customers</span><p>All signed borrowers.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../customer-detail.html" target="_blank"><div class="head"><div class="ico"><i class="ri-user-3-line"></i></div><h4>Customer detail</h4></div><span class="url">/customers/:id</span><p>One customer; full account history.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../reports.html" target="_blank"><div class="head"><div class="ico"><i class="ri-bar-chart-2-line"></i></div><h4>Reports</h4></div><span class="url">/reports</span><p>Aging, reconciliation, period-close, write-offs.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../loan-products.html" target="_blank"><div class="head"><div class="ico"><i class="ri-stack-line"></i></div><h4>Loan products (Admin)</h4></div><span class="url">/loan-products</span><p>Define the offer templates Sales picks from.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+        <a class="gd-screen-card" href="../financing.html" target="_blank"><div class="head"><div class="ico"><i class="ri-funds-line"></i></div><h4>Financing</h4></div><span class="url">/financing</span><p>Portfolio analytics — total outstanding, expected cash, performance.</p><span class="open">Open <i class="ri-arrow-right-up-line"></i></span></a>
+      </div>
+    </section>
+
+    <!-- PERMS -->
+    <section id="perms" class="gd-section">
+      <span class="sec-num">06 · Permissions</span>
+      <h2>What each tier can do.</h2>
+      <table class="gd-perm">
+        <thead><tr><th>Action</th><th>Agent</th><th>Manager</th><th>Admin</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Open the payment review queue</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Confirm &amp; allocate a payment</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Reverse a posted payment</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Always audited</td></tr>
+          <tr><td>Generate a payoff quote</td><td><span class="lim">Compute only</span></td><td><span class="yes">Send</span></td><td><span class="yes">Yes</span></td><td>Manager approval required</td></tr>
+          <tr><td>Approve a deferral</td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Per policy</td></tr>
+          <tr><td>Run reconciliation</td><td><span class="lim">View</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Run aging report</td><td><span class="lim">View own queue</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Write off a loan</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td>Admin only</td></tr>
+          <tr><td>Restructure a loan</td><td><span class="no">No</span></td><td><span class="lim">Initiate</span></td><td><span class="yes">Yes</span></td><td>Manager initiates; admin signs off</td></tr>
+          <tr><td>Close the period</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td>Locks the books</td></tr>
+          <tr><td>Edit loan products</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td>Coordinates with Sales admin</td></tr>
+          <tr><td>Edit fee / interest policy</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td><td></td></tr>
+          <tr><td>Invite / remove users</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="no">No</span></td><td>Org admin only</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section id="glossary" class="gd-section">
+      <span class="sec-num">07 · Glossary</span>
+      <h2>The vocabulary of REAM.</h2>
+      <p>The complete glossary every guide carries — Financial terms are most relevant here.</p>
+      <div class="gd-glossary-search"><i class="ri-search-line"></i><input type="text" placeholder="Filter terms…" oninput="filterGlossary(this.value)" /></div>
+      <dl class="gd-glossary" id="glossary"></dl>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="gd-section">
+      <span class="sec-num">08 · FAQ &amp; gotchas</span>
+      <h2>Things that trip people up.</h2>
+      <div class="gd-faq">
+        <details><summary>A customer says they paid but I don't see it.</summary><div class="a"><p>Three places to check: (1) the review queue — maybe waiting on confirm. (2) the reversals queue — could have bounced. (3) the bank feed — could be a delay between bank and REAM (usually &lt; 24h). If still nothing, ask the customer for their bank confirmation reference and search payments by ref.</p></div></details>
+        <details><summary>I allocated a payment incorrectly. How do I fix it?</summary><div class="a"><p>Agents can't reverse — escalate to a manager. The manager reverses the posting (audited) and you re-allocate from the queue.</p></div></details>
+        <details><summary>The bank statement and ledger disagree by a small amount.</summary><div class="a"><p>Usually a fee posting timing mismatch. Reconciliation will let you mark it as "Pending — fee timing" and clear it the following period when both sides line up.</p></div></details>
+        <details><summary>Can I edit a loan after it's booked?</summary><div class="a"><p>Not the contract terms — those are fixed by signature. You can run a restructure (which creates a new schedule), apply a deferral, or assess/waive fees. Anything that changes principal/term requires manager+admin sign-off.</p></div></details>
+        <details><summary>When does interest accrue?</summary><div class="a"><p>Depends on the loan product. Most are monthly accrual on the due date; some are daily. Check the loan product config — Finance admin owns this.</p></div></details>
+        <details><summary>How do I handle a partial payment?</summary><div class="a"><p>Allocate to the oldest installment first; what's left rolls. Some orgs prefer to bounce partials back; check your allocation policy. Customer's portal shows their installment as "Partially paid".</p></div></details>
+        <details><summary>A payment came in for a closed/paid-off loan.</summary><div class="a"><p>Don't post to the closed account. Park in suspense, contact Follow-up to confirm intent, and either refund or apply to another loan the customer has.</p></div></details>
+        <details><summary>What if the period needs to be re-opened?</summary><div class="a"><p>Admin can reverse the close. It's audited and rare — usually only for found-money or auditor adjustments. Statements regenerate.</p></div></details>
+      </div>
+    </section>
+
+    <!-- ESCALATION -->
+    <section id="escalation" class="gd-section">
+      <span class="sec-num">09 · Escalation</span>
+      <h2>Who to ask.</h2>
+      <div class="gd-esc">
+        <div class="gd-esc-row"><div class="ico"><i class="ri-user-3-line"></i></div><div class="who">Your Finance manager<small>Allocation questions, reversals, deferral approval.</small></div><div class="contact">In app · DM<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-shield-star-line"></i></div><div class="who">Your Finance admin<small>Policy questions, loan products, fee structures, period close.</small></div><div class="contact">In app · DM<small>1–2 days</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-customer-service-2-line"></i></div><div class="who">Follow-up agent on a loan<small>Customer context, hardship notes, communication history.</small></div><div class="contact">Customer detail<small>Same-day</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-megaphone-line"></i></div><div class="who">Sales admin<small>Loan-product coordination — anything that affects offer math.</small></div><div class="contact">In app · DM<small>Cross-line</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-vip-crown-line"></i></div><div class="who">Org admin<small>Access, billing, integration with chart of accounts.</small></div><div class="contact">Org admin contact<small>Or main line</small></div></div>
+        <div class="gd-esc-row"><div class="ico"><i class="ri-tools-line"></i></div><div class="who">REAM support<small>Bank-feed outages, broken postings, integration bugs.</small></div><div class="contact">support@ream.com<small>Urgent · 4h SLA</small></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="gd-footer">
+  <span>Finance operator manual · v1 · May 2026</span>
+  <span><a href="index.html">← All role guides</a></span>
+</footer>
+
+<script src="_glossary.js"></script>
+<script>
+  renderGlossary();
+  (function(){var links=Array.from(document.querySelectorAll('.toc-link'));var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});function s(){var y=window.scrollY+140;var cur=sections[0];for(var i=0;i<sections.length;i++){if(sections[i]&&sections[i].offsetTop<=y)cur=sections[i];}links.forEach(function(a){a.classList.remove('on');});var m=links.find(function(a){return cur&&a.getAttribute('href')==='#'+cur.id;});if(m)m.classList.add('on');}window.addEventListener('scroll',s,{passive:true});s();})();
+</script>
+</body>
+</html>

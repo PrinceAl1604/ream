@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Dashboard</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="dialog.css" />
+<style>
+  /* ============================================================
+     Dashboards — same vocabulary as prospects.html / prospect-detail.html
+     Add ONLY: role-segmented tabs (re-uses .stage-tabs/.stage-tab),
+     dashboard column layouts, mini SVG bars, queue/leaderboard rows,
+     chip + tone helpers used inside panels.
+     ============================================================ */
+
+  /* Page header (matches prospects.html .ph-head pattern) */
+  .ph-head { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; }
+  .ph-head .ph-title { min-width:0; flex:1; }
+  .ph-head .ph-actions { display:flex; gap:8px; flex-shrink:0; }
+
+  /* Role segmented control — same pattern as prospects.html .stage-tabs */
+  .role-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-default);
+    margin: 14px 0 18px;
+    overflow-x: auto;
+  }
+  .role-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px;
+    background: transparent; border: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    font: 500 13px var(--font-sans);
+    color: var(--fg3);
+    white-space: nowrap;
+  }
+  .role-tab:hover { color: var(--fg2); }
+  .role-tab.active {
+    color: var(--color-brand-600);
+    border-bottom-color: var(--color-brand-600);
+  }
+  .role-tab .dept-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .role-tab .dept-dot[data-dept="follow_up"] { background: var(--color-blue-500, #06b6d4); }
+  .role-tab .dept-dot[data-dept="sales"]     { background: var(--color-warning-500); }
+  .role-tab .dept-dot[data-dept="finance"]   { background: var(--color-success-500); }
+  .role-tab .dept-dot[data-dept="admin"]     { background: var(--color-brand-500); }
+
+  /* Insight strip — same as prospects.html, with 4-col variant for some roles */
+  .insight-strip {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  }
+  .insight-strip.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .insight-strip .card { padding: 14px 16px; }
+  .insight-strip .card-title { font-size: 12px; margin-bottom: 4px; color: var(--fg3); }
+  .insight-strip .card-value { font-size: 22px; font-weight: 700; color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .insight-strip .delta { font-size: 11px; margin-top: 4px; }
+  .insight-strip .delta.up   { color: var(--color-success-600); }
+  .insight-strip .delta.down { color: var(--color-error-600, #dc2626); }
+  .insight-strip .delta.muted{ color: var(--fg3); }
+  .insight-strip .delta.warn { color: var(--color-warning-700); }
+
+  /* 2-col dashboard grid */
+  .db-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; margin-top: 16px; }
+  .db-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .db-grid.full  { grid-template-columns: 1fr; }
+
+  /* Card head pattern */
+  .card.panel { padding: 0; overflow: hidden; }
+  .card.panel > .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .card.panel > .panel-head h3 {
+    margin: 0; font: 600 13px var(--font-sans); color: var(--color-grey-900);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .card.panel > .panel-head h3 i { color: var(--fg3); font-size: 15px; }
+  .card.panel > .panel-head .meta {
+    font: 500 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .card.panel > .panel-head .meta a {
+    color: var(--color-brand-600); text-decoration: none; font-weight: 500;
+  }
+  .card.panel > .panel-body { padding: 6px 0; }
+  .card.panel > .panel-body.padded { padding: 14px 16px; }
+
+  /* List rows (queue / activity / leaderboard share this skeleton) */
+  .row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row:hover { background: var(--color-grey-25, #fafafa); }
+  .row .ic {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .row .ic[data-tone="brand"]   { background: var(--color-brand-50);   color: var(--color-brand-700); }
+  .row .ic[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .row .ic[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .row .ic[data-tone="error"]   { background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); }
+  .row .ic[data-tone="info"]    { background: var(--color-blue-50, #ecfeff); color: var(--color-blue-700, #0e7490); }
+  .row .ic[data-tone="grey"]    { background: var(--color-grey-100); color: var(--color-grey-700); }
+  .row .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); line-height: 1.3; }
+  .row .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .row .when { font: 500 11.5px var(--font-sans); color: var(--fg3); white-space: nowrap; }
+  .row .when.warn { color: var(--color-warning-700); }
+  .row .when.err  { color: var(--color-error-600, #dc2626); }
+
+  /* Avatar variant for leaderboard rows */
+  .row.avatar-row {
+    grid-template-columns: 32px 1fr auto;
+  }
+  .row .ava {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font: 600 12px var(--font-sans);
+    background: var(--color-brand-700);
+    flex-shrink: 0;
+  }
+  .row .lead-bar {
+    width: 100%; height: 4px; border-radius: 2px;
+    background: var(--color-grey-100); margin-top: 4px; overflow: hidden;
+  }
+  .row .lead-bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--color-brand-500), var(--color-brand-700));
+    border-radius: 2px;
+  }
+
+  /* Pipeline funnel rows (sales mgr) */
+  .funnel { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .funnel .stage {
+    display: grid; grid-template-columns: 130px 1fr 80px;
+    gap: 12px; align-items: center;
+    font: 13px var(--font-sans);
+  }
+  .funnel .stage .lab { color: var(--color-grey-800); font-weight: 500; }
+  .funnel .stage .bar { height: 22px; border-radius: 4px; background: var(--color-grey-100); position: relative; overflow: hidden; }
+  .funnel .stage .bar > span {
+    position: absolute; inset: 0; right: auto;
+    background: var(--color-brand-500);
+    border-radius: 4px;
+  }
+  .funnel .stage[data-stage="created"]   .bar > span { background: var(--color-blue-500, #06b6d4); }
+  .funnel .stage[data-stage="progress"]  .bar > span { background: var(--color-warning-500); }
+  .funnel .stage[data-stage="scheduled"] .bar > span { background: var(--color-brand-500); }
+  .funnel .stage[data-stage="approved"]  .bar > span { background: var(--color-success-500); }
+  .funnel .stage[data-stage="declined"]  .bar > span { background: var(--color-grey-400, #94a3b8); }
+  .funnel .stage .num { font-variant-numeric: tabular-nums; color: var(--color-grey-800); font-weight: 600; text-align: right; }
+
+  /* Mini bar chart (volume by day / cohort) */
+  .bars {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px;
+    align-items: end; height: 120px; padding: 14px 16px 4px;
+  }
+  .bars .b {
+    background: linear-gradient(180deg, var(--color-brand-300), var(--color-brand-600));
+    border-radius: 4px 4px 0 0; min-height: 4px; position: relative;
+  }
+  .bars .b[data-tone="success"] { background: linear-gradient(180deg, var(--color-success-300, #86efac), var(--color-success-600)); }
+  .bars .b[data-tone="warn"]    { background: linear-gradient(180deg, var(--color-warning-300, #fcd34d), var(--color-warning-500)); }
+  .bars .b > span.lbl {
+    position: absolute; bottom: -22px; left: 0; right: 0;
+    text-align: center; font: 500 10.5px var(--font-sans); color: var(--fg3);
+  }
+  .bars-axis { padding: 0 16px 14px; font: 10.5px var(--font-sans); color: var(--fg4); display: flex; justify-content: space-between; }
+
+  /* Donut */
+  .donut-wrap { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 14px 16px; align-items: center; }
+  .donut { width: 140px; height: 140px; }
+  .donut-leg { display: flex; flex-direction: column; gap: 8px; font: 12px var(--font-sans); }
+  .donut-leg .li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; }
+  .donut-leg .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .donut-leg .nm { color: var(--color-grey-800); }
+  .donut-leg .vl { color: var(--fg2); font-weight: 600; }
+
+  /* Cash flow / repayments mini sparkline */
+  .spark { padding: 14px 16px 8px; }
+  .spark svg { width: 100%; height: 80px; display: block; }
+
+  /* Chip strip used at the top of some panels */
+  .chip-strip { display: flex; gap: 6px; padding: 10px 16px; flex-wrap: wrap; border-bottom: 1px solid var(--border-subtle); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font: 500 11.5px var(--font-sans);
+    background: var(--color-grey-100); color: var(--color-grey-700);
+  }
+  .chip[data-tone="warn"]    { background: var(--color-warning-50); color: var(--color-warning-700); }
+  .chip[data-tone="error"]   { background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); }
+  .chip[data-tone="success"] { background: var(--color-success-50); color: var(--color-success-700); }
+  .chip[data-tone="brand"]   { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .chip[data-tone="info"]    { background: var(--color-blue-50, #ecfeff); color: var(--color-blue-700, #0e7490); }
+
+  /* "demo" hint line, same as nav-shell */
+  .demo-line {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 12px var(--font-sans); color: var(--fg3);
+    margin: 4px 0 0;
+  }
+  .demo-line code { font: 600 11.5px var(--font-mono, ui-monospace, Menlo, monospace); background: var(--color-grey-100); color: var(--color-grey-800); padding: 1px 6px; border-radius: 4px; }
+
+  /* Empty per-tab visibility */
+  .role-pane { display: none; }
+  .role-pane.active { display: block; }
+
+  /* Compact metric (used inside side panels) */
+  .metric-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; padding: 8px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .metric-row:last-child { border-bottom: 0; }
+  .metric-row .lab { font: 500 12px var(--font-sans); color: var(--fg2); }
+  .metric-row .val { font: 600 13px var(--font-sans); color: var(--color-grey-900); font-variant-numeric: tabular-nums; }
+  .metric-row .val .sub { font: 11px var(--font-sans); color: var(--fg3); margin-left: 6px; }
+
+  /* Site / listing tile (sales) */
+  .tile-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; padding: 10px 16px; align-items: center; border-bottom: 1px solid var(--border-subtle); }
+  .tile-row:last-child { border-bottom: 0; }
+  .tile-row .thumb { width: 56px; height: 40px; border-radius: 6px; background: var(--color-grey-100); display: inline-flex; align-items: center; justify-content: center; color: var(--fg3); }
+  .tile-row .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+  .tile-row .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+  .tile-row .price { font: 600 12.5px var(--font-sans); color: var(--color-brand-700); white-space: nowrap; }
+
+  /* Calendar agenda mini-block */
+  .agenda { padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .agenda .item { display: grid; grid-template-columns: 60px 1fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
+  .agenda .item:last-child { border-bottom: 0; }
+  .agenda .item .tm { font: 600 12px var(--font-sans); color: var(--color-grey-800); font-variant-numeric: tabular-nums; }
+  .agenda .item .ti { font: 500 13px var(--font-sans); color: var(--color-grey-900); }
+  .agenda .item .sb { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 1px; }
+
+  /* Empty state cards (rare on this page but useful) */
+  .panel-foot {
+    padding: 8px 16px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+    font: 500 12px var(--font-sans); color: var(--fg3);
+  }
+  .panel-foot a { color: var(--color-brand-600); text-decoration: none; }
+  .panel-foot a:hover { text-decoration: underline; }
+
+  @media (max-width: 1180px) {
+    .insight-strip { grid-template-columns: repeat(3, 1fr); }
+    .db-grid { grid-template-columns: 1fr; }
+    .db-grid.three { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .insight-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> REAM</div>
+    <div class="url"><i class="ri-lock-line"></i> ream.app/dashboard</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <!-- Sidebar (matches prospects.html) -->
+    <aside class="sidebar">
+      <div class="brand">Ream <span class="collapse"><i class="ri-side-bar-line"></i></span></div>
+
+      <div class="group-label">Workspace</div>
+      <a class="nav-item active" href="#"><i class="ri-home-5-line"></i> Dashboard</a>
+      <a class="nav-item" href="#"><i class="ri-inbox-line"></i> Inbox <span style="margin-left:auto; font-size:10px; background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); padding:1px 7px; border-radius: 999px; font-weight:600;">12</span></a>
+      <a class="nav-item" href="#"><i class="ri-task-line"></i> My tasks</a>
+      <a class="nav-item" href="#"><i class="ri-calendar-line"></i> Calendar</a>
+
+      <div class="group-label">Pipeline</div>
+      <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span style="margin-left:auto; font-size:10px; background: var(--color-brand-100); color: var(--color-brand-700); padding:1px 7px; border-radius: 999px; font-weight:600;">42</span></a>
+      <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers</a>
+      <a class="nav-item" href="#"><i class="ri-file-text-line"></i> Document requests</a>
+
+      <div class="group-label">Listings</div>
+      <a class="nav-item" href="#"><i class="ri-home-3-line"></i> Houses</a>
+      <a class="nav-item" href="#"><i class="ri-landscape-line"></i> Land</a>
+      <a class="nav-item" href="#"><i class="ri-map-2-line"></i> Sites</a>
+
+      <div class="group-label">Finance</div>
+      <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans</a>
+      <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+      <a class="nav-item" href="#"><i class="ri-shield-check-line"></i> Payment review</a>
+
+      <div class="spacer"></div>
+
+      <div class="group-label">Account</div>
+      <a class="nav-item" href="settings-organization.html"><i class="ri-settings-3-line"></i> Settings</a>
+      <div class="user">
+        <div class="avatar" style="background: var(--color-brand-700);">KM</div>
+        <div class="meta"><div class="name">Kevin Manga</div><div class="status">Online</div></div>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <span class="current">Dashboard</span>
+        </div>
+        <div class="actions">
+          <div class="search">
+            <i class="ri-search-line"></i>
+            <input placeholder="Search prospects, listings, loans…" />
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Page header (shared across roles, copy swaps) -->
+        <div class="ph-head">
+          <div class="ph-title">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <div style="font-size:13px; color: var(--fg3); margin-top:4px; max-width:640px;" id="pageSub">
+              Today's view across your workspace.
+            </div>
+            <div class="demo-line">
+              <i class="ri-information-line"></i>
+              <span>Demo · viewing as <code id="bannerRole">ADMIN / OWNER</code> at <code>Goldcrest Realty</code>. Switch role using the tabs below.</span>
+            </div>
+          </div>
+          <div class="ph-actions" id="pageActions"></div>
+        </div>
+
+        <!-- Role tabs -->
+        <div class="role-tabs" role="tablist" id="roleTabs">
+          <button class="role-tab" data-role="follow_up_agent">  <span class="dept-dot" data-dept="follow_up"></span>Follow-up agent</button>
+          <button class="role-tab" data-role="sales_agent">      <span class="dept-dot" data-dept="sales"></span>Sales agent</button>
+          <button class="role-tab" data-role="follow_up_manager"><span class="dept-dot" data-dept="follow_up"></span>Follow-up manager</button>
+          <button class="role-tab" data-role="sales_manager">    <span class="dept-dot" data-dept="sales"></span>Sales manager</button>
+          <button class="role-tab" data-role="finance_manager">  <span class="dept-dot" data-dept="finance"></span>Finance manager</button>
+          <button class="role-tab active" data-role="admin">     <span class="dept-dot" data-dept="admin"></span>Admin / Owner</button>
+          <button class="role-tab" data-role="customer" style="margin-left:auto;"><i class="ri-user-line" style="margin-right:4px;"></i>Customer (borrower)</button>
+        </div>
+
+        <!-- =========================================================
+             ROLE: FOLLOW-UP AGENT
+             ========================================================= -->
+        <div class="role-pane" data-role="follow_up_agent">
+
+          <div class="insight-strip cols-4">
+            <div class="card"><div class="card-title">My open tasks</div><div class="card-value">12</div><div class="delta warn">4 due today</div></div>
+            <div class="card"><div class="card-title">Docs to collect</div><div class="card-value">7</div><div class="delta warn">2 overdue</div></div>
+            <div class="card"><div class="card-title">Calls logged · this week</div><div class="card-value">23</div><div class="delta up">+18% vs last</div></div>
+            <div class="card"><div class="card-title">Avg. response time</div><div class="card-value">2.1h</div><div class="delta up">−18m this week</div></div>
+          </div>
+
+          <div class="db-grid">
+            <!-- Today's queue -->
+            <div class="card panel">
+              <div class="panel-head">
+                <h3><i class="ri-list-check-2"></i>Today's queue</h3>
+                <span class="meta"><a href="#">Open all</a></span>
+              </div>
+              <div class="chip-strip">
+                <span class="chip" data-tone="error">2 overdue</span>
+                <span class="chip" data-tone="warn">4 due today</span>
+                <span class="chip">5 upcoming</span>
+                <span class="chip" data-tone="info">Docs · 7</span>
+              </div>
+              <div class="panel-body">
+                <div class="row"><span class="ic" data-tone="error"><i class="ri-time-line"></i></span><div><div class="ti">Pay stubs from Joseph Mensah</div><div class="sb">Required for underwriting · Loan #L-00214</div></div><span class="when err">2d overdue</span></div>
+                <div class="row"><span class="ic" data-tone="warn"><i class="ri-phone-line"></i></span><div><div class="ti">Call Akosua Owusu about site visit</div><div class="sb">Confirm Thu 2:00 PM</div></div><span class="when warn">Today</span></div>
+                <div class="row"><span class="ic" data-tone="warn"><i class="ri-mail-send-line"></i></span><div><div class="ti">Send proof-of-income reminder</div><div class="sb">3 prospects · Esi, Kwame, Adwoa</div></div><span class="when warn">Today</span></div>
+                <div class="row"><span class="ic" data-tone="info"><i class="ri-file-text-line"></i></span><div><div class="ti">Upload bank statements · Esi Asare</div><div class="sb">Awaiting client</div></div><span class="when">Tue</span></div>
+                <div class="row"><span class="ic" data-tone="brand"><i class="ri-calendar-event-line"></i></span><div><div class="ti">Site visit · Joseph &amp; spouse</div><div class="sb">East Legon site B-12</div></div><span class="when">Thu</span></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-phone-line"></i></span><div><div class="ti">Follow-up call · Kwame Boateng</div><div class="sb">Last contact 5 days ago</div></div><span class="when">Fri</span></div>
+              </div>
+              <div class="panel-foot"><span>Showing 6 of 12</span><a href="#">View all</a></div>
+            </div>
+
+            <!-- Side: doc queue + perf -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-folder-warning-line"></i>Document collection</h3></div>
+                <div class="panel-body">
+                  <div class="metric-row"><span class="lab">Outstanding docs</span><span class="val">7 <span class="sub">requests</span></span></div>
+                  <div class="metric-row"><span class="lab">Overdue &gt; 48h</span><span class="val" style="color: var(--color-warning-700);">2</span></div>
+                  <div class="metric-row"><span class="lab">Awaiting client</span><span class="val">4</span></div>
+                  <div class="metric-row"><span class="lab">Submitted this week</span><span class="val">9</span></div>
+                </div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-bar-chart-2-line"></i>Calls per day · this week</h3></div>
+                <div class="bars">
+                  <div class="b" style="height: 38%;"><span class="lbl">Mon</span></div>
+                  <div class="b" style="height: 52%;"><span class="lbl">Tue</span></div>
+                  <div class="b" style="height: 70%;"><span class="lbl">Wed</span></div>
+                  <div class="b" style="height: 84%;"><span class="lbl">Thu</span></div>
+                  <div class="b" style="height: 60%;" data-tone="warn"><span class="lbl">Fri</span></div>
+                  <div class="b" style="height: 22%;"><span class="lbl">Sat</span></div>
+                  <div class="b" style="height: 12%;"><span class="lbl">Sun</span></div>
+                </div>
+                <div class="bars-axis"><span>0</span><span>10</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: SALES AGENT
+             ========================================================= -->
+        <div class="role-pane" data-role="sales_agent">
+
+          <div class="insight-strip cols-4">
+            <div class="card"><div class="card-title">Active prospects</div><div class="card-value">14</div><div class="delta up">3 hot leads</div></div>
+            <div class="card"><div class="card-title">Listings shared · wk</div><div class="card-value">9</div><div class="delta muted">to 12 prospects</div></div>
+            <div class="card"><div class="card-title">Conversion · 30d</div><div class="card-value">24%</div><div class="delta up">+3pt MoM</div></div>
+            <div class="card"><div class="card-title">Pipeline value</div><div class="card-value">₵ 1.2M</div><div class="delta up">+18% MoM</div></div>
+          </div>
+
+          <div class="db-grid">
+            <!-- My prospects (hottest first) -->
+            <div class="card panel">
+              <div class="panel-head">
+                <h3><i class="ri-fire-line"></i>My hottest prospects</h3>
+                <span class="meta"><a href="prospects.html">View all</a></span>
+              </div>
+              <div class="panel-body">
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-warning-600);">JM</span><div><div class="ti">Joseph Mensah <span class="chip" data-tone="warn" style="margin-left:6px;">In progress</span></div><div class="sb">Sent revised proposal · awaiting reply · 2 listings shared</div></div><span class="when">2h ago</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-brand-600);">AO</span><div><div class="ti">Akosua Owusu <span class="chip" data-tone="brand" style="margin-left:6px;">Scheduled</span></div><div class="sb">Site visit Thu 2 PM · East Legon · 3 listings shared</div></div><span class="when">Today</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-blue-600, #2563eb);">EA</span><div><div class="ti">Esi Asare <span class="chip" data-tone="info" style="margin-left:6px;">Created</span></div><div class="sb">First-time buyer · budget ₵180k · Tema East</div></div><span class="when">Yesterday</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-success-600);">KB</span><div><div class="ti">Kwame Boateng <span class="chip" data-tone="warn" style="margin-left:6px;">Stalled</span></div><div class="sb">No reply in 5 days · last shared 2 listings</div></div><span class="when">5d ago</span></div>
+                <div class="row avatar-row"><span class="ava">AB</span><div><div class="ti">Adwoa Boateng <span class="chip" data-tone="success" style="margin-left:6px;">Approved</span></div><div class="sb">Loan funded · move to closing</div></div><span class="when">2d</span></div>
+              </div>
+              <div class="panel-foot"><span>Hottest by score · 5 of 14</span><a href="prospects.html">All prospects</a></div>
+            </div>
+
+            <!-- Today's agenda -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-calendar-line"></i>Today &amp; this week</h3><span class="meta">3 events</span></div>
+                <div class="agenda">
+                  <div class="item"><div class="tm">2:00 PM<br><span class="sb" style="font-weight:500;">Today</span></div><div><div class="ti">Site visit · East Legon B-12</div><div class="sb">Joseph Mensah &amp; spouse</div></div></div>
+                  <div class="item"><div class="tm">4:30 PM<br><span class="sb" style="font-weight:500;">Today</span></div><div><div class="ti">Call · Esi Asare</div><div class="sb">First-time buyer intro</div></div></div>
+                  <div class="item"><div class="tm">10:00<br><span class="sb" style="font-weight:500;">Thu</span></div><div><div class="ti">Listing photos · Spintex Plot 14</div><div class="sb">Photographer on-site</div></div></div>
+                </div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-stack-line"></i>My listings</h3></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-home-3-line"></i></div><div><div class="ti">East Legon B-12 · 3-bed</div><div class="sb">Shared 8× this week</div></div><span class="price">₵ 480k</span></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-landscape-line"></i></div><div><div class="ti">Spintex Plot 14 · 0.5 acre</div><div class="sb">Shared 5×</div></div><span class="price">₵ 220k</span></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-home-3-line"></i></div><div><div class="ti">Tema Comm 25 · townhouse</div><div class="sb">Shared 3×</div></div><span class="price">₵ 310k</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: FOLLOW-UP MANAGER
+             ========================================================= -->
+        <div class="role-pane" data-role="follow_up_manager">
+
+          <div class="insight-strip">
+            <div class="card"><div class="card-title">Team prospects</div><div class="card-value">42</div><div class="delta muted">across 4 agents</div></div>
+            <div class="card"><div class="card-title">Stalled &gt; 7d</div><div class="card-value" style="color: var(--color-warning-700);">12</div><div class="delta warn">needs reassign</div></div>
+            <div class="card"><div class="card-title">Docs queue</div><div class="card-value">34</div><div class="delta warn">7 overdue</div></div>
+            <div class="card"><div class="card-title">SLA · response</div><div class="card-value">2.1h</div><div class="delta up">−18m WoW</div></div>
+            <div class="card"><div class="card-title">Conversion · team</div><div class="card-value">28%</div><div class="delta up">+2pt MoM</div></div>
+          </div>
+
+          <div class="db-grid">
+            <!-- Agent leaderboard -->
+            <div class="card panel">
+              <div class="panel-head"><h3><i class="ri-team-line"></i>Agent performance · this week</h3><span class="meta"><a href="#">Performance report</a></span></div>
+              <div class="panel-body">
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-brand-700);">SN</span><div><div class="ti">Sarah Nyong</div><div class="sb">14 prospects · 23 calls · 9 docs collected</div><div class="lead-bar"><span style="width: 92%;"></span></div></div><span class="when" style="color: var(--color-success-600); font-weight:600;">92%</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-warning-600);">EA</span><div><div class="ti">Esi Asare</div><div class="sb">12 prospects · 18 calls · 7 docs collected</div><div class="lead-bar"><span style="width: 78%;"></span></div></div><span class="when" style="color: var(--color-grey-800); font-weight:600;">78%</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-blue-600, #2563eb);">KB</span><div><div class="ti">Kwame Bediako</div><div class="sb">10 prospects · 14 calls · 5 docs collected</div><div class="lead-bar"><span style="width: 64%;"></span></div></div><span class="when" style="color: var(--color-grey-800); font-weight:600;">64%</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-success-600);">AB</span><div><div class="ti">Adwoa Boateng</div><div class="sb">6 prospects · 9 calls · 3 docs collected</div><div class="lead-bar"><span style="width: 41%;"></span></div></div><span class="when" style="color: var(--color-warning-700); font-weight:600;">41%</span></div>
+              </div>
+              <div class="panel-foot"><span>Score blends activity, conversion, &amp; SLA</span><a href="#">Methodology</a></div>
+            </div>
+
+            <!-- Stalled + escalations -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-user-unfollow-line"></i>Stalled prospects</h3><span class="meta">12 · &gt; 7 days</span></div>
+                <div class="panel-body">
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-user-line"></i></span><div><div class="ti">Kwame Boateng · Esi Asare</div><div class="sb">9 days · last call attempted Mon</div></div><span class="when warn">Reassign</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-user-line"></i></span><div><div class="ti">Yaa Mensah · Sarah N.</div><div class="sb">12 days · awaiting docs</div></div><span class="when warn">Escalate</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-user-line"></i></span><div><div class="ti">Kojo Owusu · Adwoa B.</div><div class="sb">8 days · no response to email</div></div><span class="when warn">Reassign</span></div>
+                </div>
+                <div class="panel-foot"><a href="#">See all 12 stalled</a></div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-alarm-warning-line"></i>Docs · overdue</h3></div>
+                <div class="panel-body">
+                  <div class="row"><span class="ic" data-tone="error"><i class="ri-file-text-line"></i></span><div><div class="ti">Pay stubs · Joseph M.</div><div class="sb">2d overdue · Sarah N.</div></div><span class="when err">2d</span></div>
+                  <div class="row"><span class="ic" data-tone="error"><i class="ri-file-text-line"></i></span><div><div class="ti">Bank statement · Yaa M.</div><div class="sb">3d overdue · Esi A.</div></div><span class="when err">3d</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-file-text-line"></i></span><div><div class="ti">ID card · Kwame B.</div><div class="sb">1d overdue · Kwame B.</div></div><span class="when warn">1d</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: SALES MANAGER
+             ========================================================= -->
+        <div class="role-pane" data-role="sales_manager">
+
+          <div class="insight-strip">
+            <div class="card"><div class="card-title">Pipeline value</div><div class="card-value">₵ 4.2M</div><div class="delta up">+12% MoM</div></div>
+            <div class="card"><div class="card-title">Active listings</div><div class="card-value">124</div><div class="delta up">6 new this week</div></div>
+            <div class="card"><div class="card-title">Team conversion</div><div class="card-value">31%</div><div class="delta up">+4pt</div></div>
+            <div class="card"><div class="card-title">Avg. days to close</div><div class="card-value">42d</div><div class="delta up">−6d MoM</div></div>
+            <div class="card"><div class="card-title">Listings &gt; 60d stale</div><div class="card-value" style="color: var(--color-warning-700);">14</div><div class="delta warn">price review?</div></div>
+          </div>
+
+          <div class="db-grid">
+            <!-- Funnel -->
+            <div class="card panel">
+              <div class="panel-head"><h3><i class="ri-filter-3-line"></i>Pipeline funnel · 30 days</h3><span class="meta">42 active · ₵4.2M</span></div>
+              <div class="funnel">
+                <div class="stage" data-stage="created">  <span class="lab">Created</span>    <div class="bar"><span style="width: 100%;"></span></div><span class="num">68</span></div>
+                <div class="stage" data-stage="progress"> <span class="lab">In progress</span><div class="bar"><span style="width: 73%;"></span></div><span class="num">50</span></div>
+                <div class="stage" data-stage="scheduled"><span class="lab">Scheduled</span>  <div class="bar"><span style="width: 51%;"></span></div><span class="num">35</span></div>
+                <div class="stage" data-stage="approved"> <span class="lab">Approved</span>   <div class="bar"><span style="width: 31%;"></span></div><span class="num">21</span></div>
+                <div class="stage" data-stage="declined"> <span class="lab">Declined</span>   <div class="bar"><span style="width: 13%;"></span></div><span class="num">9</span></div>
+              </div>
+              <div class="panel-foot"><span>Time to first contact: 3.2h</span><a href="#">Cohort breakdown</a></div>
+            </div>
+
+            <!-- Listings & agents -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-eye-line"></i>Most-viewed listings · wk</h3></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-home-3-line"></i></div><div><div class="ti">East Legon B-12</div><div class="sb">142 views · 18 shares</div></div><span class="price">₵ 480k</span></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-landscape-line"></i></div><div><div class="ti">Spintex Plot 14</div><div class="sb">98 views · 11 shares</div></div><span class="price">₵ 220k</span></div>
+                <div class="tile-row"><div class="thumb"><i class="ri-home-3-line"></i></div><div><div class="ti">Cantonments No. 7</div><div class="sb">76 views · 7 shares</div></div><span class="price">₵ 1.8M</span></div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-user-star-line"></i>Top agents · MTD</h3></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-brand-700);">SN</span><div><div class="ti">Sarah Nyong</div><div class="sb">9 closed · ₵1.4M · 38% conv</div></div><span class="when" style="color: var(--color-success-600); font-weight:600;">#1</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-warning-600);">EA</span><div><div class="ti">Esi Asare</div><div class="sb">7 closed · ₵1.1M · 32% conv</div></div><span class="when" style="font-weight:600;">#2</span></div>
+                <div class="row avatar-row"><span class="ava" style="background: var(--color-success-600);">AB</span><div><div class="ti">Adwoa Boateng</div><div class="sb">5 closed · ₵820k · 29% conv</div></div><span class="when" style="font-weight:600;">#3</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: FINANCE MANAGER
+             ========================================================= -->
+        <div class="role-pane" data-role="finance_manager">
+
+          <div class="insight-strip">
+            <div class="card"><div class="card-title">Active loans</div><div class="card-value">89</div><div class="delta up">+4 this week</div></div>
+            <div class="card"><div class="card-title">Collected · MTD</div><div class="card-value">₵ 312k</div><div class="delta muted">on target</div></div>
+            <div class="card"><div class="card-title">Outstanding</div><div class="card-value">₵ 18.4M</div><div class="delta muted">across portfolio</div></div>
+            <div class="card"><div class="card-title">Review queue</div><div class="card-value" style="color: var(--color-warning-700);">3</div><div class="delta warn">needs action</div></div>
+            <div class="card"><div class="card-title">Default rate · 30d</div><div class="card-value">2.1%</div><div class="delta up">−0.4pt MoM</div></div>
+          </div>
+
+          <div class="db-grid">
+            <!-- Cash flow + repayments -->
+            <div class="card panel">
+              <div class="panel-head"><h3><i class="ri-line-chart-line"></i>Collections · last 8 weeks</h3><span class="meta">₵ 2.41M total</span></div>
+              <div class="spark">
+                <svg viewBox="0 0 320 80" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="cfFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%"  stop-color="var(--color-success-500)" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="var(--color-success-500)" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 0 60 L 40 52 L 80 56 L 120 38 L 160 44 L 200 28 L 240 32 L 280 22 L 320 18 L 320 80 L 0 80 Z" fill="url(#cfFill)"/>
+                  <path d="M 0 60 L 40 52 L 80 56 L 120 38 L 160 44 L 200 28 L 240 32 L 280 22 L 320 18" fill="none" stroke="var(--color-success-600)" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="bars-axis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span><span>W8</span></div>
+              <div class="panel-foot"><span>Trending +9% WoW</span><a href="#">Open report</a></div>
+            </div>
+
+            <!-- Review queue + portfolio mix -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-shield-check-line"></i>Payment review queue</h3><span class="meta">3 pending</span></div>
+                <div class="panel-body">
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-error-warning-line"></i></span><div><div class="ti">Mismatch · ₵ 4,500 · GCB</div><div class="sb">L-00214 · Adwoa B.</div></div><span class="when warn">Review</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-error-warning-line"></i></span><div><div class="ti">Duplicate · ₵ 2,200 · MoMo</div><div class="sb">L-00197 · Kwame O.</div></div><span class="when warn">Review</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-error-warning-line"></i></span><div><div class="ti">Unmapped · ₵ 1,100 · Stanbic</div><div class="sb">No matching loan</div></div><span class="when warn">Map</span></div>
+                </div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-pie-chart-2-line"></i>Portfolio mix</h3></div>
+                <div class="donut-wrap">
+                  <svg class="donut" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--color-grey-100)" stroke-width="3.4"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--color-success-500)" stroke-width="3.4" stroke-dasharray="58 100" stroke-dashoffset="25" stroke-linecap="butt"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--color-warning-500)" stroke-width="3.4" stroke-dasharray="22 100" stroke-dashoffset="-33" stroke-linecap="butt"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--color-error-500, #ef4444)" stroke-width="3.4" stroke-dasharray="8 100" stroke-dashoffset="-55" stroke-linecap="butt"/>
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--color-grey-300)" stroke-width="3.4" stroke-dasharray="12 100" stroke-dashoffset="-63" stroke-linecap="butt"/>
+                  </svg>
+                  <div class="donut-leg">
+                    <div class="li"><span class="sw" style="background: var(--color-success-500);"></span><span class="nm">Performing</span><span class="vl">58%</span></div>
+                    <div class="li"><span class="sw" style="background: var(--color-warning-500);"></span><span class="nm">Watchlist</span><span class="vl">22%</span></div>
+                    <div class="li"><span class="sw" style="background: var(--color-error-500, #ef4444);"></span><span class="nm">Default</span><span class="vl">8%</span></div>
+                    <div class="li"><span class="sw" style="background: var(--color-grey-300);"></span><span class="nm">Pending start</span><span class="vl">12%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: ADMIN / OWNER
+             ========================================================= -->
+        <div class="role-pane active" data-role="admin">
+
+          <div class="insight-strip">
+            <div class="card"><div class="card-title">Total customers</div><div class="card-value">186</div><div class="delta up">+12 this week</div></div>
+            <div class="card"><div class="card-title">Pipeline value</div><div class="card-value">₵ 4.2M</div><div class="delta up">+12% MoM</div></div>
+            <div class="card"><div class="card-title">MTD revenue</div><div class="card-value">₵ 412k</div><div class="delta up">+9% vs target</div></div>
+            <div class="card"><div class="card-title">Active loans</div><div class="card-value">89</div><div class="delta up">+4 WoW</div></div>
+            <div class="card"><div class="card-title">Team headcount</div><div class="card-value">28</div><div class="delta muted">across 4 depts</div></div>
+          </div>
+
+          <div class="db-grid three">
+            <!-- Sales (sales mgr summary) -->
+            <div class="card panel">
+              <div class="panel-head"><h3><span class="dept-dot" data-dept="sales" style="display:inline-block;"></span>Sales</h3><span class="meta"><a href="#">View</a></span></div>
+              <div class="metric-row"><span class="lab">Pipeline value</span><span class="val">₵ 4.2M <span class="sub">+12% MoM</span></span></div>
+              <div class="metric-row"><span class="lab">Active listings</span><span class="val">124</span></div>
+              <div class="metric-row"><span class="lab">Team conversion</span><span class="val">31% <span class="sub">+4pt</span></span></div>
+              <div class="metric-row"><span class="lab">Avg days to close</span><span class="val">42d</span></div>
+              <div class="metric-row"><span class="lab">Stale listings</span><span class="val" style="color: var(--color-warning-700);">14</span></div>
+            </div>
+
+            <!-- Follow-up (manager summary) -->
+            <div class="card panel">
+              <div class="panel-head"><h3><span class="dept-dot" data-dept="follow_up" style="display:inline-block;"></span>Follow-up</h3><span class="meta"><a href="#">View</a></span></div>
+              <div class="metric-row"><span class="lab">Active prospects</span><span class="val">42</span></div>
+              <div class="metric-row"><span class="lab">Stalled &gt; 7d</span><span class="val" style="color: var(--color-warning-700);">12</span></div>
+              <div class="metric-row"><span class="lab">Docs queue</span><span class="val">34 <span class="sub">7 overdue</span></span></div>
+              <div class="metric-row"><span class="lab">SLA · response</span><span class="val">2.1h</span></div>
+              <div class="metric-row"><span class="lab">Conversion</span><span class="val">28% <span class="sub">+2pt</span></span></div>
+            </div>
+
+            <!-- Finance summary -->
+            <div class="card panel">
+              <div class="panel-head"><h3><span class="dept-dot" data-dept="finance" style="display:inline-block;"></span>Finance</h3><span class="meta"><a href="#">View</a></span></div>
+              <div class="metric-row"><span class="lab">Active loans</span><span class="val">89</span></div>
+              <div class="metric-row"><span class="lab">Outstanding</span><span class="val">₵ 18.4M</span></div>
+              <div class="metric-row"><span class="lab">Collected MTD</span><span class="val">₵ 312k</span></div>
+              <div class="metric-row"><span class="lab">Default rate · 30d</span><span class="val">2.1%</span></div>
+              <div class="metric-row"><span class="lab">Review queue</span><span class="val" style="color: var(--color-warning-700);">3</span></div>
+            </div>
+          </div>
+
+          <div class="db-grid">
+            <!-- Org-wide activity -->
+            <div class="card panel">
+              <div class="panel-head"><h3><i class="ri-pulse-line"></i>Organization activity · today</h3><span class="meta"><a href="#">Audit log</a></span></div>
+              <div class="panel-body">
+                <div class="row"><span class="ic" data-tone="brand"><i class="ri-user-add-line"></i></span><div><div class="ti">5 new prospects from public form</div><div class="sb">Akosua, Kojo, Yaa, Kwame, Esi · auto-assigned</div></div><span class="when">2h</span></div>
+                <div class="row"><span class="ic" data-tone="success"><i class="ri-bank-card-line"></i></span><div><div class="ti">3 payments cleared · ₵ 12,200 total</div><div class="sb">L-00214, L-00197, L-00188</div></div><span class="when">4h</span></div>
+                <div class="row"><span class="ic" data-tone="warn"><i class="ri-shield-user-line"></i></span><div><div class="ti">Permission change · Sarah Nyong</div><div class="sb">Sales agent → Sales manager · approved by Kevin</div></div><span class="when">6h</span></div>
+                <div class="row"><span class="ic" data-tone="info"><i class="ri-stack-line"></i></span><div><div class="ti">6 new listings approved</div><div class="sb">East Legon · Spintex · Tema</div></div><span class="when">8h</span></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-upload-cloud-2-line"></i></span><div><div class="ti">Bank statement imported · GCB</div><div class="sb">142 lines · 138 auto-matched</div></div><span class="when">Today</span></div>
+              </div>
+            </div>
+
+            <!-- System & permissions -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-shield-keyhole-line"></i>Admin queue</h3><span class="meta">3 items</span></div>
+                <div class="panel-body">
+                  <div class="row"><span class="ic" data-tone="brand"><i class="ri-user-shared-line"></i></span><div><div class="ti">Approve invite · Sarah → Sales mgr</div><div class="sb">Promotion request</div></div><span class="when">Today</span></div>
+                  <div class="row"><span class="ic" data-tone="warn"><i class="ri-bank-card-line"></i></span><div><div class="ti">Billing · plan renews May 28</div><div class="sb">Growth · 28 seats</div></div><span class="when warn">14d</span></div>
+                  <div class="row"><span class="ic" data-tone="info"><i class="ri-plug-line"></i></span><div><div class="ti">SMS gateway · re-auth needed</div><div class="sb">Token expires Mon</div></div><span class="when">3d</span></div>
+                </div>
+              </div>
+              <div class="card panel">
+                <div class="panel-head"><h3><i class="ri-bar-chart-2-line"></i>New customers · last 8 weeks</h3></div>
+                <div class="bars">
+                  <div class="b" style="height: 28%;"><span class="lbl">W1</span></div>
+                  <div class="b" style="height: 42%;"><span class="lbl">W2</span></div>
+                  <div class="b" style="height: 55%;"><span class="lbl">W3</span></div>
+                  <div class="b" style="height: 38%;"><span class="lbl">W4</span></div>
+                  <div class="b" style="height: 60%;"><span class="lbl">W5</span></div>
+                  <div class="b" style="height: 72%;"><span class="lbl">W6</span></div>
+                  <div class="b" style="height: 82%;" data-tone="success"><span class="lbl">W7</span></div>
+                  <div class="b" style="height: 88%;" data-tone="success"><span class="lbl">W8</span></div>
+                </div>
+                <div class="bars-axis"><span>0</span><span>20</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             ROLE: CUSTOMER / BORROWER
+             ========================================================= -->
+        <div class="role-pane" data-role="customer">
+
+          <div class="insight-strip cols-4">
+            <div class="card"><div class="card-title">Loan status</div><div class="card-value" style="font-size:18px;">Awaiting signature</div><div class="delta warn">Action required</div></div>
+            <div class="card"><div class="card-title">Loan amount</div><div class="card-value">$49,734</div><div class="delta muted">Standard 25-yr</div></div>
+            <div class="card"><div class="card-title">Monthly payment</div><div class="card-value">~$328</div><div class="delta muted">First due Jun 1</div></div>
+            <div class="card"><div class="card-title">Loan officer</div><div class="card-value" style="font-size:18px;">Jordan Evans</div><div class="delta muted">Greatlife Real Estate</div></div>
+          </div>
+
+          <div class="db-grid">
+            <div class="card panel" style="grid-column: span 2;">
+              <div class="panel-head"><h3><i class="ri-pen-nib-line" style="color:var(--color-warning-700);"></i> Sign your loan agreement</h3><span class="meta">Sent May 9, 2026</span></div>
+              <div style="padding:18px;">
+                <p style="margin:0 0 14px;font:500 13.5px var(--font-sans);color:var(--color-grey-700);line-height:1.55;">
+                  Greatlife Real Estate has prepared your loan agreement for the <b>Brookfield</b> parcel. Review the contract and sign electronically via DocuSign. You'll have <b>14 days</b> after the contract is countersigned to cancel without penalty.
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <a href="borrower-loan-agreement.html?state=sent" class="btn btn-primary"><i class="ri-pen-nib-line"></i> Open &amp; sign agreement</a>
+                  <button class="btn btn-secondary"><i class="ri-question-answer-line"></i> Ask the loan officer</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card panel">
+              <div class="panel-head"><h3>What happens next</h3></div>
+              <div class="event-list">
+                <div class="row"><span class="ic" data-tone="brand"><i class="ri-mail-send-line"></i></span><div><div class="ti">You receive the agreement</div><div class="sb">Done · May 9</div></div></div>
+                <div class="row"><span class="ic" data-tone="warn"><i class="ri-pen-nib-line"></i></span><div><div class="ti">You sign on DocuSign</div><div class="sb">Awaiting your action</div></div></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-shield-check-line"></i></span><div><div class="ti">Greatlife counter-signs</div><div class="sb">Usually within 1 business day</div></div></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-time-line"></i></span><div><div class="ti">14-day cancellation window</div><div class="sb">No penalty during this period</div></div></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-bank-card-line"></i></span><div><div class="ti">First installment</div><div class="sb">Due Jun 1, 2026 · ~$328</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="db-grid">
+            <div class="card panel">
+              <div class="panel-head"><h3>Your land</h3></div>
+              <div style="padding:14px 18px;">
+                <div class="metric-row"><span class="lab">Site</span><span class="val">Brookfield</span></div>
+                <div class="metric-row"><span class="lab">Parcels</span><span class="val">1 parcel</span></div>
+                <div class="metric-row"><span class="lab">Total price</span><span class="val">$62,167</span></div>
+                <div class="metric-row"><span class="lab">Downpayment</span><span class="val">$12,433 (20%)</span></div>
+                <div class="metric-row"><span class="lab">Financed</span><span class="val">$49,734</span></div>
+              </div>
+            </div>
+            <div class="card panel">
+              <div class="panel-head"><h3>Documents</h3></div>
+              <div class="event-list">
+                <div class="row"><span class="ic" data-tone="info"><i class="ri-file-text-line"></i></span><div><div class="ti">Loan agreement (DocuSign)</div><div class="sb">Awaiting your signature</div></div></div>
+                <div class="row"><span class="ic" data-tone="success"><i class="ri-file-text-line"></i></span><div><div class="ti">Pre-approval letter</div><div class="sb">Issued May 4</div></div></div>
+                <div class="row"><span class="ic" data-tone="grey"><i class="ri-file-text-line"></i></span><div><div class="ti">ID verification</div><div class="sb">Submitted Apr 28</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const ROLE_META = {
+  follow_up_agent:   { label: 'Follow-up agent',   sub: '4 prospects need a follow-up today. 7 docs to collect.', actions: [['ri-add-line', 'Log activity', true], ['ri-file-text-line', 'Request document', false]] },
+  sales_agent:       { label: 'Sales agent',       sub: '3 hot prospects. 2 viewings scheduled this week.',        actions: [['ri-add-line', 'Add prospect', true], ['ri-share-forward-line', 'Share listings', false]] },
+  follow_up_manager: { label: 'Follow-up manager', sub: 'Tracking 42 prospects across 4 agents · 7 docs overdue.', actions: [['ri-bar-chart-2-line', 'Performance report', false], ['ri-user-shared-line', 'Reassign work', true]] },
+  sales_manager:     { label: 'Sales manager',     sub: 'Pipeline ₵4.2M · 124 active listings · 31% conversion.',  actions: [['ri-stack-line', 'New listing', true], ['ri-line-chart-line', 'Pipeline report', false]] },
+  finance_manager:   { label: 'Finance manager',   sub: '89 active loans · 3 transactions need your review.',      actions: [['ri-shield-check-line', 'Open review queue', true], ['ri-upload-cloud-2-line', 'Import bank file', false]] },
+  admin:             { label: 'Admin / Owner',     sub: 'Cross-team view · 28 teammates · 186 customers.',          actions: [['ri-add-line', 'New', true], ['ri-settings-3-line', 'Org settings', false]] },
+  customer:          { label: 'Customer / Borrower', sub: 'Your loan with Greatlife Real Estate · 1 contract awaiting your signature.', actions: [['ri-customer-service-2-line', 'Contact loan officer', false], ['ri-pen-nib-line', 'Sign agreement', true]] }
+};
+
+function renderHeader(role) {
+  const m = ROLE_META[role];
+  document.getElementById('pageTitle').textContent = `${m.label} dashboard`;
+  document.getElementById('pageSub').textContent = m.sub;
+  document.getElementById('bannerRole').textContent = m.label.toUpperCase();
+  const wrap = document.getElementById('pageActions');
+  wrap.innerHTML = '';
+  m.actions.forEach(([icon, label, primary]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn ' + (primary ? 'btn-primary' : 'btn-secondary');
+    b.innerHTML = `<i class="${icon}"></i> ${label}`;
+    wrap.appendChild(b);
+  });
+}
+
+function selectRole(role) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.toggle('active', t.dataset.role === role));
+  document.querySelectorAll('.role-pane').forEach(p => p.classList.toggle('active', p.dataset.role === role));
+  renderHeader(role);
+}
+
+document.getElementById('roleTabs').addEventListener('click', (e) => {
+  const t = e.target.closest('.role-tab');
+  if (!t) return;
+  selectRole(t.dataset.role);
+});
+
+selectRole('admin');
+</script>
+
+</body>
+</html>

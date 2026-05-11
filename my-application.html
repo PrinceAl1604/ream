@@ -1,0 +1,3173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — My application</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="dialog.css" />
+<link rel="stylesheet" href="prospect-shell.css" />
+<script defer src="prospect-shell.js"></script>
+<link rel="stylesheet" href="prospect-portal.css" />
+<link rel="stylesheet" href="public-shell.css" />
+<style>
+  /* Portal pages use ream sidebar + ream topbar.
+     Content area still uses the .pp-* card primitives from prospect-portal.css
+     and the brand colors (--pub-*) from public-shell.css for plot photo / hero. */
+
+  /* tighter content padding so page title + cards have room */
+  .main .content { padding: 24px 28px 56px; }
+
+  /* page-head row */
+  .pp-page-head-2 { padding: 4px 4px 18px; }
+
+  /* hero band — adapted from public-shell version, narrower since we have a sidebar */
+  .pp-hero {
+    background: linear-gradient(135deg, var(--color-brand-700) 0%, var(--color-brand-600) 60%, var(--color-brand-500) 100%);
+    border-radius: 16px;
+    padding: 24px 28px 22px;
+    color: #fff;
+    position: relative; overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .pp-hero::after {
+    content: ""; position: absolute; right: -120px; top: -120px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .pp-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .pp-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 600 11px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--color-brand-100); margin-bottom: 6px;
+  }
+  .pp-hero h1 { margin: 0 0 8px; font: 700 26px var(--font-sans); letter-spacing: -0.025em; line-height: 1.15; }
+  .pp-hero .sub { margin: 0; font: 14px var(--font-sans); color: rgba(255,255,255,0.72); max-width: 540px; line-height: 1.55; }
+  .pp-hero .ref-row {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    font: 12px var(--font-sans); color: rgba(255,255,255,0.62); margin-top: 12px;
+  }
+  .pp-hero .ref-row .ref {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: ui-monospace, monospace;
+    background: rgba(255,255,255,0.10);
+    padding: 3px 9px; border-radius: 6px;
+    color: rgba(255,255,255,0.85);
+  }
+  .pp-hero .ref-row .sep { opacity: 0.4; }
+
+  .pp-hero-stage {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 200px;
+  }
+  .pp-hero-stage .lbl {
+    font: 600 10px var(--font-sans);
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: rgba(255,255,255,0.62); margin-bottom: 4px;
+  }
+  .pp-hero-stage .stage-name { font: 700 16px var(--font-sans); margin-bottom: 6px; }
+  .pp-hero-stage .eta {
+    display: flex; align-items: center; gap: 6px;
+    font: 12.5px var(--font-sans); color: rgba(255,255,255,0.85);
+  }
+  .pp-hero-stage .eta i { color: var(--color-brand-100); font-size: 14px; }
+
+  .hero-offer-flag {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 12px; padding: 10px 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 10px;
+    color: #fff; text-decoration: none;
+    transition: transform .12s, background .12s, border-color .12s;
+  }
+  .hero-offer-flag:hover { transform: translateY(-1px); background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.45); }
+  .hero-offer-flag > i:first-child {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: #fff; color: var(--color-brand-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .hero-offer-flag .t { display: flex; flex-direction: column; gap: 1px; line-height: 1.2; min-width: 0; flex: 1; }
+  .hero-offer-flag .t b { font: 700 12.5px var(--font-sans); }
+  .hero-offer-flag .t em { font: 11.5px var(--font-sans); font-style: normal; color: rgba(255,255,255,0.78); }
+  .hero-offer-flag .chev { font-size: 16px; color: rgba(255,255,255,0.7); }
+
+  /* progress meter */
+  .pp-meter { margin-top: 22px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; position: relative; z-index: 1; }
+  .pp-meter-step { display: flex; flex-direction: column; gap: 6px; }
+  .pp-meter-step .bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.16); position: relative; overflow: hidden; }
+  .pp-meter-step .bar::after {
+    content: ""; position: absolute; inset: 0;
+    background: #fff; transform-origin: left; transform: scaleX(0);
+    transition: transform 0.6s ease-out;
+  }
+  .pp-meter-step.done .bar::after { transform: scaleX(1); }
+  .pp-meter-step.current .bar::after { transform: scaleX(0.4); }
+  .pp-meter-step .label { font: 600 11px var(--font-sans); color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 5px; }
+  .pp-meter-step.done .label { color: rgba(255,255,255,0.78); }
+  .pp-meter-step.current .label { color: #fff; }
+  .pp-meter-step .label i { font-size: 13px; }
+  .pp-meter-step .meta { font: 11px var(--font-sans); color: rgba(255,255,255,0.42); }
+  .pp-meter-step.done .meta, .pp-meter-step.current .meta { color: rgba(255,255,255,0.62); }
+
+  /* action strip */
+  .pp-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .pp-action {
+    background: var(--color-base-white);
+    border: 1px solid var(--color-grey-200);
+    border-radius: 12px; padding: 16px 18px 14px;
+    display: flex; flex-direction: column; gap: 10px; position: relative;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .pp-action:hover { border-color: var(--color-brand-500); transform: translateY(-1px); box-shadow: 0 6px 18px -10px rgba(6,24,46,0.18); }
+  .pp-action.urgent { border-color: var(--color-warning-300, #f3c98b); background: linear-gradient(180deg, var(--color-warning-50, #fffbf2) 0%, #ffffff 100%); }
+  .pp-action .ic {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    background: var(--color-brand-50); color: var(--color-brand-700);
+  }
+  .pp-action.urgent .ic { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+  .pp-action .h { font: 600 14.5px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .pp-action .h .pill {
+    display: inline-flex; align-items: center;
+    font: 600 10px var(--font-sans); text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 2px 7px; border-radius: 999px;
+    background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); margin-left: 8px; vertical-align: 2px;
+  }
+  .pp-action.done .pill { background: var(--color-success-50); color: var(--color-success-700); }
+  .pp-action p { margin: 0; font: 13px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+  .pp-action .cta {
+    display: inline-flex; align-items: center; gap: 5px;
+    font: 600 12.5px var(--font-sans);
+    color: var(--color-brand-700); text-decoration: none; margin-top: auto;
+  }
+  .pp-action .cta i { transition: transform .15s; }
+  .pp-action:hover .cta i { transform: translateX(2px); }
+  .pp-action .nope { color: var(--fg3); font: 12px var(--font-sans); margin-top: auto; display: flex; align-items: center; gap: 5px; }
+  .pp-action .nope i { color: var(--color-success-700); }
+
+  /* two-col */
+  .pp-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+  .pp-left  { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .pp-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+
+  /* card primitives — local override against ream tokens */
+  .pp-card {
+    background: var(--color-base-white);
+    border: 1px solid var(--color-grey-200);
+    border-radius: 12px; padding: 20px 22px;
+  }
+  .pp-card-head {
+    display: flex; align-items: center; gap: 10px; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .pp-card-head h2 {
+    margin: 0; font: 600 14px var(--font-sans);
+    color: var(--color-grey-900); letter-spacing: -0.01em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .pp-card-head h2 i { color: var(--fg3); font-size: 16px; }
+  .pp-card-head .meta { font: 12px var(--font-sans); color: var(--fg3); display: inline-flex; align-items: center; gap: 6px; }
+  .pp-card-head a { font: 600 12px var(--font-sans); color: var(--color-brand-700); text-decoration: none; }
+  .pp-card-head a:hover { color: var(--color-grey-900); }
+
+  /* stepper */
+  .steps { display: flex; flex-direction: column; gap: 4px; }
+  .step {
+    display: grid; grid-template-columns: 32px 1fr auto;
+    align-items: start; gap: 12px;
+    padding: 12px 12px; border-radius: 10px; position: relative;
+  }
+  .step.current { background: var(--color-brand-50); }
+  .step.pending { opacity: 0.65; }
+  .step .dot {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    font: 600 13px var(--font-sans); flex-shrink: 0;
+  }
+  .step.done .dot    { background: var(--color-success-600); color: #fff; }
+  .step.current .dot { background: var(--color-brand-700); color: #fff; }
+  .step.pending .dot { background: var(--color-grey-100); color: var(--fg3); border: 1px solid var(--color-grey-200); }
+  .step::before {
+    content: ""; position: absolute; left: 28px; top: 46px; bottom: -6px; width: 1px;
+    background: var(--color-grey-200);
+  }
+  .step:last-child::before { display: none; }
+  .step.done::before { background: var(--color-success-600); opacity: 0.32; }
+  .step .body .t { font: 600 14px var(--font-sans); color: var(--color-grey-900); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  .step .body .d { font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.55; }
+  .step .meta { font: 11px var(--font-sans); color: var(--fg3); text-align: right; white-space: nowrap; margin-top: 6px; }
+  .step.current .meta { color: var(--color-brand-700); font-weight: 600; }
+  .step .body .substeps { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .step .body .substep { display: flex; align-items: center; gap: 8px; font: 12.5px var(--font-sans); color: var(--fg2); }
+  .step .body .substep .sd {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid var(--color-grey-200); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 9px;
+  }
+  .step .body .substep.done .sd { background: var(--color-success-600); border-color: var(--color-success-600); color: #fff; }
+  .step .body .substep.done { color: var(--fg3); text-decoration: line-through; text-decoration-color: var(--fg3); text-decoration-thickness: 1px; }
+
+  /* docs */
+  .doc-list { display: flex; flex-direction: column; gap: 8px; }
+  .doc {
+    display: grid; grid-template-columns: 30px 1fr auto auto;
+    gap: 12px; align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--color-grey-200); border-radius: 10px;
+    background: var(--color-base-white);
+    transition: border-color .15s;
+  }
+  .doc:hover { border-color: var(--fg4); }
+  .doc .ic {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--color-grey-100); color: var(--fg2);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+  }
+  .doc[data-state="done"] .ic    { background: var(--color-success-50); color: var(--color-success-700); }
+  .doc[data-state="review"] .ic  { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .doc[data-state="missing"] .ic { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+  .doc .name { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+  .doc .desc { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .doc .desc .filename {
+    font-family: ui-monospace, monospace; font-size: 11px;
+    background: var(--color-grey-100); color: var(--fg2);
+    padding: 1px 6px; border-radius: 4px;
+  }
+  .doc .pill {
+    font: 600 10px var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+  }
+  .doc[data-state="done"] .pill    { background: var(--color-success-50); color: var(--color-success-700); }
+  .doc[data-state="review"] .pill  { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .doc[data-state="missing"] .pill { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+  .doc .btn {
+    font: 600 12px var(--font-sans);
+    padding: 6px 11px; border-radius: 7px;
+    border: 1px solid var(--color-grey-200);
+    background: var(--color-base-white); color: var(--color-grey-900);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+  }
+  .doc .btn:hover { border-color: var(--fg4); }
+  .doc .btn.primary { background: var(--color-brand-600); color: #fff; border-color: var(--color-brand-600); }
+  .doc .btn.primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .doc-foot {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px dashed var(--color-grey-200);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    font: 12px var(--font-sans); color: var(--fg2);
+  }
+  .doc-foot .progress-bar {
+    flex: 1; height: 6px;
+    background: var(--color-grey-100); border-radius: 999px; overflow: hidden;
+    max-width: 240px;
+  }
+  .doc-foot .progress-bar > span { display: block; height: 100%; background: var(--color-success-600); border-radius: inherit; }
+
+  /* Upload-in-progress state — spinning highlighting border + % */
+  .doc.uploading {
+    position: relative;
+    border-color: transparent !important;
+    background-clip: padding-box;
+  }
+  .doc.uploading::before {
+    content: "";
+    position: absolute; inset: -1px; border-radius: 11px;
+    padding: 1px;
+    background: conic-gradient(from var(--ang, 0deg),
+      var(--color-brand-500) 0deg,
+      var(--color-brand-500) 60deg,
+      var(--color-grey-100) 60deg,
+      var(--color-grey-100) 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: doc-spin 1.4s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes doc-spin {
+    to { --ang: 360deg; }
+  }
+  @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  .doc.uploading > * { position: relative; z-index: 1; }
+  .doc-pct {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 700 12px var(--font-sans); color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    padding: 5px 10px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .doc-pct .nm { font-weight: 600; color: var(--color-brand-700); }
+  .doc-pct .cancel {
+    background: transparent; border: 0; color: var(--fg3);
+    cursor: pointer; padding: 0; margin-left: 2px;
+    display: inline-flex; align-items: center;
+  }
+  .doc-pct .cancel:hover { color: var(--color-grey-900); }
+
+  /* Upload dialog */
+  .ud-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(15,23,42,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s ease;
+    backdrop-filter: blur(2px);
+  }
+  .ud-overlay.on { opacity: 1; pointer-events: auto; }
+  .ud-modal {
+    width: 100%; max-width: 480px;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.30);
+    overflow: hidden;
+    transform: translateY(8px);
+    transition: transform .2s ease;
+  }
+  .ud-overlay.on .ud-modal { transform: translateY(0); }
+  .ud-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .ud-head .t1 { font: 600 16px var(--font-sans); color: var(--color-grey-900); margin: 0 0 2px; }
+  .ud-head .t2 { font: 12.5px var(--font-sans); color: var(--fg3); margin: 0; }
+  .ud-close {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: transparent; border: 1px solid var(--border-default);
+    color: var(--fg2); cursor: pointer; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ud-close:hover { background: var(--color-grey-50); }
+  .ud-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .ud-drop {
+    border: 1.5px dashed var(--color-grey-300);
+    border-radius: 12px;
+    padding: 22px 16px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--color-grey-50);
+    transition: border-color .15s, background .15s;
+  }
+  .ud-drop:hover, .ud-drop.drag { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+  .ud-drop i { font-size: 28px; color: var(--color-brand-700); display: block; margin-bottom: 8px; }
+  .ud-drop .l1 { font: 600 13px var(--font-sans); color: var(--color-grey-900); margin-bottom: 2px; }
+  .ud-drop .l1 b { color: var(--color-brand-700); }
+  .ud-drop .l2 { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .ud-picked {
+    display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center;
+    padding: 10px 12px; border: 1px solid var(--border-default); border-radius: 10px;
+    background: #fff;
+  }
+  .ud-picked .fic { width: 36px; height: 36px; border-radius: 8px; background: var(--color-brand-50); color: var(--color-brand-700); display: inline-flex; align-items: center; justify-content: center; }
+  .ud-picked .fic i { font-size: 18px; }
+  .ud-picked .fname { font: 600 13px var(--font-sans); color: var(--color-grey-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ud-picked .fmeta { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .ud-picked .frm { background: transparent; border: 0; color: var(--fg3); cursor: pointer; }
+  .ud-picked .frm:hover { color: var(--color-grey-900); }
+  .ud-foot {
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ud-foot .hint { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .ud-foot .spacer { flex: 1; }
+  .ud-foot button {
+    padding: 9px 14px; border-radius: 8px;
+    font: 600 12.5px var(--font-sans); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .ud-foot .ud-cancel { background: transparent; color: var(--fg2); border: 1px solid var(--border-default); }
+  .ud-foot .ud-cancel:hover { background: var(--color-grey-50); }
+  .ud-foot .ud-go { background: var(--color-brand-600); color: #fff; border: 1px solid var(--color-brand-600); }
+  .ud-foot .ud-go:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .ud-foot .ud-go:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* messages */
+  .msg-list { display: flex; flex-direction: column; gap: 10px; }
+  .msg {
+    display: grid; grid-template-columns: 32px 1fr; gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-grey-200); border-radius: 10px;
+    background: var(--color-base-white);
+  }
+  .msg .av { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; border: 1px solid var(--color-grey-200); }
+  .msg .head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font: 12.5px var(--font-sans); }
+  .msg .head .nm { font-weight: 600; color: var(--color-grey-900); }
+  .msg .head .role { font-size: 10.5px; color: var(--fg3); background: var(--color-grey-100); padding: 1px 6px; border-radius: 4px; }
+  .msg .head .when { color: var(--fg3); margin-left: auto; font-size: 11.5px; }
+  .msg .body { font: 13px var(--font-sans); color: var(--fg1); line-height: 1.55; }
+  .msg.unread { border-color: var(--color-brand-500); background: linear-gradient(180deg, var(--color-brand-50) 0%, #ffffff 100%); }
+  .msg.unread .head .nm::before {
+    content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--color-brand-500); margin-right: 6px; vertical-align: 1px;
+  }
+  .msg-compose {
+    margin-top: 12px;
+    border: 1px solid var(--color-grey-200); border-radius: 10px;
+    background: var(--color-grey-50); padding: 10px 12px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .msg-compose input { flex: 1; border: 0; background: transparent; font: 13px var(--font-sans); color: var(--color-grey-900); outline: none; }
+  .msg-compose input::placeholder { color: var(--fg3); }
+  .msg-compose .send {
+    background: var(--color-brand-700); color: #fff; border: 0; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .msg-compose .send:hover { background: var(--color-grey-900); }
+
+  /* right rail */
+  .plot-card { padding: 0; overflow: hidden; }
+  .plot-card .photo { height: 130px; background-size: cover; background-position: center; }
+  .plot-card .body { padding: 14px 16px; }
+  .plot-card .body h3 { margin: 0 0 4px; font: 700 15px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; line-height: 1.25; }
+  .plot-card .body .where { font: 12px var(--font-sans); color: var(--fg2); margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
+  .plot-card .body .grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px;
+    border-top: 1px solid var(--color-grey-200); padding-top: 10px;
+  }
+  .plot-card .body .grid .row { display: flex; flex-direction: column; gap: 1px; font: 12px var(--font-sans); }
+  .plot-card .body .grid .row .k { color: var(--fg3); font-size: 10.5px; }
+  .plot-card .body .grid .row .v { color: var(--color-grey-900); font-weight: 600; }
+  .plot-card .body .grid .row .v.lg { font-size: 15px; }
+
+  .advisor { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .advisor .av { width: 48px; height: 48px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid var(--color-base-white); box-shadow: 0 0 0 1px var(--color-grey-200); }
+  .advisor .nm { font: 600 14px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .advisor .ti { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+  .advisor-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .advisor-actions .btn {
+    font: 600 12px var(--font-sans); padding: 8px 10px;
+    border: 1px solid var(--color-grey-200); background: var(--color-base-white);
+    color: var(--color-grey-900); border-radius: 7px;
+    text-decoration: none; text-align: center;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+  }
+  .advisor-actions .btn:hover { border-color: var(--fg4); }
+  .advisor-actions .btn.primary { background: var(--color-brand-600); color: #fff; border-color: var(--color-brand-600); }
+  .advisor-actions .btn.primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .advisor-availability {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed var(--color-grey-200);
+    display: flex; align-items: center; gap: 8px;
+    font: 11.5px var(--font-sans); color: var(--fg3);
+  }
+  .advisor-availability .live {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--color-success-600); box-shadow: 0 0 0 3px rgba(22,163,74,0.18); flex-shrink: 0;
+  }
+
+  .log-list { display: flex; flex-direction: column; gap: 10px; }
+  .log { display: grid; grid-template-columns: 24px 1fr; gap: 10px; font: 12px var(--font-sans); }
+  .log .ic {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--color-grey-100); color: var(--fg2);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0;
+  }
+  .log[data-tone="green"] .ic { background: var(--color-success-50); color: var(--color-success-700); }
+  .log[data-tone="blue"]  .ic { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .log[data-tone="amber"] .ic { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+  .log .t { color: var(--color-grey-900); line-height: 1.4; font-size: 12.5px; }
+  .log .t b { font-weight: 600; }
+  .log .when { color: var(--fg3); margin-top: 2px; font-size: 11px; }
+
+  .stage-overview {
+    background: var(--color-grey-50);
+    border: 1px solid var(--color-grey-200);
+    border-radius: 10px;
+    padding: 11px 14px 11px 14px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
+    font: 12.5px var(--font-sans); color: var(--fg1); line-height: 1.5;
+  }
+  .stage-overview .ic { color: var(--color-brand-700); font-size: 16px; flex-shrink: 0; }
+  .stage-overview b { color: var(--color-grey-900); }
+
+  @media (max-width: 1100px) {
+    .pp-body { grid-template-columns: 1fr; }
+    .pp-right { position: static; }
+    .pp-actions { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Horizontal tab nav ===== */
+  .ma-tabs {
+    display: flex; gap: 2px;
+    border-bottom: 1px solid var(--border-default);
+    margin: 0 0 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ma-tabs::-webkit-scrollbar { display: none; }
+  .ma-tab {
+    flex: 0 0 auto;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 16px;
+    border: 0; background: none; cursor: pointer;
+    font: 500 13px var(--font-sans);
+    color: var(--fg3);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: color .12s, border-color .12s;
+  }
+  .ma-tab i { font-size: 15px; color: var(--fg3); }
+  .ma-tab:hover { color: var(--color-grey-900); }
+  .ma-tab:hover i { color: var(--color-grey-700); }
+  .ma-tab.on {
+    color: var(--color-brand-700);
+    border-bottom-color: var(--color-brand-600);
+  }
+  .ma-tab.on i { color: var(--color-brand-700); }
+  .ma-tab .cnt {
+    font: 600 10px var(--font-sans);
+    background: var(--color-grey-100); color: var(--fg3);
+    padding: 2px 7px; border-radius: 999px;
+    line-height: 1.5;
+  }
+  .ma-tab.on .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .ma-tab .cnt.urgent { background: var(--color-error-100, #fee2e2); color: var(--color-error-800, #991b1b); }
+  .ma-tab .cnt.brand { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+  .ma-panel { display: none; }
+  .ma-panel.on { display: block; }
+
+  /* ===== Plot & terms grid ===== */
+  @media (max-width: 880px) { .plot-grid { grid-template-columns: 1fr !important; } }
+
+  /* ===== Activity timeline (mirrors prospect-detail's act-shell visual) ===== */
+  .act-shell { background: transparent; border: 0; padding: 0; }
+  .timeline {
+    padding-left: 36px; margin-left: 0; border-left: 0;
+    display: flex; flex-direction: column; gap: 6px;
+    position: relative;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 17px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--color-grey-200);
+  }
+  .tl-item {
+    position: relative;
+    background: var(--color-base-white);
+    border: 1px solid var(--border-subtle); border-radius: 10px;
+    padding: 12px 14px;
+    display: grid; grid-template-columns: 1fr; gap: 8px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .tl-item:hover { border-color: var(--border-default); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .tl-dot {
+    position: absolute; left: -28px; top: 12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    background: var(--color-grey-100); color: var(--fg2);
+    border: 2px solid var(--color-base-white);
+    box-shadow: 0 0 0 1px var(--border-subtle);
+  }
+  .tl-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .tl-title { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.005em; }
+  .tl-title b { font-weight: 700; }
+  .tl-when { font: 11.5px var(--font-sans); color: var(--fg3); flex-shrink: 0; }
+  .tl-body { font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+  .tl-labels { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .tl-vis {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 500 11px var(--font-sans);
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    background: var(--color-grey-50); color: var(--fg2);
+  }
+  .tl-vis[data-v="public"]   { background: var(--color-success-50); color: var(--color-success-700); border-color: var(--color-success-200, #a7f3d0); }
+  .tl-vis[data-v="prospect"] { background: var(--color-brand-50); color: var(--color-brand-700); border-color: var(--color-brand-100); }
+  .tl-link-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 500 11px var(--font-sans);
+    padding: 2px 8px; border-radius: 999px;
+    background: var(--color-grey-50); color: var(--fg2);
+    border: 1px solid var(--border-subtle);
+  }
+  .tl-link-pill i { font-size: 12px; }
+
+  /* ===== Profile tab ===== */
+  .pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 880px) { .pf-grid { grid-template-columns: 1fr; } }
+
+  .pf-card { background: var(--color-base-white); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px 18px; }
+  .pf-card .pf-head { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+  .pf-card .pf-head h3 { font: 600 14px var(--font-sans); color: var(--color-grey-900); margin: 0; display:inline-flex; align-items:center; gap:8px; }
+  .pf-card .pf-head h3 i { color: var(--fg2); font-size: 16px; }
+  .pf-card .pf-head .pf-edit { background:none; border:0; color: var(--fg3); cursor:pointer; font:500 12px var(--font-sans); display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; }
+  .pf-card .pf-head .pf-edit:hover { color: var(--color-brand-700); background: var(--color-brand-50); }
+
+  /* Avatar uploader */
+  .pf-avatar-row { display: grid; grid-template-columns: 88px 1fr; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 1px dashed var(--border-subtle); margin-bottom: 14px; }
+  .pf-ava {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: var(--color-brand-700); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 600 26px var(--font-sans);
+    background-size: cover; background-position: center;
+    border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border-subtle);
+    position: relative;
+  }
+  .pf-ava[data-img] { background-color: var(--color-grey-200); color: transparent; }
+  .pf-ava-edit {
+    position: absolute; right: -2px; bottom: -2px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--color-grey-900); color: #fff; border: 2px solid #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 13px;
+  }
+  .pf-name-row .pf-name { font: 700 17px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+  .pf-name-row .pf-sub { font: 12px var(--font-sans); color: var(--fg3); margin-top: 3px; }
+  .pf-name-row .pf-actions { display:flex; gap:8px; margin-top: 10px; }
+  .pf-name-row .pf-actions .btn-mini { font: 500 11.5px var(--font-sans); padding: 5px 10px; background: var(--color-grey-50); border: 1px solid var(--border-subtle); border-radius: 6px; cursor: pointer; color: var(--fg2); display:inline-flex; align-items:center; gap:4px; }
+  .pf-name-row .pf-actions .btn-mini:hover { background: var(--color-grey-100); }
+
+  /* Editable field rows */
+  .pf-fields { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .pf-row {
+    display: grid; grid-template-columns: 130px 1fr auto; gap: 10px;
+    padding: 9px 0; align-items: center;
+    border-bottom: 1px solid var(--color-grey-100);
+    font: 13px var(--font-sans);
+  }
+  .pf-row:last-child { border-bottom: 0; }
+  .pf-row .k { color: var(--fg3); font-size: 12px; display:inline-flex; align-items:center; gap:6px; }
+  .pf-row .k i { font-size: 13px; color: var(--fg3); }
+  .pf-row .v { color: var(--color-grey-900); font-weight: 500; min-width: 0; word-wrap: break-word; }
+  .pf-row .v .empty { color: var(--fg4); font-style: italic; font-weight: 400; }
+  .pf-row .v input, .pf-row .v select, .pf-row .v textarea {
+    width: 100%; box-sizing: border-box;
+    padding: 5px 8px; border: 1px solid var(--border-default); border-radius: 5px;
+    font: 13px var(--font-sans); color: var(--color-grey-900);
+    background: var(--color-base-white);
+  }
+  .pf-row .v input:focus, .pf-row .v select:focus { outline: none; border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .pf-row .pf-pencil { background:none; border:0; color: var(--fg4); cursor:pointer; padding: 4px; border-radius: 4px; opacity: 0; transition: opacity .12s, color .12s; }
+  .pf-row:hover .pf-pencil { opacity: 1; }
+  .pf-row .pf-pencil:hover { color: var(--color-brand-700); background: var(--color-brand-50); }
+  .pf-row[data-editing="true"] .pf-pencil { opacity: 1; color: var(--color-success-700); }
+
+  /* Dependents inline editor */
+  .pf-dep-editor { display:flex; flex-direction:column; gap:8px; padding:10px; border: 1px solid var(--color-brand-300); border-radius: 8px; background: var(--color-brand-50); }
+  .pf-dep-editor .pf-de-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pf-dep-editor .pf-de-input { padding: 7px 10px; border: 1px solid var(--border-default); border-radius: 6px; font: 13px var(--font-sans); background: var(--color-base-white); }
+  .pf-dep-editor .pf-de-input:focus { outline:none; border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-100); }
+  .pf-dep-editor .pf-de-foot { display:flex; justify-content:flex-end; gap:8px; }
+  .pf-dep-editor .btn-ghost { background:transparent; color: var(--fg2); border: 1px solid var(--border-default); border-radius:6px; padding: 6px 12px; font: 500 12.5px var(--font-sans); cursor:pointer; }
+  .pf-dep-editor .btn-primary { background: var(--color-brand-700); color:#fff; border:0; border-radius:6px; padding: 7px 14px; font: 600 12.5px var(--font-sans); cursor:pointer; }
+
+  @media (max-width: 1180px) { .pp-finance-grid { grid-template-columns: 1fr 1fr !important; } }
+  @media (max-width: 760px)  { .pp-finance-grid { grid-template-columns: 1fr !important; } }
+
+  /* Dependents */
+  .pf-deps { display: flex; flex-direction: column; gap: 8px; }
+  .pf-dep {
+    display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle); border-radius: 8px;
+    background: var(--color-grey-50);
+  }
+  .pf-dep .av { width: 36px; height: 36px; border-radius: 50%; background: var(--color-brand-600); color: #fff; display:inline-flex; align-items:center; justify-content:center; font: 600 12px var(--font-sans); }
+  .pf-dep .nm { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .pf-dep .meta { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; display:flex; gap:8px; flex-wrap: wrap; }
+  .pf-dep .meta .rel { background: var(--color-base-white); color: var(--fg2); padding: 1px 7px; border-radius: 999px; font-weight: 500; border: 1px solid var(--border-subtle); }
+  .pf-dep .actions { display:flex; gap: 4px; }
+  .pf-dep .actions button { background:none; border:0; color: var(--fg3); cursor:pointer; padding: 4px; border-radius:4px; }
+  .pf-dep .actions button:hover { color: var(--color-grey-900); background: var(--color-base-white); }
+  .pf-dep-add {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 12px; margin-top: 4px;
+    background: none; border: 1px dashed var(--border-default); border-radius: 8px;
+    color: var(--color-brand-700); font: 500 12.5px var(--font-sans); cursor: pointer;
+    align-self: flex-start;
+  }
+  .pf-dep-add:hover { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+
+  /* Tag chips for housing prefs etc */
+  .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .pf-chip { font: 500 11.5px var(--font-sans); padding: 3px 9px; border-radius: 999px; background: var(--color-brand-50); color: var(--color-brand-700); border: 1px solid var(--color-brand-100); }
+
+  /* Per-card edit pattern */
+  .pf-card .pf-card-head { display:flex; align-items:center; justify-content:space-between; margin: 0 0 12px; }
+  .pf-card .pf-card-head h3 { font: 600 14px var(--font-sans); color: var(--color-grey-900); margin: 0; display:inline-flex; align-items:center; gap:8px; }
+  .pf-card .pf-card-head h3 i { color: var(--fg2); font-size: 16px; }
+  .pf-card .pf-card-edit { background:none; border:0; color: var(--fg3); cursor:pointer; font:500 12px var(--font-sans); display:inline-flex; align-items:center; gap:4px; padding: 4px 10px; border-radius: 6px; }
+  .pf-card .pf-card-edit:hover { color: var(--color-brand-700); background: var(--color-brand-50); }
+  .pf-card[data-editing="true"] .pf-card-edit { display: none; }
+  .pf-card[data-editing="true"] { border-color: var(--color-brand-300); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .pf-card[data-editing="true"] .pf-row .v { color: var(--color-grey-900); }
+  .pf-card-foot { display:flex; justify-content:flex-end; gap:8px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-subtle); }
+  .pf-card-foot[hidden] { display: none; }
+  .pf-card-foot .btn-ghost { background:transparent; color: var(--fg2); border: 1px solid var(--border-default); border-radius:6px; padding: 6px 14px; font: 500 12.5px var(--font-sans); cursor:pointer; }
+  .pf-card-foot .btn-ghost:hover { background: var(--color-grey-50); }
+  .pf-card-foot .btn-primary { background: var(--color-brand-700); color: #fff; border: 0; border-radius:6px; padding: 7px 16px; font: 600 12.5px var(--font-sans); cursor:pointer; }
+  .pf-card-foot .btn-primary:hover { background: var(--color-brand-800, var(--color-brand-700)); filter: brightness(0.95); }
+
+  /* Activity composer */
+  .act-composer { background: var(--color-base-white); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 16px 12px; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(15,20,30,0.03); }
+  .act-comp-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 10px; flex-wrap:wrap; }
+  .act-comp-tabs { display:flex; gap:2px; background: var(--color-grey-50); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 2px; }
+  .act-comp-tab { background:transparent; border:0; padding: 6px 12px; font: 500 12.5px var(--font-sans); color: var(--fg2); cursor:pointer; border-radius: 6px; display:inline-flex; align-items:center; gap:5px; }
+  .act-comp-tab i { font-size: 14px; }
+  .act-comp-tab:hover { color: var(--color-grey-900); }
+  .act-comp-tab.on { background: var(--color-base-white); color: var(--color-brand-700); box-shadow: 0 1px 2px rgba(15,20,30,0.05); }
+  .act-comp-help { font: 12px var(--font-sans); color: var(--fg3); }
+  .act-comp-fields { display:flex; flex-direction:column; gap:8px; }
+  .act-comp-fields[hidden] { display:none; }
+  .act-comp-row { display:flex; gap:8px; }
+  .act-comp-title, .act-comp-input, .act-comp-select, .act-comp-body { width:100%; box-sizing:border-box; padding: 8px 10px; border: 1px solid var(--border-default); border-radius: 6px; font: 13px var(--font-sans); color: var(--color-grey-900); background: var(--color-base-white); resize: vertical; font-family: inherit; }
+  .act-comp-title { font-weight: 600; }
+  .act-comp-title:focus, .act-comp-input:focus, .act-comp-select:focus, .act-comp-body:focus { outline:none; border-color: var(--color-brand-500); box-shadow: 0 0 0 3px var(--color-brand-50); }
+  .act-comp-drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding: 18px; border: 2px dashed var(--border-default); border-radius: 8px; cursor:pointer; color: var(--fg2); font: 13px var(--font-sans); text-align:center; transition: border-color .12s, background .12s; }
+  .act-comp-drop:hover, .act-comp-drop.drag { border-color: var(--color-brand-500); background: var(--color-brand-50); color: var(--color-brand-700); }
+  .act-comp-drop i { font-size: 24px; color: var(--fg3); }
+  .act-comp-drop:hover i { color: var(--color-brand-700); }
+  .act-comp-drop .hint { font-size: 11.5px; color: var(--fg4); }
+  .act-comp-drop[data-file] { border-style: solid; border-color: var(--color-success-500, var(--color-success-700)); background: var(--color-success-50); color: var(--color-success-700); }
+  .act-comp-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top: 10px; }
+  .act-comp-vis { font: 11.5px var(--font-sans); color: var(--fg3); display:inline-flex; align-items:center; gap:5px; }
+  .act-comp-vis i { font-size: 12px; }
+  .act-comp-actions { display:flex; gap: 8px; }
+  .act-comp-actions .btn-ghost { background:transparent; color: var(--fg2); border: 1px solid var(--border-default); border-radius:6px; padding: 6px 12px; font: 500 12.5px var(--font-sans); cursor:pointer; }
+  .act-comp-actions .btn-ghost:hover { background: var(--color-grey-50); }
+  .act-comp-actions .btn-primary { background: var(--color-brand-700); color: #fff; border: 0; border-radius:6px; padding: 7px 14px; font: 600 12.5px var(--font-sans); cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+  .act-comp-actions .btn-primary:hover { filter: brightness(0.95); }
+
+  /* (removed) Save bar */
+  .pf-savebar {
+    position: sticky; bottom: 0; z-index: 5;
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 14px; margin-top: 16px;
+    background: var(--color-grey-900); color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.25);
+  }
+  .pf-savebar.on { display: flex; }
+  .pf-savebar .msg { font: 12.5px var(--font-sans); color: rgba(255,255,255,0.8); }
+  .pf-savebar .msg b { color: #fff; }
+  .pf-savebar .acts { display: flex; gap: 8px; }
+  .pf-savebar button { font: 500 12px var(--font-sans); padding: 6px 12px; border-radius: 6px; cursor: pointer; border: 0; }
+  .pf-savebar .ghost { background: transparent; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.18); }
+  .pf-savebar .save { background: var(--color-brand-500); color: #fff; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1100px) {
+    .pp-finance-grid { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 760px) {
+    .pp-hero { padding: 22px 18px !important; }
+    .pp-hero h1 { font-size: 22px; }
+    .pp-hero .sub { font-size: 13px; }
+    .pp-hero-stage { min-width: 0; width: 100%; }
+    .pp-finance-grid { grid-template-columns: 1fr !important; }
+    .ma-tabs { gap: 0; }
+    .ma-tab { padding: 10px 12px; font-size: 13px; }
+    .ma-tab .cnt { display: none; }
+    /* progress meter steps wrap on narrow */
+    .pp-stepper, .stepper { flex-wrap: wrap; }
+  }
+  @media (max-width: 520px) {
+    .ma-tab i { font-size: 14px; }
+  }
+</style>
+</head>
+<body data-screen-label="Prospect — Portal">
+
+<div class="app">
+
+  <!-- ============== MAIN ============== -->
+  <section class="main">
+    <header class="ma-header" role="banner">
+      <a class="ma-brand" href="prospect-portal.html" aria-label="Ream — home">
+        <span class="logo">R</span>
+        <span class="name">Ream</span>
+      </a>
+
+      <nav class="ma-nav" aria-label="Primary">
+        <a class="ma-nav-item active" href="my-application.html" aria-current="page">
+          <i class="ri-file-list-3-line"></i><span>My application</span>
+          <span class="ma-nav-badge urgent">2</span>
+        </a>
+        <a class="ma-nav-item" href="browse-v2.html">
+          <i class="ri-store-3-line"></i><span>Browse listings</span>
+        </a>
+      </nav>
+
+      <div class="ma-header-right">
+        <button type="button" class="ma-icon-btn" id="maNotifBtn" aria-label="Notifications" aria-haspopup="menu" aria-expanded="false">
+          <i class="ri-notification-3-line"></i>
+          <span class="nb" id="maNotifBadge">3</span>
+        </button>
+        <button type="button" class="ma-icon-btn" data-open-error-report aria-label="Report an error" title="Report an error">
+          <i class="ri-error-warning-line"></i>
+        </button>
+        <span class="ma-divider" aria-hidden="true"></span>
+        <span class="ma-guest-pill"><i class="ri-shield-user-line"></i> Guest session</span>
+        <button type="button" class="ma-signin" data-open-register>
+          <i class="ri-login-circle-line"></i>
+          <span>Connect to your account</span>
+        </button>
+      </div>
+
+      <!-- Notifications popover -->
+      <div class="ma-notif-pop" id="maNotifPop" role="menu" hidden>
+        <div class="np-head">
+          <span class="ti">Notifications</span>
+          <button type="button" class="np-clear" id="maNotifClear">Mark all as read</button>
+        </div>
+        <div class="np-list" id="maNotifList">
+          <a class="np-item unread" href="#documents" data-tab-link="documents">
+            <span class="np-ic warn"><i class="ri-upload-cloud-2-line"></i></span>
+            <div class="np-body">
+              <div class="np-ti">2 documents still pending</div>
+              <div class="np-sb">Bank statements and proof of address — required to keep your closing date.</div>
+              <div class="np-ts">12m ago</div>
+            </div>
+            <span class="np-dot" aria-hidden="true"></span>
+          </a>
+          <a class="np-item unread" href="#progress" data-tab-link="progress">
+            <span class="np-ic brand"><i class="ri-medal-fill"></i></span>
+            <div class="np-body">
+              <div class="np-ti">Final offer ready for review</div>
+              <div class="np-sb">Your loan offer is locked at 12.5% until Apr 15. Open the Progress tab to review.</div>
+              <div class="np-ts">1h ago</div>
+            </div>
+            <span class="np-dot" aria-hidden="true"></span>
+          </a>
+          <a class="np-item unread" href="#overview">
+            <span class="np-ic ok"><i class="ri-calendar-check-line"></i></span>
+            <div class="np-body">
+              <div class="np-ti">Site visit confirmed · Thu Mar 19, 10:00 AM</div>
+              <div class="np-sb">Anita will meet you at Plot 14B, Riverstone Estate. Add to your calendar.</div>
+              <div class="np-ts">3h ago</div>
+            </div>
+            <span class="np-dot" aria-hidden="true"></span>
+          </a>
+          <a class="np-item" href="#activity" data-tab-link="activity">
+            <span class="np-ic muted"><i class="ri-chat-3-line"></i></span>
+            <div class="np-body">
+              <div class="np-ti">Anita replied to your question</div>
+              <div class="np-sb">"Yes — the access road is paved through to the plot boundary."</div>
+              <div class="np-ts">Yesterday</div>
+            </div>
+          </a>
+          <a class="np-item" href="#progress" data-tab-link="progress">
+            <span class="np-ic muted"><i class="ri-shield-check-line"></i></span>
+            <div class="np-body">
+              <div class="np-ti">Pre-qualification approved</div>
+              <div class="np-sb">Soft-credit check came back clean. Offer rate locked from Mar 16.</div>
+              <div class="np-ts">Mar 16</div>
+            </div>
+          </a>
+        </div>
+        <div class="np-foot">
+          <a href="#">View all activity <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+    </header>
+
+    <style>
+      /* Drop the sidebar column — header-based nav */
+      .app { grid-template-columns: 1fr; }
+      .main { min-width: 0; }
+
+      /* ============== HEADER ============== */
+      .ma-header {
+        display: flex; align-items: center; gap: 18px;
+        padding: 10px 24px;
+        border-bottom: 1px solid var(--border-subtle);
+        background: var(--color-base-white);
+        position: sticky; top: 0; z-index: 20;
+        font-family: var(--font-sans);
+      }
+      .ma-brand {
+        display: inline-flex; align-items: center; gap: 9px;
+        text-decoration: none; color: var(--color-grey-900);
+        padding: 4px 4px 4px 0;
+      }
+      .ma-brand .logo {
+        width: 30px; height: 30px; border-radius: 8px;
+        background: var(--color-brand-700); color: #fff;
+        display: inline-flex; align-items: center; justify-content: center;
+        font: 700 14px var(--font-sans); letter-spacing: -0.02em;
+      }
+      .ma-brand .name { font: 700 16px var(--font-sans); letter-spacing: -0.015em; }
+
+      .ma-nav { display: flex; align-items: center; gap: 2px; margin-left: 8px; }
+      .ma-nav-item {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 7px 12px; border-radius: 8px;
+        font: 500 13.5px var(--font-sans);
+        color: var(--fg2); text-decoration: none;
+        transition: background .12s, color .12s;
+      }
+      .ma-nav-item i { font-size: 16px; color: var(--fg3); }
+      .ma-nav-item:hover { background: var(--color-grey-50); color: var(--color-grey-900); }
+      .ma-nav-item:hover i { color: var(--color-grey-700); }
+      .ma-nav-item.active {
+        background: var(--color-brand-50);
+        color: var(--color-brand-700);
+        font-weight: 600;
+      }
+      .ma-nav-item.active i { color: var(--color-brand-700); }
+      .ma-nav-badge {
+        font: 700 10.5px var(--font-sans);
+        padding: 1px 6px; border-radius: 999px;
+        background: var(--color-grey-100); color: var(--fg2);
+        min-width: 18px; text-align: center;
+      }
+      .ma-nav-badge.urgent { background: var(--color-error-100, #fee2e2); color: var(--color-error-700, #b91c1c); }
+
+      .ma-header-right { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; }
+      .ma-divider { width: 1px; height: 22px; background: var(--border-subtle); margin: 0 2px; }
+
+      .ma-icon-btn {
+        position: relative;
+        width: 36px; height: 36px; border-radius: 8px;
+        background: transparent; border: 1px solid transparent;
+        color: var(--fg2); cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background .12s, color .12s, border-color .12s;
+      }
+      .ma-icon-btn i { font-size: 18px; }
+      .ma-icon-btn:hover { background: var(--color-grey-50); color: var(--color-grey-900); border-color: var(--border-subtle); }
+      .ma-icon-btn[aria-expanded="true"] { background: var(--color-grey-100); color: var(--color-grey-900); border-color: var(--border-default); }
+      .ma-icon-btn .nb {
+        position: absolute; top: 4px; right: 4px;
+        background: var(--color-error-600, #dc2626); color: #fff;
+        font: 700 9.5px var(--font-sans);
+        padding: 1px 5px; border-radius: 999px;
+        min-width: 16px; text-align: center; line-height: 1.4;
+        box-shadow: 0 0 0 2px var(--color-base-white);
+      }
+      .ma-icon-btn .nb[hidden] { display: none; }
+
+      .ma-guest-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        font: 600 11.5px var(--font-sans);
+        color: var(--fg3);
+        padding: 5px 10px;
+        border-radius: 99px;
+        background: var(--color-grey-50);
+        border: 1px solid var(--border-subtle);
+      }
+      .ma-guest-pill i { color: var(--color-brand-600); }
+
+      .ma-signin {
+        display: inline-flex; align-items: center; gap: 7px;
+        font: 600 13px var(--font-sans);
+        color: #fff;
+        background: var(--color-brand-600);
+        border: 1px solid var(--color-brand-600);
+        padding: 7px 14px;
+        border-radius: 99px;
+        cursor: pointer;
+        transition: background .12s, border-color .12s;
+      }
+      .ma-signin:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+      .ma-signin i { font-size: 15px; }
+
+      /* ============== NOTIFICATIONS POPOVER ============== */
+      .ma-notif-pop {
+        position: absolute; top: calc(100% + 6px); right: 24px;
+        width: 380px; max-width: calc(100vw - 32px);
+        background: var(--color-base-white);
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        box-shadow: 0 16px 36px -8px rgba(15,23,42,0.18), 0 2px 6px rgba(15,23,42,0.06);
+        z-index: 30;
+        font-family: var(--font-sans);
+        overflow: hidden;
+      }
+      .ma-notif-pop[hidden] { display: none; }
+      .np-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-bottom: 1px solid var(--border-subtle);
+      }
+      .np-head .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+      .np-clear {
+        background: transparent; border: 0; cursor: pointer;
+        font: 600 12px var(--font-sans); color: var(--color-brand-700);
+        padding: 4px 6px; border-radius: 6px;
+      }
+      .np-clear:hover { background: var(--color-brand-50); }
+      .np-list { max-height: 440px; overflow-y: auto; }
+      .np-item {
+        display: grid; grid-template-columns: 32px 1fr auto;
+        gap: 12px; align-items: start;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        text-decoration: none; color: inherit;
+        transition: background .12s;
+      }
+      .np-item:last-child { border-bottom: 0; }
+      .np-item:hover { background: var(--color-grey-25, #fafafa); }
+      .np-item.unread { background: var(--color-brand-25, #fafbff); }
+      .np-item.unread:hover { background: var(--color-brand-50); }
+      .np-ic {
+        width: 32px; height: 32px; border-radius: 8px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 15px; flex-shrink: 0;
+      }
+      .np-ic.warn { background: var(--color-warning-100, #fef3c7); color: var(--color-warning-700); }
+      .np-ic.brand { background: var(--color-brand-100); color: var(--color-brand-700); }
+      .np-ic.ok { background: var(--color-success-50); color: var(--color-success-700); }
+      .np-ic.muted { background: var(--color-grey-100); color: var(--fg2); }
+      .np-body { min-width: 0; }
+      .np-ti { font: 600 13px var(--font-sans); color: var(--color-grey-900); line-height: 1.35; }
+      .np-sb { font: 12.5px var(--font-sans); color: var(--fg2); margin-top: 2px; line-height: 1.45; }
+      .np-ts { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 4px; }
+      .np-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-600); align-self: center; }
+      .np-foot {
+        padding: 10px 16px;
+        border-top: 1px solid var(--border-subtle);
+        background: var(--color-grey-25, #fafafa);
+        text-align: center;
+      }
+      .np-foot a {
+        font: 600 12.5px var(--font-sans);
+        color: var(--color-brand-700); text-decoration: none;
+        display: inline-flex; align-items: center; gap: 4px;
+      }
+      .np-foot a:hover { color: var(--color-grey-900); }
+
+      /* ============== RESPONSIVE ============== */
+      @media (max-width: 900px) {
+        .ma-header { gap: 10px; padding: 10px 16px; flex-wrap: wrap; }
+        .ma-guest-pill { display: none; }
+        .ma-divider { display: none; }
+        .ma-signin span { display: none; }
+        .ma-signin { padding: 7px 9px; }
+        .ma-nav-item span { display: none; }
+        .ma-nav-item { padding: 7px 10px; }
+        .ma-notif-pop { right: 12px; }
+      }
+      @media (max-width: 540px) {
+        .ma-brand .name { display: none; }
+      }
+    </style>
+
+    <div class="content">
+
+      <!-- ============== HERO BAND ============== -->
+      <section class="pp-hero">
+        <div class="pp-hero-top">
+          <div>
+            <div class="pp-hero-eyebrow"><i class="ri-time-line"></i> In progress · Day 4 of ~14</div>
+            <h1>Welcome back, Danyls.</h1>
+            <p class="sub">Your file is with underwriting. Two documents are still pending — upload them today to keep your closing date on track.</p>
+            <div class="ref-row">
+              <span class="ref"><i class="ri-hashtag"></i> APP-2026-0143</span>
+              <span class="sep">·</span>
+              <span>Plot 14B · Riverstone Estate · Cape Coast</span>
+              <span class="sep">·</span>
+              <span>Submitted Mar 15, 2026</span>
+            </div>
+          </div>
+          <div class="pp-hero-stage">
+            <div class="lbl">Current stage</div>
+            <div class="stage-name">Document upload</div>
+            <div class="eta"><i class="ri-calendar-event-line"></i> Est. close · Mar 29</div>
+            <a class="hero-offer-flag" href="#progress" data-tab-link="progress">
+              <i class="ri-medal-fill"></i>
+              <span class="t"><b>Final offer ready</b><em>Review on the Progress tab</em></span>
+              <i class="ri-arrow-right-s-line chev"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="pp-meter" role="list">
+          <div class="pp-meter-step done"><div class="bar"></div><div class="label"><i class="ri-check-line"></i><span>Submitted</span></div><div class="meta">Mar 15</div></div>
+          <div class="pp-meter-step done"><div class="bar"></div><div class="label"><i class="ri-check-line"></i><span>Advisor call</span></div><div class="meta">Mar 16</div></div>
+          <div class="pp-meter-step current"><div class="bar"></div><div class="label"><i class="ri-upload-2-line"></i><span>Documents</span></div><div class="meta">2 of 5 missing</div></div>
+          <div class="pp-meter-step pending"><div class="bar"></div><div class="label"><span>Underwriting</span></div><div class="meta">Days 5–10</div></div>
+          <div class="pp-meter-step pending"><div class="bar"></div><div class="label"><span>Sign &amp; close</span></div><div class="meta">Day 14</div></div>
+        </div>
+      </section>
+
+      <!-- ============== TAB NAV ============== -->
+      <nav class="ma-tabs" role="tablist" aria-label="Application sections">
+        <button type="button" class="ma-tab on" data-tab="overview" role="tab" aria-selected="true"><i class="ri-layout-grid-line"></i> Overview</button>
+        <button type="button" class="ma-tab" data-tab="progress" role="tab" aria-selected="false"><i class="ri-flag-line"></i> Progress <span class="cnt brand">3/5</span></button>
+        <button type="button" class="ma-tab" data-tab="documents" role="tab" aria-selected="false"><i class="ri-folder-open-line"></i> Documents <span class="cnt urgent">2</span></button>
+        <button type="button" class="ma-tab" data-tab="activity" role="tab" aria-selected="false"><i class="ri-history-line"></i> Activity</button>
+        <button type="button" class="ma-tab" data-tab="profile" role="tab" aria-selected="false"><i class="ri-user-line"></i> Profile</button>
+      </nav>
+
+      <!-- ============== OVERVIEW PANEL ============== -->
+      <div class="ma-panel on" data-panel="overview" role="tabpanel">
+      <section class="pp-actions">
+        <div class="pp-action urgent">
+          <div class="ic"><i class="ri-upload-cloud-2-line"></i></div>
+          <div class="h">Upload missing documents <span class="pill">2 left</span></div>
+          <p>Bank statements (last 3 months) and proof of address. PDF, JPG, or PNG up to 20 MB.</p>
+          <a class="cta" href="prospect-documents.html">Open documents <i class="ri-arrow-right-line"></i></a>
+        </div>
+        <div class="pp-action">
+          <div class="ic"><i class="ri-calendar-check-line"></i></div>
+          <div class="h">Property visit booked</div>
+          <p>You're meeting Anita on-site Thursday Mar 19, 10:00 AM. Plot 14B · Riverstone Estate.</p>
+          <a class="cta" href="prospect-schedule.html"><i class="ri-add-line"></i> Add to calendar</a>
+        </div>
+        <div class="pp-action done">
+          <div class="ic" style="background:var(--color-success-50); color:var(--color-success-700);"><i class="ri-shield-check-line"></i></div>
+          <div class="h">Pre-qualification valid <span class="pill">Approved</span></div>
+          <p>Your soft-credit check came back clean. Offer rate locked from Mar 16 until Apr 15.</p>
+          <span class="nope"><i class="ri-checkbox-circle-fill"></i> Nothing for you to do here</span>
+        </div>
+      </section>
+
+      <style>
+        /* Overview cards — refined */
+        .ovc { font-family: var(--font-sans); border:1px solid var(--border-default); border-radius:10px; background: var(--color-base-white); display:flex; flex-direction:column; overflow:hidden; }
+        .ovc-head { padding: 14px 18px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .ovc-head h3 { margin:0; font: 600 13px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.005em; }
+        .ovc-head a, .ovc-head .meta { font: 11.5px var(--font-sans); color: var(--fg3); text-decoration:none; }
+        .ovc-head a:hover { color: var(--color-brand-700); }
+        .ovc-rows { display:flex; flex-direction:column; gap:9px; padding: 4px 18px 16px; font: 12.5px var(--font-sans); }
+        .ovc-rows .r { display:flex; justify-content:space-between; align-items:baseline; gap: 12px; }
+        .ovc-rows .r .k { color: var(--fg3); }
+        .ovc-rows .r .v { color: var(--color-grey-800); font-weight: 500; text-align: right; }
+        .ovc-rows .r.total { padding-top: 10px; border-top: 1px solid var(--border-subtle); margin-top: 4px; }
+        .ovc-rows .r.total .k { color: var(--color-grey-700); font-weight: 600; }
+        .ovc-rows .r.total .v { color: var(--color-brand-700); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+        .ovc-foot { margin-top: auto; padding: 12px 18px; border-top: 1px solid var(--border-subtle); display:flex; gap:8px; background: var(--color-grey-25, #fafafa); }
+        .ovc-foot .b { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding: 7px 12px; border-radius:6px; font: 600 12px var(--font-sans); cursor:pointer; text-decoration:none; }
+        .ovc-foot .b.ghost { background:transparent; border:1px solid var(--border-default); color: var(--fg2); }
+        .ovc-foot .b.ghost:hover { background: var(--color-grey-50); border-color: var(--color-grey-300); }
+        .ovc-foot .b.primary { background: var(--color-brand-700); border:1px solid var(--color-brand-700); color:#fff; }
+        .ovc-foot .b.primary:hover { background: var(--color-brand-800); border-color: var(--color-brand-800); }
+
+        /* Plot hero */
+        .ovc-plot-hero { position: relative; height: 168px; background-size: cover; background-position: center; }
+        .ovc-plot-hero::after { content: ''; position: absolute; inset:0; background: linear-gradient(180deg, transparent 35%, rgba(15,23,42,0.78) 100%); }
+        .ovc-plot-hero .badge { position:absolute; top:10px; left:10px; z-index:1; display:inline-flex; align-items:center; gap:4px; padding: 3px 8px; background: rgba(255,255,255,0.92); backdrop-filter: blur(6px); border-radius: 999px; font: 600 10.5px var(--font-sans); color:var(--color-success-700); letter-spacing: 0.02em; text-transform: uppercase; }
+        .ovc-plot-hero .badge i { font-size: 11px; }
+        .ovc-plot-hero .title { position:absolute; left: 16px; right: 16px; bottom: 12px; z-index:1; color: #fff; }
+        .ovc-plot-hero .title .t1 { font: 700 16px var(--font-sans); letter-spacing: -0.01em; }
+        .ovc-plot-hero .title .t2 { font: 12px var(--font-sans); margin-top: 2px; opacity: 0.88; display:inline-flex; align-items:center; gap:4px; }
+
+        /* Financing hero */
+        .ovc-fin-hero { padding: 18px 18px 14px; display:flex; flex-direction:column; gap: 4px; border-bottom: 1px solid var(--border-subtle); }
+        .ovc-fin-hero .lead { font: 11px var(--font-sans); color: var(--fg3); text-transform: uppercase; letter-spacing: 0.06em; }
+        .ovc-fin-hero .num { font: 700 28px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.025em; line-height: 1.05; }
+        .ovc-fin-hero .num .per { font: 500 14px var(--font-sans); color: var(--fg3); margin-left: 2px; }
+        .ovc-fin-hero .sub { font: 11.5px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+        .ovc-fin-hero .sub b { color: var(--color-grey-800); font-weight: 600; }
+
+        /* Advisor profile */
+        .ovc-adv-hero { padding: 18px 18px 16px; display:flex; gap: 14px; align-items:center; border-bottom: 1px solid var(--border-subtle); position: relative; background: linear-gradient(180deg, var(--color-grey-25, #fafafa) 0%, var(--color-base-white) 100%); }
+        .ovc-adv-hero .ava-wrap { position: relative; flex-shrink: 0; }
+        .ovc-adv-hero .ava { width: 60px; height: 60px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 0 0 2px var(--color-base-white), 0 0 0 3px var(--border-subtle); }
+        .ovc-adv-hero .live-dot { position:absolute; right: 0; bottom: 1px; width: 14px; height: 14px; border-radius: 50%; background: var(--color-success-600); border: 2.5px solid var(--color-base-white); }
+        .ovc-adv-hero .who { min-width: 0; }
+        .ovc-adv-hero .nm { font: 600 15px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+        .ovc-adv-hero .ti { font: 12px var(--font-sans); color: var(--fg2); margin-top: 2px; }
+        .ovc-adv-hero .av-pill { font: 11px var(--font-sans); color: var(--color-success-700); margin-top: 4px; display:inline-flex; align-items:center; gap:4px; }
+        .ovc-adv-hero .av-pill i { font-size: 12px; }
+      </style>
+
+      <div class="pp-finance-grid" style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch;">
+
+          <!-- Plot card -->
+          <section class="ovc">
+            <div class="ovc-plot-hero pub-img-meadow">
+              <span class="badge"><i class="ri-checkbox-circle-fill"></i> Titled · clean</span>
+              <div class="title">
+                <div class="t1">Plot 14B · Riverstone Estate</div>
+                <div class="t2"><i class="ri-map-pin-2-line"></i> Cape Coast, Central Region</div>
+              </div>
+            </div>
+            <div class="ovc-head">
+              <h3>Plot details</h3>
+              <span class="meta">RVS-014-B</span>
+            </div>
+            <div class="ovc-rows">
+              <div class="r"><span class="k">Plot size</span><span class="v">650 m²</span></div>
+              <div class="r"><span class="k">Topography</span><span class="v">Flat · corner lot</span></div>
+              <div class="r"><span class="k">Road access</span><span class="v">Tarred · year-round</span></div>
+              <div class="r"><span class="k">Utilities</span><span class="v">ECG · GWCL nearby</span></div>
+              <div class="r"><span class="k">Neighbours</span><span class="v">12 of 24 sold</span></div>
+              <div class="r total"><span class="k">List price</span><span class="v">$48,500</span></div>
+            </div>
+            <div class="ovc-foot">
+              <a class="b ghost" href="asset-detail.html"><i class="ri-image-line"></i> Photos</a>
+              <a class="b primary" href="asset-detail.html"><i class="ri-arrow-right-line"></i> View plot</a>
+            </div>
+          </section>
+
+          <!-- Financing card -->
+          <section class="ovc">
+            <div class="ovc-fin-hero">
+              <span class="lead">Estimated monthly</span>
+              <span class="num">$486<span class="per">/mo</span></span>
+              <span class="sub">over <b>10 years</b> · <b>120</b> instalments · fixed <b>8.5% APR</b></span>
+            </div>
+            <div class="ovc-head">
+              <h3>Financing preference</h3>
+              <span class="meta">Loan</span>
+            </div>
+            <div class="ovc-rows">
+              <div class="r"><span class="k">Asset price</span><span class="v">$48,500</span></div>
+              <div class="r"><span class="k">Downpayment</span><span class="v">$9,700 · 20%</span></div>
+              <div class="r"><span class="k">Amount financed</span><span class="v">$38,800</span></div>
+              <div class="r"><span class="k">Term</span><span class="v">10 years</span></div>
+              <div class="r"><span class="k">Rate (from asset)</span><span class="v">8.5% APR</span></div>
+              <div class="r"><span class="k">First payment</span><span class="v">Apr 30, 2026</span></div>
+              <div class="r"><span class="k">Payment day</span><span class="v">Last of month</span></div>
+              <div class="r total"><span class="k">Est. monthly</span><span class="v">$486</span></div>
+            </div>
+            <div class="ovc-foot">
+              <button type="button" class="b ghost" data-go-tab="activity"><i class="ri-question-line"></i> Ask a question</button>
+              <a class="b primary" href="financing.html"><i class="ri-calculator-line"></i> Recalculate</a>
+            </div>
+          </section>
+
+          <!-- Advisor card -->
+          <section class="ovc">
+            <div class="ovc-adv-hero">
+              <div class="ava-wrap">
+                <div class="ava pub-face-5"></div>
+                <span class="live-dot" title="Online"></span>
+              </div>
+              <div class="who">
+                <div class="nm">Anita Owusu</div>
+                <div class="ti">Senior advisor · Diaspora Investment Group</div>
+                <div class="av-pill"><i class="ri-checkbox-blank-circle-fill"></i> Online · replies in ~15 min</div>
+              </div>
+            </div>
+            <div class="ovc-head">
+              <h3>Get in touch</h3>
+              <span class="meta">8 yrs at DIG</span>
+            </div>
+            <div class="ovc-rows">
+              <div class="r"><span class="k">Email</span><span class="v">a.owusu@dig.com</span></div>
+              <div class="r"><span class="k">Direct line</span><span class="v">+233 30 555 0101</span></div>
+              <div class="r"><span class="k">Office hours</span><span class="v">Mon–Fri · 9–6 GMT</span></div>
+              <div class="r"><span class="k">Languages</span><span class="v">English · Twi</span></div>
+              <div class="r"><span class="k">Time zone</span><span class="v">GMT (UTC+0)</span></div>
+              <div class="r"><span class="k">Specialty</span><span class="v">First-time buyers · Diaspora</span></div>
+            </div>
+            <div class="ovc-foot">
+              <a class="b ghost" href="tel:+12145550101"><i class="ri-phone-line"></i> Call</a>
+              <button type="button" class="b primary" data-go-tab="activity"><i class="ri-chat-3-line"></i> Message</button>
+            </div>
+          </section>
+
+      </div>
+      </div><!-- /panel overview -->
+
+      <!-- ============== PROGRESS PANEL ============== -->
+      <div class="ma-panel" data-panel="progress" role="tabpanel">
+        <section class="pp-card pp-card--bare" id="progress" style="border:0; padding:0; background:transparent;">
+            <div class="pp-card-head">
+              <h2><i class="ri-flag-line"></i> Application progress</h2>
+              <span class="meta">5 stages · 4 days elapsed</span>
+            </div>
+
+            <div class="stage-overview">
+              <i class="ri-information-line ic"></i>
+              <span>You're at stage <b>3 of 5</b>. Once your documents are in, underwriting typically takes <b>3–5 business days</b>. We'll email you when there's a decision.</span>
+            </div>
+
+            <div class="steps">
+              <div class="step done">
+                <div class="dot"><i class="ri-check-line"></i></div>
+                <div class="body">
+                  <div class="t">Interest submitted</div>
+                  <div class="d">Application APP-2026-0143 received and routed to your advisor.</div>
+                </div>
+                <div class="meta">Mar 15 · 2:47 PM</div>
+              </div>
+
+              <div class="step done">
+                <div class="dot"><i class="ri-check-line"></i></div>
+                <div class="body">
+                  <div class="t">Advisor introduction call</div>
+                  <div class="d">25-minute call with Anita Owusu. Term confirmed at 10 years, deposit at 20%.</div>
+                  <div class="substeps">
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Confirmed deposit amount: $9,700</div>
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Walked through repayment schedule</div>
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Soft-credit consent signed</div>
+                  </div>
+                </div>
+                <div class="meta">Mar 16 · 11:15 AM</div>
+              </div>
+
+              <div class="step current">
+                <div class="dot">3</div>
+                <div class="body">
+                  <div class="t">Document upload</div>
+                  <div class="d">Five files needed for underwriting. Three are in, two outstanding.</div>
+                  <div class="substeps">
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Government-issued ID</div>
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Proof of income (last 2 payslips)</div>
+                    <div class="substep done"><span class="sd"><i class="ri-check-line"></i></span> Employment letter</div>
+                    <div class="substep"><span class="sd"></span> Bank statements (3 months) — <a href="prospect-documents.html" style="color: var(--color-brand-700); text-decoration: none; font-weight: 600;">upload</a></div>
+                    <div class="substep"><span class="sd"></span> Proof of address — <a href="prospect-documents.html" style="color: var(--color-brand-700); text-decoration: none; font-weight: 600;">upload</a></div>
+                  </div>
+                </div>
+                <div class="meta">Due Mar 19</div>
+              </div>
+
+              <div class="step pending">
+                <div class="dot">4</div>
+                <div class="body">
+                  <div class="t">Underwriting decision</div>
+                  <div class="d">We'll review your file, run the final affordability check, and present a binding offer.</div>
+                </div>
+                <div class="meta">Days 5–10</div>
+              </div>
+
+              <div class="step pending">
+                <div class="dot">5</div>
+                <div class="body">
+                  <div class="t">Sign &amp; close</div>
+                  <div class="d">E-sign the contract, pay your deposit, receive your keys.</div>
+                </div>
+                <div class="meta">Day 14 target</div>
+              </div>
+            </div>
+          </section>
+          <!-- Final offers — surfaced inline once underwriting is cleared -->
+          <section class="of-banner" style="margin-top:18px;">
+          <div class="of-banner-ic"><i class="ri-medal-fill"></i></div>
+          <div class="of-banner-body">
+            <div class="of-eyebrow">Final offers · Underwriting cleared</div>
+            <h2>Your final financing offer is ready, Danyls.</h2>
+            <p>Tailored to your verified income and the plot you selected. Review the term sheet and accept to lock your closing date.</p>
+          </div>
+          <div class="of-banner-meta">
+            <div class="of-meta-row"><i class="ri-time-line"></i> Valid until <b>Apr 15, 2026</b></div>
+            <div class="of-meta-row"><i class="ri-percent-line"></i> Rate locked</div>
+            <div class="of-meta-row"><i class="ri-shield-check-line"></i> No penalty to compare</div>
+          </div>
+        </section>
+
+        <section class="of-grid of-grid--single">
+          <article class="of-card recommended" data-offer="A">
+            <header class="of-head">
+              <div class="of-tag">Final offer · Balanced plan</div>
+              <h3>Predictable monthly payments</h3>
+              <p>Tailored to your verified income and the plot you selected. Lock your closing date by accepting before validity expires.</p>
+            </header>
+            <div class="of-hero">
+              <div class="of-figure"><span class="cur">GH₵</span><span class="num">486</span><span class="unit">/mo</span></div>
+              <div class="of-figure-cap">120 months · 14.50% APR · monthly</div>
+            </div>
+            <ul class="of-rows">
+              <li><span class="k">List price</span><span class="v">GH₵ 95,000</span></li>
+              <li><span class="k">Deposit (20%)</span><span class="v">GH₵ 19,000</span></li>
+              <li><span class="k">Financed</span><span class="v">GH₵ 76,000</span></li>
+              <li><span class="k">Term</span><span class="v">120 months · 10 yrs</span></li>
+              <li><span class="k">Rate</span><span class="v">14.50% APR · fixed</span></li>
+              <li><span class="k">First payment</span><span class="v">May 1, 2026</span></li>
+              <li class="r-total"><span class="k">Total payable</span><span class="v">GH₵ 77,320</span></li>
+            </ul>
+            <ul class="of-perks">
+              <li><i class="ri-check-line"></i> No early-repayment penalty after month 24</li>
+              <li><i class="ri-check-line"></i> Free title insurance, year 1</li>
+              <li><i class="ri-shield-line"></i> Loan protection optional (+GH₵ 8/mo)</li>
+            </ul>
+            <footer class="of-foot">
+              <button type="button" class="of-btn ghost" data-offer-action="details" data-offer-id="A"><i class="ri-file-text-line"></i> Term sheet</button>
+              <button type="button" class="of-btn primary" data-offer-action="accept" data-offer-id="A"><i class="ri-check-double-line"></i> Accept this offer</button>
+            </footer>
+          </article>
+        </section>
+
+        <section class="of-side">
+          <div class="of-side-card">
+            <div class="of-side-h"><i class="ri-question-answer-line"></i> Not sure which to pick?</div>
+            <p>Talk it through with Akua, your advisor. She can model alternative deposits or terms, or schedule a call before you decide.</p>
+            <div class="of-side-acts">
+              <button type="button" class="of-btn ghost" data-tab-link="activity"><i class="ri-question-line"></i> Ask a question</button>
+              <a class="of-btn ghost" href="prospect-schedule.html"><i class="ri-calendar-event-line"></i> Schedule a call</a>
+              <button type="button" class="of-btn ghost" data-offer-action="custom"><i class="ri-equalizer-line"></i> Request custom terms</button>
+            </div>
+          </div>
+          <div class="of-side-card subtle">
+            <div class="of-side-h"><i class="ri-file-list-3-line"></i> What happens after you accept?</div>
+            <ol class="of-steps">
+              <li><b>1.</b> e-Sign the borrower agreement and assignment of title.</li>
+              <li><b>2.</b> Pay your deposit via bank transfer or mobile money.</li>
+              <li><b>3.</b> Closing meeting at our office or virtually.</li>
+              <li><b>4.</b> Title transfers to you on the closing date.</li>
+            </ol>
+          </div>
+        </section>
+      </div><!-- /panel progress -->
+
+      <style>
+        /* ===== Offers panel ===== */
+        .of-banner {
+          display: grid; grid-template-columns: auto 1fr auto; gap: 18px;
+          align-items: center;
+          padding: 20px 22px;
+          background: linear-gradient(180deg, var(--color-brand-50), var(--color-base-white));
+          border: 1px solid var(--color-brand-100, #dbeafe);
+          border-radius: 14px;
+          margin-bottom: 18px;
+        }
+        .of-banner-ic {
+          width: 48px; height: 48px; border-radius: 12px;
+          background: var(--color-brand-600); color: #fff;
+          display: inline-flex; align-items: center; justify-content: center;
+          font-size: 22px;
+          box-shadow: 0 8px 18px -8px rgba(37,99,235,0.45);
+        }
+        .of-banner-body { min-width: 0; }
+        .of-eyebrow {
+          font: 700 10.5px var(--font-sans); text-transform: uppercase;
+          letter-spacing: 0.10em; color: var(--color-brand-700);
+          margin-bottom: 4px;
+        }
+        .of-banner-body h2 {
+          margin: 0 0 4px; font: 600 19px var(--font-sans);
+          color: var(--color-grey-900); letter-spacing: -0.015em;
+        }
+        .of-banner-body p { margin: 0; font: 13px var(--font-sans); color: var(--fg2); line-height: 1.5; max-width: 56ch; }
+        .of-banner-meta { display: flex; flex-direction: column; gap: 4px; min-width: max-content; }
+        .of-meta-row {
+          display: inline-flex; align-items: center; gap: 6px;
+          font: 12px var(--font-sans); color: var(--fg2);
+        }
+        .of-meta-row i { color: var(--color-brand-700); font-size: 13px; }
+        .of-meta-row b { color: var(--color-grey-900); font-weight: 600; }
+
+        .of-grid {
+          display: grid; grid-template-columns: 1fr 1fr;
+          gap: 16px; margin-bottom: 16px;
+        }
+        .of-grid--single { grid-template-columns: 1fr; max-width: 720px; margin-left: auto; margin-right: auto; }
+        .of-grid--single .of-rib { display: none; }
+        .of-card {
+          position: relative;
+          background: var(--color-base-white);
+          border: 1px solid var(--border-default);
+          border-radius: 14px;
+          display: flex; flex-direction: column;
+          overflow: hidden;
+          transition: border-color .15s, box-shadow .15s;
+        }
+        .of-card:hover { box-shadow: 0 6px 20px -10px rgba(15,23,42,0.18); }
+        .of-card.recommended { border-color: var(--color-brand-500); box-shadow: 0 0 0 1px var(--color-brand-500); }
+        .of-rib {
+          position: absolute; top: 12px; right: 12px;
+          display: inline-flex; align-items: center; gap: 4px;
+          font: 700 10.5px var(--font-sans); text-transform: uppercase; letter-spacing: 0.06em;
+          background: var(--color-brand-600); color: #fff;
+          padding: 4px 9px; border-radius: 99px;
+        }
+        .of-rib i { font-size: 11px; }
+
+        .of-head { padding: 20px 22px 12px; }
+        .of-tag {
+          font: 600 10.5px var(--font-sans); text-transform: uppercase; letter-spacing: 0.08em;
+          color: var(--fg3); margin-bottom: 6px;
+        }
+        .of-head h3 {
+          margin: 0 0 6px; font: 600 18px var(--font-sans);
+          color: var(--color-grey-900); letter-spacing: -0.01em;
+        }
+        .of-head p { margin: 0; font: 13px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+
+        .of-hero {
+          padding: 8px 22px 18px;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+        .of-figure {
+          display: inline-flex; align-items: baseline; gap: 4px;
+          color: var(--color-grey-900);
+        }
+        .of-figure .cur { font: 600 14px var(--font-sans); color: var(--fg3); }
+        .of-figure .num { font: 700 38px var(--font-sans); letter-spacing: -0.025em; line-height: 1; }
+        .of-figure .unit { font: 600 14px var(--font-sans); color: var(--fg3); }
+        .of-figure-cap { font: 12px var(--font-sans); color: var(--fg3); margin-top: 4px; }
+
+        .of-rows { list-style: none; padding: 12px 22px; margin: 0; display: grid; gap: 6px; }
+        .of-rows li { display: flex; justify-content: space-between; gap: 10px; font: 13px var(--font-sans); }
+        .of-rows .k { color: var(--fg3); }
+        .of-rows .v { color: var(--color-grey-900); font-weight: 500; }
+        .of-rows .r-total { padding-top: 8px; margin-top: 4px; border-top: 1px dashed var(--border-subtle); }
+        .of-rows .r-total .k { color: var(--color-grey-700); font-weight: 600; }
+        .of-rows .r-total .v { color: var(--color-brand-700); font-weight: 700; font-size: 15px; }
+
+        .of-perks { list-style: none; padding: 0 22px 16px; margin: 0; display: grid; gap: 6px; }
+        .of-perks li {
+          display: flex; align-items: flex-start; gap: 8px;
+          font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.5;
+        }
+        .of-perks li i { color: var(--color-success-600); font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+        .of-perks li:last-child i { color: var(--color-brand-600); }
+        .of-perks b { color: var(--color-grey-900); font-weight: 600; }
+
+        .of-foot {
+          margin-top: auto;
+          display: flex; gap: 8px;
+          padding: 14px 18px;
+          border-top: 1px solid var(--border-subtle);
+          background: var(--color-grey-25, #fafafa);
+        }
+        .of-btn {
+          flex: 1;
+          display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+          padding: 9px 14px; border-radius: 8px;
+          font: 600 13px var(--font-sans); cursor: pointer;
+          text-decoration: none;
+          transition: background .12s, border-color .12s, transform .12s;
+        }
+        .of-btn.ghost {
+          background: var(--color-base-white);
+          border: 1px solid var(--border-default);
+          color: var(--color-grey-800);
+        }
+        .of-btn.ghost:hover { background: var(--color-grey-50); border-color: var(--color-grey-300, #cbd5e1); }
+        .of-btn.primary {
+          background: var(--color-brand-600);
+          border: 1px solid var(--color-brand-600);
+          color: #fff;
+        }
+        .of-btn.primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+
+        .of-side { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .of-side-card {
+          background: var(--color-base-white);
+          border: 1px solid var(--border-default);
+          border-radius: 12px;
+          padding: 16px 18px;
+        }
+        .of-side-card.subtle { background: var(--color-grey-25, #fafafa); }
+        .of-side-h {
+          display: inline-flex; align-items: center; gap: 7px;
+          font: 600 13.5px var(--font-sans); color: var(--color-grey-900);
+          margin-bottom: 6px;
+        }
+        .of-side-h i { color: var(--color-brand-700); font-size: 16px; }
+        .of-side-card p { margin: 0 0 12px; font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.55; }
+        .of-side-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+        .of-side-acts .of-btn { flex: 0 0 auto; padding: 7px 12px; }
+        .of-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+        .of-steps li { font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.55; padding-left: 4px; }
+        .of-steps b { color: var(--color-brand-700); margin-right: 4px; font-weight: 700; }
+
+        @media (max-width: 920px) {
+          .of-banner { grid-template-columns: auto 1fr; }
+          .of-banner-meta { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 8px 16px; padding-top: 4px; border-top: 1px dashed var(--border-subtle); margin-top: 4px; }
+          .of-grid, .of-side { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 520px) {
+          .of-banner { padding: 16px; }
+          .of-banner-body h2 { font-size: 17px; }
+          .of-foot { flex-direction: column; }
+        }
+      </style>
+
+      <!-- ============== DOCUMENTS PANEL ============== -->
+      <div class="ma-panel" data-panel="documents" role="tabpanel">
+            <div class="doc-list">
+              <div class="doc" data-state="missing">
+                <div class="ic"><i class="ri-bank-line"></i></div>
+                <div>
+                  <div class="name">Bank statements — last 3 months</div>
+                  <div class="desc">Dec 2025, Jan 2026, Feb 2026 · combined PDF preferred</div>
+                </div>
+                <span class="pill">Needed</span>
+                <button type="button" class="btn primary" data-doc-upload data-doc-name="Bank statements (last 3 months)"><i class="ri-upload-2-line"></i> Upload</button>
+              </div>
+
+              <div class="doc" data-state="missing">
+                <div class="ic"><i class="ri-home-2-line"></i></div>
+                <div>
+                  <div class="name">Proof of address</div>
+                  <div class="desc">Utility bill, lease, or bank statement &lt; 3 months old</div>
+                </div>
+                <span class="pill">Needed</span>
+                <button type="button" class="btn primary" data-doc-upload data-doc-name="Proof of address"><i class="ri-upload-2-line"></i> Upload</button>
+              </div>
+
+              <div class="doc" data-state="review">
+                <div class="ic"><i class="ri-briefcase-line"></i></div>
+                <div>
+                  <div class="name">Employment letter</div>
+                  <div class="desc"><span class="filename">employment-letter-2026.pdf</span> · uploaded Mar 17</div>
+                </div>
+                <span class="pill">In review</span>
+                <a class="btn" href="prospect-documents.html"><i class="ri-eye-line"></i> View</a>
+              </div>
+            </div>
+
+            <div class="doc-foot">
+              <span><b style="color: var(--color-grey-900);">3 of 5</b> documents in · 60% complete</span>
+              <div class="progress-bar"><span style="width: 60%;"></span></div>
+              <span>Due <b style="color: var(--color-grey-900);">Thu, Mar 19</b></span>
+            </div>
+      </div><!-- /panel documents -->
+
+      <!-- ============== ACTIVITY PANEL ============== -->
+      <div class="ma-panel" data-panel="activity" role="tabpanel">
+        <!-- Composer (prospect side) -->
+        <div class="act-composer" id="actComposer" data-kind="note">
+          <div class="act-comp-head">
+            <div class="act-comp-tabs" role="tablist">
+              <button type="button" class="act-comp-tab on" data-comp-kind="note" role="tab" aria-selected="true"><i class="ri-sticky-note-line"></i> Note</button>
+              <button type="button" class="act-comp-tab" data-comp-kind="question" role="tab" aria-selected="false"><i class="ri-question-line"></i> Question</button>
+              <button type="button" class="act-comp-tab" data-comp-kind="upload" role="tab" aria-selected="false"><i class="ri-upload-2-line"></i> Upload</button>
+              <button type="button" class="act-comp-tab" data-comp-kind="call" role="tab" aria-selected="false"><i class="ri-phone-line"></i> Log call</button>
+            </div>
+            <span class="act-comp-help" id="actCompHelp">A private note for your own records.</span>
+          </div>
+          <div class="act-comp-fields" data-comp-fields="note">
+            <input type="text" class="act-comp-title" placeholder="Title (optional) — e.g. Met with contractor" />
+            <textarea class="act-comp-body" rows="3" placeholder="Jot something down for yourself — visible only to you."></textarea>
+          </div>
+          <div class="act-comp-fields" data-comp-fields="question" hidden>
+            <input type="text" class="act-comp-title" placeholder="Question subject — e.g. About the down payment" />
+            <textarea class="act-comp-body" rows="3" placeholder="Ask Anita anything about your application or the plot. She typically replies within 15 minutes on weekdays."></textarea>
+          </div>
+          <div class="act-comp-fields" data-comp-fields="upload" hidden>
+            <select class="act-comp-select">
+              <option>Bank statements (last 3 months)</option>
+              <option>Proof of address</option>
+              <option>Other supporting document</option>
+            </select>
+            <label class="act-comp-drop" for="actCompFile">
+              <i class="ri-upload-cloud-2-line"></i>
+              <span><b>Click to upload</b> or drag a file here</span>
+              <span class="hint">PDF, JPG or PNG · up to 20 MB</span>
+              <input id="actCompFile" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden />
+            </label>
+            <textarea class="act-comp-body" rows="2" placeholder="Note for the reviewer (optional)…"></textarea>
+          </div>
+          <div class="act-comp-fields" data-comp-fields="call" hidden>
+            <div class="act-comp-row">
+              <input type="text" class="act-comp-input" placeholder="Who you spoke with — e.g. Anita Owusu" />
+              <input type="number" class="act-comp-input" placeholder="Duration (min)" min="1" style="max-width:140px;" />
+            </div>
+            <textarea class="act-comp-body" rows="3" placeholder="What was discussed…"></textarea>
+          </div>
+          <div class="act-comp-foot">
+            <span class="act-comp-vis" id="actCompVis"><i class="ri-lock-line"></i> Private — visible only to you</span>
+            <div class="act-comp-actions">
+              <button type="button" class="btn-ghost" id="actCompClear">Clear</button>
+              <button type="button" class="btn-primary" id="actCompSubmit"><i class="ri-add-line"></i> <span id="actCompSubmitLbl">Save note</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="act-shell" style="padding:0; background:transparent; border:0;">
+          <div class="timeline" id="maTimeline">
+
+            <div class="tl-item" data-kind="note">
+              <div class="tl-dot" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-chat-3-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">Anita Owusu sent you a message</span>
+                  <span class="tl-when">2 hours ago</span>
+                </div>
+                <div class="tl-body">Hi Danyls — quick nudge on the bank statements. Once those are in, I'll send your file straight to underwriting and we should have a decision by Friday.</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="prospect"><i class="ri-user-line"></i> Visible to you</span>
+                  <span class="tl-link-pill"><i class="ri-user-line"></i> Anita Owusu</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item" data-kind="email">
+              <div class="tl-dot" style="background:var(--color-warning-100, #fef3c7); color:var(--color-warning-700);"><i class="ri-mail-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">Reminder email — missing documents</span>
+                  <span class="tl-when">Yesterday · 9:00 AM</span>
+                </div>
+                <div class="tl-body">Automated reminder sent for the 2 outstanding documents (bank statements, proof of address).</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="prospect"><i class="ri-user-line"></i> Visible to you</span>
+                  <span class="tl-link-pill"><i class="ri-mail-send-line"></i> Auto-reminder</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item" data-kind="upload">
+              <div class="tl-dot" style="background:var(--color-success-50); color:var(--color-success-700);"><i class="ri-upload-2-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">You uploaded <b>employment-letter-2026.pdf</b></span>
+                  <span class="tl-when">Mar 17 · 6:42 PM</span>
+                </div>
+                <div class="tl-body">Document received. Currently in review with your advisor.</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="prospect"><i class="ri-user-line"></i> Visible to you</span>
+                  <span class="tl-link-pill"><i class="ri-folder-open-line"></i> Documents</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item" data-kind="system">
+              <div class="tl-dot" style="background:var(--color-success-50); color:var(--color-success-700);"><i class="ri-shield-check-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">Pre-qualification cleared — <b>$48,500 cap</b></span>
+                  <span class="tl-when">Mar 16 · 12:30 PM</span>
+                </div>
+                <div class="tl-body">Soft credit and affordability check passed. You may proceed with documents and underwriting.</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="public"><i class="ri-global-line"></i> Public</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item" data-kind="call">
+              <div class="tl-dot" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-phone-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">Intro call with Anita Owusu · 25 min</span>
+                  <span class="tl-when">Mar 16 · 11:15 AM</span>
+                </div>
+                <div class="tl-body">Walked through repayment terms, deposit options, and confirmed Plot 14B as the asset of interest. Soft-credit consent signed.</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="prospect"><i class="ri-user-line"></i> Visible to you</span>
+                  <span class="tl-link-pill"><i class="ri-phone-line"></i> Outbound · 25m</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tl-item" data-kind="system">
+              <div class="tl-dot" style="background: var(--color-brand-50); color: var(--color-brand-700);"><i class="ri-file-add-line"></i></div>
+              <div class="tl-card">
+                <div class="tl-head">
+                  <span class="tl-title">Application <b>APP-2026-0143</b> created</span>
+                  <span class="tl-when">Mar 15 · 2:47 PM</span>
+                </div>
+                <div class="tl-body">Interest submitted via website form. Routed to advisor Anita Owusu.</div>
+                <div class="tl-labels">
+                  <span class="tl-vis" data-v="public"><i class="ri-global-line"></i> Public</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /panel activity -->
+
+      <!-- ============== PROFILE PANEL ============== -->
+      <div class="ma-panel" data-panel="profile" role="tabpanel">
+        <div class="pf-grid">
+
+          <!-- LEFT col: identity + contact -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+
+            <!-- Identity card -->
+            <div class="pf-card" data-pf-card="identity">
+              <div class="pf-avatar-row">
+                <div class="pf-ava" id="pfAva">DM
+                  <label class="pf-ava-edit" for="pfAvaInput" title="Upload photo"><i class="ri-camera-line"></i></label>
+                  <input id="pfAvaInput" type="file" accept="image/*" style="display:none;" />
+                </div>
+                <div class="pf-name-row">
+                  <div class="pf-name" id="pfDisplayName">Danyls Mensah</div>
+                  <div class="pf-sub">First-time buyer · Member since Mar 2026</div>
+                  <div class="pf-actions">
+                    <button type="button" class="btn-mini" id="pfRemovePhoto"><i class="ri-delete-bin-6-line"></i> Remove photo</button>
+                  </div>
+                </div>
+              </div>
+              <div class="pf-card-head">
+                <h3><i class="ri-user-line"></i> About you</h3>
+                <button type="button" class="pf-card-edit" data-pf-edit><i class="ri-edit-line"></i> Edit</button>
+              </div>
+              <div class="pf-fields" data-pf-section="identity">
+                <div class="pf-row" data-pf-key="firstName">
+                  <span class="k"><i class="ri-user-line"></i> First name</span>
+                  <span class="v" data-pf-val>Danyls</span>
+                </div>
+                <div class="pf-row" data-pf-key="lastName">
+                  <span class="k"><i class="ri-user-line"></i> Last name</span>
+                  <span class="v" data-pf-val>Mensah</span>
+                </div>
+                <div class="pf-row" data-pf-key="birthdate" data-pf-type="date">
+                  <span class="k"><i class="ri-cake-2-line"></i> Date of birth</span>
+                  <span class="v" data-pf-val>Apr 12, 1988</span>
+                </div>
+                <div class="pf-row" data-pf-key="marital" data-pf-type="select" data-pf-options="Single,Married,Partnered,Divorced,Widowed">
+                  <span class="k"><i class="ri-heart-line"></i> Marital status</span>
+                  <span class="v" data-pf-val>Married</span>
+                </div>
+                <div class="pf-row" data-pf-key="language" data-pf-type="select" data-pf-options="English,Akan,Ewe,Ga,French">
+                  <span class="k"><i class="ri-translate-2"></i> Preferred language</span>
+                  <span class="v" data-pf-val>English</span>
+                </div>
+                <div class="pf-row" data-pf-key="occupation">
+                  <span class="k"><i class="ri-briefcase-line"></i> Occupation</span>
+                  <span class="v" data-pf-val>Senior Software Engineer · Vodafone GH</span>
+                </div>
+                <div class="pf-row" data-pf-key="firstcontact">
+                  <span class="k"><i class="ri-calendar-check-line"></i> First contact</span>
+                  <span class="v" data-pf-val>Mar 15, 2026</span>
+                </div>
+              </div>
+              <div class="pf-card-foot" hidden>
+                <button type="button" class="btn-ghost" data-pf-cancel>Cancel</button>
+                <button type="button" class="btn-primary" data-pf-save>Save changes</button>
+              </div>
+            </div>
+
+            <!-- Contact card -->
+            <div class="pf-card" data-pf-card="contact">
+              <div class="pf-card-head">
+                <h3><i class="ri-contacts-line"></i> Contact</h3>
+                <button type="button" class="pf-card-edit" data-pf-edit><i class="ri-edit-line"></i> Edit</button>
+              </div>
+              <div class="pf-fields" data-pf-section="contact">
+                <div class="pf-row" data-pf-key="email" data-pf-type="email">
+                  <span class="k"><i class="ri-mail-line"></i> Email</span>
+                  <span class="v" data-pf-val>danyls.mensah@gmail.com</span>
+                </div>
+                <div class="pf-row" data-pf-key="phone" data-pf-type="tel">
+                  <span class="k"><i class="ri-phone-line"></i> Mobile</span>
+                  <span class="v" data-pf-val>+233 24 880 1142</span>
+                </div>
+                <div class="pf-row" data-pf-key="whatsapp" data-pf-type="tel">
+                  <span class="k"><i class="ri-whatsapp-line"></i> WhatsApp</span>
+                  <span class="v" data-pf-val>+233 24 880 1142</span>
+                </div>
+                <div class="pf-row" data-pf-key="address">
+                  <span class="k"><i class="ri-map-pin-line"></i> Address</span>
+                  <span class="v" data-pf-val>14 Independence Ave, Accra, GA-184-3322</span>
+                </div>
+                <div class="pf-row" data-pf-key="besttime" data-pf-type="select" data-pf-options="Weekdays mornings,Weekdays afternoons,Weekdays 5–7pm,Weekends mornings,Weekends afternoons">
+                  <span class="k"><i class="ri-time-line"></i> Best time to contact</span>
+                  <span class="v" data-pf-val>Weekdays 5–7pm</span>
+                </div>
+              </div>
+              <div class="pf-card-foot" hidden>
+                <button type="button" class="btn-ghost" data-pf-cancel>Cancel</button>
+                <button type="button" class="btn-primary" data-pf-save>Save changes</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT col: dependents + referral -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+
+            <!-- Dependents -->
+            <div class="pf-card">
+              <div class="pf-card-head">
+                <h3><i class="ri-team-line"></i> Dependents <span style="font: 500 11px var(--font-sans); color: var(--fg3); margin-left: 4px;" id="pfDepCount">2</span></h3>
+              </div>
+              <div class="pf-deps" id="pfDeps">
+                <div class="pf-dep" data-dep-id="d1">
+                  <div class="av" style="background:#db2777;">AM</div>
+                  <div>
+                    <div class="nm">Akua Mensah</div>
+                    <div class="meta">
+                      <span class="rel">Spouse</span>
+                      <span>· 35 yrs</span>
+                      <span>· akua.mensah@gmail.com</span>
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button type="button" data-dep-edit aria-label="Edit dependent" title="Edit"><i class="ri-edit-line"></i></button>
+                    <button type="button" data-dep-remove aria-label="Remove dependent" title="Remove"><i class="ri-delete-bin-6-line"></i></button>
+                  </div>
+                </div>
+                <div class="pf-dep" data-dep-id="d2">
+                  <div class="av" style="background:#0891b2;">KM</div>
+                  <div>
+                    <div class="nm">Kojo Mensah</div>
+                    <div class="meta">
+                      <span class="rel">Son</span>
+                      <span>· 7 yrs</span>
+                    </div>
+                  </div>
+                  <div class="actions">
+                    <button type="button" data-dep-edit aria-label="Edit dependent" title="Edit"><i class="ri-edit-line"></i></button>
+                    <button type="button" data-dep-remove aria-label="Remove dependent" title="Remove"><i class="ri-delete-bin-6-line"></i></button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="pf-dep-add" id="pfDepAdd"><i class="ri-add-line"></i> Add dependent</button>
+            </div>
+
+            <!-- Referral & marketing -->
+            <div class="pf-card" data-pf-card="referral">
+              <div class="pf-card-head">
+                <h3><i class="ri-share-forward-line"></i> Referral &amp; how you found us</h3>
+                <button type="button" class="pf-card-edit" data-pf-edit><i class="ri-edit-line"></i> Edit</button>
+              </div>
+              <div class="pf-fields" data-pf-section="referral">
+                <div class="pf-row" data-pf-key="source" data-pf-type="select" data-pf-options="Referral,Google,Instagram,Facebook,Billboard,Radio,Friend,Other">
+                  <span class="k"><i class="ri-compass-3-line"></i> How you heard about us</span>
+                  <span class="v" data-pf-val>Referral</span>
+                </div>
+                <div class="pf-row" data-pf-key="referredBy">
+                  <span class="k"><i class="ri-user-voice-line"></i> Referred by</span>
+                  <span class="v" data-pf-val>Ama Owusu</span>
+                </div>
+                <div class="pf-row" data-pf-key="referralCode">
+                  <span class="k"><i class="ri-coupon-3-line"></i> Referral code used</span>
+                  <span class="v" data-pf-val>REF-AMA-7P</span>
+                </div>
+                <div class="pf-row" data-pf-key="yourCode" data-pf-readonly>
+                  <span class="k"><i class="ri-share-line"></i> Your referral code</span>
+                  <span class="v"><strong style="font-family: ui-monospace, monospace; letter-spacing:.04em;">REF-DM-9X4K</strong> <button type="button" id="pfCopyCode" class="btn-mini" style="margin-left:8px;"><i class="ri-file-copy-line"></i> Copy</button></span>
+                </div>
+              </div>
+              <div class="pf-card-foot" hidden>
+                <button type="button" class="btn-ghost" data-pf-cancel>Cancel</button>
+                <button type="button" class="btn-primary" data-pf-save>Save changes</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /panel profile -->
+
+
+    </div>
+  </section>
+</div>
+
+<script>
+  // ===== Notifications popover =====
+  (function(){
+    const btn = document.getElementById('maNotifBtn');
+    const pop = document.getElementById('maNotifPop');
+    const badge = document.getElementById('maNotifBadge');
+    const clearBtn = document.getElementById('maNotifClear');
+    if (!btn || !pop) return;
+    function open(){ pop.hidden = false; btn.setAttribute('aria-expanded','true'); }
+    function close(){ pop.hidden = true; btn.setAttribute('aria-expanded','false'); }
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      pop.hidden ? open() : close();
+    });
+    document.addEventListener('click', e => {
+      if (!pop.hidden && !pop.contains(e.target) && !btn.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) close(); });
+    if (clearBtn) clearBtn.addEventListener('click', e => {
+      e.preventDefault();
+      pop.querySelectorAll('.np-item.unread').forEach(it => it.classList.remove('unread'));
+      pop.querySelectorAll('.np-dot').forEach(d => d.remove());
+      if (badge) badge.hidden = true;
+    });
+    // tab-link entries route through the existing tab system
+    pop.querySelectorAll('[data-tab-link]').forEach(a => {
+      a.addEventListener('click', e => {
+        const tab = a.dataset.tabLink;
+        const tabBtn = document.querySelector(`.ma-tab[data-tab="${tab}"]`);
+        if (tabBtn) { e.preventDefault(); tabBtn.click(); close(); window.scrollTo({top:0, behavior:'smooth'}); }
+      });
+    });
+  })();
+
+  // horizontal tab switching
+  (function(){
+    const tabs = document.querySelectorAll('.ma-tab');
+    const panels = document.querySelectorAll('.ma-panel');
+    function go(name){
+      tabs.forEach(t => {
+        const on = t.dataset.tab === name;
+        t.classList.toggle('on', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach(p => p.classList.toggle('on', p.dataset.panel === name));
+      // update url hash
+      try { history.replaceState(null, '', '#' + name); } catch(e){}
+    }
+    tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.tab)));
+    document.querySelectorAll('[data-go-tab]').forEach(b => {
+      b.addEventListener('click', e => { e.preventDefault(); go(b.dataset.goTab); window.scrollTo({top:0, behavior:'smooth'}); });
+    });
+    // restore from hash
+    const h = (location.hash || '').replace('#','');
+    if (h && document.querySelector(`.ma-tab[data-tab="${h}"]`)) go(h);
+  })();
+  // ===== Toast helper =====
+  function pfToast(msg){
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--color-success-600); color:#fff; padding:8px 16px; border-radius:8px; font:500 13px var(--font-sans); z-index:1000; box-shadow:0 8px 16px -4px rgba(0,0,0,0.2);';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 1800);
+  }
+
+  // ===== Profile tab: per-card atomic edit =====
+  (function(){
+    function rowToInput(row){
+      const valEl = row.querySelector('[data-pf-val]');
+      if (!valEl || row.hasAttribute('data-pf-readonly')) return;
+      const oldHTML = valEl.innerHTML;
+      const oldText = valEl.textContent.trim();
+      const type = row.dataset.pfType || 'text';
+      const opts = row.dataset.pfOptions ? row.dataset.pfOptions.split(',') : null;
+      let input;
+      if (type === 'select' && opts) {
+        input = document.createElement('select');
+        opts.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; if (o === oldText) op.selected = true; input.appendChild(op); });
+      } else if (type === 'textarea') {
+        input = document.createElement('textarea'); input.rows = 2; input.value = oldText;
+      } else {
+        input = document.createElement('input');
+        input.type = (type === 'date' || type === 'email' || type === 'tel' || type === 'number') ? type : 'text';
+        input.value = oldText;
+      }
+      row.dataset.pfOldHtml = oldHTML;
+      valEl.innerHTML = '';
+      valEl.appendChild(input);
+    }
+    function commitRow(row){
+      const valEl = row.querySelector('[data-pf-val]');
+      if (!valEl) return;
+      const input = valEl.querySelector('input,select,textarea');
+      if (!input) return;
+      const v = (input.value || '').trim();
+      valEl.textContent = v || '—';
+      delete row.dataset.pfOldHtml;
+    }
+    function revertRow(row){
+      const valEl = row.querySelector('[data-pf-val]');
+      if (!valEl) return;
+      if (typeof row.dataset.pfOldHtml === 'string') {
+        valEl.innerHTML = row.dataset.pfOldHtml;
+        delete row.dataset.pfOldHtml;
+      }
+    }
+    function enterEdit(card){
+      if (card.dataset.editing === 'true') return;
+      card.dataset.editing = 'true';
+      card.querySelectorAll('.pf-row').forEach(rowToInput);
+      const foot = card.querySelector('.pf-card-foot'); if (foot) foot.hidden = false;
+      const first = card.querySelector('.pf-row input, .pf-row select, .pf-row textarea');
+      if (first) { first.focus(); if (first.select) first.select(); }
+    }
+    function exitEdit(card){
+      card.dataset.editing = 'false';
+      const foot = card.querySelector('.pf-card-foot'); if (foot) foot.hidden = true;
+    }
+    // Auth gate: unauthenticated users get redirected to onboarding when they try to edit.
+    // Append `?guest` to the URL to simulate an unauthenticated visitor.
+    const IS_AUTHED = !new URLSearchParams(location.search).has('guest');
+    function requireAuth(intent){
+      if (IS_AUTHED) return true;
+      try { sessionStorage.setItem('ream.onboarding.return', location.pathname + location.search + (location.hash || '')); sessionStorage.setItem('ream.onboarding.intent', intent || ''); } catch(e){}
+      pfToast('Sign up to edit your profile — redirecting…');
+      setTimeout(() => { location.href = 'prospect-application.html?onboarding=1&from=my-application&intent=' + encodeURIComponent(intent || 'edit-profile'); }, 700);
+      return false;
+    }
+    document.querySelectorAll('.pf-card[data-pf-card]').forEach(card => {
+      const editBtn = card.querySelector('[data-pf-edit]');
+      const saveBtn = card.querySelector('[data-pf-save]');
+      const cancelBtn = card.querySelector('[data-pf-cancel]');
+      if (editBtn) editBtn.addEventListener('click', () => { if (!requireAuth('edit-' + (card.dataset.pfCard || 'card'))) return; enterEdit(card); });
+      if (saveBtn) saveBtn.addEventListener('click', () => {
+        card.querySelectorAll('.pf-row').forEach(commitRow);
+        exitEdit(card);
+        pfToast('Saved.');
+      });
+      if (cancelBtn) cancelBtn.addEventListener('click', () => {
+        card.querySelectorAll('.pf-row').forEach(revertRow);
+        exitEdit(card);
+      });
+    });
+
+    // Avatar upload
+    const avaInput = document.getElementById('pfAvaInput');
+    const ava = document.getElementById('pfAva');
+    avaInput.addEventListener('change', e => {
+      if (!IS_AUTHED) { e.target.value = ''; requireAuth('upload-photo'); return; }
+      const f = e.target.files && e.target.files[0]; if (!f) return;
+      const url = URL.createObjectURL(f);
+      ava.style.backgroundImage = `url(${url})`;
+      ava.dataset.img = '1';
+      ava.firstChild && ava.firstChild.nodeType === 3 ? (ava.firstChild.textContent = '') : null;
+    });
+    document.getElementById('pfRemovePhoto').addEventListener('click', () => {
+      if (!requireAuth('remove-photo')) return;
+      ava.style.backgroundImage = '';
+      delete ava.dataset.img;
+      if (ava.firstChild && ava.firstChild.nodeType === 3) ava.firstChild.textContent = 'DM';
+      avaInput.value = '';
+    });
+
+    // Dependents: remove + add (with prompt)
+    const depsList = document.getElementById('pfDeps');
+    const depCount = document.getElementById('pfDepCount');
+    function refreshDepCount(){ depCount.textContent = depsList.querySelectorAll('.pf-dep').length; }
+    depsList.addEventListener('click', e => {
+      const rm = e.target.closest('[data-dep-remove]');
+      if (rm) { if (!requireAuth('remove-dependent')) return; rm.closest('.pf-dep').remove(); refreshDepCount(); return; }
+      const ed = e.target.closest('[data-dep-edit]');
+      if (ed) {
+        if (!requireAuth('edit-dependent')) return;
+        const dep = ed.closest('.pf-dep');
+        const editor = depEditor({
+          name: dep.dataset.depName || (dep.querySelector('.nm') ? dep.querySelector('.nm').textContent.trim() : ''),
+          rel:  dep.dataset.depRel  || (dep.querySelector('.rel') ? dep.querySelector('.rel').textContent.trim() : 'Other'),
+          age:  dep.dataset.depAge  || '',
+          email: dep.dataset.depEmail || '',
+          id: dep.dataset.depId,
+          replaceRow: dep
+        });
+        dep.replaceWith(editor);
+        const nm = editor.querySelector('input[name="dep-name"]'); if (nm) nm.focus();
+      }
+    });
+    document.getElementById('pfDepAdd').addEventListener('click', () => {
+      if (!requireAuth('add-dependent')) return;
+      const node = depEditor({ isNew: true });
+      depsList.appendChild(node);
+      const nm = node.querySelector('input[name="dep-name"]'); if (nm) nm.focus();
+    });
+
+    function depEditor(opts){
+      opts = opts || {};
+      const wrap = document.createElement('div');
+      wrap.className = 'pf-dep-editor';
+      const rels = ['Spouse','Parent','Child','Son','Daughter','Sibling','Other'];
+      wrap.innerHTML = `
+        <div class="pf-de-grid">
+          <input class="pf-de-input" type="text" name="dep-name" placeholder="Full name" value="${(opts.name||'').replace(/"/g,'&quot;')}" />
+          <select class="pf-de-input" name="dep-rel">${rels.map(r=>`<option ${r===(opts.rel||'Other')?'selected':''}>${r}</option>`).join('')}</select>
+          <input class="pf-de-input" type="number" name="dep-age" placeholder="Age" value="${opts.age||''}" min="0" />
+          <input class="pf-de-input" type="email" name="dep-email" placeholder="Email (optional)" value="${(opts.email||'').replace(/"/g,'&quot;')}" />
+        </div>
+        <div class="pf-de-foot">
+          <button type="button" class="btn-ghost" data-de-cancel>Cancel</button>
+          <button type="button" class="btn-primary" data-de-save>${opts.isNew ? 'Add dependent' : 'Save'}</button>
+        </div>`;
+      wrap.querySelector('[data-de-cancel]').addEventListener('click', () => {
+        if (opts.replaceRow) wrap.replaceWith(opts.replaceRow); else wrap.remove();
+      });
+      wrap.querySelector('[data-de-save]').addEventListener('click', () => {
+        const name = wrap.querySelector('[name="dep-name"]').value.trim();
+        if (!name) { wrap.querySelector('[name="dep-name"]').focus(); return; }
+        const rel = wrap.querySelector('[name="dep-rel"]').value;
+        const age = wrap.querySelector('[name="dep-age"]').value.trim();
+        const email = wrap.querySelector('[name="dep-email"]').value.trim();
+        const initials = name.split(/\s+/).map(s => s[0]).slice(0,2).join('').toUpperCase();
+        const palette = ['#7c3aed','#ea580c','#0891b2','#db2777','var(--color-success-600)'];
+        const c = palette[depsList.querySelectorAll('.pf-dep, .pf-dep-editor').length % palette.length];
+        const node = document.createElement('div');
+        node.className = 'pf-dep';
+        node.dataset.depId = opts.id || ('d' + Date.now());
+        node.dataset.depName = name; node.dataset.depRel = rel; node.dataset.depAge = age; node.dataset.depEmail = email;
+        const meta = [`<span class="rel">${rel}</span>`];
+        if (age) meta.push(`<span>&middot; ${age} yrs</span>`);
+        if (email) meta.push(`<span>&middot; ${email}</span>`);
+        node.innerHTML = `
+          <div class="av" style="background:${c};">${initials}</div>
+          <div>
+            <div class="nm">${name}</div>
+            <div class="meta">${meta.join(' ')}</div>
+          </div>
+          <div class="actions">
+            <button type="button" data-dep-edit aria-label="Edit dependent" title="Edit"><i class="ri-edit-line"></i></button>
+            <button type="button" data-dep-remove aria-label="Remove dependent" title="Remove"><i class="ri-delete-bin-6-line"></i></button>
+          </div>`;
+        wrap.replaceWith(node); refreshDepCount();
+      });
+      return wrap;
+    }
+
+    // Copy referral code
+    const copyBtn = document.getElementById('pfCopyCode');
+    if (copyBtn) copyBtn.addEventListener('click', () => {
+      try { navigator.clipboard.writeText('REF-DM-9X4K'); copyBtn.innerHTML = '<i class="ri-check-line"></i> Copied'; setTimeout(()=> copyBtn.innerHTML = '<i class="ri-file-copy-line"></i> Copy', 1500); } catch(e){}
+    });
+  })();
+
+  // ===== Activity composer =====
+  (function(){
+    const comp = document.getElementById('actComposer'); if (!comp) return;
+    const tabs = comp.querySelectorAll('.act-comp-tab');
+    const fieldGroups = comp.querySelectorAll('.act-comp-fields');
+    const help = document.getElementById('actCompHelp');
+    const visEl = document.getElementById('actCompVis');
+    const submitLbl = document.getElementById('actCompSubmitLbl');
+    const KIND = {
+      note:     { help: 'A private note for your own records.',                vis: '<i class="ri-lock-line"></i> Private — visible only to you',   submit: 'Save note' },
+      question: { help: 'Ask Anita a question. She typically replies in 15 min.', vis: '<i class="ri-customer-service-2-line"></i> Sent to your advisor', submit: 'Send question' },
+      upload:   { help: 'Add a document to your application.',                  vis: '<i class="ri-folder-open-line"></i> Goes to your documents file',  submit: 'Upload document' },
+      call:     { help: 'Log a call you had with someone on our team.',         vis: '<i class="ri-eye-line"></i> Visible to you and your advisor',     submit: 'Log call' }
+    };
+    function setKind(k){
+      comp.dataset.kind = k;
+      tabs.forEach(t => { const on = t.dataset.compKind === k; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      fieldGroups.forEach(fg => fg.hidden = (fg.dataset.compFields !== k));
+      const m = KIND[k]; if (m) { help.textContent = m.help; visEl.innerHTML = m.vis; submitLbl.textContent = m.submit; }
+    }
+    tabs.forEach(t => t.addEventListener('click', () => setKind(t.dataset.compKind)));
+
+    // file drop
+    const drop = comp.querySelector('.act-comp-drop');
+    const fileInput = document.getElementById('actCompFile');
+    if (drop && fileInput) {
+      const setFile = f => { drop.dataset.file = '1'; drop.querySelector('span:not(.hint)').innerHTML = '<b>' + f.name + '</b> selected'; };
+      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+      drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+      drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag'); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) setFile(f); });
+      fileInput.addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) setFile(f); });
+    }
+
+    document.getElementById('actCompClear').addEventListener('click', () => {
+      comp.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+      if (drop) { delete drop.dataset.file; const sp = drop.querySelector('span:not(.hint)'); if (sp) sp.innerHTML = '<b>Click to upload</b> or drag a file here'; }
+      if (fileInput) fileInput.value = '';
+    });
+    document.getElementById('actCompSubmit').addEventListener('click', () => {
+      const k = comp.dataset.kind;
+      pfToast({ note: 'Note saved.', question: 'Question sent.', upload: 'Document uploaded.', call: 'Call logged.' }[k] || 'Saved.');
+      document.getElementById('actCompClear').click();
+    });
+  })();
+</script>
+
+<!-- ============== UPLOAD DIALOG ============== -->
+<div class="ud-overlay" id="ud-overlay" aria-hidden="true">
+  <div class="ud-modal" role="dialog" aria-labelledby="ud-h" aria-modal="true">
+    <div class="ud-head">
+      <div>
+        <h3 class="t1" id="ud-h">Upload document</h3>
+        <p class="t2" id="ud-sub">Select a file from your device or drag it into the box below.</p>
+      </div>
+      <button type="button" class="ud-close" data-ud-close aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="ud-body">
+      <label class="ud-drop" id="ud-drop" for="ud-file">
+        <i class="ri-upload-cloud-2-line"></i>
+        <div class="l1"><b>Click to choose a file</b> or drag it here</div>
+        <div class="l2">PDF, JPG or PNG · up to 20 MB</div>
+        <input id="ud-file" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden />
+      </label>
+      <div class="ud-picked" id="ud-picked" hidden>
+        <div class="fic"><i class="ri-file-text-line"></i></div>
+        <div>
+          <div class="fname" id="ud-fname">file.pdf</div>
+          <div class="fmeta" id="ud-fmeta">— · ready to upload</div>
+        </div>
+        <button type="button" class="frm" id="ud-fclear" aria-label="Remove file"><i class="ri-close-line"></i></button>
+      </div>
+    </div>
+    <div class="ud-foot">
+      <span class="hint" id="ud-hint">Files are encrypted in transit.</span>
+      <div class="spacer"></div>
+      <button type="button" class="ud-cancel" data-ud-close>Cancel</button>
+      <button type="button" class="ud-go" id="ud-go" disabled><i class="ri-upload-2-line"></i> Upload</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const overlay = document.getElementById('ud-overlay');
+  const drop = document.getElementById('ud-drop');
+  const fileInput = document.getElementById('ud-file');
+  const picked = document.getElementById('ud-picked');
+  const fname = document.getElementById('ud-fname');
+  const fmeta = document.getElementById('ud-fmeta');
+  const goBtn = document.getElementById('ud-go');
+  const sub = document.getElementById('ud-sub');
+  const headT = document.getElementById('ud-h');
+  let targetDoc = null;
+  let chosen = null;
+
+  function fmtSize(b){
+    if (b < 1024) return b + ' B';
+    if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+    return (b/1024/1024).toFixed(2) + ' MB';
+  }
+
+  function open(docEl){
+    targetDoc = docEl;
+    chosen = null;
+    fileInput.value = '';
+    picked.hidden = true;
+    goBtn.disabled = true;
+    const docName = docEl.dataset.docName || docEl.querySelector('.name')?.textContent || 'document';
+    headT.textContent = 'Upload — ' + docName;
+    sub.textContent = 'Select a PDF, JPG, or PNG. We\'ll attach it to your application instantly.';
+    overlay.classList.add('on');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function close(){
+    overlay.classList.remove('on');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  function setFile(f){
+    if (!f) return;
+    chosen = f;
+    fname.textContent = f.name;
+    fmeta.textContent = fmtSize(f.size) + ' · ready to upload';
+    picked.hidden = false;
+    goBtn.disabled = false;
+  }
+
+  // Open from any doc row's Upload button
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-doc-upload]');
+    if (btn) {
+      e.preventDefault();
+      const docEl = btn.closest('.doc');
+      if (docEl) open(docEl);
+    }
+    if (e.target.closest('[data-ud-close]')) {
+      e.preventDefault(); close();
+    }
+  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('on')) close();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    setFile(f);
+  });
+
+  // Drag & drop
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
+  drop.addEventListener('drop', (e) => {
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) setFile(f);
+  });
+
+  document.getElementById('ud-fclear').addEventListener('click', () => {
+    chosen = null; fileInput.value = '';
+    picked.hidden = true; goBtn.disabled = true;
+  });
+
+  goBtn.addEventListener('click', () => {
+    if (!chosen || !targetDoc) return;
+    const docEl = targetDoc;
+    const fileObj = chosen;
+    close();
+    startUpload(docEl, fileObj);
+  });
+
+  // ----- Upload simulation with spinning border + % ----
+  function startUpload(docEl, file){
+    // Save original markup so we can restore on cancel
+    const originalHTML = docEl.innerHTML;
+    const docName = docEl.querySelector('.name')?.textContent || 'Document';
+
+    docEl.classList.add('uploading');
+    docEl.dataset.state = 'uploading';
+    docEl.innerHTML = `
+      <div class="ic"><i class="ri-loader-4-line"></i></div>
+      <div>
+        <div class="name">${docName}</div>
+        <div class="desc"><span class="filename">${file.name}</span> · ${fmtSize(file.size)} · uploading…</div>
+      </div>
+      <span class="doc-pct"><span class="nm" data-pct>0%</span><button type="button" class="cancel" data-doc-cancel aria-label="Cancel upload"><i class="ri-close-line"></i></button></span>
+    `;
+
+    const pctEl = docEl.querySelector('[data-pct]');
+    let pct = 0;
+    let cancelled = false;
+
+    docEl.querySelector('[data-doc-cancel]').addEventListener('click', () => {
+      cancelled = true;
+      docEl.classList.remove('uploading');
+      docEl.dataset.state = 'missing';
+      docEl.innerHTML = originalHTML;
+      if (window.pfToast) window.pfToast('Upload cancelled.');
+    });
+
+    const tick = () => {
+      if (cancelled) return;
+      // Variable steps so it feels organic
+      const inc = pct < 70 ? (4 + Math.random()*8) : (1 + Math.random()*3);
+      pct = Math.min(99, pct + inc);
+      pctEl.textContent = Math.round(pct) + '%';
+      if (pct < 99) {
+        setTimeout(tick, 220 + Math.random()*180);
+      } else {
+        setTimeout(complete, 420);
+      }
+    };
+
+    const complete = () => {
+      if (cancelled) return;
+      pctEl.textContent = '100%';
+      setTimeout(() => {
+        if (cancelled) return;
+        docEl.classList.remove('uploading');
+        docEl.dataset.state = 'review';
+        const today = new Date().toLocaleDateString(undefined, { month:'short', day:'numeric' });
+        docEl.innerHTML = `
+          <div class="ic"><i class="ri-briefcase-line"></i></div>
+          <div>
+            <div class="name">${docName}</div>
+            <div class="desc"><span class="filename">${file.name}</span> · uploaded ${today}</div>
+          </div>
+          <span class="pill">In review</span>
+          <button type="button" class="btn"><i class="ri-eye-line"></i> View</button>
+        `;
+        if (window.pfToast) window.pfToast('Document uploaded — now in review.');
+      }, 240);
+    };
+
+    setTimeout(tick, 200);
+  }
+})();
+</script>
+
+<!-- ============== ERROR REPORT DIALOG ============== -->
+<style>
+  /* Reset for sb-support when used as a button */
+  button.sb-support { font-family: inherit; cursor: pointer; text-align: left; }
+
+  .er-overlay {
+    position: fixed; inset: 0; z-index: 220;
+    background: rgba(15,23,42,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s ease;
+    backdrop-filter: blur(2px);
+  }
+  .er-overlay.on { opacity: 1; pointer-events: auto; }
+
+  .er-modal {
+    width: 100%; max-width: 520px;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.30);
+    overflow: hidden;
+    transform: translateY(8px);
+    transition: transform .22s ease;
+    display: flex; flex-direction: column;
+    max-height: calc(100vh - 48px);
+  }
+  .er-overlay.on .er-modal { transform: translateY(0); }
+
+  .er-grab { display: none; }
+
+  .er-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .er-head .t1 { font: 600 16px var(--font-sans); color: var(--color-grey-900); margin: 0 0 2px; display: flex; align-items: center; gap: 8px; }
+  .er-head .t1 i { color: #b45309; font-size: 18px; }
+  .er-head .t2 { font: 12.5px var(--font-sans); color: var(--fg3); margin: 0; line-height: 1.5; }
+  .er-close {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: transparent; border: 1px solid var(--border-default);
+    color: var(--fg2); cursor: pointer; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .er-close:hover { background: var(--color-grey-50); }
+
+  .er-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+
+  .er-types {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  .er-types label {
+    border: 1px solid var(--border-default); border-radius: 10px;
+    padding: 10px 12px; cursor: pointer; background: #fff;
+    display: flex; align-items: center; gap: 10px;
+    font: 12.5px var(--font-sans); color: var(--color-grey-900);
+    transition: border-color .12s, background .12s;
+  }
+  .er-types label:hover { border-color: var(--color-grey-400); }
+  .er-types label.sel {
+    border-color: var(--color-brand-500); background: var(--color-brand-50);
+    box-shadow: 0 0 0 3px rgba(42,85,152,0.10);
+  }
+  .er-types label input { display: none; }
+  .er-types label i { font-size: 16px; color: var(--color-brand-700); }
+
+  .er-field { display: flex; flex-direction: column; gap: 6px; }
+  .er-field .lab { font: 600 12px var(--font-sans); color: var(--color-grey-900); }
+  .er-field .hint { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .er-field input[type="text"], .er-field textarea, .er-field select {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border-default); border-radius: 8px;
+    font: 13.5px var(--font-sans); color: var(--color-grey-900);
+    background: var(--color-base-white);
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .er-field textarea { resize: vertical; min-height: 84px; font-family: var(--font-sans); }
+  .er-field input:focus, .er-field textarea:focus, .er-field select:focus {
+    outline: none; border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-50);
+  }
+
+  .er-attach {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px dashed var(--color-grey-300);
+    border-radius: 10px; background: var(--color-grey-50);
+    cursor: pointer;
+    font: 12.5px var(--font-sans); color: var(--fg2);
+    transition: border-color .12s, background .12s;
+  }
+  .er-attach:hover { border-color: var(--color-brand-500); background: var(--color-brand-50); color: var(--color-brand-700); }
+  .er-attach i { font-size: 18px; color: var(--color-brand-700); }
+  .er-attach .picked { color: var(--color-grey-900); font-weight: 600; }
+
+  .er-context {
+    background: var(--color-grey-50); border: 1px solid var(--border-subtle);
+    border-radius: 10px; padding: 10px 12px;
+    font: 11.5px var(--font-sans); color: var(--fg2);
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 10px;
+  }
+  .er-context .k { color: var(--fg3); }
+  .er-context .v { color: var(--color-grey-900); font-family: ui-monospace, monospace; font-size: 11px; }
+
+  .er-foot {
+    padding: 12px 20px 14px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .er-foot .hint { font: 11.5px var(--font-sans); color: var(--fg3); }
+  .er-foot .spacer { flex: 1; }
+  .er-foot button {
+    padding: 9px 14px; border-radius: 8px;
+    font: 600 12.5px var(--font-sans); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .er-foot .er-cancel { background: transparent; color: var(--fg2); border: 1px solid var(--border-default); }
+  .er-foot .er-cancel:hover { background: var(--color-grey-50); }
+  .er-foot .er-send { background: var(--color-brand-600); color: #fff; border: 1px solid var(--color-brand-600); }
+  .er-foot .er-send:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .er-foot .er-send:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ===== Mobile: Airbnb-like bottom drawer ===== */
+  @media (max-width: 720px) {
+    .er-overlay { padding: 0; align-items: flex-end; }
+    .er-modal {
+      max-width: none; width: 100%;
+      max-height: 90vh;
+      border-radius: 18px 18px 0 0;
+      transform: translateY(100%);
+      transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    }
+    .er-overlay.on .er-modal { transform: translateY(0); }
+    .er-grab {
+      display: flex; justify-content: center; padding: 8px 0 4px;
+    }
+    .er-grab span {
+      display: block; width: 36px; height: 4px; border-radius: 2px;
+      background: var(--color-grey-300);
+    }
+    .er-head { padding: 4px 18px 12px; }
+    .er-body { padding: 14px 18px; padding-bottom: env(safe-area-inset-bottom, 0); }
+    .er-foot { padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0)); }
+    .er-types { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="er-overlay" id="er-overlay" aria-hidden="true">
+  <div class="er-modal" role="dialog" aria-labelledby="er-h" aria-modal="true">
+    <div class="er-grab" aria-hidden="true"><span></span></div>
+    <div class="er-head">
+      <div>
+        <h3 class="t1" id="er-h"><i class="ri-error-warning-line"></i> Report an error</h3>
+        <p class="t2">Tell us what went wrong. Your advisor and our engineering team will both see this report.</p>
+      </div>
+      <button type="button" class="er-close" data-er-close aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+
+    <div class="er-body">
+
+      <div class="er-field">
+        <span class="lab">What kind of issue?</span>
+        <div class="er-types" id="er-types">
+          <label class="sel"><input type="radio" name="er-type" value="bug" checked /><i class="ri-bug-line"></i> Something looks broken</label>
+          <label><input type="radio" name="er-type" value="data" /><i class="ri-database-2-line"></i> Wrong information</label>
+          <label><input type="radio" name="er-type" value="payment" /><i class="ri-bank-card-line"></i> Payment / financing</label>
+          <label><input type="radio" name="er-type" value="other" /><i class="ri-question-line"></i> Something else</label>
+        </div>
+      </div>
+
+      <div class="er-field">
+        <label class="lab" for="er-subject">Short summary</label>
+        <input id="er-subject" type="text" placeholder="e.g. Document upload stuck at 90%" />
+      </div>
+
+      <div class="er-field">
+        <label class="lab" for="er-desc">What happened?</label>
+        <textarea id="er-desc" placeholder="Steps you took, what you expected, and what actually happened. The more detail the better."></textarea>
+      </div>
+
+      <label class="er-attach" for="er-attach-input">
+        <i class="ri-attachment-2"></i>
+        <span id="er-attach-label">Attach a screenshot (optional)</span>
+        <input id="er-attach-input" type="file" accept="image/*" hidden />
+      </label>
+
+      <div class="er-context">
+        <span class="k">Page</span><span class="v" id="er-ctx-page">my-application.html</span>
+        <span class="k">Application</span><span class="v">APP-2026-0143</span>
+        <span class="k">Device</span><span class="v" id="er-ctx-ua">—</span>
+      </div>
+    </div>
+
+    <div class="er-foot">
+      <span class="hint">Replies arrive in your messages.</span>
+      <div class="spacer"></div>
+      <button type="button" class="er-cancel" data-er-close>Cancel</button>
+      <button type="button" class="er-send" id="er-send"><i class="ri-send-plane-2-line"></i> Send report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const overlay = document.getElementById('er-overlay');
+  const subject = document.getElementById('er-subject');
+  const desc    = document.getElementById('er-desc');
+  const types   = document.getElementById('er-types');
+  const attachIn = document.getElementById('er-attach-input');
+  const attachLb = document.getElementById('er-attach-label');
+  const sendBtn  = document.getElementById('er-send');
+  const ctxUa    = document.getElementById('er-ctx-ua');
+  const ctxPage  = document.getElementById('er-ctx-page');
+
+  function open(){
+    ctxPage.textContent = location.pathname.split('/').pop() || location.pathname;
+    ctxUa.textContent = (navigator.userAgent || '').slice(0, 70) + (navigator.userAgent.length > 70 ? '…' : '');
+    overlay.classList.add('on');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => subject.focus(), 250);
+  }
+  function close(){
+    overlay.classList.remove('on');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-open-error-report]')) { e.preventDefault(); open(); }
+    if (e.target.closest('[data-er-close]'))         { e.preventDefault(); close(); }
+  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('on')) close();
+  });
+
+  types.addEventListener('click', (e) => {
+    const lbl = e.target.closest('label'); if (!lbl) return;
+    types.querySelectorAll('label').forEach(l => l.classList.remove('sel'));
+    lbl.classList.add('sel');
+    lbl.querySelector('input').checked = true;
+  });
+
+  attachIn.addEventListener('change', () => {
+    const f = attachIn.files && attachIn.files[0];
+    attachLb.textContent = f ? f.name : 'Attach a screenshot (optional)';
+    attachLb.classList.toggle('picked', !!f);
+  });
+
+  sendBtn.addEventListener('click', () => {
+    const v = (subject.value || '').trim() + (desc.value || '').trim();
+    if (!v) { subject.focus(); return; }
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="ri-loader-4-line"></i> Sending…';
+    setTimeout(() => {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = '<i class="ri-send-plane-2-line"></i> Send report';
+      subject.value = ''; desc.value = '';
+      attachIn.value = ''; attachLb.textContent = 'Attach a screenshot (optional)'; attachLb.classList.remove('picked');
+      close();
+      if (window.pfToast) window.pfToast('Thanks — your report was sent.');
+    }, 700);
+  });
+
+  // Drag-to-dismiss on mobile drawer
+  const modal = overlay.querySelector('.er-modal');
+  let startY = 0, dragging = false;
+  modal.addEventListener('touchstart', (e) => {
+    if (window.matchMedia('(min-width: 721px)').matches) return;
+    if (modal.scrollTop > 0) return;
+    startY = e.touches[0].clientY; dragging = true;
+    modal.style.transition = 'none';
+  }, { passive: true });
+  modal.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 0) modal.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  modal.addEventListener('touchend', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    modal.style.transition = '';
+    const dy = (e.changedTouches[0].clientY - startY);
+    if (dy > 120) close(); else modal.style.transform = '';
+  });
+})();
+</script>
+
+<!-- ============== CONNECT DIALOG (sign in / sign up) ============== -->
+<div class="er-overlay" id="reg-overlay" aria-hidden="true">
+  <div class="er-modal cn-modal" role="dialog" aria-labelledby="cn-h" aria-modal="true">
+    <div class="er-grab" aria-hidden="true"><span></span></div>
+
+    <div class="cn-head">
+      <div class="cn-brand">
+        <span class="cn-logo">R</span>
+        <div>
+          <h3 class="cn-title" id="cn-h">Connect to your Ream account</h3>
+          <p class="cn-sub">Save your application progress and chat with your advisor anytime.</p>
+        </div>
+      </div>
+      <button type="button" class="er-close" data-reg-close aria-label="Close"><i class="ri-close-line"></i></button>
+    </div>
+
+    <div class="cn-tabs" role="tablist" aria-label="Authentication mode">
+      <button type="button" class="cn-tab on" data-cn-tab="signin" role="tab" aria-selected="true">Sign in</button>
+      <button type="button" class="cn-tab" data-cn-tab="signup" role="tab" aria-selected="false">Create account</button>
+      <span class="cn-tab-ind" aria-hidden="true"></span>
+    </div>
+
+    <!-- ===== SIGN IN PANEL ===== -->
+    <div class="er-body cn-panel on" data-cn-panel="signin" role="tabpanel">
+      <div class="er-field">
+        <label class="lab" for="si-em">Email</label>
+        <input id="si-em" class="rm-input" type="text" placeholder="you@example.com" autocomplete="email" value="danyls@example.com" />
+      </div>
+      <div class="er-field">
+        <div class="cn-lab-row">
+          <label class="lab" for="si-pw">Password</label>
+          <a href="#" class="cn-link" data-forgot>Forgot password?</a>
+        </div>
+        <div class="cn-pw-wrap">
+          <input id="si-pw" class="rm-input" type="password" placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="cn-pw-eye" data-pw-toggle="si-pw" aria-label="Show password"><i class="ri-eye-line"></i></button>
+        </div>
+        <span id="si-error" class="cn-error" hidden><i class="ri-error-warning-line"></i> <span></span></span>
+      </div>
+      <label class="cn-checkbox">
+        <input id="si-remember" type="checkbox" checked />
+        <span>Keep me signed in on this device</span>
+      </label>
+    </div>
+
+    <!-- ===== SIGN UP PANEL ===== -->
+    <div class="er-body cn-panel" data-cn-panel="signup" role="tabpanel" hidden>
+      <div class="cn-prefill"><i class="ri-magic-line"></i> We've prefilled your details from this application.</div>
+      <div class="cn-grid-2">
+        <div class="er-field">
+          <label class="lab" for="reg-fn">First name</label>
+          <input id="reg-fn" class="rm-input" type="text" value="Danyls" autocomplete="given-name" />
+        </div>
+        <div class="er-field">
+          <label class="lab" for="reg-ln">Last name</label>
+          <input id="reg-ln" class="rm-input" type="text" value="Mensah" autocomplete="family-name" />
+        </div>
+      </div>
+      <div class="er-field">
+        <label class="lab" for="reg-em">Email</label>
+        <input id="reg-em" class="rm-input" type="text" value="danyls@example.com" autocomplete="email" />
+      </div>
+      <div class="er-field">
+        <label class="lab" for="reg-ph">Mobile</label>
+        <input id="reg-ph" class="rm-input" type="text" value="+233 24 123 4567" autocomplete="tel" />
+      </div>
+      <div class="er-field">
+        <label class="lab" for="reg-pw">Password</label>
+        <div class="cn-pw-wrap">
+          <input id="reg-pw" class="rm-input" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+          <button type="button" class="cn-pw-eye" data-pw-toggle="reg-pw" aria-label="Show password"><i class="ri-eye-line"></i></button>
+        </div>
+        <div id="reg-pw-strength" class="cn-strength">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div id="reg-pw-rules" class="cn-rules">
+          <span class="r" data-rule="len"><i class="ri-circle-line"></i> 8+ characters</span>
+          <span class="r" data-rule="case"><i class="ri-circle-line"></i> Upper &amp; lower case</span>
+          <span class="r" data-rule="num"><i class="ri-circle-line"></i> A number</span>
+          <span class="r" data-rule="sym"><i class="ri-circle-line"></i> A symbol</span>
+        </div>
+      </div>
+      <div class="er-field">
+        <label class="lab" for="reg-pw2">Confirm password</label>
+        <div class="cn-pw-wrap">
+          <input id="reg-pw2" class="rm-input" type="password" placeholder="Re-enter password" autocomplete="new-password" />
+          <button type="button" class="cn-pw-eye" data-pw-toggle="reg-pw2" aria-label="Show password"><i class="ri-eye-line"></i></button>
+        </div>
+        <span id="reg-pw-match" class="cn-match"></span>
+      </div>
+      <label class="cn-checkbox">
+        <input id="reg-tos" type="checkbox" checked />
+        <span>I agree to the <a href="#" class="cn-link">Terms</a> and <a href="#" class="cn-link">Privacy Policy</a>.</span>
+      </label>
+    </div>
+
+    <div class="er-foot cn-foot">
+      <button type="button" class="er-cancel" data-reg-close>Cancel</button>
+      <div class="spacer"></div>
+      <button type="button" class="cn-submit" id="cn-submit-signin"><i class="ri-login-circle-line"></i> Sign in</button>
+      <button type="button" class="cn-submit" id="cn-submit-signup" hidden disabled><i class="ri-user-add-line"></i> Create account</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ============== Connect dialog ============== */
+  .cn-modal { max-width: 480px; padding: 0; overflow: hidden; }
+  .cn-head {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 22px 22px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, var(--color-base-white), var(--color-grey-50));
+  }
+  .cn-brand { display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 0; }
+  .cn-logo {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 16px var(--font-sans); color: #fff;
+    background: var(--color-brand-600);
+    letter-spacing: -0.02em; flex-shrink: 0;
+  }
+  .cn-title {
+    margin: 0 0 3px; font: 600 16px var(--font-sans);
+    color: var(--color-grey-900); letter-spacing: -0.01em;
+  }
+  .cn-sub { margin: 0; font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.5; }
+
+  .cn-tabs {
+    display: flex; align-items: stretch; position: relative;
+    padding: 0 22px;
+    background: var(--color-base-white);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .cn-tab {
+    flex: 1; padding: 12px 6px;
+    background: transparent; border: 0;
+    font: 600 13px var(--font-sans);
+    color: var(--fg3);
+    cursor: pointer;
+    transition: color .12s;
+    letter-spacing: -0.005em;
+  }
+  .cn-tab:hover { color: var(--color-grey-800); }
+  .cn-tab.on { color: var(--color-brand-700); }
+  .cn-tab-ind {
+    position: absolute; bottom: -1px; left: 22px;
+    height: 2px; width: calc(50% - 22px);
+    background: var(--color-brand-600);
+    border-radius: 2px 2px 0 0;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+    transform: translateX(0);
+  }
+  .cn-tabs[data-active="signup"] .cn-tab-ind { transform: translateX(100%); }
+
+  .cn-panel { padding: 20px 22px; }
+  .cn-panel[hidden] { display: none; }
+
+  .cn-prefill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 11.5px var(--font-sans); color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    border: 1px solid var(--color-brand-100, #dbeafe);
+    padding: 5px 10px; border-radius: 99px;
+    margin-bottom: 14px;
+  }
+  .cn-prefill i { font-size: 13px; }
+
+  .cn-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Ream-style input — matches the rest of the app */
+  .rm-input {
+    width: 100%;
+    padding: 9px 12px;
+    font: 14px var(--font-sans);
+    color: var(--color-grey-900);
+    background: var(--color-base-white);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.03);
+    transition: border-color .12s, box-shadow .12s, background .12s;
+  }
+  .rm-input::placeholder { color: var(--fg4); }
+  .rm-input:hover { border-color: var(--color-grey-300, #cbd5e1); }
+  .rm-input:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px var(--color-brand-50), 0 1px 2px rgba(15,23,42,0.04);
+  }
+
+  .cn-lab-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .cn-link {
+    font: 600 11.5px var(--font-sans);
+    color: var(--color-brand-700); text-decoration: none;
+  }
+  .cn-link:hover { text-decoration: underline; }
+
+  .cn-pw-wrap { position: relative; }
+  .cn-pw-wrap .rm-input { padding-right: 40px; }
+  .cn-pw-eye {
+    position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px;
+    background: transparent; border: 0;
+    color: var(--fg3); cursor: pointer; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .12s, color .12s;
+  }
+  .cn-pw-eye:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+  .cn-pw-eye i { font-size: 16px; }
+
+  .cn-strength {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 4px; margin-top: 8px;
+  }
+  .cn-strength span {
+    height: 4px; border-radius: 99px;
+    background: var(--color-grey-100);
+    transition: background .15s;
+  }
+  .cn-strength.s1 span:nth-child(-n+1) { background: var(--color-error-500, #ef4444); }
+  .cn-strength.s2 span:nth-child(-n+2) { background: var(--color-warning-500, #f59e0b); }
+  .cn-strength.s3 span:nth-child(-n+3) { background: var(--color-warning-500, #f59e0b); }
+  .cn-strength.s4 span { background: var(--color-success-500, var(--color-success-600)); }
+
+  .cn-rules {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 4px 12px;
+    font: 11.5px var(--font-sans); color: var(--fg3);
+    margin-top: 8px;
+  }
+  .cn-rules .r { display: inline-flex; align-items: center; gap: 5px; }
+  .cn-rules .r i { font-size: 12px; color: var(--fg4); }
+  .cn-rules .r.ok { color: var(--color-success-700, var(--color-success-700)); }
+  .cn-rules .r.ok i { color: var(--color-success-600, var(--color-success-600)); }
+
+  .cn-match {
+    font: 11.5px var(--font-sans); color: var(--fg3);
+    margin-top: 4px; min-height: 14px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .cn-match.bad { color: var(--color-error-700, var(--color-error-700, #b91c1c)); }
+  .cn-match.ok  { color: var(--color-success-700, var(--color-success-700)); }
+
+  .cn-error {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: 11.5px var(--font-sans); color: var(--color-error-700, var(--color-error-700, #b91c1c));
+    margin-top: 6px;
+  }
+  .cn-error i { font-size: 13px; }
+  .cn-error[hidden] { display: none !important; }
+
+  .cn-checkbox {
+    display: flex; align-items: flex-start; gap: 8px;
+    font: 12.5px var(--font-sans); color: var(--fg2); line-height: 1.5;
+    cursor: pointer; margin-top: 4px;
+  }
+  .cn-checkbox input[type="checkbox"] {
+    margin-top: 3px;
+    width: 14px; height: 14px;
+    accent-color: var(--color-brand-600);
+    flex-shrink: 0;
+  }
+
+  .cn-foot {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--color-grey-50);
+  }
+  .cn-foot .spacer { flex: 1; }
+  .cn-foot .er-cancel {
+    background: var(--color-base-white);
+    color: var(--color-grey-800);
+    border: 1px solid var(--border-default);
+    font: 600 13px var(--font-sans);
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  .cn-foot .er-cancel:hover { background: var(--color-grey-50); border-color: var(--color-grey-300, #cbd5e1); }
+
+  .cn-submit {
+    display: inline-flex; align-items: center; gap: 7px;
+    font: 600 13px var(--font-sans); color: #fff;
+    background: linear-gradient(180deg, var(--color-brand-600), var(--color-brand-700));
+    border: 1px solid var(--color-brand-700);
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.08);
+    transition: transform .12s, box-shadow .12s, background .12s, opacity .12s;
+  }
+  .cn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(15,23,42,0.12); }
+  .cn-submit:disabled { opacity: .5; cursor: not-allowed; }
+  .cn-submit[hidden] { display: none !important; }
+  .cn-submit i { font-size: 15px; }
+
+  @media (max-width: 720px) {
+    .cn-modal { max-width: none; }
+    .cn-head { padding: 18px 18px 14px; }
+    .cn-tabs { padding: 0 18px; }
+    .cn-tab-ind { left: 18px; width: calc(50% - 18px); }
+    .cn-panel { padding: 18px; }
+    .cn-foot { padding: 12px 18px; }
+  }
+</style>
+
+<script>
+(function(){
+  const overlay = document.getElementById('reg-overlay');
+  const tabs = overlay.querySelector('.cn-tabs');
+  const tabBtns = overlay.querySelectorAll('.cn-tab');
+  const panels = overlay.querySelectorAll('.cn-panel');
+  const submitSi = document.getElementById('cn-submit-signin');
+  const submitSu = document.getElementById('cn-submit-signup');
+
+  // Sign-up state
+  const pw  = document.getElementById('reg-pw');
+  const pw2 = document.getElementById('reg-pw2');
+  const tos = document.getElementById('reg-tos');
+  const meter = document.getElementById('reg-pw-strength');
+  const matchEl = document.getElementById('reg-pw-match');
+  const fnEl = document.getElementById('reg-fn');
+
+  // Sign-in state
+  const siEm = document.getElementById('si-em');
+  const siPw = document.getElementById('si-pw');
+  const siErr = document.getElementById('si-error');
+
+  const rules = {
+    len:  v => v.length >= 8,
+    case: v => /[a-z]/.test(v) && /[A-Z]/.test(v),
+    num:  v => /[0-9]/.test(v),
+    sym:  v => /[^A-Za-z0-9]/.test(v),
+  };
+
+  function open(mode){
+    setTab(mode || 'signin');
+    overlay.classList.add('on');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      const focusEl = (tabs.dataset.active === 'signup') ? fnEl : siEm;
+      focusEl && focusEl.focus();
+    }, 250);
+  }
+  function close(){
+    overlay.classList.remove('on');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+    siErr.hidden = true;
+  }
+
+  function setTab(name){
+    tabs.dataset.active = name;
+    tabBtns.forEach(b => {
+      const on = b.dataset.cnTab === name;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panels.forEach(p => { p.hidden = p.dataset.cnPanel !== name; });
+    submitSi.hidden = name !== 'signin';
+    submitSu.hidden = name !== 'signup';
+    if (name === 'signin') siErr.hidden = true;
+  }
+
+  function evaluateSignup(){
+    let score = 0;
+    Object.entries(rules).forEach(([key, fn]) => {
+      const ok = fn(pw.value);
+      if (ok) score++;
+      const r = document.querySelector(`#reg-pw-rules .r[data-rule="${key}"]`);
+      r.classList.toggle('ok', ok);
+      r.querySelector('i').className = ok ? 'ri-check-line' : 'ri-circle-line';
+    });
+    meter.classList.remove('s1','s2','s3','s4');
+    if (score > 0) meter.classList.add('s'+score);
+
+    matchEl.className = 'cn-match';
+    matchEl.textContent = '';
+    if (pw2.value && pw.value === pw2.value) {
+      matchEl.classList.add('ok');
+      matchEl.innerHTML = '<i class="ri-check-line"></i> Passwords match';
+    } else if (pw2.value) {
+      matchEl.classList.add('bad');
+      matchEl.innerHTML = '<i class="ri-close-line"></i> Passwords don\'t match';
+    }
+
+    const valid = score >= 3 && pw.value === pw2.value && pw2.value.length > 0 && tos.checked;
+    submitSu.disabled = !valid;
+  }
+
+  // Open / close
+  document.addEventListener('click', (e) => {
+    const opener = e.target.closest('[data-open-register]');
+    if (opener) { e.preventDefault(); open(opener.dataset.cnMode || 'signin'); return; }
+    if (e.target.closest('[data-reg-close]')) { e.preventDefault(); close(); return; }
+    if (e.target.closest('[data-forgot]'))    { e.preventDefault(); if (window.pfToast) window.pfToast('Password reset link sent to your email.'); return; }
+  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('on')) close();
+  });
+
+  // Tab switching
+  tabBtns.forEach(b => b.addEventListener('click', () => setTab(b.dataset.cnTab)));
+
+  // Password show/hide
+  overlay.querySelectorAll('[data-pw-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.pwToggle);
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.querySelector('i').className = isPw ? 'ri-eye-off-line' : 'ri-eye-line';
+      btn.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+    });
+  });
+
+  // Sign-up live validation
+  pw.addEventListener('input', evaluateSignup);
+  pw2.addEventListener('input', evaluateSignup);
+  tos.addEventListener('change', evaluateSignup);
+
+  // Sign-in submit (demo)
+  submitSi.addEventListener('click', () => {
+    if (!siEm.value.trim() || !siPw.value) {
+      siErr.querySelector('span').textContent = 'Enter your email and password.';
+      siErr.hidden = false;
+      return;
+    }
+    submitSi.disabled = true;
+    submitSi.innerHTML = '<i class="ri-loader-4-line"></i> Signing in…';
+    setTimeout(() => {
+      close();
+      if (window.pfToast) window.pfToast('Welcome back, Danyls.');
+      submitSi.disabled = false;
+      submitSi.innerHTML = '<i class="ri-login-circle-line"></i> Sign in';
+    }, 700);
+  });
+
+  // Sign-up submit (demo)
+  submitSu.addEventListener('click', () => {
+    submitSu.disabled = true;
+    submitSu.innerHTML = '<i class="ri-loader-4-line"></i> Creating…';
+    setTimeout(() => {
+      close();
+      if (window.pfToast) window.pfToast('Welcome to Ream! Your account is ready.');
+      submitSu.innerHTML = '<i class="ri-user-add-line"></i> Create account';
+      evaluateSignup();
+    }, 800);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Organization settings</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="settings-page.css" />
+<style>
+  /* ============================================================
+     OWNER SIDEBAR — same vocabulary as owner-dashboard.html
+     ============================================================ */
+  .sidebar .brand.org-pill {
+    padding: 8px 8px 12px; margin: 0; cursor: pointer;
+    background: transparent; border: 0; width: 100%;
+    text-align: left; display: grid;
+    grid-template-columns: 28px 1fr auto; align-items: center; gap: 10px;
+    font-family: var(--font-sans); font-weight: 600; font-size: 14px;
+    color: var(--color-grey-800); border-radius: 8px;
+    text-decoration: none;
+  }
+  .sidebar .brand.org-pill:hover { background: var(--color-grey-50); }
+  .sidebar .brand.org-pill .org-logo {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 13px var(--font-sans); color: white;
+    background: var(--color-brand-600);
+  }
+  .sidebar .brand.org-pill .org-meta { line-height: 1.2; min-width: 0; }
+  .sidebar .brand.org-pill .org-name { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .sidebar .brand.org-pill .org-plan {
+    font: 500 10.5px var(--font-sans); color: var(--fg3);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px;
+  }
+  .sidebar .brand.org-pill .org-caret { color: var(--fg3); font-size: 14px; }
+  .sidebar .nav-item .nav-badge {
+    margin-left: auto; font: 600 10.5px var(--font-sans);
+    background: var(--color-grey-100); color: var(--fg2);
+    padding: 1px 7px; border-radius: 999px; min-width: 18px; text-align: center;
+  }
+  .sidebar .user.with-menu {
+    display: grid; grid-template-columns: 36px 1fr 16px; gap: 10px; align-items: center;
+    padding: 8px; border-radius: 10px; background: transparent; border: 0; width: 100%;
+    text-align: left; cursor: pointer; text-decoration: none;
+  }
+  .sidebar .user.with-menu:hover { background: var(--color-grey-50); }
+  .sidebar .user.with-menu .avatar {
+    width: 36px; height: 36px; border-radius: 50%; position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font: 600 13px var(--font-sans);
+  }
+  .sidebar .user.with-menu .avatar .presence {
+    position: absolute; bottom: -1px; right: -1px; width: 11px; height: 11px;
+    border-radius: 50%; background: #10b981; border: 2px solid var(--color-base-white);
+  }
+  .sidebar .user.with-menu .name { font: 600 13px var(--font-sans); color: var(--color-grey-900); }
+  .sidebar .user.with-menu .role-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font: 500 10.5px var(--font-sans); color: var(--fg3); margin-top: 1px;
+  }
+  .sidebar .user.with-menu .more { color: var(--fg3); font-size: 14px; }
+  .sidebar .sb-rail { display: flex; gap: 4px; padding: 0 4px 6px; margin-top: 8px; }
+  .sidebar .sb-rail-btn {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center;
+    height: 32px; background: transparent; border: 0; border-radius: 7px;
+    color: var(--fg2); cursor: pointer; position: relative; text-decoration: none;
+  }
+  .sidebar .sb-rail-btn:hover { background: var(--color-grey-50); color: var(--color-grey-800); }
+  .sidebar .sb-rail-btn.active { background: var(--color-brand-50); color: var(--color-brand-700); }
+  .sidebar .sb-rail-btn i { font-size: 16px; }
+
+  /* ============================================================
+     SETTINGS LAYOUT — shared
+     ============================================================ */
+  .st-page { display: grid; grid-template-columns: var(--rail-w, 240px) 1fr; gap: var(--rail-gap, 32px); max-width: 1180px; margin: 0 auto; padding: 24px 28px 60px; }
+  .st-rail { position: sticky; top: 24px; align-self: start; }
+  .st-content { min-width: 0; }
+
+  /* Page header */
+  .st-page-head { max-width: 1180px; margin: 0 auto; padding: 28px 28px 0; display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+  .st-page-head h1 {
+    font: 700 26px var(--font-display, var(--font-sans));
+    letter-spacing: -0.02em; color: var(--color-grey-900); margin: 0;
+  }
+  .st-page-head .sub { font: 14px var(--font-sans); color: var(--fg2); margin-top: 4px; line-height: 1.5; }
+  .st-layout-toggle {
+    display: inline-flex; gap: 0; padding: 3px;
+    background: var(--color-grey-100); border-radius: 8px;
+    font: 500 12px var(--font-sans);
+  }
+  .st-layout-toggle button {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 6px 10px; border-radius: 6px; color: var(--fg2);
+    font: inherit; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .st-layout-toggle button.active { background: var(--color-base-white); color: var(--color-grey-900); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+  /* Rail items — Layout A (compact) */
+  .st-rail-section-label {
+    font: 600 10.5px var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--fg3); padding: 8px 12px 4px;
+  }
+  .st-rail-link {
+    display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: center;
+    padding: 8px 12px; border-radius: 8px;
+    font: 500 13.5px var(--font-sans); color: var(--color-grey-700);
+    text-decoration: none; cursor: pointer; background: transparent; border: 0; width: 100%; text-align: left;
+    position: relative;
+  }
+  .st-rail-link i { font-size: 16px; color: var(--fg3); }
+  .st-rail-link:hover { background: var(--color-grey-50); color: var(--color-grey-900); }
+  .st-rail-link.active { background: var(--color-brand-50); color: var(--color-brand-700); font-weight: 600; }
+  .st-rail-link.active i { color: var(--color-brand-600); }
+  .st-rail-link.danger.active { background: #fbece8; color: #b54e3c; }
+  .st-rail-link.danger.active i { color: #b54e3c; }
+
+  /* Layout B — Wider rail with grouped panels */
+  body[data-layout="b"] .st-page { --rail-w: 280px; --rail-gap: 40px; }
+  body[data-layout="b"] .st-rail {
+    background: var(--color-grey-50);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px; padding: 14px 10px;
+  }
+  body[data-layout="b"] .st-rail-section-label { padding: 10px 10px 6px 12px; }
+  body[data-layout="b"] .st-rail-link { padding: 10px 12px; border-radius: 8px; }
+  body[data-layout="b"] .st-rail-link.active {
+    background: var(--color-base-white);
+    color: var(--color-grey-900); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+    border: 1px solid var(--border-subtle);
+  }
+  body[data-layout="b"] .st-rail-link.active::before {
+    content: ''; position: absolute; left: -10px; top: 12px; bottom: 12px;
+    width: 3px; background: var(--color-brand-600); border-radius: 2px;
+  }
+
+  /* Section panel */
+  .st-section { margin-bottom: 36px; }
+  .st-section-head { margin-bottom: 16px; }
+  .st-section-head h2 {
+    font: 700 18px var(--font-sans); letter-spacing: -0.015em;
+    color: var(--color-grey-900); margin: 0;
+  }
+  .st-section-head p { font: 13.5px var(--font-sans); color: var(--fg2); margin: 4px 0 0; line-height: 1.55; max-width: 60ch; }
+
+  .st-card {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .st-card + .st-card { margin-top: 14px; }
+
+  /* Layout B — flat sections, no card chrome */
+  body[data-layout="b"] .st-card {
+    background: transparent; border: 0; padding: 0;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 22px; border-radius: 0;
+  }
+  body[data-layout="b"] .st-card:first-child { border-top: 0; padding-top: 0; }
+  body[data-layout="b"] .st-section {
+    background: var(--color-base-white);
+    border: 1px solid var(--border-default);
+    border-radius: 14px; padding: 26px 28px;
+    margin-bottom: 20px;
+  }
+  body[data-layout="b"] .st-section-head h2 { font-size: 20px; }
+
+  /* Form fields */
+  .st-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .st-row.full { grid-template-columns: 1fr; }
+  .st-field { display: flex; flex-direction: column; gap: 6px; }
+  .st-field label { font: 600 12px var(--font-sans); color: var(--color-grey-800); }
+  .st-field .hint { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; line-height: 1.5; }
+  .st-input, .st-select, .st-textarea {
+    width: 100%; min-height: 38px;
+    background: var(--color-base-white);
+    border: 1px solid var(--border-default);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font: 13.5px var(--font-sans);
+    color: var(--color-grey-900);
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .st-input:focus, .st-select:focus, .st-textarea:focus {
+    outline: 0; border-color: var(--color-brand-600);
+    box-shadow: 0 0 0 3px rgba(59,91,217,0.12);
+  }
+  .st-textarea { min-height: 80px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+  .st-suffix { position: relative; }
+  .st-suffix .st-input { padding-right: 56px; }
+  .st-suffix .suf {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font: 500 12px var(--font-sans); color: var(--fg3); pointer-events: none;
+  }
+  .st-row.thirds { grid-template-columns: 1fr 1fr 1fr; }
+  .st-field .stack-h { display: flex; gap: 8px; align-items: center; }
+
+  /* Logo upload */
+  .st-logo-up {
+    display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: center;
+  }
+  .st-logo-up .preview {
+    width: 80px; height: 80px; border-radius: 14px;
+    background: var(--color-brand-600); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: 700 32px var(--font-display, var(--font-sans)); letter-spacing: -0.03em;
+  }
+  .st-logo-up .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .st-logo-up .hint { font: 12px var(--font-sans); color: var(--fg3); margin-top: 6px; }
+
+  /* Tag chips */
+  .st-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 8px 10px; min-height: 38px;
+    background: var(--color-base-white);
+    border: 1px solid var(--border-default);
+    border-radius: 7px;
+  }
+  .st-chips:focus-within { border-color: var(--color-brand-600); box-shadow: 0 0 0 3px rgba(59,91,217,0.12); }
+  .st-chips .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-brand-50); color: var(--color-brand-800);
+    padding: 4px 8px 4px 10px; border-radius: 999px;
+    font: 500 12.5px var(--font-sans);
+  }
+  .st-chips .chip button {
+    background: transparent; border: 0; color: var(--color-brand-700);
+    width: 18px; height: 18px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px;
+  }
+  .st-chips .chip button:hover { background: var(--color-brand-100); }
+  .st-chips input { flex: 1; min-width: 140px; border: 0; outline: 0; background: transparent; font: 13.5px var(--font-sans); color: var(--color-grey-900); padding: 4px 6px; }
+
+  /* Action row at bottom of card */
+  .st-card-actions {
+    display: flex; justify-content: flex-end; gap: 8px;
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  body[data-layout="b"] .st-section .st-card-actions { border-top: 1px solid var(--border-subtle); margin-top: 24px; }
+
+  .st-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 16px; font: 600 13px var(--font-sans);
+    border-radius: 7px; cursor: pointer; border: 1px solid transparent;
+    transition: background .12s, border-color .12s;
+  }
+  .st-btn.ghost { background: transparent; color: var(--fg2); }
+  .st-btn.ghost:hover { background: var(--color-grey-100); color: var(--color-grey-900); }
+  .st-btn.secondary { background: var(--color-base-white); color: var(--color-grey-800); border-color: var(--color-grey-300); }
+  .st-btn.secondary:hover { background: var(--color-grey-50); }
+  .st-btn.primary { background: var(--color-brand-600); color: #fff; border-color: var(--color-brand-600); }
+  .st-btn.primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
+  .st-btn.danger { background: #b54e3c; color: #fff; border-color: #b54e3c; }
+  .st-btn.danger:hover { background: #993d2e; }
+
+  /* Danger zone */
+  .st-danger-card {
+    background: #fbece8;
+    border: 1px solid #f3d2c9;
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  body[data-layout="b"] .st-danger-card { background: transparent; border: 0; padding: 0; }
+  .st-danger-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 16px;
+    padding: 14px 0;
+  }
+  .st-danger-row + .st-danger-row { border-top: 1px solid #f3d2c9; }
+  .st-danger-row .ti { font: 600 14px var(--font-sans); color: #7a3525; }
+  .st-danger-row .sb { font: 13px var(--font-sans); color: #8d4736; margin-top: 3px; line-height: 1.5; }
+
+  /* Show only the active section */
+  .st-pane { display: none; }
+  .st-pane.active { display: block; }
+
+  /* Default-loan row in default-loan section */
+  .st-default-loan-row { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; }
+  .st-default-loan-row + .st-default-loan-row { border-top: 1px solid var(--border-subtle); }
+  .st-default-loan-row .ic { width: 36px; height: 36px; border-radius: 8px; background: var(--color-brand-50); color: var(--color-brand-700); display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+  .st-default-loan-row .ti { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+  .st-default-loan-row .sb { font: 12.5px var(--font-sans); color: var(--fg2); margin-top: 2px; }
+  .st-default-loan-row .val { font: 600 13.5px var(--font-sans); color: var(--color-grey-900); }
+
+  .req { color: var(--color-error-600, #dc2626); font-weight: 700; }
+</style>
+</head>
+<body data-layout="a">
+
+<div class="app">
+
+  <!-- =========== SIDEBAR =========== -->
+  <aside class="sidebar">
+    <a class="brand org-pill" href="owner-dashboard.html">
+      <span class="org-logo">G</span>
+      <span class="org-meta">
+        <span class="org-name">Golden Acres Realty</span>
+        <span class="org-plan">Studio · Trial</span>
+      </span>
+      <i class="ri-expand-up-down-line org-caret"></i>
+    </a>
+
+    <div class="group-label" style="padding: 6px 10px 4px;">Workspace</div>
+    <a class="nav-item" href="owner-dashboard.html"><i class="ri-home-5-line"></i> Home</a>
+    <button class="nav-item" type="button"><i class="ri-inbox-line"></i> Inbox</button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Listings &amp; pipeline</div>
+    <button class="nav-item" type="button"><i class="ri-building-line"></i> Houses <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-landscape-line"></i> Lands <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-bank-card-line"></i> Loans <span class="nav-badge">0</span></button>
+
+    <div class="group-label" style="padding: 14px 10px 4px;">Team</div>
+    <button class="nav-item" type="button"><i class="ri-team-line"></i> Agents <span class="nav-badge">0</span></button>
+    <button class="nav-item" type="button"><i class="ri-shield-user-line"></i> Admins <span class="nav-badge">1</span></button>
+    <button class="nav-item" type="button"><i class="ri-bar-chart-2-line"></i> Reports</button>
+
+    <div class="spacer" style="flex: 1;"></div>
+
+    <div class="sb-rail">
+      <button class="sb-rail-btn" type="button" title="Notifications"><i class="ri-notification-3-line"></i></button>
+      <a class="sb-rail-btn active" href="org-settings.html" title="Organization settings"><i class="ri-settings-3-line"></i></a>
+      <button class="sb-rail-btn" type="button" title="Help & support"><i class="ri-question-line"></i></button>
+    </div>
+
+    <a class="user with-menu" href="user-settings.html">
+      <div class="avatar" style="background: var(--color-brand-700);">
+        <span>AO</span><span class="presence" data-status="online"></span>
+      </div>
+      <div class="meta">
+        <div class="name">Amara Osei</div>
+        <div class="role-chip"><i class="ri-vip-crown-line"></i> Owner</div>
+      </div>
+      <i class="ri-expand-up-down-line more"></i>
+    </a>
+  </aside>
+
+  <!-- =========== MAIN =========== -->
+  <section class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        <a href="owner-dashboard.html" style="color: var(--fg3); text-decoration: none;">Home</a>
+        <i class="ri-arrow-right-s-line" style="color: var(--fg4);"></i>
+        <span class="current">Organization settings</span>
+      </div>
+    </div>
+
+    <div class="content" style="padding: 0;">
+
+      <header class="st-page-head">
+        <div>
+          <h1>Organization settings</h1>
+          <div class="sub">Configure your agency profile, business details, and operating defaults. Visible only to admins.</div>
+        </div>
+        <div class="st-layout-toggle" id="layoutToggle">
+          <button data-layout-btn="a" class="active" type="button"><i class="ri-layout-left-line"></i> Layout A</button>
+          <button data-layout-btn="b" type="button"><i class="ri-layout-grid-line"></i> Layout B</button>
+        </div>
+      </header>
+
+      <div class="st-page">
+
+        <!-- ============ RAIL ============ -->
+        <nav class="st-rail" id="stRail">
+          <div class="st-rail-section-label">Agency</div>
+          <button class="st-rail-link active" type="button" data-section="profile"><i class="ri-building-2-line"></i> Agency profile</button>
+          <button class="st-rail-link" type="button" data-section="business"><i class="ri-suitcase-line"></i> Business details</button>
+          <button class="st-rail-link" type="button" data-section="locale"><i class="ri-global-line"></i> Currency &amp; locale</button>
+
+          <div class="st-rail-section-label" style="margin-top: 14px;">Loans</div>
+          <button class="st-rail-link" type="button" data-section="defaults"><i class="ri-bank-card-2-line"></i> Default loan account</button>
+
+          <div class="st-rail-section-label" style="margin-top: 14px;">Account</div>
+          <button class="st-rail-link danger" type="button" data-section="danger"><i class="ri-alarm-warning-line"></i> Danger zone</button>
+        </nav>
+
+        <!-- ============ CONTENT ============ -->
+        <div class="st-content">
+
+          <!-- ===== Agency profile ===== -->
+          <div class="st-pane active" data-pane="profile">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Agency profile</h2>
+                <p>What customers see on listings, statements, and outbound messages. The logo and name appear in your footer and email templates.</p>
+              </div>
+              <div class="st-card">
+                <div class="st-row full">
+                  <div class="st-field">
+                    <label>Logo</label>
+                    <div class="st-logo-up">
+                      <div class="preview">G</div>
+                      <div>
+                        <div class="actions">
+                          <button class="st-btn secondary" type="button"><i class="ri-upload-2-line"></i> Upload new</button>
+                          <button class="st-btn ghost" type="button">Remove</button>
+                        </div>
+                        <div class="hint">PNG or SVG, square, at least 256×256. Used at 28px in the sidebar and 40px in emails.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 18px;">
+                  <div class="st-field">
+                    <label>Agency name <span class="req">*</span></label>
+                    <input class="st-input" type="text" value="Golden Acres Realty" />
+                  </div>
+                  <div class="st-field">
+                    <label>Website</label>
+                    <input class="st-input" type="url" value="https://goldenacres.com" placeholder="https://" />
+                  </div>
+                </div>
+                <div class="st-row full" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Taglines</label>
+                    <div class="st-chips" id="tagChips">
+                      <span class="chip">Premium plots in greater Accra<button type="button" aria-label="Remove">×</button></span>
+                      <span class="chip">Owner-financed since 2018<button type="button" aria-label="Remove">×</button></span>
+                      <input type="text" placeholder="Add tagline and press Enter…" />
+                    </div>
+                    <span class="hint">Used as alt-headlines on listings and email signatures. Up to 4.</span>
+                  </div>
+                </div>
+                <div class="st-row full" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Public description</label>
+                    <textarea class="st-textarea" placeholder="A short description for your public landing page.">Family-run agency selling and financing residential land across the Greater Accra region.</textarea>
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Business details ===== -->
+          <div class="st-pane" data-pane="business">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Business details</h2>
+                <p>Used on legal documents, statements, and payout reconciliation. Editing core registration fields requires admin re-verification.</p>
+              </div>
+
+              <div class="st-card">
+                <div class="st-row">
+                  <div class="st-field">
+                    <label>Business registration #</label>
+                    <input class="st-input" type="text" placeholder="e.g. EIN 12-3456789" />
+                  </div>
+                  <div class="st-field">
+                    <label>Tax ID / TIN — optional</label>
+                    <input class="st-input" type="text" placeholder="00-0000000" />
+                  </div>
+                </div>
+                <div class="st-row full" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Primary phone</label>
+                    <input class="st-input" type="tel" placeholder="+1 (415) 555-0142" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="st-card" style="margin-top: 14px;">
+                <div class="st-section-head" style="margin-bottom: 12px;">
+                  <h2 style="font-size: 14px;">Head office address</h2>
+                </div>
+                <div class="st-row full">
+                  <div class="st-field">
+                    <label>Country</label>
+                    <select class="st-select" disabled>
+                      <option>🇺🇸 United States</option>
+                    </select>
+                    <span class="hint">Currently US-only.</span>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Street</label>
+                    <input class="st-input" type="text" placeholder="1234 Market St" />
+                  </div>
+                  <div class="st-field">
+                    <label>City</label>
+                    <input class="st-input" type="text" placeholder="San Francisco" />
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>State</label>
+                    <select class="st-select">
+                      <option>California</option>
+                      <option>New York</option>
+                      <option>Texas</option>
+                      <option>Florida</option>
+                    </select>
+                  </div>
+                  <div class="st-field">
+                    <label>ZIP code</label>
+                    <input class="st-input" type="text" placeholder="94103" />
+                  </div>
+                </div>
+                <div class="st-row full" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Note — optional</label>
+                    <textarea class="st-textarea" placeholder="Suite, building, landmark, delivery instructions…"></textarea>
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Currency & locale ===== -->
+          <div class="st-pane" data-pane="locale">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Currency &amp; locale</h2>
+                <p>Defaults applied across listings, loans, statements, and emails. Per-listing overrides are still possible.</p>
+              </div>
+              <div class="st-card">
+                <div class="st-row">
+                  <div class="st-field">
+                    <label>Currency</label>
+                    <select class="st-select" disabled>
+                      <option>USD — US Dollar</option>
+                    </select>
+                    <span class="hint">Locked to USD for US-based agencies.</span>
+                  </div>
+                  <div class="st-field">
+                    <label>Timezone</label>
+                    <select class="st-select">
+                      <option>America/New_York (ET)</option>
+                      <option>America/Chicago (CT)</option>
+                      <option>America/Denver (MT)</option>
+                      <option>America/Los_Angeles (PT)</option>
+                      <option>America/Anchorage (AKT)</option>
+                      <option>Pacific/Honolulu (HT)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Language</label>
+                    <select class="st-select">
+                      <option>English</option>
+                      <option>Français</option>
+                    </select>
+                  </div>
+                  <div class="st-field">
+                    <label>Week starts on</label>
+                    <select class="st-select">
+                      <option>Sunday</option>
+                      <option>Monday</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Default loan account ===== -->
+          <div class="st-pane" data-pane="defaults">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Default loan account</h2>
+                <p>Pre-fill values applied whenever a new loan is created — through this page, a wizard, or auto-generated from an offer. Always overridable per deal.</p>
+              </div>
+
+              <div class="st-card">
+                <div class="st-row">
+                  <div class="st-field">
+                    <label>Annual interest rate</label>
+                    <div class="st-suffix">
+                      <input class="st-input" type="number" inputmode="decimal" min="0" max="50" step="0.01" value="9.50" />
+                      <span class="suf">% APR</span>
+                    </div>
+                  </div>
+                  <div class="st-field">
+                    <label>Default term</label>
+                    <div class="st-suffix">
+                      <input class="st-input" type="number" min="1" max="360" step="1" value="120" />
+                      <span class="suf">months</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Default down payment</label>
+                    <div class="st-suffix">
+                      <input class="st-input" type="number" inputmode="decimal" min="0" step="0.01" value="7500.00" />
+                      <span class="suf">USD</span>
+                    </div>
+                  </div>
+                  <div class="st-field">
+                    <label>Payment frequency</label>
+                    <select class="st-select">
+                      <option>Monthly</option>
+                      <option>Bi-weekly</option>
+                      <option>Weekly</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="st-row" style="margin-top: 14px;">
+                  <div class="st-field">
+                    <label>Late fee</label>
+                    <div class="st-suffix">
+                      <input class="st-input" type="number" inputmode="decimal" min="0" step="0.01" value="35.00" />
+                      <span class="suf">USD</span>
+                    </div>
+                  </div>
+                  <div class="st-field">
+                    <label>Grace period</label>
+                    <div class="st-suffix">
+                      <input class="st-input" type="number" min="0" step="1" value="7" />
+                      <span class="suf">days</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="st-card-actions">
+                  <button class="st-btn ghost" type="button">Discard</button>
+                  <button class="st-btn primary" type="button">Save changes</button>
+                </div>
+              </div>
+
+              <div class="st-card" style="margin-top: 14px;">
+                <div class="st-section-head" style="margin-bottom: 8px;"><h2 style="font-size: 14px;">Where these defaults apply</h2></div>
+                <div class="st-default-loan-row">
+                  <div class="ic"><i class="ri-add-circle-line"></i></div>
+                  <div>
+                    <div class="ti">Create loan account wizard</div>
+                    <div class="sb">All fields pre-filled from these defaults.</div>
+                  </div>
+                  <span class="val" style="color: #1f7a52;">Active</span>
+                </div>
+                <div class="st-default-loan-row">
+                  <div class="ic"><i class="ri-bank-card-line"></i></div>
+                  <div>
+                    <div class="ti">Listing → offer</div>
+                    <div class="sb">When a customer accepts an offer, the loan inherits these defaults.</div>
+                  </div>
+                  <span class="val" style="color: #1f7a52;">Active</span>
+                </div>
+                <div class="st-default-loan-row">
+                  <div class="ic"><i class="ri-file-text-line"></i></div>
+                  <div>
+                    <div class="ti">Bulk import</div>
+                    <div class="sb">CSV imports without explicit values fall back to these defaults.</div>
+                  </div>
+                  <span class="val" style="color: #1f7a52;">Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Danger zone ===== -->
+          <div class="st-pane" data-pane="danger">
+            <div class="st-section">
+              <div class="st-section-head">
+                <h2>Danger zone</h2>
+                <p>Irreversible actions. We'll require your password and a typed confirmation before any of these run.</p>
+              </div>
+
+              <div class="st-danger-card">
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Transfer ownership</div>
+                    <div class="sb">Hand off the Owner role to another admin in this agency. You'll be downgraded to admin once they accept.</div>
+                  </div>
+                  <button class="st-btn secondary" type="button" style="border-color: #f3d2c9; color: #b54e3c; background: var(--color-base-white);"><i class="ri-user-shared-line"></i> Transfer…</button>
+                </div>
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Pause agency</div>
+                    <div class="sb">Hides listings, suspends new applications, and freezes loan payment processing. Reversible.</div>
+                  </div>
+                  <button class="st-btn secondary" type="button" style="border-color: #f3d2c9; color: #b54e3c; background: var(--color-base-white);"><i class="ri-pause-circle-line"></i> Pause…</button>
+                </div>
+                <div class="st-danger-row">
+                  <div>
+                    <div class="ti">Delete agency</div>
+                    <div class="sb">Permanently deletes the agency, listings, prospects, and loan records. We'll export an archive for you first.</div>
+                  </div>
+                  <button class="st-btn danger" type="button"><i class="ri-delete-bin-line"></i> Delete agency</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // Section nav
+  const links = [...document.querySelectorAll('.st-rail-link')];
+  const panes = [...document.querySelectorAll('.st-pane')];
+  function setSection(name) {
+    links.forEach(l => l.classList.toggle('active', l.dataset.section === name));
+    panes.forEach(p => p.classList.toggle('active', p.dataset.pane === name));
+    if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+  }
+  links.forEach(l => l.addEventListener('click', () => setSection(l.dataset.section)));
+  if (location.hash) {
+    const name = location.hash.slice(1);
+    if (panes.some(p => p.dataset.pane === name)) setSection(name);
+  }
+
+  // Layout toggle
+  const layoutBtns = [...document.querySelectorAll('[data-layout-btn]')];
+  function setLayout(name) {
+    document.body.dataset.layout = name;
+    layoutBtns.forEach(b => b.classList.toggle('active', b.dataset.layoutBtn === name));
+    try { localStorage.setItem('reamSettingsLayout', name); } catch (e) {}
+  }
+  layoutBtns.forEach(b => b.addEventListener('click', () => setLayout(b.dataset.layoutBtn)));
+  try {
+    const saved = localStorage.getItem('reamSettingsLayout');
+    if (saved === 'a' || saved === 'b') setLayout(saved);
+  } catch (e) {}
+
+  // Tag chips
+  const chipsBox = document.getElementById('tagChips');
+  if (chipsBox) {
+    const inp = chipsBox.querySelector('input');
+    chipsBox.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (btn) btn.parentElement.remove();
+      else inp.focus();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && inp.value.trim()) {
+        e.preventDefault();
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = `${inp.value.trim().replace(/</g, '&lt;')}<button type="button" aria-label="Remove">×</button>`;
+        chipsBox.insertBefore(chip, inp);
+        inp.value = '';
+      } else if (e.key === 'Backspace' && !inp.value) {
+        const last = chipsBox.querySelectorAll('.chip');
+        if (last.length) last[last.length - 1].remove();
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

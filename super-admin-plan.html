@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — Super Admin / Maintainer Console · Proposal</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<style>
+  body { background: #f6f5f9; }
+  .doc-shell { max-width: 920px; margin: 0 auto; padding: 32px 28px 80px; }
+  .doc-eyebrow { color: var(--color-brand-600); font: 700 11px/1 var(--font-sans); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+  .doc-h1 { font: 700 32px/1.2 var(--font-display); color: #1a1626; letter-spacing: -.02em; margin: 0 0 8px; }
+  .doc-lede { font: 400 15px/1.65 var(--font-sans); color: #5b5670; margin: 0 0 20px; max-width: 760px; }
+  .doc-meta { display: flex; gap: 16px; flex-wrap: wrap; font: 500 12px var(--font-sans); color: #7a7589; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); margin-bottom: 28px; }
+  .doc-meta b { color: #1a1626; font-weight: 600; }
+
+  .toc { background: white; border: 1px solid var(--border-default); border-radius: 10px; padding: 14px 18px; margin: 0 0 32px; }
+  .toc h3 { font: 700 11px var(--font-sans); letter-spacing: .12em; text-transform: uppercase; color: #1a1626; margin: 0 0 10px; }
+  .toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 36px; font: 500 13px/1.85 var(--font-sans); }
+  .toc a { color: #4a4659; text-decoration: none; }
+  .toc a:hover { color: var(--color-brand-600); }
+  @media (max-width: 700px) { .toc ol { columns: 1; } }
+
+  h2.sec { font: 700 22px var(--font-display); color: #1a1626; margin: 36px 0 6px; letter-spacing: -.005em; display: flex; align-items: baseline; gap: 12px; }
+  h2.sec .num { font: 700 13px var(--font-sans); color: white; background: var(--color-brand-600); border-radius: 6px; padding: 4px 9px; letter-spacing: .04em; }
+  h2.sec + p.intro { font: 400 14px/1.65 var(--font-sans); color: #5b5670; margin: 0 0 16px; max-width: 760px; }
+  h3.sub { font: 700 13.5px var(--font-sans); color: #1a1626; margin: 22px 0 8px; letter-spacing: .02em; }
+  p { font: 400 13.5px/1.65 var(--font-sans); color: #4a4659; margin: 0 0 12px; }
+  ul, ol { font: 400 13.5px/1.7 var(--font-sans); color: #4a4659; padding-left: 22px; margin: 0 0 14px; }
+  li b { color: #1a1626; font-weight: 600; }
+  li code, p code { font: 500 12px var(--font-mono, monospace); background: #f4f1fb; color: var(--color-brand-700); padding: 1px 5px; border-radius: 4px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: white; border: 1px solid var(--border-default); border-radius: 10px; padding: 14px 16px; }
+  .card h4 { font: 600 13.5px var(--font-sans); margin: 0 0 4px; color: #1a1626; display: flex; align-items: center; gap: 8px; }
+  .card h4 i { color: var(--color-brand-600); }
+  .card p { font: 400 12.5px/1.55 var(--font-sans); color: #5b5670; margin: 0; }
+  .card ul { font-size: 12.5px; line-height: 1.6; margin: 6px 0 0; color: #5b5670; }
+
+  .pill { display: inline-block; font: 600 10.5px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; }
+  .pill.must { background: #fee2e2; color: #991b1b; }
+  .pill.should { background: #fef3c7; color: #92400e; }
+  .pill.may { background: #dbeafe; color: #1e40af; }
+
+  table.spec { width: 100%; border-collapse: collapse; margin: 8px 0 18px; font: 13px var(--font-sans); border: 1px solid var(--border-default); border-radius: 8px; overflow: hidden; }
+  table.spec th { background: #faf9fc; font: 600 11px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: #1a1626; text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border-default); }
+  table.spec td { padding: 10px 12px; border-bottom: 1px solid var(--border-default); color: #4a4659; vertical-align: top; }
+  table.spec tr:last-child td { border-bottom: none; }
+  table.spec td b { color: #1a1626; }
+  table.spec td code { font: 500 11.5px var(--font-mono, monospace); background: #f4f1fb; color: var(--color-brand-700); padding: 1px 5px; border-radius: 4px; }
+
+  pre.code { background: #1a1626; color: #d8d3e0; padding: 14px 16px; border-radius: 8px; font: 500 12px/1.55 var(--font-mono, monospace); overflow: auto; margin: 8px 0 16px; }
+  pre.code .k { color: #c4b5fd; }
+  pre.code .s { color: #fbbf24; }
+  pre.code .c { color: #6b6480; font-style: italic; }
+
+  .phase { display: grid; grid-template-columns: 130px 1fr; gap: 18px; padding: 14px 0; border-top: 1px solid var(--border-default); }
+  .phase:first-of-type { border-top: 0; }
+  .phase .ph-head { font: 700 12px var(--font-sans); color: #1a1626; }
+  .phase .ph-head .wk { display: block; font: 500 11px var(--font-sans); color: #7a7589; margin-top: 4px; }
+  .phase .ph-head .stage { display: inline-block; margin-top: 6px; font: 700 9.5px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 4px; }
+  .phase .ph-head .stage.found { background: #ede9fe; color: #5b21b6; }
+  .phase .ph-head .stage.read  { background: #dbeafe; color: #1e40af; }
+  .phase .ph-head .stage.write { background: #ddf7ea; color: #166534; }
+  .phase .ph-head .stage.harden{ background: #fef3c7; color: #92400e; }
+  .phase h4 { font: 700 14px var(--font-sans); margin: 0 0 4px; color: #1a1626; }
+  .phase p { font: 400 13px/1.6 var(--font-sans); color: #4a4659; margin: 0 0 6px; }
+  .phase ul { font-size: 12.5px; line-height: 1.65; margin: 4px 0 0; }
+
+  .callout { padding: 12px 14px; border-radius: 8px; margin: 14px 0; font: 400 13px/1.6 var(--font-sans); }
+  .callout.warn { background: #fff7ed; border-left: 3px solid #f59e0b; color: #78350f; }
+  .callout.info { background: #eff6ff; border-left: 3px solid #2563eb; color: #1e3a8a; }
+  .callout.crit { background: #fee2e2; border-left: 3px solid #dc2626; color: #7f1d1d; }
+  .callout b { color: inherit; font-weight: 700; }
+
+  .topbar { background: white; border-bottom: 1px solid var(--border-default); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+  .topbar .crumb { font: 500 13px var(--font-sans); color: #7a7589; }
+  .topbar .crumb a { color: var(--color-brand-600); text-decoration: none; }
+  .topbar .actions { display: flex; gap: 8px; }
+  .topbar .btn { background: white; border: 1px solid var(--border-default); border-radius: 8px; padding: 7px 14px; font: 600 13px var(--font-sans); color: #4a4659; text-decoration: none; }
+  .topbar .btn.primary { background: var(--color-brand-600); border-color: var(--color-brand-600); color: white; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb"><a href="index.html">Index</a> &nbsp;/&nbsp; <span>Super Admin / Maintainer Console — Proposal</span></div>
+  <div class="actions">
+    <a href="#phases" class="btn primary"><i class="ri-rocket-line"></i> Rollout plan</a>
+  </div>
+</div>
+
+<div class="doc-shell">
+
+  <p class="doc-eyebrow">Internal proposal · Platform · v0.1</p>
+  <h1 class="doc-h1">Super Admin / Maintainer Console</h1>
+  <p class="doc-lede">
+    A REAM-internal control plane for SaaS oversight: cross-tenant org &amp; user management, invite-gated
+    onboarding with a public-signups feature flag, plus the operational primitives (audit, broadcasts, kill-switch)
+    every multi-tenant platform needs once it has paying customers.
+  </p>
+  <div class="doc-meta">
+    <span><b>Author</b> Platform team</span>
+    <span><b>Status</b> Draft for review</span>
+    <span><b>Audience</b> Engineering · Security · CS leadership</span>
+    <span><b>Target GA</b> Q3 2026</span>
+  </div>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#goals">Goals &amp; non-goals</a></li>
+      <li><a href="#personas">Personas &amp; access tiers</a></li>
+      <li><a href="#arch">Architectural boundaries</a></li>
+      <li><a href="#data">Data model deltas</a></li>
+      <li><a href="#features">Feature inventory</a></li>
+      <li><a href="#invites">Invite-gated onboarding</a></li>
+      <li><a href="#flags">Feature-flag platform</a></li>
+      <li><a href="#blocks">Block / unblock semantics</a></li>
+      <li><a href="#audit">Audit, compliance &amp; security</a></li>
+      <li><a href="#screens">Screens to build</a></li>
+      <li><a href="#phases">Phased rollout (14 weeks)</a></li>
+      <li><a href="#open">Open questions</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 GOALS -->
+  <h2 class="sec" id="goals"><span class="num">1</span> Goals &amp; non-goals</h2>
+  <p class="intro">What this console is, and just as importantly, what it is not.</p>
+
+  <h3 class="sub">In scope</h3>
+  <ul>
+    <li><b>Cross-tenant visibility</b> — list and search every organization, user, agency, loan and document on the platform.</li>
+    <li><b>Lifecycle controls</b> — block / unblock orgs and users at the platform level, with mandatory reason and audit trail.</li>
+    <li><b>Invite-only onboarding</b> — REAM is closed by default; only invited owners can stand up an organization.</li>
+    <li><b>Feature flags</b> — a first-class flag store (global / per-org / per-user) controlling, among other things, whether public sign-ups are allowed.</li>
+    <li><b>Operational instruments</b> — broadcast banners, scheduled-maintenance comms, an immutable audit log, and a system-health dashboard.</li>
+  </ul>
+
+  <h3 class="sub">Out of scope (v1)</h3>
+  <ul>
+    <li><b>Tenant-side admin features</b> — organization owners already have their own admin UI; the platform console is strictly a REAM-internal tool.</li>
+    <li><b>Direct edits to tenant business data</b> — no editing loans, documents or payments from this console. Read-only with explicit "Open in tenant" links if needed.</li>
+    <li><b>Billing / metering</b> — handled by the existing billing service. The console links out to Stripe / billing dashboards, doesn't reimplement.</li>
+    <li><b>Customer support ticketing</b> — Zendesk integration via deep-links; we do not build a help-desk inside the console.</li>
+  </ul>
+
+  <!-- 2 PERSONAS -->
+  <h2 class="sec" id="personas"><span class="num">2</span> Personas &amp; access tiers</h2>
+  <p class="intro">Three platform-level roles, plus the customer-side roles they can act on.</p>
+
+  <table class="spec">
+    <thead><tr><th>Role</th><th>Who</th><th>Capabilities</th><th>MFA</th></tr></thead>
+    <tbody>
+      <tr><td><b>Super Admin</b><br/><code>platform.super_admin</code></td><td>CTO, Head of Platform</td><td>Everything below + role assignment, kill-switch, secret rotation. 2-person rule on destructive ops.</td><td>Hardware key (FIDO2)</td></tr>
+      <tr><td><b>Operator</b><br/><code>platform.operator</code></td><td>Platform / SRE engineers, senior CS</td><td>Block/unblock, issue invites, toggle non-critical flags, view audit, send broadcasts.</td><td>Hardware key (FIDO2)</td></tr>
+      <tr><td><b>Compliance</b><br/><code>platform.compliance</code></td><td>Security &amp; compliance officers</td><td>Read-only across the entire console; can export audit log; cannot mutate state.</td><td>TOTP minimum</td></tr>
+      <tr><td><b>Org Owner</b> (tenant)</td><td>Customer who created an organization</td><td>Out of scope here — uses tenant admin. Listed only because the console <em>acts on</em> them.</td><td>Tenant policy</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 3 ARCH -->
+  <h2 class="sec" id="arch"><span class="num">3</span> Architectural boundaries</h2>
+  <p class="intro">Treat the console as a distinct application — separate URL, separate auth realm, separate deploy.</p>
+
+  <div class="grid">
+    <div class="card"><h4><i class="ri-global-line"></i> Separate origin</h4><p>Hosted at <code>admin.ream.com</code>. Different cookie domain than <code>app.ream.com</code> — a compromised tenant session cannot escalate.</p></div>
+    <div class="card"><h4><i class="ri-shield-keyhole-line"></i> Separate auth realm</h4><p>Identity provider issues platform-only tokens with role claims (<code>platform.super_admin</code>, etc.). Hardware MFA enforced at the IdP level.</p></div>
+    <div class="card"><h4><i class="ri-shield-check-line"></i> IP allow-list</h4><p>Production console only reachable from the corporate VPN / Cloudflare Access. No public DNS resolution outside the allow-list.</p></div>
+    <div class="card"><h4><i class="ri-database-2-line"></i> Read replica first</h4><p>Cross-tenant reads hit a dedicated replica to avoid noisy queries on the OLTP primary. Mutations go through the same service layer as the tenant app.</p></div>
+    <div class="card"><h4><i class="ri-history-line"></i> Append-only audit</h4><p>Every privileged action writes to <code>platform_audit_log</code> in a separate database with WORM retention (7 years).</p></div>
+    <div class="card"><h4><i class="ri-stack-line"></i> Same code, separate deploy</h4><p>Console is a separate Next.js app in the same monorepo. Shares the domain libs, has its own CI/CD pipeline and feature-flagged build.</p></div>
+  </div>
+
+  <!-- 4 DATA -->
+  <h2 class="sec" id="data"><span class="num">4</span> Data model deltas</h2>
+  <p class="intro">New tables — kept narrow, audited, and isolated from tenant data.</p>
+
+  <table class="spec">
+    <thead><tr><th>Table</th><th>Purpose</th><th>Key columns</th></tr></thead>
+    <tbody>
+      <tr><td><code>platform_admins</code></td><td>People who can sign in to the console — distinct from tenant <code>users</code>.</td><td>id, email, role, mfa_enrolled_at, last_seen_at, status</td></tr>
+      <tr><td><code>feature_flags</code></td><td>The flag definitions — name, type, default, owner.</td><td>key, name, kind <code>(boolean|string|number|json)</code>, default_value, description</td></tr>
+      <tr><td><code>flag_evaluations</code></td><td>Scoped values: global, per-org, per-user, percentage rollout.</td><td>flag_key, scope <code>(global|org|user)</code>, scope_id, value, rollout_pct, expires_at</td></tr>
+      <tr><td><code>org_invites</code></td><td>Single-use tokens that gate organization creation.</td><td>token, email, intended_role, max_uses, used_count, expires_at, created_by, used_by_user_id, used_at, status</td></tr>
+      <tr><td><code>org_blocks</code></td><td>Platform-level suspension of an entire organization.</td><td>org_id, status <code>(active|read_only|locked)</code>, reason_code, reason_note, blocked_by, blocked_at, expires_at</td></tr>
+      <tr><td><code>user_blocks</code></td><td>Platform-level suspension of an individual user.</td><td>user_id, status, reason_code, reason_note, blocked_by, blocked_at, expires_at</td></tr>
+      <tr><td><code>broadcasts</code></td><td>System-wide banners (incidents, maintenance, marketing).</td><td>id, severity, title, body, audience <code>(all|by_org|by_role)</code>, starts_at, ends_at, dismissable</td></tr>
+      <tr><td><code>platform_audit_log</code></td><td>Append-only record of every privileged action.</td><td>id, actor_id, actor_role, action, target_kind, target_id, before_json, after_json, ip, ua, occurred_at</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 5 FEATURES -->
+  <h2 class="sec" id="features"><span class="num">5</span> Feature inventory</h2>
+  <p class="intro">The console split into ten functional modules. <span class="pill must">MUST</span> are required for v1; <span class="pill should">SHOULD</span> for GA; <span class="pill may">MAY</span> are stretch.</p>
+
+  <div class="grid">
+    <div class="card"><h4><i class="ri-building-line"></i> Tenants <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Cross-tenant organization directory. Filter by status, plan, region, signup source. Drill-in: users, agencies, loans, documents, billing link, audit slice.</p></div>
+    <div class="card"><h4><i class="ri-team-line"></i> Users <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Global directory across tenants. Search by email, phone, ID. Block/unblock at platform level (overrides tenant). View login history.</p></div>
+    <div class="card"><h4><i class="ri-mail-add-line"></i> Invitations <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Generate single-use or multi-use invite links. Set expiry, intended role, allowed email domain. Revoke, resend, copy link, bulk CSV.</p></div>
+    <div class="card"><h4><i class="ri-toggle-line"></i> Feature flags <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Boolean / string / number / JSON flags. Global default, per-org override, per-user override, percentage rollout. Change history per flag.</p></div>
+    <div class="card"><h4><i class="ri-shield-cross-line"></i> Block / unblock <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Three-state suspension (Active → Read-only → Locked) with mandatory reason code &amp; note. Auto-expire option for temp holds.</p></div>
+    <div class="card"><h4><i class="ri-history-line"></i> Audit log <span class="pill must" style="margin-left:auto;">MUST</span></h4><p>Searchable, exportable, immutable. Every console action is recorded with before/after JSON snapshot, IP and UA.</p></div>
+    <div class="card"><h4><i class="ri-megaphone-line"></i> Broadcasts <span class="pill should" style="margin-left:auto;">SHOULD</span></h4><p>System banners across the tenant app — incident, planned maintenance, release notes. Severity-coloured, scheduled, dismissable.</p></div>
+    <div class="card"><h4><i class="ri-pulse-line"></i> Health dashboard <span class="pill should" style="margin-left:auto;">SHOULD</span></h4><p>SLO uptime, error budget burn, queue depth, top slow endpoints. Embedded Grafana / Datadog widgets, no original metrics work.</p></div>
+    <div class="card"><h4><i class="ri-shut-down-line"></i> Kill-switch <span class="pill should" style="margin-left:auto;">SHOULD</span></h4><p>One-click read-only mode for a tenant or the whole platform — wired through the flag system. 2-person approval at platform-wide level.</p></div>
+    <div class="card"><h4><i class="ri-download-cloud-line"></i> Data export <span class="pill may" style="margin-left:auto;">MAY</span></h4><p>GDPR/CCPA right-of-access — export all data for an org or user as a signed ZIP. Sensitive: requires step-up MFA + reason note.</p></div>
+  </div>
+
+  <!-- 6 INVITES -->
+  <h2 class="sec" id="invites"><span class="num">6</span> Invite-gated onboarding</h2>
+  <p class="intro">REAM is a closed platform. Owners can only register an organization through an invitation, unless a super admin explicitly opens the door.</p>
+
+  <h3 class="sub">Invite token shape</h3>
+  <pre class="code">{
+  <span class="k">"token"</span>:        <span class="s">"inv_01HNQT8G3F4Z5ABXDR9V0K2T7M"</span>,
+  <span class="k">"email"</span>:        <span class="s">"founder@acmerealty.com"</span>,
+  <span class="k">"intended_role"</span>: <span class="s">"org_owner"</span>,
+  <span class="k">"allowed_domain"</span>: <span class="s">"acmerealty.com"</span>,    <span class="c">// optional</span>
+  <span class="k">"max_uses"</span>:     1,
+  <span class="k">"used_count"</span>:   0,
+  <span class="k">"expires_at"</span>:   <span class="s">"2026-06-01T00:00:00Z"</span>,
+  <span class="k">"created_by"</span>:   <span class="s">"padmin_42"</span>,
+  <span class="k">"status"</span>:       <span class="s">"active"</span>          <span class="c">// active | revoked | exhausted | expired</span>
+}</pre>
+
+  <h3 class="sub">Sign-up gate logic</h3>
+  <pre class="code"><span class="c">// Server-side org creation handler</span>
+<span class="k">async function</span> registerOrg(req) {
+  <span class="k">const</span> publicSignups = <span class="k">await</span> flags.eval(<span class="s">"signups.public_enabled"</span>);
+
+  <span class="k">if</span> (!publicSignups) {
+    <span class="k">const</span> token = req.body.invite_token;
+    <span class="k">if</span> (!token) <span class="k">throw</span> Forbidden(<span class="s">"invite_required"</span>);
+
+    <span class="k">const</span> invite = <span class="k">await</span> invites.findActive(token);
+    <span class="k">if</span> (!invite)               <span class="k">throw</span> Forbidden(<span class="s">"invite_invalid"</span>);
+    <span class="k">if</span> (invite.expires_at &lt; now()) <span class="k">throw</span> Forbidden(<span class="s">"invite_expired"</span>);
+    <span class="k">if</span> (invite.used_count &gt;= invite.max_uses) <span class="k">throw</span> Forbidden(<span class="s">"invite_exhausted"</span>);
+    <span class="k">if</span> (invite.email &amp;&amp; invite.email !== req.body.email)
+                              <span class="k">throw</span> Forbidden(<span class="s">"invite_email_mismatch"</span>);
+
+    <span class="k">await</span> invites.consume(invite.id, req.user.id);
+  }
+
+  <span class="k">return</span> orgs.create({ ...req.body, owner_id: req.user.id });
+}</pre>
+
+  <h3 class="sub">UX flow</h3>
+  <ol>
+    <li>Operator generates an invite from <code>/admin/invites</code> — paste email, pick max-uses (default 1), pick expiry (default 14 days), copy the link.</li>
+    <li>Recipient lands on <code>app.ream.com/register?invite=&lt;token&gt;</code>. The invite is pre-validated; the email is pre-filled and locked if the invite is email-bound.</li>
+    <li>On submit, the server re-validates and consumes the token in the same transaction as <code>orgs.create()</code> — no race.</li>
+    <li>The console shows the invite as <em>used</em>, with the resulting org and user IDs linked.</li>
+  </ol>
+
+  <div class="callout warn"><b>Edge cases to handle.</b> Token reuse attempts, email-bound invites being claimed by a different signed-in user, expired tokens, the invite-link being shared on social media (rate-limit + audit), and the case where a user already has an account at another org and tries to redeem an invite for a new one.</div>
+
+  <!-- 7 FLAGS -->
+  <h2 class="sec" id="flags"><span class="num">7</span> Feature-flag platform</h2>
+  <p class="intro">Flags are first-class. The "open the gate" capability is itself a flag, so the toggle lives in the same UI as every other rollout.</p>
+
+  <h3 class="sub">Initial flag set</h3>
+  <table class="spec">
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>signups.public_enabled</code></td><td>boolean</td><td><b>false</b></td><td>When false, an invite token is required to create an organization. When true, anyone can self-register.</td></tr>
+      <tr><td><code>signups.allowed_email_domains</code></td><td>json (string[])</td><td><code>[]</code></td><td>If non-empty, restricts public sign-ups to listed domains. Ignored when <code>public_enabled</code> is false.</td></tr>
+      <tr><td><code>signups.require_phone_verification</code></td><td>boolean</td><td>true</td><td>Forces SMS OTP at sign-up.</td></tr>
+      <tr><td><code>org.max_users_per_org</code></td><td>number</td><td>50</td><td>Hard cap. Per-org override drives plan limits.</td></tr>
+      <tr><td><code>features.loan_modifications</code></td><td>boolean</td><td>true</td><td>Beta toggle for the loan-modification flow.</td></tr>
+      <tr><td><code>platform.read_only_mode</code></td><td>boolean</td><td>false</td><td>Kill-switch — when true, every mutation returns <code>503 maintenance</code>. 2-person rule.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Resolution order</h3>
+  <ol>
+    <li>User-scoped override (if any) →</li>
+    <li>Org-scoped override (if any) →</li>
+    <li>Percentage rollout cohort (if defined; bucketed by stable hash of <code>org_id</code>) →</li>
+    <li>Global value →</li>
+    <li>Compiled-in default.</li>
+  </ol>
+
+  <div class="callout info"><b>Build vs buy.</b> Use <b>OpenFeature</b> as the API surface from day one. Back it with our own table for v1, and swap to LaunchDarkly / Flagsmith later without touching call-sites if scale demands it.</div>
+
+  <!-- 8 BLOCKS -->
+  <h2 class="sec" id="blocks"><span class="num">8</span> Block / unblock semantics</h2>
+  <p class="intro">Three states, mandatory reason codes, and a clear contract about what each state allows.</p>
+
+  <table class="spec">
+    <thead><tr><th>State</th><th>Org behavior</th><th>User behavior</th><th>Typical reason</th></tr></thead>
+    <tbody>
+      <tr><td><b>Active</b></td><td>Normal operation.</td><td>Normal operation.</td><td>—</td></tr>
+      <tr><td><b>Read-only</b></td><td>Can sign in &amp; read; all mutations return <code>403 read_only</code>.</td><td>Can sign in &amp; read everything they had access to. Cannot upload, pay, sign.</td><td>Payment failure, KYC re-review, customer dispute.</td></tr>
+      <tr><td><b>Locked</b></td><td>Cannot sign in. Org dashboard shows the reason and a contact link.</td><td>Cannot sign in. Sessions revoked.</td><td>Fraud, abuse, court order, term violation.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Workflow</h3>
+  <ol>
+    <li>Operator opens an org or user record, clicks <b>Suspend</b>.</li>
+    <li>Modal requires: target state, reason code (enum), free-text note (≥20 chars), optional auto-expire.</li>
+    <li>Step-up MFA prompt before commit.</li>
+    <li>On commit: state row written, all active sessions revoked (Locked) or marked read-only (Read-only), <code>org.suspended</code> webhook fired, audit row written, customer-side banner shown on next session.</li>
+    <li>Unblock follows the same flow with reason code <code>cleared</code> and an additional resolution note.</li>
+  </ol>
+
+  <!-- 9 AUDIT -->
+  <h2 class="sec" id="audit"><span class="num">9</span> Audit, compliance &amp; security</h2>
+
+  <ul>
+    <li><b>Every privileged action</b> writes a row to <code>platform_audit_log</code>. Schema includes actor, role, action, target, before/after JSON snapshot, IP, user-agent, request-id and timestamp.</li>
+    <li><b>Step-up MFA</b> on destructive actions (block, kill-switch, data export, role assignment) — re-prompt for hardware key even if recently authenticated.</li>
+    <li><b>2-person rule</b> on platform-wide kill-switch and on data export: a second admin must approve within 15 minutes.</li>
+    <li><b>Reason-required</b> — every mutation has a reason field; nullable reasons fail validation. The reason flows into audit and into the customer-facing message where applicable.</li>
+    <li><b>PII discipline</b> — never log SSN, full card PAN, or signature images. Document references are linked, not embedded.</li>
+    <li><b>Retention</b> — audit log is WORM with 7-year retention; tenant data export is encrypted at rest with a per-export KMS key and auto-deleted after 30 days.</li>
+    <li><b>Compliance hooks</b> — GDPR Article 15 (right of access), Article 17 (right of erasure), CCPA §1798.105, SOC 2 CC7.2 (system monitoring), CC6.1 (logical access).</li>
+  </ul>
+
+  <div class="callout crit"><b>Threat model worth naming.</b> The biggest risk is a compromised platform-admin session, not an external attacker. Therefore: short session lifetimes (4 h), continuous re-auth on sensitive screens, IP allow-list, hardware MFA, and Slack-alerting on every high-severity action.</div>
+
+  <!-- 10 SCREENS -->
+  <h2 class="sec" id="screens"><span class="num">10</span> Screens to build</h2>
+  <p class="intro">Eleven screens — sized so a small team can deliver them in the phased plan below.</p>
+
+  <table class="spec">
+    <thead><tr><th>Route</th><th>Purpose</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td><code>/admin/dashboard</code></td><td>KPIs: active orgs, MAU, signups today, error rate, top alerts.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/orgs</code></td><td>Cross-tenant org table — filter, search, drill in.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/orgs/:id</code></td><td>Org detail: KPIs, users, agencies, loans, documents, suspend/unblock, billing link, audit slice.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/users</code></td><td>Global user directory, block/unblock, login history, devices.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/users/:id</code></td><td>User detail with the same instruments as the org page.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/invites</code></td><td>Generate, view, revoke, copy invite links; bulk CSV.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/flags</code></td><td>Flag list with global value + per-org overrides; <code>signups.public_enabled</code> toggle is the headliner.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/audit</code></td><td>Searchable, exportable audit log.</td><td><span class="pill must">MUST</span></td></tr>
+      <tr><td><code>/admin/broadcasts</code></td><td>Compose system banners — severity, audience, schedule.</td><td><span class="pill should">SHOULD</span></td></tr>
+      <tr><td><code>/admin/health</code></td><td>Embedded SLO dashboard, queue depth, error budget.</td><td><span class="pill should">SHOULD</span></td></tr>
+      <tr><td><code>/admin/settings</code></td><td>Platform admins, role assignment, kill-switch, secret rotation.</td><td><span class="pill should">SHOULD</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- 11 PHASES -->
+  <h2 class="sec" id="phases"><span class="num">11</span> Phased rollout — 14 weeks</h2>
+  <p class="intro">Cut at every line — each phase ends with something usable in production by REAM operators.</p>
+
+  <div class="phase">
+    <div class="ph-head">Phase 0<span class="wk">Weeks 1–2</span><span class="stage found">Foundation</span></div>
+    <div>
+      <h4>Foundation &amp; infra</h4>
+      <p>Stand up <code>admin.ream.com</code>, separate auth realm, hardware MFA enforcement, Cloudflare Access IP allow-list, audit-log table, OpenFeature client wired into the tenant app.</p>
+      <ul>
+        <li>Create <code>platform_admins</code>, <code>feature_flags</code>, <code>flag_evaluations</code>, <code>platform_audit_log</code> tables.</li>
+        <li>Bootstrap the first super admin via DB migration; that admin invites the rest in-product.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 1<span class="wk">Weeks 3–5</span><span class="stage read">Read-only</span></div>
+    <div>
+      <h4>Read-only console</h4>
+      <p>Cross-tenant directories, drill-ins, audit search, dashboard KPIs. No mutations yet — proves the read replica, the role guard and the audit pipeline.</p>
+      <ul>
+        <li>Screens: <code>/admin/dashboard</code>, <code>/admin/orgs</code>, <code>/admin/orgs/:id</code>, <code>/admin/users</code>, <code>/admin/users/:id</code>, <code>/admin/audit</code>.</li>
+        <li>Exit criteria: ops team uses the console for every customer-support inquiry instead of running ad-hoc SQL.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 2<span class="wk">Weeks 6–7</span><span class="stage write">Invitations</span></div>
+    <div>
+      <h4>Invitation system</h4>
+      <p>The invite store, generation UI, validation in <code>orgs.create()</code>. Public sign-up is gated by the new <code>signups.public_enabled</code> flag (defaulting to false).</p>
+      <ul>
+        <li>Screens: <code>/admin/invites</code>, plus an updated <code>/register</code> on the tenant app.</li>
+        <li>Backfill: every existing org gets a synthetic "grandfathered" invite record so the cohort is consistent.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 3<span class="wk">Weeks 8–9</span><span class="stage write">Flags</span></div>
+    <div>
+      <h4>Feature-flag platform</h4>
+      <p>Full flag editor: global value, per-org and per-user overrides, percentage rollout, change history. <code>signups.public_enabled</code> moves from hard-coded to the new editor.</p>
+      <ul>
+        <li>Screens: <code>/admin/flags</code> + per-flag detail.</li>
+        <li>SDK: thin wrapper over OpenFeature exposed to backend services and the SPA.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 4<span class="wk">Week 10</span><span class="stage write">Block / unblock</span></div>
+    <div>
+      <h4>Lifecycle controls</h4>
+      <p>Three-state suspension with reason codes, step-up MFA, session revocation, customer-facing banners.</p>
+      <ul>
+        <li>Hooks: API gateway respects <code>org.status = read_only|locked</code> on every request.</li>
+        <li>Webhook: <code>org.suspended</code>, <code>org.restored</code>, <code>user.suspended</code>, <code>user.restored</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 5<span class="wk">Week 11</span><span class="stage write">Comms</span></div>
+    <div>
+      <h4>Broadcasts &amp; health</h4>
+      <p>System banner editor, scheduled maintenance windows, embedded health dashboard.</p>
+      <ul>
+        <li>Screens: <code>/admin/broadcasts</code>, <code>/admin/health</code>.</li>
+        <li>Tenant SDK exposes <code>useBroadcasts()</code> for the existing app shell.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 6<span class="wk">Weeks 12–13</span><span class="stage harden">SSO + RBAC</span></div>
+    <div>
+      <h4>SSO &amp; granular RBAC</h4>
+      <p>Move platform auth to corporate SSO (Okta / Azure AD). Implement the three-role matrix; add the kill-switch with 2-person rule.</p>
+      <ul>
+        <li>Screen: <code>/admin/settings</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="ph-head">Phase 7<span class="wk">Week 14</span><span class="stage harden">Hardening</span></div>
+    <div>
+      <h4>GA hardening</h4>
+      <p>Pen test, threat model review, SOC 2 evidence collection, runbook for incident-response, on-call training. Console marked GA.</p>
+    </div>
+  </div>
+
+  <div class="callout info"><b>Capacity assumptions.</b> 1 backend engineer + 1 frontend engineer + 0.25 designer + 0.25 security. Phase boundaries are soft — Phase 1 reads can be shipped independently while Phase 2's invite work proceeds in parallel after the foundation is in place.</div>
+
+  <!-- 12 OPEN -->
+  <h2 class="sec" id="open"><span class="num">12</span> Open questions</h2>
+  <ul>
+    <li><b>Single region or multi-region from day one?</b> Affects whether the audit log is centralised or per-region with replication.</li>
+    <li><b>Build flags or buy?</b> OpenFeature gives us optionality; we still need to commit to a back-end for v1. Recommendation: ship our own table for control + cost, design the schema so a LaunchDarkly migration is a one-day swap.</li>
+    <li><b>Org owner identity reuse.</b> If a user already exists at Org A and is invited to Org B, do they get a second account or a multi-tenant identity? The data model assumes the latter; the UX needs design.</li>
+    <li><b>Public-signups landing page.</b> When the flag flips on, what does <code>app.ream.com/register</code> look like? Drafted in a follow-up doc.</li>
+    <li><b>Customer notification on block.</b> Is an email always sent? Required for read-only? For locked? Compliance has a view here.</li>
+    <li><b>Admin console look-and-feel.</b> Reuse the existing REAM design system, or differentiate (different brand colour, "internal" stripe) so screenshots can never be confused with the customer app?</li>
+  </ul>
+
+  <p style="margin-top:32px; padding-top:16px; border-top:1px solid var(--border-default); font:500 12px var(--font-sans); color:#7a7589;">— end of proposal —</p>
+
+</div>
+
+</body>
+</html>

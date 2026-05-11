@@ -1,0 +1,187 @@
+/* ============================================================
+   Listings (houses · lands · sites) — shared styles
+   ============================================================ */
+
+.lst-hero {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.lst-hero h1 { margin: 0; }
+.lst-hero .sub { font-size: 13px; color: var(--fg3); margin-top: 4px; max-width: 620px; }
+.lst-hero .actions { display: flex; gap: 8px; }
+
+/* KPI strip */
+.lst-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  margin-top: 18px;
+}
+.lst-kpis .card {
+  background: white; border: 1px solid var(--color-grey-200); border-radius: 10px;
+  padding: 14px 16px;
+}
+.lst-kpis .card-title { font: 500 11.5px var(--font-sans); color: var(--fg3); text-transform: uppercase; letter-spacing: 0.04em; }
+.lst-kpis .card-value { font: 700 24px var(--font-sans); color: var(--color-grey-900); margin-top: 4px; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.lst-kpis .delta { font: 500 12px var(--font-sans); margin-top: 4px; }
+.lst-kpis .delta.up { color: var(--color-success-700); }
+.lst-kpis .delta.muted { color: var(--fg3); }
+.lst-kpis .delta.warn { color: var(--color-warning-700); }
+
+/* Toolbar */
+.lst-toolbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 18px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.lst-toolbar .lst-search {
+  flex: 1 1 280px; max-width: 360px; min-width: 220px;
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1px solid var(--color-grey-200); border-radius: 8px;
+  padding: 8px 12px;
+}
+.lst-toolbar .lst-search i { color: var(--fg4); }
+.lst-toolbar .lst-search input {
+  flex: 1; border: 0; outline: none; background: transparent;
+  font: 13px var(--font-sans); color: var(--color-grey-900);
+}
+.lst-toolbar .grow { flex: 1; }
+.lst-toolbar .view {
+  display: inline-flex; gap: 0; background: white;
+  border: 1px solid var(--color-grey-200); border-radius: 8px; overflow: hidden;
+}
+.lst-toolbar .view button {
+  background: transparent; border: 0; padding: 7px 10px; cursor: pointer;
+  color: var(--fg3); font-size: 14px;
+}
+.lst-toolbar .view button.on { background: var(--color-grey-100); color: var(--color-grey-900); }
+.lst-toolbar .count { font: 500 12.5px var(--font-sans); color: var(--fg3); }
+
+/* Type tabs */
+.lst-tabs {
+  display: flex; gap: 2px; border-bottom: 1px solid var(--border-subtle);
+  margin-top: 18px;
+}
+.lst-tabs .tab {
+  background: transparent; border: 0; cursor: pointer;
+  padding: 10px 14px; font: 500 13px var(--font-sans); color: var(--fg3);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.lst-tabs .tab i { font-size: 14px; }
+.lst-tabs .tab .cnt {
+  font: 500 11px var(--font-sans); color: var(--fg3);
+  background: var(--color-grey-100); padding: 1px 7px; border-radius: 999px;
+}
+.lst-tabs .tab:hover { color: var(--color-grey-900); }
+.lst-tabs .tab.on { color: var(--color-brand-700); border-bottom-color: var(--color-brand-700); font-weight: 600; }
+.lst-tabs .tab.on .cnt { background: var(--color-brand-50); color: var(--color-brand-700); }
+
+/* Card grid */
+.lst-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px; margin-top: 18px;
+}
+
+/* Card */
+.lst-card {
+  background: white; border: 1px solid var(--color-grey-200); border-radius: 14px;
+  overflow: hidden; display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04);
+  transition: box-shadow .15s, transform .15s;
+}
+.lst-card:hover { box-shadow: 0 6px 18px rgba(15,23,42,.08); transform: translateY(-1px); }
+
+.lst-card .img {
+  aspect-ratio: 4 / 3; position: relative; overflow: hidden;
+  background-position: center; background-size: cover;
+}
+.lst-card .img::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 60% at 50% 100%, rgba(0,0,0,.18), transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' preserveAspectRatio='none'><path d='M0,420 C120,360 240,460 380,420 C520,380 640,440 800,400 L800,600 L0,600 Z' fill='%23000' fill-opacity='0.18'/><path d='M0,470 C160,430 280,500 420,470 C560,440 680,490 800,460 L800,600 L0,600 Z' fill='%23000' fill-opacity='0.22'/></svg>");
+  background-size: cover;
+}
+
+/* Per-card image variants */
+.lst-card[data-img="sunridge"]   .img { background: linear-gradient(180deg, #1e3a8a 0%, #6b7fb8 35%, #f59e0b 70%, #92400e 100%); }
+.lst-card[data-img="eastview"]   .img { background: linear-gradient(180deg, #134e4a 0%, #34d399 50%, #84cc16 100%); }
+.lst-card[data-img="hillside"]   .img { background: linear-gradient(180deg, #0e7490 0%, #67e8f9 45%, #fde68a 100%); }
+.lst-card[data-img="riverbend"]  .img { background: linear-gradient(180deg, #1e40af 0%, #60a5fa 50%, #d4d4d8 100%); }
+.lst-card[data-img="phoenix"]    .img { background: linear-gradient(180deg, #7c2d12 0%, #ea580c 45%, #fed7aa 100%); }
+.lst-card[data-img="dakar"]      .img { background: linear-gradient(180deg, #134e4a 0%, #2dd4bf 50%, #fde68a 100%); }
+.lst-card[data-img="tema"]       .img { background: linear-gradient(180deg, #312e81 0%, #818cf8 50%, #fbbf24 100%); }
+.lst-card[data-img="northgate"]  .img { background: linear-gradient(180deg, #0c4a6e 0%, #38bdf8 45%, #fef3c7 100%); }
+.lst-card[data-img="oakwood"]    .img { background: linear-gradient(180deg, #14532d 0%, #4ade80 50%, #facc15 100%); }
+.lst-card[data-img="palm"]       .img { background: linear-gradient(180deg, #064e3b 0%, #10b981 40%, #fef08a 100%); }
+.lst-card[data-img="garden"]     .img { background: linear-gradient(180deg, #166534 0%, #86efac 50%, #fde047 100%); }
+.lst-card[data-img="harbor"]     .img { background: linear-gradient(180deg, #0c4a6e 0%, #0ea5e9 50%, #fbbf24 100%); }
+
+.lst-card .badge {
+  position: absolute; top: 12px; left: 12px; z-index: 1;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: white; padding: 6px 12px; border-radius: 999px;
+  font: 700 11px var(--font-sans); letter-spacing: 0.06em;
+  color: var(--color-grey-900); box-shadow: 0 2px 6px rgba(15,23,42,.10);
+}
+.lst-card .badge i { font-size: 14px; color: var(--color-success-600); }
+.lst-card .badge[data-tone="financed"] i { color: var(--color-brand-600); }
+.lst-card .badge[data-tone="reserved"] i { color: var(--color-warning-700); }
+.lst-card .badge[data-tone="construction"] i { color: var(--color-warning-700); }
+.lst-card .badge[data-tone="sold"]      i { color: var(--color-grey-700); }
+.lst-card .badge[data-tone="new"]       i { color: var(--color-success-600); }
+
+.lst-card .fav {
+  position: absolute; top: 12px; right: 12px; z-index: 1;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.92); border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--fg3); font-size: 16px; box-shadow: 0 2px 6px rgba(15,23,42,.10);
+}
+.lst-card .fav:hover { color: var(--color-warning-700); }
+.lst-card .fav.on   { color: var(--color-warning-700); }
+
+.lst-card .body { padding: 18px 20px 4px; display: flex; flex-direction: column; gap: 10px; }
+.lst-card .eyebrow { font: 600 11.5px var(--font-sans); color: var(--fg3); letter-spacing: 0.08em; text-transform: uppercase; }
+.lst-card h4 { margin: 0; font: 700 19px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; line-height: 1.2; }
+.lst-card .loc { display: inline-flex; align-items: center; gap: 6px; font: 14px var(--font-sans); color: var(--color-grey-700); }
+.lst-card .loc i { color: var(--fg4); font-size: 16px; }
+.lst-card .specs { display: inline-flex; flex-wrap: wrap; gap: 4px 16px; font: 14px var(--font-sans); margin-top: 2px; }
+.lst-card .specs .num { color: var(--color-grey-900); font-weight: 700; font-variant-numeric: tabular-nums; }
+.lst-card .specs .lab { color: var(--fg3); margin-left: 4px; }
+.lst-card .specs .tag { color: var(--color-grey-900); font-weight: 600; }
+
+.lst-card .divider { height: 1px; background: var(--border-subtle); margin: 10px 20px 0; }
+
+.lst-card .price-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 14px 20px 18px; gap: 12px;
+}
+.lst-card .price { font: 700 26px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.lst-card .price-meta { text-align: right; font: 14px var(--font-sans); color: var(--color-grey-700); line-height: 1.5; }
+.lst-card .price-meta b { color: var(--color-grey-900); font-weight: 700; }
+
+/* Site cards (sites are aggregates — show progress instead of price) */
+.lst-card .progress { padding: 0 20px 18px; }
+.lst-card .progress .lab { display: flex; justify-content: space-between; font: 12px var(--font-sans); color: var(--fg3); margin-bottom: 6px; }
+.lst-card .progress .lab b { color: var(--color-grey-900); font-weight: 700; font-variant-numeric: tabular-nums; }
+.lst-card .progress .bar { height: 6px; background: var(--color-grey-100); border-radius: 3px; overflow: hidden; }
+.lst-card .progress .bar > span { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--color-success-500, #10b981), var(--color-success-700, #047857)); }
+
+.lst-card .stat-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border-top: 1px solid var(--border-subtle);
+  padding: 12px 20px; font-variant-numeric: tabular-nums;
+}
+.lst-card .stat-grid > div { font: 14px var(--font-sans); }
+.lst-card .stat-grid .num { font: 700 18px var(--font-sans); color: var(--color-grey-900); letter-spacing: -0.01em; }
+.lst-card .stat-grid .lab { font: 12px var(--font-sans); color: var(--fg3); margin-top: 2px; }
+
+/* Empty state */
+.lst-empty {
+  margin-top: 32px; text-align: center; padding: 40px 20px;
+  background: white; border: 1px dashed var(--color-grey-300); border-radius: 12px;
+}
+.lst-empty i { font-size: 32px; color: var(--fg4); }
+.lst-empty .ti { font: 600 15px var(--font-sans); color: var(--color-grey-900); margin-top: 8px; }
+.lst-empty .sb { font: 13px var(--font-sans); color: var(--fg3); margin-top: 4px; }

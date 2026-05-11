@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>REAM — House detail</title>
+<script>
+  // Public house-detail wrapper. Locks asset-detail.html to a house record.
+  // Usage: house-detail-public.html?id=HSE-027
+  (function () {
+    const params = new URLSearchParams(location.search);
+    let id = (params.get('id') || '').toUpperCase();
+    if (!id || !id.startsWith('HSE')) id = 'HSE-027';
+    location.replace('asset-detail.html?id=' + encodeURIComponent(id));
+  })();
+</script>
+<meta http-equiv="refresh" content="0; url=asset-detail.html?id=HSE-027" />
+</head>
+<body>
+<p>Loading house detail… <a href="asset-detail.html?id=HSE-027">Continue</a></p>
+</body>
+</html>

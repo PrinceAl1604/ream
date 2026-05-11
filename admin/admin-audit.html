@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Audit log</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+    .audit-list { background:white;border:1px solid var(--adm-border);border-radius:10px;padding:0 18px; }
+  .day-h { font:600 11px var(--font-sans);color:var(--adm-text-3);text-transform:uppercase;letter-spacing:0.1em;padding:14px 0 6px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--adm-border-2);position:sticky;top:0;background:white; }
+  .day-h:first-child { border-top:0; }
+  .day-h .ct { font:600 10px var(--font-mono);background:#f3f4f6;color:var(--adm-text-3);padding:1px 7px;border-radius:999px;letter-spacing:0; }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"audit",
+    crumb:[{label:"Audit log"}],
+    title:"Platform audit log",
+    subtitle:"Append-only record of every administrative action. Retained 7 years. SOC 2 control AC-3.",
+    actions:`
+      <button class="adm-btn" id="auditExport"><i class="material-symbols-rounded">file_download</i> Export CSV</button>
+      <button class="adm-btn" id="auditSaved"><i class="material-symbols-rounded">tune</i> Saved views</button>
+    `,
+    env:"STAGING",
+  });
+</script>
+<script>
+const E = (icon, k, actor, html, ts, ip) => ({ icon, k, actor, html, ts, ip });
+const DAYS = [
+  { day:"Today · May 10", events:[
+    E("flag","info",   "Daria Kim",  `set flag <a class="target">portal_v2_redesign</a> rollout: <span class="diff"><span class="from">25%</span><span class="arr">→</span><span class="to">50%</span></span>`, "12:14:08", "10.0.4.21"),
+    E("mail","info",   "Daria Kim",  `sent invite to <span class="target">jvasquez@pinecrest.com</span> · plan: GROWTH`, "11:57:42", "10.0.4.21"),
+    E("lock","warn",   "System",     `moved org <a class="target">Northgate Realty</a> to <span class="diff"><span class="from">ACTIVE</span><span class="arr">→</span><span class="to">READ_ONLY</span></span> · trial expired`, "10:32:00", "system"),
+    E("verified_user","ok","Marc Olsen",`approved 2-person promote of <a class="target">refactor_payments_engine</a> to 10% (initiator: Daria Kim)`, "09:14:22", "10.0.4.18"),
+    E("campaign","info","Daria Kim", `scheduled broadcast <a class="target">Maintenance window — May 12 02:00 UTC</a> to ALL ORGS`, "08:42:11", "10.0.4.21"),
+    E("key_off","crit", "Security",   `blocked super-admin login for <span class="target">dkim@ream.com</span> from <span class="mono">203.0.113.44</span> (IP not in allowlist)`, "07:18:33", "203.0.113.44"),
+  ]},
+  { day:"Yesterday · May 9", events:[
+    E("person_remove","warn","Marc Olsen",`locked user <a class="target">tina@atlascap.com</a> · reason <code>ABUSE</code> · note "Reported by 4 prospects"`, "16:08:14", "10.0.4.18"),
+    E("toggle_on","info","Daria Kim", `created flag <a class="target">refactor_inventory_grid</a> · default false`, "14:50:02", "10.0.4.21"),
+    E("login","info",  "Daria Kim",   `opened impersonation session on <a class="target">Pinecrest Loans</a> (12 min, ended cleanly)`, "11:14:00", "10.0.4.21"),
+    E("group","info",  "Daria Kim",   `changed role on <a class="target">aaron@greenline.io</a>: <span class="diff"><span class="from">Admin</span><span class="arr">→</span><span class="to">Owner</span></span>`, "10:02:18", "10.0.4.21"),
+  ]},
+  { day:"May 8", events:[
+    E("domain","info","Daria Kim",   `created organization <a class="target">Coastal Realty</a> via accepted invite <code>inv_3a91</code>`, "17:44:29", "10.0.4.21"),
+    E("policy","warn","Security",    `flagged <span class="target">3 admins</span> with MFA last reset > 90 days`, "09:00:00", "system"),
+    E("toggle_on","info","Engineering",`set <a class="target">sms_provider_twilio</a> rollout: <span class="diff"><span class="from">10%</span><span class="arr">→</span><span class="to">25%</span></span>`, "08:14:02", "10.0.4.30"),
+  ]},
+];
+
+const html = `
+  <div class="adm-filterbar">
+    <div class="grow"><div class="adm-filter-input"><i class="material-symbols-rounded">search</i><input placeholder="Search actor, target, action, IP, request ID…"/></div></div>
+    <button class="adm-pill-filter">Actor: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Action: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Target: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Severity: <span class="v">Any</span><i class="material-symbols-rounded">expand_more</i></button>
+    <button class="adm-pill-filter">Range: <span class="v">Last 7 days</span><i class="material-symbols-rounded">expand_more</i></button>
+  </div>
+
+  <div class="audit-list">
+    ${DAYS.map(d => `
+      <div class="day-h">${d.day} <span class="ct">${d.events.length} events</span></div>
+      ${d.events.map(e => `
+        <div class="adm-audit-row">
+          <span class="ts">${e.ts}</span>
+          <span class="icon ${e.k}"><i class="material-symbols-rounded">${e.icon}</i></span>
+          <div class="body">
+            <div><span class="actor">${e.actor}</span> <span class="verb">${e.html}</span></div>
+            <div class="meta">IP <span class="mono">${e.ip}</span> · request <span class="mono">req_${Math.random().toString(36).slice(2,10)}</span></div>
+          </div>
+        </div>
+      `).join("")}
+    `).join("")}
+  </div>
+
+  <div class="adm-pager">
+    <span>Showing 13 events · last 3 days</span>
+    <div class="controls">
+      <button disabled><i class="material-symbols-rounded">chevron_left</i></button>
+      <button><i class="material-symbols-rounded">chevron_right</i></button>
+    </div>
+  </div>
+`;
+document.getElementById("adm-content").innerHTML = html;
+// Restyle .target inline links inside the audit body
+document.querySelectorAll(".adm-audit-row .target").forEach(t => t.style.cssText = "color:var(--adm-stripe);font-weight:500;text-decoration:none;");
+
+const T = AdminShell.toast;
+
+// Top-bar actions
+document.getElementById("auditExport").onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title: "Export audit log",
+    body: "Generates a signed CSV of all 13 visible events. Download link is valid for 60 minutes and is itself recorded as an audit event.",
+    confirmLabel: "Generate export",
+  });
+  if (ok) T("Export ready · audit_log_2025-05-10.csv", "success");
+};
+document.getElementById("auditSaved").onclick = (e) => {
+  AdminShell.popMenu(e.currentTarget, [
+    { label: "Failed admin logins (24h)", icon: "schedule",     onClick: () => T("Loaded view: Failed admin logins", "info") },
+    { label: "Flag rollout changes",       icon: "toggle_on",   onClick: () => T("Loaded view: Flag rollout changes", "info") },
+    { label: "Impersonation sessions",     icon: "switch_account", onClick: () => T("Loaded view: Impersonation sessions", "info") },
+    { label: "Permission grants/revokes",  icon: "verified_user", onClick: () => T("Loaded view: Permission changes", "info") },
+    "-",
+    { label: "Save current as view…",      icon: "bookmark_add", onClick: () => T("Save view form opening…", "info") },
+    { label: "Manage saved views…",        icon: "settings",    onClick: () => T("Saved views manager opening…", "info") },
+  ]);
+};
+
+// Filter pills
+const PILL_OPTS = {
+  Actor:    ["Any","Daria Kim","Marc Olsen","System","Security","Engineering"],
+  Action:   ["Any","Flag change","Invite sent","Org state change","Permission change","Login","Impersonation","Broadcast","Lock/unlock"],
+  Target:   ["Any","Organization","User","Flag","Broadcast","Invite","Policy"],
+  Severity: ["Any","Info","Warning","Critical","OK"],
+  Range:    ["Last hour","Last 24 hours","Last 7 days","Last 30 days","Last 90 days","Custom range…"],
+};
+document.querySelectorAll(".adm-pill-filter").forEach(pf => {
+  pf.onclick = () => {
+    const label = pf.textContent.trim().split(":")[0].trim();
+    const opts = PILL_OPTS[label];
+    if (!opts) return;
+    AdminShell.popMenu(pf, opts.map(o => ({
+      label: o,
+      onClick: () => { pf.querySelector(".v").textContent = o.length > 14 ? o.split(" ").slice(0,2).join(" ") : o; }
+    })));
+  };
+});
+
+// Search box
+document.querySelector(".adm-filter-input input").addEventListener("keydown", e => {
+  if (e.key === "Enter") T(`Searching audit log for "${e.target.value}"…`, "info");
+});
+
+// Clickable targets within events
+document.querySelectorAll(".adm-audit-row .target").forEach(t => {
+  t.style.cursor = "pointer";
+  t.onclick = () => T(`Opening: ${t.textContent}`, "info");
+});
+
+// Pager
+document.querySelectorAll(".adm-pager .controls button").forEach(b => {
+  if (!b.disabled) b.onclick = () => T("Next page", "info");
+});
+</script>
+</body>
+</html>

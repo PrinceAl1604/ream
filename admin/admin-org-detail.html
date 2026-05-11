@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ream Admin · Pinecrest Loans</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" />
+<link rel="stylesheet" href="admin-shell.css" />
+<style>
+  .org-hero { display:grid;grid-template-columns:64px 1fr auto;gap:18px;padding:18px 20px;background:white;border:1px solid var(--adm-border);border-radius:10px;align-items:center;margin-bottom:18px; }
+  .org-hero h2 { font:600 20px var(--font-display);margin:0;display:flex;align-items:center;gap:10px; }
+  .org-hero .meta-row { display:flex;gap:14px;font:500 12px var(--font-sans);color:var(--adm-text-3);margin-top:4px;flex-wrap:wrap; }
+  .org-hero .meta-row .mono { color:var(--adm-text-2); }
+  .danger-zone { border:1px solid #fecaca;background:#fef2f2;border-radius:10px;padding:0; }
+  .danger-zone .head { padding:12px 16px;border-bottom:1px solid #fecaca;display:flex;justify-content:space-between;align-items:center; }
+  .danger-zone .head h3 { margin:0;font:600 13px var(--font-sans);color:var(--adm-danger-700); }
+  .danger-row { padding:14px 16px;border-bottom:1px solid #fecaca;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center; }
+  .danger-row:last-child { border-bottom:0; }
+  .danger-row .t { font:600 13px var(--font-sans);color:var(--adm-text-1); }
+  .danger-row .s { font:500 12px var(--font-sans);color:var(--adm-text-3);margin-top:2px; }
+  .usage-bar { background:#f3f4f6;height:6px;border-radius:999px;overflow:hidden; }
+  .usage-bar > div { height:100%; }
+  .quota-row { padding:14px 16px;border-bottom:1px solid var(--adm-border-2); }
+  .quota-row:last-child { border-bottom:0; }
+  .quota-row .top { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px; }
+  .quota-row .name { font:600 13px var(--font-sans);color:var(--adm-text-1); }
+  .quota-row .used { font:500 12.5px var(--font-sans);color:var(--adm-text-3); }
+  .quota-row .used .v { font-family:var(--font-mono);color:var(--adm-text-1);font-weight:600; }
+  .quota-row .help { font:500 11.5px var(--font-sans);color:var(--adm-text-3);margin-top:6px;display:flex;justify-content:space-between; }
+  .flag-row { padding:13px 16px;border-bottom:1px solid var(--adm-border-2);display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center; }
+  .flag-row:last-child { border-bottom:0; }
+  .flag-name { font:600 12.5px var(--font-mono);color:var(--adm-text-1); }
+  .flag-meta { font:500 11.5px var(--font-sans);color:var(--adm-text-3);margin-top:2px; }
+  .seg-bar { display:flex;height:8px;border-radius:999px;overflow:hidden;background:#f3f4f6;margin-top:6px; }
+  .seg-bar > div { height:100%; }
+  .sparkbox { display:flex;align-items:flex-end;gap:3px;height:60px;padding:10px 14px;background:var(--adm-bg-2);border-radius:8px;margin-bottom:14px; }
+  .sparkbox .bar { flex:1;background:#6366f1;border-radius:2px 2px 0 0;opacity:0.85; }
+  .sparkbox .bar.warn { background:#f59e0b; }
+  .timeline-item { display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;border-bottom:1px solid var(--adm-border-2); }
+  .timeline-item:last-child { border-bottom:0; }
+  .timeline-item .dot { width:8px;height:8px;border-radius:50%;background:#6366f1;margin-top:6px;justify-self:center; }
+  .timeline-item .dot.warn { background:#f59e0b; }
+  .timeline-item .dot.danger { background:#ef4444; }
+  .timeline-item .dot.ok { background:#10b981; }
+  .timeline-item .ti { font:600 13px var(--font-sans);color:var(--adm-text-1); }
+  .timeline-item .ts { font:500 11.5px var(--font-sans);color:var(--adm-text-3);margin-top:2px; }
+  .members-bulk { display:none;align-items:center;gap:10px;padding:9px 14px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;margin-bottom:10px;font:500 12.5px var(--font-sans);color:#4338ca; }
+  .members-bulk.show { display:flex; }
+  .members-bulk .ct { font-weight:700; }
+  .members-bulk .sp { flex:1; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .adm-segmented { display:inline-flex;background:white;border:1px solid var(--adm-border);border-radius:8px;padding:3px;gap:2px; }
+  .adm-segmented .seg { background:transparent;border:0;cursor:pointer;padding:5px 12px;border-radius:5px;font:600 12px var(--font-sans);color:var(--adm-text-3); }
+  .adm-segmented .seg.active { background:var(--adm-bg-2);color:var(--adm-text-1); }
+</style>
+</head>
+<body>
+<script src="admin-shell.js"></script>
+<script>
+  AdminShell.mount({
+    active:"orgs",
+    crumb:[{label:"Organizations",href:"admin-orgs.html"},{label:"Pinecrest Loans"}],
+    env:"STAGING",
+  });
+</script>
+<script>
+// ============================================================
+// Data
+// ============================================================
+const ORG = "Pinecrest Loans";
+const MEMBERS = [
+  {n:"Javier Vasquez",e:"jvasquez@pinecrest.com",r:"Owner",la:"2 min ago",mfa:true,c:"#6366f1"},
+  {n:"Mei Tanaka",e:"mtanaka@pinecrest.com",r:"Admin",la:"14 min ago",mfa:true,c:"#0ea5e9"},
+  {n:"Daniel Park",e:"dpark@pinecrest.com",r:"Loan officer",la:"1 hr ago",mfa:true,c:"#10b981"},
+  {n:"Roxana Iliescu",e:"riliescu@pinecrest.com",r:"Loan officer",la:"yesterday",mfa:false,c:"#f59e0b"},
+  {n:"Casey Lin",e:"clin@pinecrest.com",r:"Viewer",la:"4 days ago",mfa:true,c:"#ec4899"},
+  {n:"Henrik Solberg",e:"hsolberg@pinecrest.com",r:"Loan officer",la:"6 hr ago",mfa:true,c:"#8b5cf6"},
+  {n:"Tomás Reyes",e:"treyes@pinecrest.com",r:"Loan officer",la:"3 days ago",mfa:true,c:"#14b8a6"},
+  {n:"Anika Brennan",e:"abrennan@pinecrest.com",r:"Compliance",la:"2 hr ago",mfa:true,c:"#f97316"},
+  {n:"Priya Shah",e:"pshah@pinecrest.com",r:"Loan officer",la:"yesterday",mfa:true,c:"#ef4444"},
+  {n:"Marcus Wei",e:"mwei@pinecrest.com",r:"Loan officer",la:"5 hr ago",mfa:false,c:"#06b6d4"},
+  {n:"Sofia Demir",e:"sdemir@pinecrest.com",r:"Viewer",la:"2 weeks ago",mfa:true,c:"#a855f7"},
+  {n:"Jonah Frost",e:"jfrost@pinecrest.com",r:"Loan officer",la:"yesterday",mfa:true,c:"#84cc16"},
+];
+
+const FLAGS = [
+  {f:"portal_v2_redesign",v:"ON",base:"50% rollout",by:"Daria Kim",when:"2 days ago",reason:"Pilot with Pinecrest team — feedback in #pilot-portal-v2"},
+  {f:"refactor_payments_engine",v:"OFF",base:"10% rollout",by:"Marc Olsen",when:"1 week ago",reason:"Pinned OFF — Pinecrest reported reconciliation drift, awaiting fix in v2.4.1"},
+  {f:"early_access_homes",v:"ON",base:"OFF",by:"Daria Kim",when:"3 weeks ago",reason:"Enterprise-tier preview, contractual commitment"},
+  {f:"sms_campaigns",v:"ON",base:"OFF",by:"Owen Yates",when:"5 weeks ago",reason:"Higher SMS quota for Pinecrest's marketing pilot"},
+];
+
+const QUOTAS = [
+  {q:"API requests",used:"412,820",lim:"1,000,000",pct:41,k:"ok",help:"Resets May 14 · trending under cap"},
+  {q:"Email sends",used:"8,419",lim:"25,000",pct:34,k:"ok",help:"Postmark · 0 bounces past 7d"},
+  {q:"SMS sends",used:"1,840",lim:"5,000",pct:37,k:"ok",help:"Twilio · $0.0075/msg · est. cost $13.80"},
+  {q:"Storage",used:"14.2 GB",lim:"50 GB",pct:28,k:"ok",help:"S3 · 4,820 objects · 17 buckets"},
+  {q:"Active users (seats)",used:"42",lim:"50",pct:84,k:"warn",help:"3 within 30 days of seat ceiling — consider upgrade"},
+  {q:"Webhook deliveries",used:"24,118",lim:"100,000",pct:24,k:"ok",help:"99.4% success · 142 retried · 12 deadlettered"},
+  {q:"Audit log retention",used:"180 days",lim:"180 days",pct:100,k:"flat",help:"Growth tier · upgrade to Enterprise for 7-year retention"},
+];
+
+const AUDIT = [
+  {ts:"2 min ago",who:"jvasquez@pinecrest.com",act:"loan.approve",tgt:"L-2841 · Hartwell, J.",k:"ok"},
+  {ts:"14 min ago",who:"mtanaka@pinecrest.com",act:"member.invite",tgt:"new.officer@pinecrest.com",k:"ok"},
+  {ts:"1 hr ago",who:"system",act:"webhook.retry",tgt:"payment_succeeded · attempt 3/5",k:"warn"},
+  {ts:"2 hr ago",who:"dkim@ream.com (admin)",act:"flag.override",tgt:"portal_v2_redesign → ON",k:"warn"},
+  {ts:"4 hr ago",who:"jvasquez@pinecrest.com",act:"api_key.rotate",tgt:"sk_prod_…f2c1",k:"ok"},
+  {ts:"yesterday",who:"abrennan@pinecrest.com",act:"compliance.export",tgt:"Q1-2026 audit pack · 1.2 GB",k:"ok"},
+  {ts:"yesterday",who:"system",act:"login.failed",tgt:"riliescu@pinecrest.com · 3 attempts",k:"warn"},
+  {ts:"2 days ago",who:"dkim@ream.com (admin)",act:"impersonation.start",tgt:"dpark@pinecrest.com · 12 min",k:"warn"},
+  {ts:"2 days ago",who:"jvasquez@pinecrest.com",act:"loan.delete",tgt:"L-2733 · withdrawn",k:"danger"},
+  {ts:"3 days ago",who:"jvasquez@pinecrest.com",act:"settings.update",tgt:"webhook.url → https://pinecrest.com/hooks/ream",k:"ok"},
+];
+
+const INVOICES = [
+  {n:"INV-2026-04",d:"Apr 14, 2026",amt:"$1,890",st:"Paid",sk:"ok"},
+  {n:"INV-2026-03",d:"Mar 14, 2026",amt:"$1,845",st:"Paid",sk:"ok"},
+  {n:"INV-2026-02",d:"Feb 14, 2026",amt:"$1,755",st:"Paid",sk:"ok"},
+  {n:"INV-2026-01",d:"Jan 14, 2026",amt:"$1,710",st:"Paid",sk:"ok"},
+  {n:"INV-2025-12",d:"Dec 14, 2025",amt:"$1,665",st:"Paid · late 4d",sk:"warn"},
+  {n:"INV-2025-11",d:"Nov 14, 2025",amt:"$1,665",st:"Paid",sk:"ok"},
+];
+
+const T = AdminShell.toast;
+const $ = (s, p=document) => p.querySelector(s);
+const $$ = (s, p=document) => [...p.querySelectorAll(s)];
+const initials = (n) => n.split(" ").map(p=>p[0]).join("").slice(0,2).toUpperCase();
+const pillClass = (k) => k === "danger" ? "danger" : k === "warn" ? "warn" : "active";
+
+// ============================================================
+// Persistent header (hero + KPIs + tabs)
+// ============================================================
+const headerHtml = `
+  <div class="org-hero">
+    <span class="adm-ava xl" style="background:#6366f1;border-radius:14px;font-size:24px;">PCL</span>
+    <div>
+      <h2>Pinecrest Loans <span class="adm-pill active">Active</span> <span class="adm-pill indigo no-dot">GROWTH</span></h2>
+      <div class="meta-row">
+        <span class="mono">org_3a91 · pinecrest</span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">schedule</i> Joined Mar 14, 2024</span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">person</i> Owner: <a href="admin-user-detail.html?u=jvasquez%40pinecrest.com" style="color:var(--adm-stripe);text-decoration:none;font-weight:600;">jvasquez@pinecrest.com</a></span>
+        <span><i class="material-symbols-rounded" style="vertical-align:-3px;font-size:14px;">place</i> Boise, ID</span>
+      </div>
+    </div>
+    <div class="row gap-2">
+      <button class="adm-btn" data-act="impersonate"><i class="material-symbols-rounded">login</i> Impersonate</button>
+      <button class="adm-btn" data-act="email-owner"><i class="material-symbols-rounded">mail</i> Email owner</button>
+      <button class="adm-kebab" data-act="org-more" style="width:36px;height:36px;border:1px solid var(--adm-border);"><i class="material-symbols-rounded">more_horiz</i></button>
+    </div>
+  </div>
+
+  <div class="adm-kpi-grid">
+    <div class="adm-kpi"><div class="adm-kpi-label">Members</div><div class="adm-kpi-value">42</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +3 (30d)</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Loans active</div><div class="adm-kpi-value">318</div><div class="adm-kpi-delta up"><i class="material-symbols-rounded">arrow_upward</i> +14 (30d)</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">MRR</div><div class="adm-kpi-value">$1,840</div><div class="adm-kpi-delta flat">Growth · seat-based</div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">Storage used</div><div class="adm-kpi-value">14.2 <span class="unit">GB</span></div><div class="adm-kpi-delta flat">28% of 50 GB</div></div>
+  </div>
+
+  <div class="adm-tabs" id="tabs">
+    <a class="adm-tab" data-tab="overview">Overview</a>
+    <a class="adm-tab" data-tab="members">Members <span class="ct">42</span></a>
+    <a class="adm-tab" data-tab="licensing">Licensing</a>
+    <a class="adm-tab" data-tab="flags">Feature flags <span class="ct">4</span></a>
+    <a class="adm-tab" data-tab="quotas">Quotas &amp; usage</a>
+    <a class="adm-tab" data-tab="audit">Audit <span class="ct">3.4k</span></a>
+    <a class="adm-tab" data-tab="danger">Danger</a>
+  </div>
+
+  <div id="panel"></div>
+`;
+
+// ============================================================
+// Tab panels
+// ============================================================
+const Panels = {
+
+overview: () => `
+  <div class="adm-detail-grid">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">group</i> Members</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" data-jump="members">View all 42</button>
+        </div>
+        <table class="adm-table">
+          <thead><tr><th>User</th><th>Role</th><th>Last active</th><th>MFA</th><th></th></tr></thead>
+          <tbody>${MEMBERS.slice(0,5).map(u => memberRow(u, false)).join("")}</tbody>
+        </table>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">toggle_on</i> Feature flag overrides</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" data-jump="flags">View all 4</button>
+        </div>
+        <div class="adm-card-body" style="padding:0;">${FLAGS.slice(0,3).map(flagRow).join("")}</div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">monitoring</i> Quotas &amp; usage (this month)</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" data-jump="quotas">Details</button>
+        </div>
+        <div class="adm-card-body">
+          ${QUOTAS.slice(0,5).map(q => `
+            <div style="margin-bottom:14px;">
+              <div class="row" style="justify-content:space-between;font:500 12.5px var(--font-sans);margin-bottom:4px;">
+                <span style="color:var(--adm-text-1);font-weight:600;">${q.q}</span>
+                <span style="color:var(--adm-text-3);"><span class="mono" style="color:var(--adm-text-1);font-weight:600;">${q.used}</span> / ${q.lim} <span class="muted">· ${q.pct}%</span></span>
+              </div>
+              <div class="usage-bar"><div style="background:${q.k==="warn"?"#f59e0b":"#6366f1"};width:${q.pct}%;"></div></div>
+            </div>`).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">credit_card</i> Licensing</h3></div>
+        <div class="adm-card-body">
+          <dl class="adm-dl">
+            <dt>Plan</dt><dd><span class="adm-pill indigo no-dot">GROWTH</span></dd>
+            <dt>Seat price</dt><dd>$45 / mo</dd>
+            <dt>Seats used</dt><dd>42 of 50</dd>
+            <dt>Billing cycle</dt><dd>Monthly · renews May 14</dd>
+            <dt>MRR</dt><dd class="strong">$1,840</dd>
+            <dt>Stripe</dt><dd><code>cus_PqZ1k7…</code></dd>
+            <dt>Status</dt><dd><span class="adm-pill active">Active</span></dd>
+          </dl>
+          <div class="row gap-2" style="margin-top:14px;">
+            <button class="adm-btn adm-btn-sm" data-act="change-plan">Change plan</button>
+            <button class="adm-btn adm-btn-sm" data-act="open-stripe">Open Stripe</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">login</i> Impersonation</h3></div>
+        <div class="adm-card-body">
+          <p class="muted tiny" style="margin:0 0 10px;">Sign in as a member to debug. Every keystroke is recorded; the org is notified by email.</p>
+          <button class="adm-btn adm-btn-primary" style="width:100%;" data-act="start-imp"><i class="material-symbols-rounded">login</i> Start impersonation session</button>
+          <div class="adm-stat-row" style="margin-top:8px;">
+            <span class="lbl">Last session</span>
+            <span class="val">Daria Kim · 4d ago · 12 min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">history</i> Recent activity</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" data-jump="audit">View audit</button>
+        </div>
+        <div class="adm-card-body" style="padding:0;">
+          ${AUDIT.slice(0,5).map(a => `
+            <div class="timeline-item">
+              <span class="dot ${a.k}"></span>
+              <div>
+                <div class="ti"><span class="mono">${a.act}</span></div>
+                <div class="ts">${a.who} · ${a.ts}</div>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
+    </div>
+  </div>
+`,
+
+members: () => `
+  <div class="adm-filterbar">
+    <div class="adm-filter-input grow"><i class="material-symbols-rounded">search</i><input placeholder="Search 42 members by name or email…" id="m-search" /></div>
+    <button class="adm-btn adm-btn-sm" data-filter="role"><i class="material-symbols-rounded">filter_alt</i> Role: All</button>
+    <button class="adm-btn adm-btn-sm" data-filter="mfa"><i class="material-symbols-rounded">filter_alt</i> MFA: Any</button>
+    <button class="adm-btn adm-btn-sm" data-act="export-members"><i class="material-symbols-rounded">file_download</i> Export CSV</button>
+    <button class="adm-btn adm-btn-sm adm-btn-primary" data-act="invite"><i class="material-symbols-rounded">person_add</i> Invite</button>
+  </div>
+
+  <div class="members-bulk" id="m-bulk">
+    <span><span class="ct">0</span> selected</span>
+    <span class="sp"></span>
+    <button class="adm-btn adm-btn-sm" data-bulk="role">Change role…</button>
+    <button class="adm-btn adm-btn-sm" data-bulk="mfa">Require MFA</button>
+    <button class="adm-btn adm-btn-sm" data-bulk="reset">Reset passwords</button>
+    <button class="adm-btn adm-btn-sm adm-btn-danger" data-bulk="remove">Remove from org…</button>
+  </div>
+
+  <div class="adm-card">
+    <table class="adm-table" id="m-table">
+      <thead><tr>
+        <th style="width:30px;"><input type="checkbox" id="m-all" /></th>
+        <th>User</th><th>Role</th><th>Last active</th><th>MFA</th><th></th>
+      </tr></thead>
+      <tbody>${MEMBERS.map(u => memberRow(u, true)).join("")}</tbody>
+    </table>
+  </div>
+  <p class="muted tiny" style="margin:10px 0 0;text-align:center;">Showing 12 of 42 members · <a href="#" data-act="load-more" style="color:var(--adm-stripe);">Load 30 more</a></p>
+`,
+
+licensing: () => `
+  <div class="adm-detail-grid">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">credit_card</i> Plan</h3>
+          <span class="adm-pill indigo no-dot">GROWTH</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+              <div style="font:700 24px var(--font-display);color:var(--adm-text-1);letter-spacing:-0.02em;">$1,840 <span style="font:500 13px var(--font-sans);color:var(--adm-text-3);">/ month</span></div>
+              <div class="muted tiny" style="margin-top:4px;">42 seats × $45 + $130 storage add-on · renews May 14, 2026</div>
+            </div>
+            <div class="row gap-2">
+              <button class="adm-btn adm-btn-sm" data-act="change-plan"><i class="material-symbols-rounded">swap_horiz</i> Change plan</button>
+              <button class="adm-btn adm-btn-sm" data-act="add-seats"><i class="material-symbols-rounded">add</i> Add seats</button>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--adm-border-2);padding-top:14px;">
+            <div class="row" style="justify-content:space-between;font:500 12.5px var(--font-sans);margin-bottom:4px;">
+              <span style="font-weight:600;">Seat utilization</span>
+              <span class="muted">42 of 50 · 84%</span>
+            </div>
+            <div class="usage-bar"><div style="background:#f59e0b;width:84%;"></div></div>
+            <p class="muted tiny" style="margin:8px 0 0;">3 invitations pending. Auto-upgrade to Enterprise tier triggers at 50 seats — owner must approve.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">receipt_long</i> Invoices</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" data-act="export-invoices">Export all</button>
+        </div>
+        <table class="adm-table">
+          <thead><tr><th>Number</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${INVOICES.map(iv => `
+              <tr data-invoice="${iv.n}">
+                <td class="mono">${iv.n}</td>
+                <td class="muted">${iv.d}</td>
+                <td class="strong">${iv.amt}</td>
+                <td><span class="adm-pill ${pillClass(iv.sk)} no-dot">${iv.st}</span></td>
+                <td class="right"><button class="adm-kebab"><i class="material-symbols-rounded">more_horiz</i></button></td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">timeline</i> Plan history</h3></div>
+        <div class="adm-card-body" style="padding:0;">
+          <div class="timeline-item"><span class="dot ok"></span><div><div class="ti">Upgraded to <strong>GROWTH</strong> · 50 seats</div><div class="ts">Oct 14, 2024 · jvasquez@pinecrest.com · +$650/mo</div></div></div>
+          <div class="timeline-item"><span class="dot"></span><div><div class="ti">Added storage add-on (50 GB)</div><div class="ts">Aug 1, 2024 · jvasquez@pinecrest.com · +$30/mo</div></div></div>
+          <div class="timeline-item"><span class="dot ok"></span><div><div class="ti">Upgraded to <strong>STARTER</strong> · 15 seats</div><div class="ts">May 22, 2024 · jvasquez@pinecrest.com</div></div></div>
+          <div class="timeline-item"><span class="dot"></span><div><div class="ti">Started 14-day trial</div><div class="ts">Mar 14, 2024 · jvasquez@pinecrest.com</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">payments</i> Payment method</h3></div>
+        <div class="adm-card-body">
+          <div class="row" style="gap:10px;margin-bottom:10px;">
+            <div style="width:42px;height:28px;background:linear-gradient(135deg,#1a1f71,#4a3fcf);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font:700 10px var(--font-sans);">VISA</div>
+            <div>
+              <div style="font:600 13px var(--font-sans);">•••• 4242</div>
+              <div class="muted tiny">Exp 09/2027 · Javier Vasquez</div>
+            </div>
+          </div>
+          <button class="adm-btn adm-btn-sm" style="width:100%;" data-act="open-stripe">Manage in Stripe</button>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">description</i> Billing details</h3></div>
+        <div class="adm-card-body">
+          <dl class="adm-dl">
+            <dt>Stripe ID</dt><dd><code>cus_PqZ1k7…</code></dd>
+            <dt>Tax ID</dt><dd class="mono" style="font-size:12px;">US-EIN 87-1234567</dd>
+            <dt>Billing email</dt><dd style="font-size:12.5px;">billing@pinecrest.com</dd>
+            <dt>Currency</dt><dd>USD</dd>
+            <dt>Net terms</dt><dd>Net 0 · auto-charge</dd>
+            <dt>Tax-exempt</dt><dd>No</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">support_agent</i> Account team</h3></div>
+        <div class="adm-card-body" style="padding:6px 0;">
+          <div class="adm-stat-row" style="padding:10px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">CSM</span><span class="val">Owen Yates</span></div>
+          <div class="adm-stat-row" style="padding:10px 16px;border-bottom:1px solid var(--adm-border-2);"><span class="lbl">AE</span><span class="val">Lila Romano</span></div>
+          <div class="adm-stat-row" style="padding:10px 16px;"><span class="lbl">Renewal</span><span class="val">May 14, 2027</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+`,
+
+flags: () => `
+  <div class="adm-filterbar">
+    <div class="adm-filter-input grow"><i class="material-symbols-rounded">search</i><input placeholder="Search overrides…" /></div>
+    <button class="adm-btn adm-btn-sm" data-filter="state"><i class="material-symbols-rounded">filter_alt</i> State: All</button>
+    <button class="adm-btn adm-btn-sm adm-btn-primary" data-act="add-override"><i class="material-symbols-rounded">add</i> Add override</button>
+  </div>
+
+  <div class="adm-card">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">toggle_on</i> Active overrides <span class="ct">${FLAGS.length}</span></h3>
+      <span class="muted tiny">Org-level overrides take precedence over global rollout</span>
+    </div>
+    <div class="adm-card-body" style="padding:0;">${FLAGS.map(flagRow).join("")}</div>
+  </div>
+
+  <div class="adm-card" style="margin-top:14px;">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">visibility</i> Inherited from global rollout</h3>
+      <span class="muted tiny">Not overridden — Pinecrest follows the global value</span>
+    </div>
+    <div class="adm-card-body" style="padding:0;">
+      ${[
+        {f:"new_origination_flow",v:"ON",rollout:"100%"},
+        {f:"weekly_digest_email",v:"ON",rollout:"100%"},
+        {f:"ai_summary_panel",v:"ON",rollout:"75% (gradual)"},
+        {f:"webhook_signing_v2",v:"ON",rollout:"100%"},
+        {f:"native_e_sign",v:"OFF",rollout:"OFF (kill-switch)"},
+      ].map(o => `
+        <div class="flag-row">
+          <div>
+            <span class="flag-name">${o.f}</span>
+            <div class="flag-meta">Global: ${o.rollout}</div>
+          </div>
+          <div class="row gap-2">
+            <span class="adm-pill ${o.v === "ON" ? "active" : "muted"} no-dot">${o.v}</span>
+            <button class="adm-btn adm-btn-sm" data-act="override-flag" data-flag="${o.f}">Override…</button>
+          </div>
+        </div>`).join("")}
+    </div>
+  </div>
+`,
+
+quotas: () => `
+  <div class="row gap-2" style="margin-bottom:14px;justify-content:flex-end;">
+    <div class="adm-segmented">
+      <button class="seg active" data-range="30">30d</button>
+      <button class="seg" data-range="90">90d</button>
+      <button class="seg" data-range="12">12mo</button>
+    </div>
+    <button class="adm-btn adm-btn-sm" data-act="export-usage"><i class="material-symbols-rounded">file_download</i> Export</button>
+  </div>
+
+  <div class="adm-card" style="margin-bottom:14px;">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">show_chart</i> API requests (30d)</h3>
+      <span class="muted tiny">412,820 of 1,000,000 · trending under cap</span>
+    </div>
+    <div class="adm-card-body">
+      <div class="sparkbox">
+        ${Array.from({length:30}).map((_,i) => {
+          const h = 30 + Math.round(Math.abs(Math.sin(i*0.6)) * 50 + (i/30)*15);
+          return `<div class="bar" style="height:${h}%;"></div>`;
+        }).join("")}
+      </div>
+      <div class="row" style="justify-content:space-between;font:500 11.5px var(--font-sans);color:var(--adm-text-3);">
+        <span>Apr 11</span><span>Apr 25</span><span>May 11</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="adm-card">
+    <div class="adm-card-head"><h3><i class="material-symbols-rounded">speed</i> All quotas (this billing cycle)</h3>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" data-act="adjust-quotas">Adjust quotas…</button>
+    </div>
+    <div class="adm-card-body" style="padding:0;">
+      ${QUOTAS.map(q => `
+        <div class="quota-row">
+          <div class="top">
+            <span class="name">${q.q}</span>
+            <span class="used"><span class="v">${q.used}</span> / ${q.lim} <span class="muted">· ${q.pct}%</span></span>
+          </div>
+          <div class="usage-bar"><div style="background:${q.k==="warn"?"#f59e0b":q.k==="flat"?"#9ca3af":"#6366f1"};width:${q.pct}%;"></div></div>
+          <div class="help">
+            <span>${q.help}</span>
+            <a href="#" data-act="quota-detail" data-quota="${q.q}" style="color:var(--adm-stripe);">Details →</a>
+          </div>
+        </div>`).join("")}
+    </div>
+  </div>
+`,
+
+audit: () => `
+  <div class="adm-filterbar">
+    <div class="adm-filter-input grow"><i class="material-symbols-rounded">search</i><input placeholder="Search 3,412 audit entries — actor, action, target…" /></div>
+    <button class="adm-btn adm-btn-sm" data-filter="actor"><i class="material-symbols-rounded">filter_alt</i> Actor: All</button>
+    <button class="adm-btn adm-btn-sm" data-filter="action"><i class="material-symbols-rounded">filter_alt</i> Action: All</button>
+    <button class="adm-btn adm-btn-sm" data-filter="severity"><i class="material-symbols-rounded">filter_alt</i> Severity: All</button>
+    <button class="adm-btn adm-btn-sm" data-act="export-audit"><i class="material-symbols-rounded">file_download</i> Export</button>
+  </div>
+
+  <div class="adm-card">
+    <table class="adm-table">
+      <thead><tr><th style="width:130px;">When</th><th>Actor</th><th>Action</th><th>Target</th><th style="width:80px;">Severity</th><th></th></tr></thead>
+      <tbody>
+        ${AUDIT.map(a => `
+          <tr data-audit="${a.act}">
+            <td class="muted">${a.ts}</td>
+            <td>${a.who.includes("admin") ? `<span class="adm-pill warn no-dot" style="font-size:10px;">ADMIN</span> ` : ""}<span class="mono">${a.who}</span></td>
+            <td class="mono strong">${a.act}</td>
+            <td>${a.tgt}</td>
+            <td><span class="adm-pill ${pillClass(a.k)} no-dot">${a.k.toUpperCase()}</span></td>
+            <td class="right"><button class="adm-kebab"><i class="material-symbols-rounded">more_horiz</i></button></td>
+          </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted tiny" style="margin:10px 0 0;text-align:center;">Showing 10 of 3,412 entries · retained for 180 days · <a href="admin-audit.html" style="color:var(--adm-stripe);">Open full audit log →</a></p>
+`,
+
+danger: () => `
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;">
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;border-color:#fde68a;background:#fffbeb;">
+        <div class="adm-card-head" style="background:#fef3c7;border-bottom-color:#fde68a;"><h3 style="color:#92400e;"><i class="material-symbols-rounded" style="color:#92400e !important;">info</i> Two-person rule</h3></div>
+        <div class="adm-card-body" style="font:500 12.5px var(--font-sans);color:#78350f;">
+          Locking, deleting, or exporting an org's data requires approval from a second Ream admin within 5 minutes. The org owner is notified by email when any of these actions is initiated, regardless of approval outcome.
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <div class="head"><h3><i class="material-symbols-rounded" style="vertical-align:-3px;">warning</i> Danger zone</h3>
+          <span class="adm-pill danger no-dot">RESTRICTED</span>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Reset to default feature flags</div>
+            <div class="s">Removes all 4 org-level overrides — Pinecrest will follow global rollout values.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-act="reset-flags">Reset flags…</button>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Force MFA for all members</div>
+            <div class="s">All non-MFA members locked out until they enroll. Currently 2 members without MFA.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-act="force-mfa">Force MFA…</button>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Revoke all API keys</div>
+            <div class="s">7 keys will be invalidated immediately. Pinecrest integrations will break until rotated.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm adm-btn-danger" data-act="revoke-keys">Revoke keys…</button>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Move to read-only</div>
+            <div class="s">Members can view but not edit. Banner displayed in app. Reversible.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm" data-act="readonly">Read-only…</button>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Lock organization</div>
+            <div class="s">No login. Data preserved. Reversible. Requires two-person approval.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm adm-btn-danger" data-act="lock">Lock…</button>
+        </div>
+        <div class="danger-row">
+          <div>
+            <div class="t">Schedule deletion</div>
+            <div class="s">30-day grace; permanent destruction after. Requires two-person approval.</div>
+          </div>
+          <button class="adm-btn adm-btn-sm adm-btn-danger" data-act="delete">Delete…</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="adm-card" style="margin-bottom:14px;">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">shield_person</i> Approvers online</h3></div>
+        <div class="adm-card-body" style="padding:6px 0;">
+          ${[
+            {n:"Marc Olsen",r:"Director, Eng",on:true},
+            {n:"Daria Kim",r:"Staff Eng",on:true},
+            {n:"Owen Yates",r:"CSM",on:false},
+            {n:"Lila Romano",r:"AE",on:false},
+          ].map(p => `
+            <div class="row" style="padding:9px 16px;border-bottom:1px solid var(--adm-border-2);justify-content:space-between;">
+              <div class="row gap-2">
+                <span class="adm-ava round" style="background:#${p.on?"10b981":"9ca3af"};width:24px;height:24px;font-size:10px;">${initials(p.n)}</span>
+                <div>
+                  <div style="font:600 12.5px var(--font-sans);">${p.n}</div>
+                  <div class="muted tiny">${p.r}</div>
+                </div>
+              </div>
+              <span class="adm-pill ${p.on?"active":"muted"} no-dot">${p.on?"online":"away"}</span>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="adm-card">
+        <div class="adm-card-head"><h3><i class="material-symbols-rounded">history</i> Past destructive actions</h3></div>
+        <div class="adm-card-body" style="padding:0;">
+          <div class="timeline-item"><span class="dot warn"></span><div><div class="ti">API key rotated</div><div class="ts">jvasquez · 4 hr ago</div></div></div>
+          <div class="timeline-item"><span class="dot danger"></span><div><div class="ti">Loan record deleted</div><div class="ts">jvasquez · 2 days ago</div></div></div>
+          <div class="timeline-item"><span class="dot warn"></span><div><div class="ti">Member removed (1)</div><div class="ts">mtanaka · 3 weeks ago</div></div></div>
+          <div class="timeline-item"><span class="dot ok"></span><div><div class="ti">Read-only state cleared</div><div class="ts">dkim (admin) · 2 mo ago</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+`,
+};
+
+// ============================================================
+// Row partials
+// ============================================================
+function memberRow(u, withCheckbox) {
+  return `
+    <tr data-member="${u.e}">
+      ${withCheckbox ? `<td><input type="checkbox" class="m-row" /></td>` : ""}
+      <td>
+        <div class="adm-ent">
+          <span class="adm-ava round" style="background:${u.c};">${initials(u.n)}</span>
+          <div class="meta"><div class="nm">${u.n}</div><div class="sub">${u.e}</div></div>
+        </div>
+      </td>
+      <td>${u.r}</td>
+      <td class="muted">${u.la}</td>
+      <td>${u.mfa ? '<span class="adm-pill active no-dot">ON</span>' : '<span class="adm-pill warn no-dot">OFF</span>'}</td>
+      <td class="right"><button class="adm-kebab"><i class="material-symbols-rounded">more_horiz</i></button></td>
+    </tr>`;
+}
+
+function flagRow(o) {
+  return `
+    <div class="flag-row" data-flag="${o.f}">
+      <div>
+        <span class="flag-name">${o.f}</span>
+        <div class="flag-meta">Base: ${o.base} · set by ${o.by} · ${o.when}${o.reason ? ` · <em style="color:var(--adm-text-2);">${o.reason}</em>` : ""}</div>
+      </div>
+      <div class="row gap-2">
+        <span class="adm-pill ${o.v === "ON" ? "active" : "muted"} no-dot">${o.v}</span>
+        <button class="adm-btn adm-btn-sm" data-act="edit-flag">Edit</button>
+        <button class="adm-btn adm-btn-sm adm-btn-danger" data-act="remove-flag">Remove</button>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// Render & router
+// ============================================================
+document.getElementById("adm-page").innerHTML = headerHtml;
+
+function setTab(name, opts = {}) {
+  const tabs = $$('.adm-tab');
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  $('#panel').innerHTML = Panels[name]();
+  bindPanel(name);
+  if (!opts.silent) history.replaceState({}, "", `?tab=${name}`);
+  window.scrollTo({ top: 0, behavior: opts.silent ? "auto" : "smooth" });
+}
+
+// Hero actions (persistent)
+$('[data-act="impersonate"]').onclick = async () => {
+  const ok = await AdminShell.confirmDialog({
+    title: `Impersonate a member of ${ORG}?`,
+    body: "Every keystroke is recorded for 1 year. The org owner is notified by email within 60 seconds. You'll be logged in as the chosen member with a banner.",
+    confirmLabel: "Pick a member…",
+  });
+  if (ok) { setTab("members"); T("Choose a member to impersonate ↓", "warn"); }
+};
+$('[data-act="email-owner"]').onclick = () => T("Composer opening · To: jvasquez@pinecrest.com", "info");
+$('[data-act="org-more"]').onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+  { label: "Copy org ID",     icon: "content_copy",  onClick: () => { navigator.clipboard.writeText("org_3a91"); T("org_3a91 copied", "success"); }},
+  { label: "Open in CRM",     icon: "open_in_new",   onClick: () => T("Opening Salesforce account…", "info") },
+  { label: "Export org data", icon: "file_download", onClick: () => T("Export queued · email when ready", "info") },
+  "-",
+  { label: "View audit log",  icon: "fact_check",    onClick: () => setTab("audit") },
+  { label: "Open StatusPage", icon: "monitor_heart", onClick: () => T("Opening StatusPage…", "info") },
+]);
+
+// Tab clicks
+$$('.adm-tab').forEach(t => t.onclick = () => setTab(t.dataset.tab));
+
+// Initial tab from URL
+const initial = new URLSearchParams(location.search).get("tab") || "overview";
+setTab(Panels[initial] ? initial : "overview", { silent: true });
+
+// ============================================================
+// Per-panel binding
+// ============================================================
+function bindPanel(name) {
+  // Jump buttons (overview → other tabs)
+  $$('[data-jump]', $('#panel')).forEach(b => b.onclick = () => setTab(b.dataset.jump));
+
+  if (name === "overview") bindOverview();
+  else if (name === "members") bindMembers();
+  else if (name === "licensing") bindLicensing();
+  else if (name === "flags") bindFlags();
+  else if (name === "quotas") bindQuotas();
+  else if (name === "audit") bindAudit();
+  else if (name === "danger") bindDanger();
+}
+
+function bindOverview() {
+  // Member kebabs in overview
+  $$('.adm-table .adm-kebab', $('#panel')).forEach(kb => kb.onclick = (e) => { e.stopPropagation(); openMemberMenu(kb); });
+  // Sidebar actions
+  $('[data-act="change-plan"]')?.addEventListener('click', () => openChangePlan(event.currentTarget));
+  $('[data-act="open-stripe"]')?.addEventListener('click', () => T("Opening Stripe cus_PqZ1k7… in new tab", "info"));
+  $('[data-act="start-imp"]')?.addEventListener('click', async () => {
+    const ok = await AdminShell.confirmDialog({
+      title: `Start impersonation session on ${ORG}?`,
+      body: "Pick which member you'll impersonate next. Sessions auto-expire after 30 min; the owner is notified by email.",
+      confirmLabel: "Continue",
+    });
+    if (ok) { setTab("members"); T("Impersonation pending — pick a member ↓", "warn"); }
+  });
+  // Flag overview buttons
+  $$('.flag-row [data-act="edit-flag"]', $('#panel')).forEach(b => b.onclick = () => {
+    const f = b.closest('.flag-row').dataset.flag;
+    location.href = `admin-flag-detail.html?f=${f}`;
+  });
+  $$('.flag-row [data-act="remove-flag"]', $('#panel')).forEach(b => b.onclick = () => removeOverride(b));
+}
+
+function bindMembers() {
+  const tbody = $('#panel #m-table tbody');
+  const bulk = $('#panel #m-bulk');
+  const bulkCt = $('.ct', bulk);
+  const updateBulk = () => {
+    const checked = $$('input.m-row:checked', tbody);
+    bulkCt.textContent = checked.length;
+    bulk.classList.toggle('show', checked.length > 0);
+  };
+  // Select-all
+  $('#panel #m-all').onchange = (e) => {
+    $$('input.m-row', tbody).forEach(cb => cb.checked = e.target.checked);
+    updateBulk();
+  };
+  $$('input.m-row', tbody).forEach(cb => cb.onchange = updateBulk);
+  // Search filter
+  $('#panel #m-search').oninput = (e) => {
+    const q = e.target.value.toLowerCase();
+    $$('tr', tbody).forEach(tr => {
+      const txt = tr.textContent.toLowerCase();
+      tr.style.display = q && !txt.includes(q) ? "none" : "";
+    });
+  };
+  // Filter chips
+  $('[data-filter="role"]', $('#panel')).onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+    { label: "All roles",         onClick: () => filterRole(null, e.currentTarget) },
+    { label: "Owner",             onClick: () => filterRole("Owner", e.currentTarget) },
+    { label: "Admin",             onClick: () => filterRole("Admin", e.currentTarget) },
+    { label: "Loan officer",      onClick: () => filterRole("Loan officer", e.currentTarget) },
+    { label: "Compliance",        onClick: () => filterRole("Compliance", e.currentTarget) },
+    { label: "Viewer",            onClick: () => filterRole("Viewer", e.currentTarget) },
+  ]);
+  $('[data-filter="mfa"]', $('#panel')).onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+    { label: "Any",     onClick: () => filterMfa(null, e.currentTarget) },
+    { label: "MFA on",  onClick: () => filterMfa("ON", e.currentTarget) },
+    { label: "MFA off", onClick: () => filterMfa("OFF", e.currentTarget) },
+  ]);
+  // Row kebabs + click-through
+  $$('tr[data-member]', tbody).forEach(tr => {
+    tr.onclick = (e) => {
+      if (e.target.closest('input, button')) return;
+      location.href = `admin-user-detail.html?u=${encodeURIComponent(tr.dataset.member)}`;
+    };
+    $('.adm-kebab', tr).onclick = (e) => { e.stopPropagation(); openMemberMenu(e.currentTarget); };
+  });
+  // Toolbar actions
+  $('[data-act="invite"]', $('#panel')).onclick = () => T("Invite modal opening…", "info");
+  $('[data-act="export-members"]', $('#panel')).onclick = () => T("Members CSV queued · email when ready", "info");
+  $('[data-act="load-more"]', $('#panel')).onclick = (e) => { e.preventDefault(); T("Loaded 30 more members", "success"); };
+  // Bulk actions
+  $('[data-bulk="role"]', $('#panel')).onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+    { label: "Admin",        onClick: () => bulkAction("role", "Admin") },
+    { label: "Loan officer", onClick: () => bulkAction("role", "Loan officer") },
+    { label: "Compliance",   onClick: () => bulkAction("role", "Compliance") },
+    { label: "Viewer",       onClick: () => bulkAction("role", "Viewer") },
+  ]);
+  $('[data-bulk="mfa"]', $('#panel')).onclick = async () => {
+    const n = $$('input.m-row:checked', tbody).length;
+    const ok = await AdminShell.confirmDialog({ title: `Require MFA for ${n} member${n>1?"s":""}?`, body: "They will be required to enroll an MFA factor on next login. Until they do, they cannot access the org.", confirmLabel: "Require MFA" });
+    if (ok) T(`MFA requirement applied to ${n} member${n>1?"s":""}`, "success");
+  };
+  $('[data-bulk="reset"]', $('#panel')).onclick = async () => {
+    const n = $$('input.m-row:checked', tbody).length;
+    const ok = await AdminShell.confirmDialog({ title: `Send password reset to ${n} member${n>1?"s":""}?`, body: "Each member receives a reset email. Current passwords remain valid until reset is completed.", confirmLabel: "Send resets" });
+    if (ok) T(`Reset emails sent to ${n} member${n>1?"s":""}`, "success");
+  };
+  $('[data-bulk="remove"]', $('#panel')).onclick = async () => {
+    const n = $$('input.m-row:checked', tbody).length;
+    const ok = await AdminShell.confirmDialog({ title: `Remove ${n} member${n>1?"s":""} from ${ORG}?`, body: "They lose access immediately. Their authored records stay in the org. Reversible by re-invite.", confirmLabel: "Remove", danger: true });
+    if (ok) {
+      $$('input.m-row:checked', tbody).forEach(cb => cb.closest('tr').remove());
+      updateBulk();
+      T(`${n} member${n>1?"s":""} removed`, "warn");
+    }
+  };
+}
+
+function bindLicensing() {
+  $('[data-act="change-plan"]', $('#panel')).onclick = (e) => openChangePlan(e.currentTarget);
+  $('[data-act="add-seats"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Add 10 seats to ${ORG}?`, body: "Increases plan cap from 50 to 60 seats. Pro-rated charge today: ~$165. Confirms with owner via email.", confirmLabel: "Add 10 seats" });
+    if (ok) T("Seats added · invoice INV-2026-05-A queued", "success");
+  };
+  $('[data-act="open-stripe"]', $('#panel'))?.addEventListener('click', () => T("Opening Stripe cus_PqZ1k7…", "info"));
+  $('[data-act="export-invoices"]', $('#panel')).onclick = () => T("Invoice export queued (PDF + CSV)", "info");
+  // Invoice kebabs
+  $$('tr[data-invoice] .adm-kebab', $('#panel')).forEach(kb => kb.onclick = (e) => {
+    e.stopPropagation();
+    const num = kb.closest('tr').dataset.invoice;
+    AdminShell.popMenu(kb, [
+      { label: "Download PDF",   icon: "picture_as_pdf", onClick: () => T(`Downloading ${num}.pdf`, "info") },
+      { label: "Open in Stripe", icon: "open_in_new",    onClick: () => T(`Opening ${num} in Stripe`, "info") },
+      { label: "Email to owner", icon: "mail",           onClick: () => T(`${num} emailed to jvasquez@pinecrest.com`, "success") },
+      "-",
+      { label: "Refund…",        icon: "undo", danger: true, onClick: async () => {
+        const ok = await AdminShell.confirmDialog({ title: `Refund ${num}?`, body: "Issues a full refund to the customer's card ending 4242. Two-person approval required for refunds over $1,000.", confirmLabel: "Refund", danger: true });
+        if (ok) T(`Refund request submitted for ${num} · awaiting approval`, "warn");
+      }},
+    ]);
+  });
+}
+
+function bindFlags() {
+  $('[data-act="add-override"]', $('#panel')).onclick = () => T("Flag override picker opening…", "info");
+  $('[data-filter="state"]', $('#panel')).onclick = (e) => AdminShell.popMenu(e.currentTarget, [
+    { label: "All",     onClick: () => { e.currentTarget.lastChild.textContent = " State: All"; T("Showing all overrides", "info"); }},
+    { label: "ON only", onClick: () => { T("Filtered to ON overrides", "info"); }},
+    { label: "OFF only",onClick: () => { T("Filtered to OFF overrides", "info"); }},
+  ]);
+  $$('.flag-row [data-act="edit-flag"]', $('#panel')).forEach(b => b.onclick = () => {
+    const f = b.closest('.flag-row').dataset.flag;
+    location.href = `admin-flag-detail.html?f=${f}`;
+  });
+  $$('.flag-row [data-act="remove-flag"]', $('#panel')).forEach(b => b.onclick = () => removeOverride(b));
+  $$('[data-act="override-flag"]', $('#panel')).forEach(b => b.onclick = async () => {
+    const f = b.dataset.flag;
+    const ok = await AdminShell.confirmDialog({ title: `Override ${f} for ${ORG}?`, body: "Set an org-specific value that overrides the global rollout. Useful for pilots and incident-response pinning.", confirmLabel: "Create override" });
+    if (ok) T(`Override created for ${f}`, "success");
+  });
+}
+
+function bindQuotas() {
+  $$('.adm-segmented .seg', $('#panel')).forEach(s => s.onclick = () => {
+    $$('.adm-segmented .seg', $('#panel')).forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    T(`Range: ${s.textContent.trim()}`, "info");
+  });
+  $('[data-act="export-usage"]', $('#panel')).onclick = () => T("Usage export queued (CSV)", "info");
+  $('[data-act="adjust-quotas"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Adjust quotas for ${ORG}?`, body: "Quota changes take effect immediately. Increases above plan defaults are billed at the next renewal. Requires owner notification.", confirmLabel: "Open quota editor" });
+    if (ok) T("Quota editor opening…", "info");
+  };
+  $$('[data-act="quota-detail"]', $('#panel')).forEach(a => a.onclick = (e) => {
+    e.preventDefault();
+    T(`Drilling into ${a.dataset.quota}…`, "info");
+  });
+}
+
+function bindAudit() {
+  $$('[data-filter]', $('#panel')).forEach(b => b.onclick = (e) => {
+    const kind = b.dataset.filter;
+    const opts = {
+      actor: ["All","Members only","Admins only","System only"],
+      action: ["All","loan.*","member.*","flag.*","login.*","compliance.*"],
+      severity: ["All","OK","WARN","DANGER"],
+    }[kind];
+    AdminShell.popMenu(e.currentTarget, opts.map(o => ({ label: o, onClick: () => T(`${kind}: ${o}`, "info") })));
+  });
+  $('[data-act="export-audit"]', $('#panel')).onclick = () => T("Audit export queued (JSONL · 1.2 GB est.)", "info");
+  $$('tr[data-audit] .adm-kebab', $('#panel')).forEach(kb => kb.onclick = (e) => {
+    e.stopPropagation();
+    AdminShell.popMenu(kb, [
+      { label: "Copy entry JSON", icon: "content_copy", onClick: () => T("Audit entry JSON copied", "success") },
+      { label: "Open in audit log", icon: "open_in_new", onClick: () => location.href = "admin-audit.html" },
+      { label: "Pin to incident…", icon: "push_pin", onClick: () => T("Pin to incident: pick one…", "info") },
+    ]);
+  });
+}
+
+function bindDanger() {
+  $('[data-act="reset-flags"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Reset all 4 flag overrides for ${ORG}?`, body: "Pinecrest will revert to the global rollout values for each flag. Behavior may change immediately for some users.", confirmLabel: "Reset flags", danger: false });
+    if (ok) T("All 4 overrides removed", "warn");
+  };
+  $('[data-act="force-mfa"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Force MFA for all ${ORG} members?`, body: "2 members without MFA will be locked out on next login until they enroll. Owner is notified.", confirmLabel: "Force MFA" });
+    if (ok) T("MFA enforced · 2 members must enroll", "warn");
+  };
+  $('[data-act="revoke-keys"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Revoke all 7 API keys for ${ORG}?`, body: "All Pinecrest integrations will fail until keys are rotated. Use for credential leak or compromised account only. Owner is notified.", confirmLabel: "Revoke all keys", danger: true });
+    if (ok) T("All 7 keys revoked · owner notified", "danger");
+  };
+  $('[data-act="readonly"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Move ${ORG} to read-only?`, body: "All members lose write access. A banner appears explaining the state. Reversible at any time.", confirmLabel: "Make read-only" });
+    if (ok) T(`${ORG} is now read-only`, "warn");
+  };
+  $('[data-act="lock"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Lock ${ORG}?`, body: "All access is suspended. Data is preserved. Two-person rule applies — a second admin must approve within 5 minutes. Use for abuse, fraud, or compliance holds only.", confirmLabel: "Request lock", danger: true });
+    if (ok) T("Lock request sent to Marc Olsen · waiting 5:00", "danger");
+  };
+  $('[data-act="delete"]', $('#panel')).onclick = async () => {
+    const ok = await AdminShell.confirmDialog({ title: `Schedule deletion for ${ORG}?`, body: "Org enters a 30-day grace period. After that, all data is permanently destroyed — including audit log. Cannot be undone after grace expires. Requires two-person approval.", confirmLabel: "Schedule deletion", danger: true });
+    if (ok) T("Deletion scheduled · grace expires June 10 · awaiting approval", "danger");
+  };
+}
+
+// ============================================================
+// Shared helpers
+// ============================================================
+function openMemberMenu(kb) {
+  const tr = kb.closest('tr');
+  const name = $('.nm', tr).textContent;
+  const email = $('.sub', tr).textContent;
+  AdminShell.popMenu(kb, [
+    { label: "Open user",            icon: "open_in_new",    onClick: () => location.href = `admin-user-detail.html?u=${encodeURIComponent(email)}` },
+    { label: "Impersonate",          icon: "switch_account", onClick: () => T(`Impersonation session started for ${name}`, "warn") },
+    { label: "Copy email",           icon: "content_copy",   onClick: () => { navigator.clipboard.writeText(email); T("Email copied", "success"); }},
+    { label: "Send password reset",  icon: "key",            onClick: () => T(`Password reset sent to ${email}`, "success") },
+    { label: "Change role…",         icon: "shield_person",  onClick: () => T(`Role picker for ${name}…`, "info") },
+    "-",
+    { label: "Remove from org",      icon: "person_remove", danger: true, onClick: async () => {
+      const ok = await AdminShell.confirmDialog({ title: `Remove ${name} from ${ORG}?`, body: "They lose access immediately. Their authored records stay in the org.", confirmLabel: "Remove", danger: true });
+      if (ok) { tr.remove(); T(`${name} removed from ${ORG}`, "warn"); }
+    }},
+  ]);
+}
+
+function openChangePlan(anchor) {
+  AdminShell.popMenu(anchor, [
+    { label: "Trial",         onClick: () => T("Plan change requires approval · request sent", "warn") },
+    { label: "Starter",       onClick: () => T("Plan change requires approval · request sent", "warn") },
+    { label: "Growth ✓",      onClick: () => T("Already on Growth", "info") },
+    { label: "Enterprise",    onClick: () => T("Plan change requires approval · request sent", "warn") },
+  ]);
+}
+
+async function removeOverride(b) {
+  const row = b.closest('.flag-row');
+  const flag = row.dataset.flag;
+  const ok = await AdminShell.confirmDialog({ title: `Remove override for ${flag}?`, body: `${ORG} will fall back to the global rollout value.`, confirmLabel: "Remove override", danger: true });
+  if (ok) { row.style.opacity = "0.4"; T(`Override removed · ${flag}`, "success"); }
+}
+
+function filterRole(role, btn) {
+  btn.lastChild.textContent = ` Role: ${role || "All"}`;
+  $$('#m-table tbody tr').forEach(tr => {
+    const r = tr.children[2].textContent.trim();
+    tr.style.display = !role || r === role ? "" : "none";
+  });
+}
+function filterMfa(state, btn) {
+  btn.lastChild.textContent = ` MFA: ${state || "Any"}`;
+  $$('#m-table tbody tr').forEach(tr => {
+    const txt = tr.children[4].textContent.trim();
+    tr.style.display = !state || txt === state ? "" : "none";
+  });
+}
+
+function bulkAction(kind, val) {
+  const n = $$('#m-table input.m-row:checked').length;
+  T(`${kind} → ${val} applied to ${n} member${n>1?"s":""}`, "success");
+}
+</script>
+</body>
+</html>

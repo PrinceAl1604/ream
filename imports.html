@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Imports</title>
+<link rel="stylesheet" href="ream.css" />
+<link rel="stylesheet" href="ream-shell.css" />
+<link rel="stylesheet" href="loan-shared.css" />
+<link rel="stylesheet" href="imports.css" />
+<!-- SheetJS for .xlsx parsing (graceful fallback to CSV-only if blocked) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="traffic"><span></span><span></span><span></span></div>
+    <div class="nav-icons"><i class="ri-arrow-left-s-line"></i><i class="ri-arrow-right-s-line"></i></div>
+    <div class="tab"><i class="ri-global-line"></i> Cozistack</div>
+    <div class="url"><i class="ri-lock-line"></i> cozistack.com/Imports</div>
+    <div class="nav-icons"><i class="ri-star-line"></i><i class="ri-more-2-fill"></i></div>
+  </div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <button type="button" class="brand org-pill" aria-haspopup="menu" aria-expanded="false">
+        <span class="org-logo">G</span>
+        <span class="org-meta">
+          <span class="org-name">Goldcrest Realty</span>
+          <span class="org-plan">Growth · Accra</span>
+        </span>
+        <i class="ri-expand-up-down-line org-caret"></i>
+      </button>
+
+      <div class="nav-group" data-collapsed="false">
+        <button type="button" class="group-label" aria-expanded="true"><span>Workspace</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="ream.html"><i class="ri-home-5-line"></i> Home</a>
+          <a class="nav-item" href="activity.html"><i class="ri-pulse-line"></i> Activity feed <span class="nav-badge">4</span></a>
+          <a class="nav-item" href="calendar.html"><i class="ri-calendar-line"></i> Calendar</a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Pipeline</span><span class="urg">7</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="prospects.html"><i class="ri-user-search-line"></i> Prospects <span class="nav-badge">42</span></a>
+          <a class="nav-item" href="customers.html"><i class="ri-team-line"></i> Customers <span class="nav-badge">186</span></a>
+          <a class="nav-item" href="document-requests.html"><i class="ri-file-text-line"></i> Document requests <span class="nav-badge urgent">7</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="true">
+        <button type="button" class="group-label" aria-expanded="false"><span>Listings</span><span class="urg"></span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="houses.html"><i class="ri-home-3-line"></i> Houses <span class="nav-badge">48</span></a>
+          <a class="nav-item" href="lands.html"><i class="ri-landscape-line"></i> Land <span class="nav-badge">76</span></a>
+          <a class="nav-item" href="sites.html"><i class="ri-map-2-line"></i> Sites <span class="nav-badge">9</span></a>
+        </div>
+      </div>
+
+      <div class="nav-group" data-collapsed="false" data-has-urgent="true">
+        <button type="button" class="group-label" aria-expanded="true"><span>Finance</span><span class="urg">3</span><i class="ri-arrow-down-s-line chev"></i></button>
+        <div class="nav-group-items">
+          <a class="nav-item" href="portfolio.html"><i class="ri-pie-chart-2-line"></i> Portfolio</a>
+          <a class="nav-item" href="loan-detail-admin.html"><i class="ri-bank-line"></i> Loans <span class="nav-badge">89</span></a>
+          <a class="nav-item" href="loan-products.html"><i class="ri-stack-line"></i> Loan products <span class="nav-badge">6</span></a>
+          <a class="nav-item" href="#"><i class="ri-calendar-check-line"></i> Repayments <span class="nav-dot"></span></a>
+          <a class="nav-item" href="transactions.html"><i class="ri-arrow-left-right-line"></i> Transactions</a>
+          <a class="nav-item" href="#"><i class="ri-shield-check-line"></i> Payment review <span class="nav-badge urgent">3</span></a>
+          <a class="nav-item active" href="imports.html"><i class="ri-upload-cloud-2-line"></i> Imports</a>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="sb-rail">
+        <button type="button" class="sb-rail-btn" title="Notifications" aria-label="Notifications"><i class="ri-notification-3-line"></i><span class="nb">5</span></button>
+        <a class="sb-rail-btn" href="settings-organization.html" title="Settings" aria-label="Settings"><i class="ri-settings-3-line"></i></a>
+        <button type="button" class="sb-rail-btn" title="Help & support" aria-label="Help"><i class="ri-question-line"></i></button>
+      </div>
+
+      <button type="button" class="user with-menu" aria-haspopup="menu" aria-expanded="false">
+        <span class="avatar" style="background: var(--color-brand-700);">KM<span class="presence" data-status="online"></span></span>
+        <span class="meta">
+          <span class="name">Kevin Manga</span>
+          <span class="role-row"><span class="role-chip">Admin / Owner</span></span>
+        </span>
+        <i class="ri-expand-up-down-line more"></i>
+      </button>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="breadcrumb">
+          <a href="portfolio.html"><i class="ri-pie-chart-line"></i></a>
+          <span class="sep">/</span>
+          <span class="current">Imports</span>
+        </div>
+        <div class="actions">
+          <a class="btn btn-text btn-sm" href="#" id="downloadTemplateBtn"><i class="ri-download-2-line"></i> Download template</a>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- Page intro -->
+        <div class="imp-intro">
+          <div>
+            <div class="eyebrow">Bulk import · USD only</div>
+            <h1>Imports</h1>
+            <p>Bring an existing portfolio into Ream. Upload a workbook or CSV, preview every row before anything is committed, then accept or discard. Imports are kept in a staging area until you accept them — nothing reaches production tables until you press <b>Accept</b>.</p>
+          </div>
+          <div class="imp-flow">
+            <span class="step done"><i class="ri-upload-2-line"></i> Upload</span>
+            <i class="ri-arrow-right-line"></i>
+            <span class="step active"><i class="ri-eye-line"></i> Preview</span>
+            <i class="ri-arrow-right-line"></i>
+            <span class="step"><i class="ri-check-double-line"></i> Accept</span>
+          </div>
+        </div>
+
+        <!-- Resource tabs -->
+        <div class="res-tabs" role="tablist">
+          <button class="res-tab active" data-res="sites"     role="tab"><i class="ri-map-2-line"></i> Sites <span class="cnt" id="cnt-sites">0</span></button>
+          <button class="res-tab"        data-res="members"   role="tab"><i class="ri-team-line"></i> Members (Customers) <span class="cnt" id="cnt-members">0</span></button>
+          <button class="res-tab"        data-res="contracts" role="tab"><i class="ri-file-list-3-line"></i> Contracts (Loan accounts) <span class="cnt" id="cnt-contracts">0</span></button>
+        </div>
+
+        <!-- Each resource panel: empty state OR staging preview -->
+        <div class="res-panel active" data-res="sites">
+          <div class="res-head">
+            <div>
+              <h2>Sites</h2>
+              <p>Real-estate developments subdivided into parcels. Each loan references one site.</p>
+            </div>
+            <div class="res-actions">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="loadSample('sites')"><i class="ri-flask-line"></i> Load sample</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="openImport('sites')"><i class="ri-upload-2-line"></i> New import</button>
+            </div>
+          </div>
+          <div class="res-body" id="body-sites"><!-- empty / staged preview rendered here --></div>
+        </div>
+
+        <div class="res-panel" data-res="members">
+          <div class="res-head">
+            <div>
+              <h2>Members</h2>
+              <p>Customers — the people or companies who borrow money. Email is the unique identifier referenced by every loan.</p>
+            </div>
+            <div class="res-actions">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="loadSample('members')"><i class="ri-flask-line"></i> Load sample</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="openImport('members')"><i class="ri-upload-2-line"></i> New import</button>
+            </div>
+          </div>
+          <div class="res-body" id="body-members"></div>
+        </div>
+
+        <div class="res-panel" data-res="contracts">
+          <div class="res-head">
+            <div>
+              <h2>Contracts</h2>
+              <p>Loan accounts — the live state of every loan at the cutoff date. Each row links a member to a site and carries balances and the active installment.</p>
+            </div>
+            <div class="res-actions">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="loadSample('contracts')"><i class="ri-flask-line"></i> Load sample</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="openImport('contracts')"><i class="ri-upload-2-line"></i> New import</button>
+            </div>
+          </div>
+          <div class="res-body" id="body-contracts"></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+     IMPORT DIALOG (single, reused for all 3 resources)
+     Step 1: pick file (drag/drop or browse)
+     Step 2: preview (rendered as table on the resource panel)
+     ============================================================ -->
+<div id="impModal" class="pay-modal-back" role="dialog" aria-modal="true">
+  <div class="pay-modal imp-modal" role="document">
+    <div class="pay-head">
+      <div class="pay-title">
+        <i class="ri-upload-cloud-2-line" style="color: var(--color-brand-600);"></i>
+        <span id="impTitle">Import sites</span>
+      </div>
+      <div class="pay-sub" id="impSub">Drop your workbook or pick a file. We'll parse it locally and stage the rows for preview — nothing is committed until you press Accept on the resource page.</div>
+    </div>
+    <div class="pay-body">
+      <div class="imp-drop" id="impDrop">
+        <i class="ri-upload-cloud-2-line"></i>
+        <div class="t">Drag &amp; drop your file here</div>
+        <div class="s">or <button type="button" class="link-btn" onclick="document.getElementById('impFile').click()">browse</button> · accepts .xlsx, .csv</div>
+        <input type="file" id="impFile" accept=".csv,.xlsx,.xls" hidden />
+        <div class="hints">
+          <span><i class="ri-information-line"></i> Expected sheet: <b id="impSheet">20_Sites</b></span>
+          <span><i class="ri-money-dollar-circle-line"></i> All amounts USD</span>
+          <span><i class="ri-calendar-line"></i> Dates in ISO 8601</span>
+        </div>
+      </div>
+
+      <!-- Status zone -->
+      <div class="imp-status" id="impStatus" hidden>
+        <div class="row">
+          <div class="file-meta">
+            <i class="ri-file-excel-2-line"></i>
+            <div>
+              <div class="fname" id="impFname">REAM_Loan_Import_Template.xlsx</div>
+              <div class="fmeta" id="impFmeta">— · Parsing…</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-text btn-sm" onclick="resetImport()"><i class="ri-close-line"></i> Change file</button>
+        </div>
+        <div class="parse-bar"><div class="fill" id="impFill"></div></div>
+        <div class="parse-summary" id="impSummary"></div>
+      </div>
+    </div>
+    <div class="pay-foot">
+      <div class="left-note" id="impFootNote"><i class="ri-shield-check-line"></i> Staging only · nothing is committed yet</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-text btn-sm" type="button" onclick="closeImport()">Cancel</button>
+        <button class="btn btn-primary btn-sm" type="button" id="impStageBtn" disabled onclick="stageRows()"><i class="ri-eye-line"></i> Preview rows</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm-discard dialog -->
+<div id="confirmModal" class="pay-modal-back" role="dialog" aria-modal="true">
+  <div class="pay-modal" style="width:440px;" role="document">
+    <div class="pay-head">
+      <div class="pay-title"><i class="ri-error-warning-line" style="color: var(--color-error-600);"></i> <span id="confirmTitle">Discard staged import?</span></div>
+      <div class="pay-sub" id="confirmSub">The 8 staged rows will be removed. The data has not been written to your portfolio yet.</div>
+    </div>
+    <div class="pay-foot">
+      <div></div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-text btn-sm" type="button" onclick="closeConfirm()">Keep staged</button>
+        <button class="btn btn-danger-solid btn-sm" type="button" id="confirmOk">Discard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ROW PREVIEW DRAWER (slides in from right when row is clicked)
+     Renders site / member / contract preview based on resource.
+     ============================================================ -->
+<div id="prevBack" class="prev-back" role="dialog" aria-modal="true" aria-labelledby="prevTitle">
+  <div class="prev-drawer" role="document">
+    <div class="prev-head">
+      <div>
+        <div class="ttl"><span id="prevTitle">Preview</span></div>
+        <div class="sub" id="prevSub"></div>
+      </div>
+      <button class="x" type="button" onclick="closePrev()" aria-label="Close preview"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="prev-body" id="prevBody"></div>
+    <div class="prev-foot">
+      <div class="left ok" id="prevFootLeft"><i class="ri-check-line"></i> Row will be committed when you Accept.</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-text btn-sm" type="button" onclick="closePrev()">Close</button>
+        <button class="btn btn-text btn-sm" type="button" id="prevPrev"><i class="ri-arrow-left-s-line"></i> Prev</button>
+        <button class="btn btn-secondary btn-sm" type="button" id="prevNext">Next <i class="ri-arrow-right-s-line"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accept-success toast -->
+<div id="acceptToast" class="imp-toast" hidden>
+  <i class="ri-check-line"></i>
+  <span id="acceptToastMsg">12 sites committed to your portfolio.</span>
+</div>
+
+<!-- Remixicon -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+
+<script src="imports.js"></script>
+</body>
+</html>

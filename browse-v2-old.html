@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ream — Browse listings</title>
+<meta name="description" content="Hundreds of plots, houses and developments across Ghana — find land, financing, and an advisor." />
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+<link rel="stylesheet" href="browse-v2.css" />
+</head>
+<body data-variant="bold">
+
+<!-- ==============================================================
+     TOPBAR — brand + nav + auth
+     ============================================================== -->
+<header class="bv-top">
+  <a class="bv-brand" href="landing.html">
+    <span class="dot" aria-hidden="true"></span>Ream
+  </a>
+
+  <nav class="bv-nav" aria-label="Primary">
+    <a href="landing.html">Home</a>
+    <a href="browse-v2.html" class="on">Browse</a>
+    <a href="financing.html">Financing</a>
+    <a href="prospect-public.html">Get matched</a>
+  </nav>
+
+  <div class="bv-top-right">
+    <a class="bv-btn bv-btn-ghost" href="login.html">Sign in</a>
+    <a class="bv-btn bv-btn-primary" href="prospect-public.html"><i class="ri-magic-line" aria-hidden="true"></i> Get started</a>
+  </div>
+</header>
+
+<!-- ==============================================================
+     COMPACT HERO — high contrast, no gradient text. Search lives here.
+     Land is the primary tab.
+     ============================================================== -->
+<section class="bv-hero" aria-labelledby="bv-hero-h">
+  <div class="bv-hero-inner">
+    <div class="bv-hero-copy">
+      <span class="bv-eyebrow">
+        <i class="ri-shield-check-line" aria-hidden="true"></i>
+        Title-verified land &amp; homes across Ghana
+      </span>
+      <h1 id="bv-hero-h">Find land &amp; homes <span class="accent">in Dallas</span>.</h1>
+      <p class="bv-lede">Title-verified land and move-in ready houses across Dallas, Texas. Transparent monthly financing. Title-verified plots — every time.</p>
+    </div>
+
+    <!-- Search bar -->
+    <form class="bv-search" onsubmit="event.preventDefault(); applySearch();" role="search">
+      <div class="bv-search-tabs" role="tablist" aria-label="Property type">
+        <button type="button" data-tab="land" class="on" role="tab"><i class="ri-landscape-line"></i> Land</button>
+        <button type="button" data-tab="house" role="tab"><i class="ri-home-4-line"></i> Houses</button>
+      </div>
+      <div class="bv-search-row">
+        <label class="bv-search-cell">
+          <span>Region</span>
+          <select id="q-region">
+            <option value="texas" selected>Texas</option>
+          </select>
+        </label>
+        <label class="bv-search-cell">
+          <span>City</span>
+          <select id="q-city">
+            <option value="dallas" selected>Dallas</option>
+          </select>
+        </label>
+        <label class="bv-search-cell">
+          <span>Acreage</span>
+          <select id="q-acres">
+            <option value="">Any</option>
+            <option value="0,0.25">Under ¼ acre</option>
+            <option value="0.25,0.5">¼ – ½ acre</option>
+            <option value="0.5,1">½ – 1 acre</option>
+            <option value="1,99">1 acre +</option>
+          </select>
+        </label>
+        <label class="bv-search-cell">
+          <span>Budget</span>
+          <select id="q-budget">
+            <option value="">Any</option>
+            <option value="0,100000">Under $100k</option>
+            <option value="100000,250000">$100k – $250k</option>
+            <option value="250000,500000">$250k – $500k</option>
+            <option value="500000,9000000">$500k +</option>
+          </select>
+        </label>
+        <label class="bv-search-cell">
+          <span>Payment</span>
+          <select id="q-payment">
+            <option value="">Any</option>
+            <option value="cash">Cash</option>
+            <option value="loan">Monthly financing</option>
+          </select>
+        </label>
+        <button class="bv-search-go" type="submit">
+          <i class="ri-search-line" aria-hidden="true"></i>
+          <span>Search</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ==============================================================
+     RESULTS LAYOUT — sticky filter rail + content column
+     ============================================================== -->
+<main class="bv-shell" id="results">
+
+  <!-- ============================================================
+       LEFT: filter rail (medium depth — top chips collapse to drawer
+       on small screens, but on desktop the rail is always visible)
+       ============================================================ -->
+  <aside class="bv-rail" aria-label="Filters">
+    <div class="bv-rail-header">
+      <h2>Filters</h2>
+      <button class="bv-clear" id="clearFilters" type="button">Clear all</button>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Property type</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="type" value="land" checked /> <span>Land</span> <em id="ct-land">0</em></label>
+        <label><input type="checkbox" data-f="type" value="house" checked /> <span>Houses</span> <em id="ct-house">0</em></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Region</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="region" value="texas" checked /> <span>Texas</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>City</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="city" value="dallas" checked /> <span>Dallas</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Acreage</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="acres" value="0,0.25" /> <span>Under ¼ acre</span></label>
+        <label><input type="checkbox" data-f="acres" value="0.25,0.5" /> <span>¼ – ½ acre</span></label>
+        <label><input type="checkbox" data-f="acres" value="0.5,1" /> <span>½ – 1 acre</span></label>
+        <label><input type="checkbox" data-f="acres" value="1,99" /> <span>1 acre or more</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Zoning</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="zoning" value="residential" /> <span>Residential</span></label>
+        <label><input type="checkbox" data-f="zoning" value="mixed" /> <span>Mixed-use</span></label>
+        <label><input type="checkbox" data-f="zoning" value="agricultural" /> <span>Agricultural</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Frontage</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="frontage" value="paved" /> <span>Paved road frontage</span></label>
+        <label><input type="checkbox" data-f="frontage" value="dirt" /> <span>Dirt road access</span></label>
+        <label><input type="checkbox" data-f="frontage" value="corner" /> <span>Corner lot</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Utilities</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="util" value="water" /> <span>Water at lot line</span></label>
+        <label><input type="checkbox" data-f="util" value="power" /> <span>Electricity</span></label>
+        <label><input type="checkbox" data-f="util" value="sewer" /> <span>Sewer / septic ready</span></label>
+        <label><input type="checkbox" data-f="util" value="fiber" /> <span>Fiber internet</span></label>
+      </div>
+    </div>
+
+    <div class="bv-rail-section">
+      <h3>Status</h3>
+      <div class="bv-checks">
+        <label><input type="checkbox" data-f="status" value="ready" /> <span>Ready to occupy</span></label>
+        <label><input type="checkbox" data-f="status" value="reserved" /> <span>Reserved (waitlist)</span></label>
+        <label><input type="checkbox" data-f="status" value="new" /> <span>New listing (≤30d)</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       RIGHT: results column
+       ============================================================ -->
+  <section class="bv-content">
+    <header class="bv-results-head">
+      <div class="bv-results-counts">
+        <h2 id="resultsTitle">Land for sale</h2>
+        <p id="resultsSub"><strong id="resultsCount">0</strong> properties · sorted by relevance</p>
+      </div>
+
+      <div class="bv-results-tools">
+        <div class="bv-sort">
+          <label for="sort">Sort</label>
+          <select id="sort">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price · low → high</option>
+            <option value="price-desc">Price · high → low</option>
+            <option value="acres-desc">Acreage · large → small</option>
+            <option value="recent">Recently added</option>
+          </select>
+        </div>
+
+        <div class="bv-view-toggle" role="tablist" aria-label="View mode">
+          <button data-view="grid" class="on" role="tab" aria-label="Grid view">
+            <i class="ri-grid-fill" aria-hidden="true"></i>
+            <span>Grid</span>
+          </button>
+          <button data-view="list" role="tab" aria-label="List view">
+            <i class="ri-list-check-2" aria-hidden="true"></i>
+            <span>List</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Active filter pills -->
+    <div class="bv-active-pills" id="activePills" hidden></div>
+
+    <div class="bv-listings" id="listings"></div>
+
+    <div class="bv-pager">
+      <button class="bv-btn bv-btn-outline" id="loadMore">
+        Show 6 more <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+      </button>
+      <span class="bv-pager-meta" id="pagerMeta">Showing 0 of 0</span>
+    </div>
+  </section>
+</main>
+
+<!-- ==============================================================
+     FINANCING / ADVISORS — short, one row each. Not a long landing.
+     ============================================================== -->
+<section class="bv-strip" id="financing">
+  <div class="bv-strip-inner">
+    <div class="bv-strip-eyebrow">Financing</div>
+    <div class="bv-strip-grid">
+      <div class="bv-strip-cell">
+        <div class="bv-strip-h">From <strong>11.5%</strong> APR</div>
+        <p>3 to 20-year terms. No early-payment penalties. Rate locked at signing.</p>
+      </div>
+      <div class="bv-strip-cell">
+        <div class="bv-strip-h"><strong>$5k</strong> typical deposit</div>
+        <p>Most plots clear with 10–15% down. Escrow-protected from day one.</p>
+      </div>
+      <div class="bv-strip-cell">
+        <div class="bv-strip-h"><strong>3–5</strong> day decisions</div>
+        <p>Underwriting decisions in business days, not weeks. No surprise fees at close.</p>
+      </div>
+      <div class="bv-strip-cell">
+        <a class="bv-btn bv-btn-primary" href="prospect-public.html">
+          <i class="ri-magic-line" aria-hidden="true"></i>
+          Pre-qualify in 5 minutes
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="bv-foot">
+  <div class="bv-foot-inner">
+    <div class="bv-foot-brand">
+      <div class="bv-brand"><span class="dot" aria-hidden="true"></span>Ream</div>
+      <p>Land &amp; homes in Dallas, Texas — financed transparently. Licensed Texas real estate brokerage.</p>
+    </div>
+    <div class="bv-foot-links">
+      <div>
+        <h4>Browse</h4>
+        <a href="browse-v2.html">All listings</a>
+        <a href="browse-v2.html?type=land">Land</a>
+        <a href="browse-v2.html?type=house">Houses</a>
+      </div>
+      <div>
+        <h4>Financing</h4>
+        <a href="financing.html">Why financing</a>
+        <a href="financing.html#qualify">How to qualify</a>
+        <a href="financing.html#simulator">Simulator</a>
+        <a href="prospect-public.html">Pre-qualify</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="legal.html">Disclosures</a>
+        <a href="landing.html#faq">FAQ</a>
+      </div>
+    </div>
+  </div>
+  <div class="bv-foot-meta">
+    © 2026 Ream Real Estate Ltd. · Dallas, TX · TREC License #9012345
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="bv-toast" id="toast" role="status" aria-live="polite">
+  <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<script src="browse-v2.js"></script>
+</body>
+</html>
